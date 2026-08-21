@@ -1,15 +1,17 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import {
   Component, Output, EventEmitter, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
 import { WebSocketService } from '../../../../services/ws.service';
 
 @Component({
+  standalone: false,
   selector: 'app-resilver-progress-dialog',
   templateUrl: './resilver-progress.component.html',
-  styleUrls: ['./resilver-progress.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ResilverProgressDialogComponent implements OnInit {
   tooltip: string;

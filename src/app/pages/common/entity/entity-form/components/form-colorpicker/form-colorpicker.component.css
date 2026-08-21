@@ -1,26 +1,47 @@
-div.color-swatch{
-  /*display:inline-block;*/
-  float:left;
-  margin:0 8px;
-  width: 32px;
-  height: 32px;
+/* the internal development record: the swatch is a 20px disc on --line inside the box's addon; the picker's
+ * own input is out of flow (the directive positions its popup from it). */
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--sp-border, var(--line));
   border-radius: 50%;
+  cursor: pointer;
+  box-shadow: none;
+}
+/* The addon pulls a bare <button> 0.3rem inward to swallow a button's own padding; the disc has
+ * none, so it keeps the addon's 8px gutter like a glyph. */
+hlm-input-group-addon:has(> .color-swatch) {
+  margin-inline-start: 0;
+}
+.color-box {
+  position: relative;
+}
+/* The anchor is the popup's origin: 0x0 at the box's bottom edge, 15px in to cancel the
+ * directive's arrow offset, so the popup lands 10px under the box, flush with its left edge. */
+.color-picker-anchor {
+  position: absolute;
+  top: 100%;
+  left: 15px;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  padding: 0;
   border: 0;
-  color: rgba(0,0,0,0);
-  cursor: default;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  margin: 0;
+  pointer-events: none;
 }
 
-.colorpicker .mat-form-field.full-width{
-  max-width:80px;
-}
-
+/* The popup is a #354 surface: bg2, the hairline, 6px, no shadow, no arrow. */
 :host ::ng-deep .color-picker{
-  border: solid 1px rgba(0,0,0,0.15);
-  box-shadow: 0px 8px 7px rgba(0,0,0,0.25);
-  border-radius: 2px;
-  background-color:var(--bg2);
-  color:var(--fg1);
+  border: solid 1px var(--sp-border, var(--line));
+  box-shadow: none;
+  border-radius: 6px;
+  background-color: var(--sp-popover, var(--bg2));
+  color: var(--sp-popover-foreground, var(--fg1));
+}
+:host ::ng-deep .color-picker .arrow {
+  display: none;
 }
 
 :host ::ng-deep .color-picker .hsla-text,
@@ -30,7 +51,7 @@ div.color-swatch{
 }
 :host ::ng-deep .color-picker .selected-color{
   border:0;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3)
+  box-shadow: none;
 }
 
 :host ::ng-deep .color-picker .selected-color-background{

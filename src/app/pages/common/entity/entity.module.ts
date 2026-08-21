@@ -1,29 +1,38 @@
 import { CommonModule } from '@angular/common';
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {
-  FormOauthLoginComponent,
-} from 'app/pages/common/entity/entity-form/components/form-oauth-login/form-oauth-login.component';
 import { MaterialModule } from '../../../appMaterial.module';
-import { ColorPickerModule } from 'ngx-color-picker';
-import { MatSortHeader, MatSort } from '@angular/material/sort';
+import { ColorPickerDirective } from 'ngx-color-picker';
 import { DragDropModule } from '@angular/cdk/drag-drop';
+// the internal development record: spartan helm (copied into src/app/ui) for the entity-form text controls.
+import { BrnAutocompleteAnchor, BrnAutocompleteInput } from '@spartan-ng/brain/autocomplete';
+import { CdkStepperModule } from '@angular/cdk/stepper';
+import { HlmAutocompleteImports } from '@spartan-ng/helm/autocomplete';
+import { HlmBadgeImports } from '@spartan-ng/helm/badge';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmInputGroupImports } from '@spartan-ng/helm/input-group';
+import { HlmLabelImports } from '@spartan-ng/helm/label';
+import { HlmRadioGroupImports } from '@spartan-ng/helm/radio-group';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmSwitchImports } from '@spartan-ng/helm/switch';
+import { HlmTextareaImports } from '@spartan-ng/helm/textarea';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { TreeModule } from 'angular-tree-component';
-import { NgxUploaderModule } from 'ngx-uploader';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { TreeModule } from '@ali-hm/angular-tree-component';
 
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { DocsService } from '../../../services/docs.service';
 import { RestService, WebSocketService, JobService } from '../../../services/index';
-import { Ng2DropdownModule } from 'ng2-material-dropdown';
 import { TranslateModule } from '@ngx-translate/core';
-import { TreeTableModule } from 'primeng/treetable';
-import { NgxFilesizeModule } from 'ngx-filesize';
 import { CommonDirectivesModule } from 'app/directives/common/common-directives.module';
 
 import { DynamicFieldDirective } from './entity-form/components/dynamic-field/dynamic-field.directive';
-import { FormArrayComponent } from './entity-form/components/form-array/form-array.component';
 import { FormButtonComponent } from './entity-form/components/form-button/form-button.component';
 import { FormCheckboxComponent } from './entity-form/components/form-checkbox/form-checkbox.component';
 import { FormComboboxComponent } from './entity-form/components/form-combobox/form-combobox.component';
@@ -32,8 +41,6 @@ import { FormUploadComponent } from './entity-form/components/form-upload/form-u
 import { FormSelectComponent } from './entity-form/components/form-select/form-select.component';
 import { FormRadioComponent } from './entity-form/components/form-radio/form-radio.component';
 import { FormTextareaComponent } from './entity-form/components/form-textarea/form-textarea.component';
-import { FormTextareaButtonComponent } from './entity-form/components/form-textarea-button/form-textarea-button.component';
-import { FormDatepickerComponent } from './entity-form/components/form-datepicker/form-datepicker.component';
 import { FormColorpickerComponent } from './entity-form/components/form-colorpicker/form-colorpicker.component';
 import { FormParagraphComponent } from './entity-form/components/form-paragraph/form-paragraph.component';
 import { FormSchedulerComponent } from './entity-form/components/form-scheduler/form-scheduler.component';
@@ -45,25 +52,20 @@ import { FormErrorsComponent } from './entity-form/components/form-errors/form-e
 import { FormExplorerComponent } from './entity-form/components/form-explorer/form-explorer.component';
 import { TooltipComponent } from './entity-form/components/tooltip/tooltip.component';
 import { TooltipDocReplacePipe } from './entity-form/components/tooltip/tooltip-docreplace';
-import { FormSliderComponent } from './entity-form/components/form-slider/form-slider.component';
-import { FormToggleButtonComponent } from './entity-form/components/form-toggle-button/form-toggle-button.component';
-import { FormTaskComponent } from './entity-form/components/form-task/form-task.component';
+import { FieldLabelPipe, FieldPlaceholderPipe } from './entity-form/components/field-label.pipe';
 import { EntityFormComponent } from './entity-form/entity-form.component';
 import { EntityFormEmbeddedComponent } from './entity-form/entity-form-embedded.component';
 import { DynamicComponentDirective } from './entity-table/dynamic-component.directive';
 import { EntityTableActionsComponent } from './entity-table/entity-table-actions.component';
-import { EntityCardActionsComponent } from './entity-card/entity-card-actions.component';
 import { EntityTableAddActionsComponent } from './entity-table/entity-table-add-actions.component';
 import { EntityTableComponent } from './entity-table/entity-table.component';
 import { EntityTableRowDetailsComponent } from './entity-table/entity-table-row-details/entity-table-row-details.component';
 import { EntityTreeTableComponent } from './entity-tree-table/entity-tree-table.component';
-import { EntityCardComponent } from './entity-card/entity-card.component';
+import { FileSizePipe } from './entity-tree-table/filesize.pipe';
 import { EntityTemplateDirective } from './entity-template.directive';
 import { FormReadFileComponent } from './entity-form/components/form-readfile/form-readfile.component';
 import { EntityWizardComponent } from './entity-wizard/entity-wizard.component';
-import { EntityTaskComponent } from './entity-task/entity-task.component';
 import { EntityDialogComponent } from './entity-dialog/entity-dialog.component';
-import { EntitySnackbarComponent } from './entity-snackbar/entity-snackbar.component';
 
 import { FormPermissionsComponent } from './entity-form/components/form-permissions/form-permissions.component';
 import { EntityJobComponent } from './entity-job/entity-job.component';
@@ -73,23 +75,24 @@ import { CdkTableModule } from '@angular/cdk/table';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { A11yModule } from '@angular/cdk/a11y';
 
-import { SmdFabSpeedDialTrigger, SmdFabSpeedDialActions, SmdFabSpeedDialComponent } from './fab-speed-dial/fab-speed-dial';
-
 import { EntityToolbarComponent } from './entity-toolbar/entity-toolbar.component';
 import { ToolbarButtonComponent } from './entity-toolbar/components/toolbar-button/toolbar-button.component';
 import { ToolbarMenuComponent } from './entity-toolbar/components/toolbar-menu/toolbar-menu.component';
 import { ToolbarMultimenuComponent } from './entity-toolbar/components/toolbar-multimenu/toolbar-multimenu.component';
 import { EntityRowDetailsComponent } from './entity-table/entity-row-details.component';
 import { TaskScheduleListComponent } from 'app/pages/task-calendar/components/task-schedule-list/task-schedule-list.component';
+import { FcStepperComponent } from './entity-wizard/fc-stepper.component';
 import { FormStatusComponent } from './entity-form/components/form-status/form-status.component';
 import { EntityTableService } from './entity-table/entity-table.service';
 
 @NgModule({
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, DragDropModule,
-    MaterialModule, ColorPickerModule, NgxDatatableModule, CdkTableModule, TreeModule.forRoot(),
-    Ng2DropdownModule, NgxUploaderModule, FlexLayoutModule, TranslateModule,
-    OverlayModule, A11yModule, TreeTableModule, NgxFilesizeModule, CommonDirectivesModule,
+    MaterialModule, ColorPickerDirective, NgxDatatableModule, CdkTableModule, TreeModule,
+    TranslateModule,
+    OverlayModule, A11yModule, CommonDirectivesModule,
+    CdkStepperModule, FcStepperComponent, // the internal development record: the wizard shell
+    ...HlmAutocompleteImports, BrnAutocompleteAnchor, BrnAutocompleteInput, ...HlmBadgeImports, ...HlmButtonImports, ...HlmCheckboxImports, ...HlmDropdownMenuImports, ...HlmFieldImports, ...HlmInputImports, ...HlmInputGroupImports, ...HlmLabelImports, ...HlmRadioGroupImports, ...HlmSelectImports, ...HlmSeparatorImports, ...HlmSpinnerImports, ...HlmSwitchImports, ...HlmTextareaImports, ...HlmTooltipImports,
   ],
   declarations: [
     TaskScheduleListComponent,
@@ -97,8 +100,7 @@ import { EntityTableService } from './entity-table/entity-table.service';
     EntityTableRowDetailsComponent,
     EntityRowDetailsComponent,
     EntityTreeTableComponent,
-    EntityCardComponent,
-    EntityCardActionsComponent,
+    FileSizePipe,
     DynamicComponentDirective,
     EntityTableActionsComponent,
     EntityTableAddActionsComponent,
@@ -113,8 +115,6 @@ import { EntityTableService } from './entity-table/entity-table.service';
     FormCheckboxComponent,
     FormComboboxComponent,
     FormTextareaComponent,
-    FormTextareaButtonComponent,
-    FormDatepickerComponent,
     FormSchedulerComponent,
     FormListComponent,
     FormChipComponent,
@@ -123,24 +123,16 @@ import { EntityTableService } from './entity-table/entity-table.service';
     FormExplorerComponent,
     FormPermissionsComponent,
     FormIpWithNetmaskComponent,
-    FormOauthLoginComponent,
     TooltipComponent,
     TooltipDocReplacePipe,
-    FormSliderComponent,
-    FormToggleButtonComponent,
-    FormTaskComponent,
-    FormArrayComponent,
+    FieldLabelPipe,
+    FieldPlaceholderPipe,
     FormUploadComponent,
     FormReadFileComponent,
     EntityJobComponent,
-    SmdFabSpeedDialTrigger,
-    SmdFabSpeedDialActions,
-    SmdFabSpeedDialComponent,
     EntityWizardComponent,
-    EntityTaskComponent,
     FormParagraphComponent,
     EntityDialogComponent,
-    EntitySnackbarComponent,
     EntityToolbarComponent,
     ToolbarButtonComponent,
     ToolbarMenuComponent,
@@ -155,54 +147,16 @@ import { EntityTableService } from './entity-table/entity-table.service';
     EntityTableComponent,
     EntityRowDetailsComponent,
     EntityTreeTableComponent,
-    EntityCardComponent,
-    EntityCardActionsComponent,
     EntityTableAddActionsComponent,
     EntityTableActionsComponent,
     DynamicFieldDirective,
-    SmdFabSpeedDialTrigger,
-    SmdFabSpeedDialActions,
-    SmdFabSpeedDialComponent,
     TooltipComponent,
     EntityWizardComponent,
-    EntityTaskComponent,
     EntityDialogComponent,
-    EntitySnackbarComponent,
     EntityToolbarComponent,
     ToolbarButtonComponent,
     ToolbarMenuComponent,
     ToolbarMultimenuComponent,
-  ],
-  entryComponents: [
-    FormButtonComponent,
-    FormInputComponent,
-    FormSelectComponent,
-    FormCheckboxComponent,
-    FormComboboxComponent,
-    FormTextareaComponent,
-    FormTextareaButtonComponent,
-    FormDatepickerComponent,
-    FormSchedulerComponent,
-    FormListComponent,
-    FormChipComponent,
-    FormErrorsComponent,
-    FormColorpickerComponent,
-    FormPermissionsComponent,
-    FormArrayComponent,
-    FormRadioComponent,
-    FormUploadComponent,
-    FormReadFileComponent,
-    FormExplorerComponent,
-    FormIpWithNetmaskComponent,
-    EntityJobComponent,
-    FormSliderComponent,
-    FormToggleButtonComponent,
-    FormTaskComponent,
-    FormParagraphComponent,
-    EntityToolbarComponent,
-    EntitySnackbarComponent,
-    EntityTableRowDetailsComponent,
-    TaskScheduleListComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [

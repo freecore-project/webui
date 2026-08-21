@@ -1,6 +1,6 @@
 import { Directive, Input, TemplateRef } from '@angular/core';
 
-@Directive({ selector: 'ng-template[type]' })
+@Directive({ standalone: false, selector: 'ng-template[type]' })
 export class EntityTemplateDirective {
   @Input() type: string|null = null;
 

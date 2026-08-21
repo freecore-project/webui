@@ -66,8 +66,8 @@ def navigate_to_system_then_to_failover(driver):
 @then('The Failover Page should open')
 def the_failover_page_should_open(driver):
     """The Failover Page should open."""
-    wait_on_element(driver, 0.5, 30, '//h4[contains(.,"Failover Configuration")]')
-    driver.find_element_by_xpath('//h4[contains(.,"Failover Configuration")]')
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Failover Configuration")]')
+    driver.find_element_by_xpath('//h2[contains(.,"Failover Configuration")]')
 
 
 @then('Check disable failover and click save Check confirm on the warning dialog and press OK')
@@ -80,8 +80,8 @@ def check_disable_failover_and_click_save_check_confirm_on_the_warning_dialog_an
     assert wait_on_element(driver, 0.5, 7, '//button[@ix-auto="button__SAVE"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
     if 'mat-checkbox-checked' not in class_attribute:
-        assert wait_on_element(driver, 0.5, 4, '//h1[contains(.,"Disable Failover")]')
-        driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+        assert wait_on_element(driver, 0.5, 4, '//h2[contains(.,"Disable Failover")]')
+        driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
         driver.find_element_by_xpath('//button[@ix-auto="button__OK"]').click()
 
 
@@ -89,7 +89,7 @@ def check_disable_failover_and_click_save_check_confirm_on_the_warning_dialog_an
 def a_dialog_should_appear_while_applying_settings(driver):
     """A dialog should appear while applying settings."""
     wait_on_element_disappear(driver, 1, 30, '//h6[contains(.,"Please wait")]')
-    wait_on_element(driver, 0.5, 30, '//h1[contains(.,"Settings saved")]')
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Settings saved")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 
 
@@ -117,8 +117,8 @@ def click_add(driver):
 @then('The Interface Settings page should open')
 def the_interface_settings_page_should_open(driver):
     """The Interface Settings page should open."""
-    wait_on_element(driver, 0.5, 30, '//h4[contains(.,"Interface Settings")]')
-    driver.find_element_by_xpath('//h4[contains(.,"Interface Settings")]')
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Interface Settings")]')
+    driver.find_element_by_xpath('//h2[contains(.,"Interface Settings")]')
 
 
 @then('For type select link aggregation. For name enter lagg0')
@@ -171,8 +171,8 @@ def the_following_message_there_are_unapplied_network_changes_apply_them_now_una
 @then('You should be able to confirm and close.')
 def you_should_be_able_to_confirm_and_close(driver):
     """You should be able to confirm and close."""
-    wait_on_element(driver, 0.5, 30, '//h1[contains(.,"Test Changes")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Test Changes")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     driver.find_element_by_xpath('//button[@ix-auto="button__TEST CHANGES"]').click()
     wait_on_element_disappear(driver, 1, 30, '//h6[contains(.,"Please wait")]')
 
@@ -187,15 +187,15 @@ def the_following_message_network_changes_have_been_applied_keep_changes_permane
 @then('You should be able to select keep network change permanently.')
 def you_should_be_able_to_select_keep_network_change_permanently(driver):
     """You should be able to select keep network change permanently."""
-    wait_on_element(driver, 0.5, 30, '//h1[contains(.,"Save Changes")]')
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Save Changes")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
 
 
 @then('Finally you should see a message indicating that network changes have been applied, and you should be able to close.')
 def finally_you_should_see_a_message_indicating_that_network_changes_have_been_applied_and_you_should_be_able_to_close(driver):
     """Finally you should see a message indicating that network changes have been applied, and you should be able to close."""
-    wait_on_element(driver, 0.5, 30, '//h1[contains(.,"Changes Saved")]')
-    driver.find_element_by_xpath('//h1[contains(.,"Changes Saved")]')
+    wait_on_element(driver, 0.5, 30, '//h2[contains(.,"Changes Saved")]')
+    driver.find_element_by_xpath('//h2[contains(.,"Changes Saved")]')
     wait_on_element(driver, 0.5, 30, '//button[@ix-auto="button__CLOSE"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 

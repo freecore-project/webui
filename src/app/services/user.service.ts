@@ -14,9 +14,10 @@ export class UserService {
 
   constructor(protected rest: RestService, protected ws: WebSocketService) {}
 
-  listUsers() { return this.ws.call(this.userQuery, { limit: 50 }); }
+  // query-filters first, then query-options: a bare options object is rejected ("[query-filters] Not a list")
+  listUsers() { return this.ws.call(this.userQuery, [[], { limit: 50 }]); }
 
-  listGroups() { return this.ws.call(this.groupQuery, { limit: 50 }); }
+  listGroups() { return this.ws.call(this.groupQuery, [[], { limit: 50 }]); }
 
   groupQueryDSCache(search = '', hideBuiltIn = false) {
     let queryArgs = [];

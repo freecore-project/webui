@@ -1,0 +1,74 @@
+/* the internal development record: the standalone band (Snapshots and any rowDetailComponent that renders
+   app-entity-row-details) on the same grid-of-facts + text-actions shape as the table's own. */
+:host {
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  padding: 8px 16px 18px;
+  padding-inline-start: var(--band-inset, 16px); /* under the row's first content cell */
+}
+
+.entity-row-details-layout {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* the action strip boxed between the row's border and a hairline (v1 of the separation challenger) */
+.entity-row-details-actions-layout {
+  align-items: center;
+  border-bottom: 1px solid var(--fc-line, rgba(127, 127, 127, 0.4)); /* the fallback keeps the hairline where the ladder is not loaded */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+}
+
+.entity-row-details-action-layout {
+  font-size: 13px;
+  font-weight: 500;
+  height: auto;
+  margin: 0;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.entity-row-details-action-layout:first-child {
+  margin-inline-start: -12px;
+}
+
+/* the action label in fg1, as on the table's own band (the kit's ghost tier rests on fg2) */
+.entity-row-details-action-layout span {
+  color: var(--fg1);
+}
+
+.entity-row-details-summary-layout {
+  display: grid;
+  gap: 14px 24px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.entity-row-details-summary-layout > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.entity-row-details-summary-layout p {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 16px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.entity-row-details-summary-layout h4 {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  margin: 0;
+  overflow-wrap: anywhere;
+}

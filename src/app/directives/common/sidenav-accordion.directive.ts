@@ -4,13 +4,17 @@ import {
 import { Router, NavigationEnd } from '@angular/router';
 import * as domHelper from '../../helpers/dom.helper';
 
-@Directive({ selector: '[sideNavAccordion]' })
+@Directive({ standalone: false, selector: '[sideNavAccordion]' })
 export class SideNavAccordionDirective implements OnInit {
   constructor(private el: ElementRef) {
   }
   ngOnInit() {
     const self = this;
-    var subMenu = this.el.nativeElement.querySelector('.mat-list-item-content > mat-nav-list');
+    // the internal development record: the item's mirrored content layers (were Material's .mdc-list-item__content >
+    // .mat-mdc-list-item-unscoped-content > mat-nav-list)
+    var subMenu = this.el.nativeElement.querySelector(
+      '.fc-nav-item__content > .fc-nav-item__text > .fc-nav-list',
+    );
     const isCollapsed = domHelper.hasClass(document.body, 'collapsed-menu');
     if (subMenu) { this.el.nativeElement.className += ' has-submenu'; }
 
@@ -24,7 +28,13 @@ export class SideNavAccordionDirective implements OnInit {
 
   @HostListener('click', ['$event'])
   onClick($event) {
-    var parentLi = domHelper.findClosest($event.target, 'mat-list-item');
+    const parentLi = this.el.nativeElement;
+    const target = $event.target as Element;
+
+    if (target.closest('.sub-menu')) {
+      return;
+    }
+
     domHelper.addClass($event.target.parentElement, 'highlight');
     setTimeout(() => { domHelper.removeClass($event.target.parentElement, 'highlight'); }, 100);
     if (!domHelper.hasClass(parentLi, 'has-submenu')) {

@@ -72,8 +72,8 @@ def the_pools_page_should_open(driver):
 @then('click on the tank three dots button, select Add Dataset')
 def click_on_the_tank_three_dots_button_select_add_dataset(driver):
     """click on the tank three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
@@ -83,7 +83,7 @@ def click_on_the_tank_three_dots_button_select_add_dataset(driver):
 @then('the Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """the Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('input dataset name {dataset_name} and click save'))
@@ -106,7 +106,7 @@ def the_wheel_dataset_should_be_created(driver, dataset_name):
 def click_on_the_wheel_dataset_three_dots_button_select_edit_permissions(driver, dataset_name):
     """click on the wheel_dataset three dots button, select Edit Permissions."""
     assert wait_on_element(driver, 7, f'//mat-icon[@ix-auto="options__{dataset_name}"]')
-    driver.find_element_by_xpath(f'//mat-icon[@id="actions_menu_button__{dataset_name}"]').click()
+    driver.find_element_by_xpath(f'//*[@id="actions_menu_button__{dataset_name}"]').click()
     assert wait_on_element(driver, 7, f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]')
     driver.find_element_by_xpath(f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]').click()
 
@@ -114,7 +114,7 @@ def click_on_the_wheel_dataset_three_dots_button_select_edit_permissions(driver,
 @then('the Edit Permissions page should open')
 def the_edit_permissions_page_should_open(driver):
     """the Edit Permissions page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Dataset Path")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Dataset Path")]')
 
 
 @then(parsers.parse('select {user} for User, click on the Apply User checkbox'))

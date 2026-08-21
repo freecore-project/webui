@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Theme, DefaultTheme } from 'app/services/theme/theme.service';
 
 @Component({
+  standalone: false,
   selector: 'app-auth-layout',
   templateUrl: './auth-layout.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./auth-layout.component.css'],
 
 })

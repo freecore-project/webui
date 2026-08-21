@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import globalHelptext from 'app/helptext/global-helptext';
@@ -11,8 +12,10 @@ import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'ssh-edit',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [NetworkService],
 })
 export class ServiceSSHComponent implements OnInit {
@@ -21,6 +24,7 @@ export class ServiceSSHComponent implements OnInit {
   protected queryCall = 'ssh.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('SSH'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: globalHelptext.fieldset_general_options,

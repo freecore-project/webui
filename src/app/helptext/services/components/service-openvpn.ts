@@ -63,7 +63,7 @@ export default {
   certificate: {
     client_placeholder: T('Client Certificate'),
     server_placeholder: T('Server Certificate'),
-    tooltip: T('Choose a valid client certificate which exists \
+    tooltip: T('Choose a valid certificate which exists \
 on this system and hasn\'t been revoked. Find more about generating certificates and CAs \
 for OpenVPN <a href="https://community.openvpn.net/openvpn/wiki/HOWTO#SettingupyourownCertificateAuthorityCAandgeneratingcertificatesandkeysforanOpenVPNserverandmultipleclients" \
 target="_blank">here.</a>'),

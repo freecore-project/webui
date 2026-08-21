@@ -35,6 +35,13 @@ IMPORTANT: Two-factor authentication is time-based and requires that the system 
       tooltip: T('Enable two-factor authentication for SSH access to the system. It is recommended \
  to leave this DISABLED until after two-factor authentication is successfully tested with the UI.'),
     },
+    services_console: {
+      placeholder: T('Enable Two-Factor Auth for Console'),
+      tooltip: T('Require a one-time password at local and serial console logins (including the \
+ IPMI/iDRAC virtual console). Only effective while "Show Text Console without Password Prompt" \
+ (System → Advanced) is DISABLED — the system refuses to enable this otherwise. Booting into \
+ single-user mode from the physical console remains the recovery path if OTP access is lost.'),
+    },
 
     secret: {
       placeholder: T('Secret (Read only)'),

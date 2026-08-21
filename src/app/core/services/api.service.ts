@@ -103,51 +103,6 @@ export class ApiService {
         responseEvent: 'MultipathData',
       },
     },
-    EnclosureDataRequest: {
-      apiCall: {
-        protocol: 'websocket',
-        version: '2.0',
-        args: [],
-        namespace: 'enclosure.query',
-        responseEvent: 'EnclosureData',
-      },
-    },
-    EnclosureUpdate: {
-      apiCall: {
-        protocol: 'websocket',
-        version: '2.0',
-        args: [],
-        namespace: 'enclosure.update',
-        responseEvent: 'EnclosureChanged',
-      },
-    },
-    SetEnclosureLabel: {
-      apiCall: {
-        protocol: 'websocket',
-        version: '2.0',
-        args: [],
-        namespace: 'enclosure.update',
-        responseEvent: 'EnclosureLabelChanged',
-      },
-      preProcessor(def: ApiCall) {
-        const redef = { ...def };
-        const args = [def.args.id, { label: def.args.label }];
-        redef.args = args;
-        return redef;
-      },
-      postProcessor(res, callArgs) {
-        return { label: res.label, index: callArgs.index, id: res.id };
-      },
-    },
-    SetEnclosureSlotStatus: {
-      apiCall: {
-        protocol: 'websocket',
-        version: '2.0',
-        args: [],
-        namespace: 'enclosure.set_slot_status',
-        responseEvent: 'EnclosureSlotStatusChanged',
-      },
-    },
     PoolDataRequest: {
       apiCall: {
         protocol: 'websocket',
@@ -594,15 +549,6 @@ export class ApiService {
         namespace: 'disk.query',
         args: [],
         responseEvent: 'DisksInfo',
-      },
-    },
-    SensorDataRequest: {
-      apiCall: {
-        protocol: 'websocket',
-        version: '2.0',
-        namespace: 'sensor.query',
-        args: [],
-        responseEvent: 'SensorData',
       },
     },
   };

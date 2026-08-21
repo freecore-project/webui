@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxUploaderModule } from 'ngx-uploader';
 import { MaterialModule } from '../../appMaterial.module';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -23,7 +22,7 @@ import { IdmapFormComponent } from './idmap-form/idmap-form.component';
 @NgModule({
   imports: [
     CommonModule, EntityModule, FormsModule, ReactiveFormsModule,
-    NgxUploaderModule, routing, MaterialModule, TranslateModule,
+    routing, MaterialModule, TranslateModule,
   ],
   declarations: [
     LdapComponent,
