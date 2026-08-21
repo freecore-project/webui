@@ -75,8 +75,8 @@ def the_pools_page_should_appear(driver):
 @then('click on the system 3 dots button, and select Add Dataset')
 def click_on_the_system_3_dots_button_and_select_add_dataset(driver):
     """click on the system 3 dots button, and select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__system"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__system"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__system"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__system"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__system_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__system_Add Dataset"]', 'clickable')
@@ -86,7 +86,7 @@ def click_on_the_system_3_dots_button_and_select_add_dataset(driver):
 @then('the Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """the Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('input dataset name "{dataset_name}" and click save'))
@@ -108,8 +108,8 @@ def system_acl_dataset_should_be_created(driver, dataset_name):
 @then(parsers.parse('click on the "{dataset_name}" 3 dots button, select Edit Permissions'))
 def click_on_the_system_acl_dataset_3_dots_button_select_edit_permissions(driver, dataset_name):
     """click on the "system_acl_dataset" 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, f'//mat-icon[@id="actions_menu_button__{dataset_name}"]')
-    driver.find_element_by_xpath(f'//mat-icon[@id="actions_menu_button__{dataset_name}"]').click()
+    assert wait_on_element(driver, 7, f'//*[@id="actions_menu_button__{dataset_name}"]')
+    driver.find_element_by_xpath(f'//*[@id="actions_menu_button__{dataset_name}"]').click()
     assert wait_on_element(driver, 7, f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]')
     driver.find_element_by_xpath(f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]').click()
 
@@ -117,7 +117,7 @@ def click_on_the_system_acl_dataset_3_dots_button_select_edit_permissions(driver
 @then('the Edit Permissions page should open')
 def the_edit_permissions_page_should_open(driver):
     """the Edit Permissions page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Dataset Path")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Dataset Path")]')
 
 
 @then('click on Use ACL Manager')

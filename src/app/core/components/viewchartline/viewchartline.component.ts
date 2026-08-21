@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ViewChartComponent, ViewChartMetadata } from 'app/core/components/viewchart/viewchart.component';
 import * as d3 from 'd3';
 
@@ -10,8 +10,11 @@ interface TimeData {
 }
 
 @Component({
+  standalone: false,
   selector: 'viewchartline',
   template: ViewChartMetadata.template,
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['../viewchart/viewchart-layout.css'],
 })
 export class ViewChartLineComponent extends ViewChartComponent implements OnInit {
   // public chartType: string;

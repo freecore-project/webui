@@ -1,21 +1,229 @@
-.icons {
-    font-size: 24px; 
+:host {
+  color: var(--fg2);
+  display: block;
+  width: 100%;
 }
 
-.group-menu-header{
+.entity-tree-table {
+  background: var(--bg2);
+  color: var(--fg2);
+  position: relative;
+}
+
+.entity-tree-table__wrapper {
+  overflow-x: auto;
+}
+
+.entity-tree-table table {
+  background: var(--bg2);
+  border-collapse: collapse;
+  color: var(--fg2);
+  min-width: 100%;
+  table-layout: auto;
+  width: 100%;
+}
+
+/* the internal development record: only Pools opts into a bounded default projection.
+   Long names remain readable; advanced columns/explicit resizing scroll in
+   the existing local wrapper. Other tree consumers retain auto layout. */
+.entity-tree-table--projected table {
+  table-layout: fixed;
+}
+
+.entity-tree-table--projected th {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.entity-tree-table--projected td:not(.entity-tree-table__actions-column) {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.entity-tree-table--projected .entity-tree-table__size {
+  white-space: nowrap;
+}
+
+.entity-tree-table th,
+.entity-tree-table td {
+  border-bottom: 1px solid var(--lines);
+  box-sizing: border-box;
+  padding: 0.25em 0.5em;
+  text-align: start;
+}
+
+/* Keep the compact storage-table contract after the app-owned table migration. */
+.entity-tree-table td {
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+.entity-tree-table__size {
+  white-space: nowrap;
+}
+
+.entity-tree-table th {
+  background: var(--bg2);
+  color: var(--fg2);
+  font-weight: 600;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.entity-tree-table__sortable-column {
+  cursor: pointer;
+  outline-color: transparent;
+  position: relative;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.entity-tree-table__sortable-column:hover,
+.entity-tree-table tbody tr:hover {
+  background: var(--contrast-lightest, rgba(127, 127, 127, 0.12));
+}
+
+.entity-tree-table tbody tr:nth-child(even) {
+  background: var(--contrast-lightest, rgba(127, 127, 127, 0.12));
+}
+
+.entity-tree-table__sortable-column:focus-visible,
+.entity-tree-table__toggler:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.entity-tree-table th.entity-tree-table__sorted-column {
+  color: var(--primary);
+}
+
+.entity-tree-table__column-title,
+.entity-tree-table__sort-icon {
+  vertical-align: middle;
+}
+
+.entity-tree-table__sort-icon {
+  fill: currentColor;
+  height: 0.875rem;
+  margin-inline-start: 0.5rem;
+  width: 0.875rem;
+}
+
+.entity-tree-table__column-resizer {
+  border: 1px solid transparent;
+  cursor: col-resize;
+  display: block;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0.5rem;
+  z-index: 1;
+}
+
+.entity-tree-table__column-resizer::after {
+  background: transparent;
+  content: '';
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: background 150ms ease;
+  width: 1px;
+}
+
+.entity-tree-table__column-resizer:hover::after {
+  background: var(--primary);
+}
+
+.entity-tree-name-column {
   min-width: 200px;
-  padding-bottom: 16px;
-  margin-top: 12px;
+  white-space: nowrap;
 }
 
-.group-menu-header div.title{
-  margin-left: 16px;
-  margin-top: 4px;
-  opacity: 0.5;
-  font-size: 0.85rem;
+.entity-tree-table__toggler {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  color: var(--fg2);
+  cursor: pointer;
+  display: inline-flex;
+  height: 1.75rem;
+  justify-content: center;
+  margin-inline-end: 0.25rem;
+  overflow: hidden;
+  padding: 0;
+  user-select: none;
+  vertical-align: middle;
+  width: 1.75rem;
 }
 
-.group-menu-header mat-divider {
-  background-color: var(--fg2);
-  opacity: 0.35;
+.entity-tree-table__toggler:hover {
+  background: var(--contrast-lightest, rgba(127, 127, 127, 0.12));
+  color: var(--primary);
+}
+
+.entity-tree-table__toggler--hidden {
+  visibility: hidden;
+}
+
+.entity-tree-table__toggler svg {
+  fill: none;
+  height: 1rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  width: 1rem;
+}
+
+.entity-tree-table__actions-column {
+  text-align: center;
+  width: 3.5rem;
+}
+
+.icons {
+  align-items: center;
+  display: inline-flex;
+  font-size: 24px;
+  line-height: 1;
+  vertical-align: middle;
+  /* Match the legacy encryption-glyph baseline, not just its 24px box center. */
+  transform: translateY(-3px);
+}
+
+.icons > span {
+  align-items: center;
+  display: inline-flex;
+}
+
+/* the internal development record: the row kebab is the #405 ghost icon button (32px, the 20px glyph) centred
+ * in the 56px column; its menu is the #407 helm dropdown-menu -- the grouped menu keeps its 200px
+ * floor on the helm label, the tooltip wrapper is a block so a disabled row's hover target is the
+ * whole row. The old mat-divider / .title heading rules are gone with the mat-menu. */
+.entity-tree-table__actions-column .row-kebab {
+  display: flex; /* a block in the cell: no line-box descender under it */
+  margin: 0 auto;
+}
+/* the legacy (outside .fc-ui) 36px row: the 32px kebab needs the cell's block padding at 2px; the
+ * shell's 40px rows set their own cell padding with !important */
+.entity-tree-table td.entity-tree-table__actions-column--kebab {
+  padding-block: 2px;
+}
+.entity-tree-table__actions-column .row-kebab .mat-icon {
+  font-size: 20px;
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+}
+
+.group-menu-header {
+  min-width: 200px;
+}
+
+.row-menu-item {
+  display: block;
 }

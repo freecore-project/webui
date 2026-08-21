@@ -2,6 +2,7 @@ import {
   ApplicationRef,
   Component,
   Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,10 +21,13 @@ import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/storage/volumes/volume-key';
 
 @Component({
-  selector: 'app-createpassphrase-form',
+  standalone: false,
+  selector: 'app-changepassphrase-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class VolumeChangekeyFormComponent implements Formconfiguration {
+  readonly settingsTitle = T('Encryption Key'); // the internal development record: the page's h1
   saveSubmitText = T('Change Passphrase');
 
   queryCall = 'pool.query';

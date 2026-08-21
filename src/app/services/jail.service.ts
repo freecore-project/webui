@@ -15,16 +15,8 @@ export class JailService {
     return this.ws.call('jail.releases_choices', [true]);
   }
 
-  getBranches() {
-    return this.ws.job('plugin.official_repositories');
-  }
-
   getVersion() {
     return this.ws.call('jail.get_version');
-  }
-
-  getInstalledPlugins() {
-    return this.ws.job('plugin.query');
   }
 
   getTemplates() {

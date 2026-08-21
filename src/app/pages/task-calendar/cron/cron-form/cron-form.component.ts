@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -15,9 +15,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'cron-job-add',
   templateUrl: './cron-form.component.html',
   styleUrls: ['cron-form.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [UserService],
 })
 export class CronFormComponent {
@@ -36,6 +38,7 @@ export class CronFormComponent {
   protected user_field: any;
 
   protected isEntity = true;
+  readonly settingsTitle = T('Cron Job'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSetDisplay = 'no-margins';
 
@@ -44,6 +47,7 @@ export class CronFormComponent {
       name: helptext.cron_fieldsets[0],
       class: 'add-cron',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       width: '300px',
       config: [
         {
@@ -64,6 +68,7 @@ export class CronFormComponent {
           type: 'combobox',
           name: 'user',
           label: helptext.cron_user_label,
+          showLabel: true,
           placeholder: helptext.cron_user_placeholder,
           tooltip: helptext.cron_user_tooltip,
           options: [],

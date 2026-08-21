@@ -1,59 +1,70 @@
-<div
-	id="{{config.name}}"
-	class="dynamic-field form-input"
-	[formGroup]="group"
-	[ngClass]="fieldShow"
-	[class.has-pwtoggle]="config.togglePw"
-	[class.has-tooltip]="config.tooltip"
-	*ngIf="!config['isHidden']"
-	fxLayoutAlign="start center"
-	fxLayoutGap="8px"
-  ix-auto ix-auto-type="array" ix-auto-identifier="{{config.placeholder}}"
->
-	<mat-form-field style="display:none">
-		<input matInput [type]="config.inputType ? config.inputType : 'text'"
-			[placeholder]="config.placeholder"
-			[attr.value]="config.value"
-			[formControlName]="config.name"
-		>
-	</mat-form-field>
-	<mat-form-field fxFlex="100%">
-		<input matInput
-			[placeholder]="config.placeholder | translate"
-			[(ngModel)]="address"
-			[ngModelOptions]="{standalone: true}"
-			[readonly]="config.readonly"
-			[required]="config.required"
-			(blur)="setAddress($event)"
-			[pattern]="network.ipv4_or_ipv6_cidr_optional"
-			ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}"
-			>
-	</mat-form-field>
-	<span fxFlex="4px">/</span>
-	<mat-select *ngIf="!config.netmaskPreset" fxFlex="72px"
-		[value]="netmask"
-		[placeholder]="Netmask | translate"
-		(selectionChange)="setNetmask($event)"
-		ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}"
-		>
-		<mat-option *ngFor="let option of netmaskOptions" [value]="option.value"
-			ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
-			{{option.label}}
-		</mat-option>
-	</mat-select>
-	<mat-select *ngIf="config.netmaskPreset" fxFlex="72px"
-		class="disabled-select"
-		[value]="config.netmaskPreset"
-		disabled
-		ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}"
-		>
-		<mat-option [value]="config.netmaskPreset">
-			{{config.netmaskPreset}}
-		</mat-option>
-	</mat-select>
-	<tooltip fxFlex="48px" *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-	<div class="margin-for-error">
-		<mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-		<mat-error *ngIf="config.warnings">{{config.warnings | translate}}</mat-error>
-	</div>
-</div>
+@if (!config['isHidden']) {
+  <div
+    id="{{config.name}}"
+    class="dynamic-field form-input ip-with-netmask-layout"
+    [formGroup]="group"
+    [ngClass]="fieldShow"
+    [class.has-pwtoggle]="config.togglePw"
+    [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="array" ix-auto-identifier="{{config.placeholder}}"
+    >
+    <!-- the internal development record: address box + netmask select on spartan, inside the reviewed
+         .ip-with-netmask-* flex contract. The hidden input keeps the control registered. -->
+    <input type="hidden" class="ip-with-netmask-hidden-layout" [formControlName]="config.name">
+    <hlm-field class="ip-with-netmask-address-layout" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <input hlmInput
+        [id]="inputId"
+        [forceInvalid]="!!config['hasErrors']"
+        [placeholder]="config | fieldPlaceholder | translate"
+        [(ngModel)]="address"
+        [ngModelOptions]="{standalone: true}"
+        [readonly]="config.readonly"
+        [required]="config.required"
+        (blur)="setAddress($event)"
+        [pattern]="network.ipv4_or_ipv6_cidr_optional"
+        ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}"
+        >
+      <div class="field-subscript">
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert">{{config['errors']}}</p>
+        }
+        @if (config.warnings) {
+          <p class="form-error-line" role="alert">{{config.warnings | translate}}</p>
+        }
+      </div>
+    </hlm-field>
+    <span class="ip-with-netmask-divider-layout">/</span>
+    @if (!config.netmaskPreset) {
+      <hlm-select class="ip-with-netmask-select-layout" [value]="netmask" (valueChange)="setNetmask($event)"
+        ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}">
+        <hlm-select-trigger>
+          <hlm-select-value [placeholder]="'Netmask' | translate" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (option of netmaskOptions; track option.value) {
+            <hlm-select-item [value]="option.value" ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
+              {{option.label}}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    }
+    @if (config.netmaskPreset) {
+      <hlm-select class="disabled-select ip-with-netmask-select-layout" [value]="config.netmaskPreset" disabled
+        ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}">
+        <hlm-select-trigger>
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          <hlm-select-item [value]="config.netmaskPreset">{{config.netmaskPreset}}</hlm-select-item>
+        </hlm-select-content>
+      </hlm-select>
+    }
+    @if (config.tooltip) {
+      <tooltip class="ip-with-netmask-tooltip-layout" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
+  </div>
+}

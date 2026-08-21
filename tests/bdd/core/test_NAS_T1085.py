@@ -79,7 +79,7 @@ def select_create_new_pool_click_create_a_pool(driver):
 @then('on the Pool Manager, enter encryptedpool for pool name')
 def on_the_pool_manager_enter_encryptedpool_for_pool_name(driver):
     """on the Pool Manager, enter encryptedpool for pool name."""
-    assert wait_on_element(driver, 5, '//div[contains(.,"Pool Manager")]')
+    assert wait_on_element(driver, 5, '//h1[contains(.,"Pool")]')
     assert wait_on_element(driver, 5, '//input[@placeholder="Name"]', 'inputable')
     driver.find_element_by_xpath('//input[@placeholder="Name"]').clear()
     driver.find_element_by_xpath('//input[@placeholder="Name"]').send_keys('encryptedpool')
@@ -90,8 +90,8 @@ def click_on_the_encryption_checkbox_then_confirm(driver):
     """click on the Encryption checkbox, then confirm."""
     assert wait_on_element(driver, 5, '//mat-checkbox[@id="pool-manager__encryption-checkbox"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@id="pool-manager__encryption-checkbox"]').click()
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__I UNDERSTAND"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__I UNDERSTAND"]').click()
 
@@ -110,8 +110,8 @@ def click_on_the_force_checkbox_then_confirm(driver):
     """click on the force checkbox, then confirm."""
     assert wait_on_element(driver, 5, '//mat-checkbox[@id="pool-manager__force-submit-checkbox"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@id="pool-manager__force-submit-checkbox"]').click()
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
 
@@ -121,9 +121,9 @@ def click_create_on_the_warning_widget_click_confirm_checkbox_click_create_pool(
     """click create on the Warning widget, click confirm checkbox, click CREATE POOL."""
     assert wait_on_element(driver, 5, '//button[@name="create-button"]')
     driver.find_element_by_xpath('//button[@name="create-button"]').click()
-    assert wait_on_element(driver, 5, '//h1[contains(.,"Warning")]')
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Warning")]')
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CREATE POOL"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CREATE POOL"]').click()
 
@@ -154,8 +154,8 @@ def the_new_encrypted_pool_should_appear_in_the_pools_list(driver):
 @then('click on the three dots button for the encrypted pool, select Encryption Options')
 def click_on_the_three_dots_button_for_the_encrypted_pool_select_encryption_options(driver):
     """click on the three dots button for the encrypted pool, select Encryption Options."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__encryptedpool"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__encryptedpool"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__encryptedpool"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__encryptedpool"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__encryptedpool_Encryption Options"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__encryptedpool_Encryption Options"]').click()
 
@@ -176,10 +176,10 @@ def switch_the_encryption_type_from_key_to_passphrase_enter_your_passphrase(driv
 def leave_the_pbkdf2iters_at_350000_and_click_the_save_button(driver):
     """leave the pbkdf2iters at 350000, and click the Save button."""
     assert attribute_value_exist(driver, '//input[@placeholder="pbkdf2iters"]', 'value', '350000')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Confirm"]').click()
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__Confirm"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__SAVE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
-    assert wait_on_element(driver, 10, '//h1[contains(.,"Encryption Options Saved")]')
+    assert wait_on_element(driver, 10, '//h2[contains(.,"Encryption Options Saved")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     assert wait_on_element(driver, 10, '//div[contains(.,"Pools")]')
@@ -195,8 +195,8 @@ def verify_that_pool_has_a_unlock_icon(driver):
 @then('click on the three dots next to the pool and select Lock')
 def click_on_the_three_dots_next_to_the_pool_and_select_lock(driver):
     """click on the three dots next to the pool and select Lock."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__encryptedpool"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__encryptedpool"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__encryptedpool"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__encryptedpool"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__encryptedpool_Lock"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__encryptedpool_Lock"]').click()
 
@@ -204,11 +204,11 @@ def click_on_the_three_dots_next_to_the_pool_and_select_lock(driver):
 @then('don\'t check Force unmount, check the Confirm box and then Lock')
 def dont_check_force_unmount_check_the_confirm_box_and_then_lock(driver):
     """don't check Force unmount, check the Confirm box and then Lock."""
-    assert wait_on_element(driver, 5, '//h1[contains(.,"Lock Dataset encrypted")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Lock Dataset encrypted")]')
     assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__FORCE UNMOUNT "]', 'clickable')
     assert not attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__FORCE UNMOUNT "]', 'class', 'mat-checkbox-checked')
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__LOCK"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__LOCK"]').click()
     assert wait_on_element_disappear(driver, 15, '//h1[contains(.,"Locking Dataset")]')
@@ -224,8 +224,8 @@ def verify_the_pool_is_locked(driver):
 @then('click on the three dots next to the pool and select Unlock')
 def click_on_the_three_dots_next_to_the_pool_and_select_unlock(driver):
     """click on the three dots next to the pool and select Unlock."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__encryptedpool"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__encryptedpool"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__encryptedpool"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__encryptedpool"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__encryptedpool_Unlock"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__encryptedpool_Unlock"]').click()
 
@@ -237,10 +237,10 @@ def input_in_the_dataset_passphrase_and_click_the_submit_button(driver):
     driver.find_element_by_xpath('//input[@placeholder="Dataset Passphrase"]').send_keys('abcd1234')
     assert wait_on_element(driver, 5, xpaths.button.summit, 'clickable')
     rsc.click_The_Summit_Button(driver)
-    assert wait_on_element(driver, 10, '//h1[contains(.,"Unlock Datasets")]')
+    assert wait_on_element(driver, 10, '//h2[contains(.,"Unlock Datasets")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
-    assert wait_on_element(driver, 10, '//h1[contains(.,"Unlock Datasets")]')
+    assert wait_on_element(driver, 10, '//h2[contains(.,"Unlock Datasets")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
     time.sleep(1)

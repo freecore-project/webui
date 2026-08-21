@@ -1,5 +1,5 @@
 import { mergeMap } from 'rxjs/operators';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { WebSocketService } from '../../../../services/ws.service';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
@@ -7,8 +7,10 @@ import { TranslateService } from '@ngx-translate/core';
 import helptext from '../../../../helptext/account/members';
 
 @Component({
+  standalone: false,
   selector: 'app-members',
   templateUrl: './members.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./members.component.css'],
 })
 export class MembersComponent implements OnInit {

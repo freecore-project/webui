@@ -1,28 +1,25 @@
 <div class="widget">
   <div class="card-container front">
-    <mat-card class="front" fxLayout="row" fxLayoutWrap fxLayoutAlign="space-between stretch">
-      <mat-toolbar-row fxLayout="row" fxLayoutWrap fxLayoutAlign="space-between start" fxFlex="100" class="mat-card-toolbar">
+    <div class="fc-card front widget-base-front-layout">
+      <div class="fc-card-header mat-card-toolbar widget-base-toolbar-layout">
         <h4 class="mat-card-title-text"><div class="card-title-text">{{title | translate}}</div></h4>
-        <button mat-icon-button [matMenuTriggerFor]="menu">
+        <!-- the internal development record: the widget menu on the helm dropdown-menu (M1); the trigger a ghost icon. -->
+        <button hlmBtn variant="ghost" size="icon" type="button" class="widget-menu-button" [hlmDropdownMenuTrigger]="menu" align="end" [attr.aria-label]="'Widget options' | translate">
           <mat-icon>more_vert</mat-icon>
         </button>
-      </mat-toolbar-row>
-      <mat-menu #menu="matMenu" color="warn">
-        <button mat-menu-item (click)="toggleConfig()">
-          <mat-icon>settings</mat-icon>
-          <span>Configure</span>
-        </button>
-      </mat-menu>
-      <mat-card-content fxLayout="row" fxLayoutAlign="center start" fxFlex="100">
-        <viewchartdonut fxFlex="30" #chartDonut [width]="chartSize" [height]="chartSize" style="display:none;"></viewchartdonut>
-        <viewchartline fxFlex="100" fxFlexAlign="end" #chartCpu [width]="chartSize" [height]="chartSize"></viewchartline>
-      </mat-card-content>
-    </mat-card>
-    <mat-card class="back">
-      <mat-card-content>
-        <h3>Form goes here</h3>
-      </mat-card-content>
-      <div class="widget-footer"><button mat-button color="primary" (click)="toggleConfig()">{{"Flip" | translate}}</button></div>
-    </mat-card>
+      </div>
+      <ng-template #menu>
+        <hlm-dropdown-menu>
+          <button hlmDropdownMenuItem type="button" (triggered)="toggleConfig()">
+            <mat-icon aria-hidden="true">settings</mat-icon>
+            <span>{{"Configure" | translate}}</span>
+          </button>
+        </hlm-dropdown-menu>
+      </ng-template>
+      <div class="fc-card-content widget-base-content-layout">
+        <viewchartdonut class="widget-base-chart-layout widget-base-donut-layout" #chartDonut [width]="chartSize" [height]="chartSize" style="display:none;"></viewchartdonut>
+        <viewchartline class="widget-base-chart-layout widget-base-line-layout" #chartCpu [width]="chartSize" [height]="chartSize"></viewchartline>
+      </div>
+    </div>
   </div>
 </div>

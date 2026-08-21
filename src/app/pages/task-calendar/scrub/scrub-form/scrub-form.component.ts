@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -10,10 +10,13 @@ import { TaskService, UserService } from '../../../../services';
 import { EntityFormService } from '../../../common/entity/entity-form/services/entity-form.service';
 
 import helptext from '../../../../helptext/task-calendar/scrub/scrub-form';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'scrub-task-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService, UserService, EntityFormService],
 })
 export class ScrubFormComponent {
@@ -27,12 +30,14 @@ export class ScrubFormComponent {
   protected isEntity = true;
 
   protected preTaskName = 'scrub';
+  readonly settingsTitle = T('Scrub Task'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext.scrub_fieldsets[0],
       class: 'add-scrub',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       width: '300px',
       config: [
         {

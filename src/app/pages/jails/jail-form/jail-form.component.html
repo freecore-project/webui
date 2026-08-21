@@ -1,32 +1,43 @@
-<mat-card>
-    <mat-spinner class="jail-spinner" [diameter]='40' id="jail-spinner" *ngIf="showSpinner"></mat-spinner>
+<!-- the internal development record: the advanced jail editor is a .fc-page--capped page on the engine's settings
+     grid (entity-form.component.scss, emulated through styleUrls) with the shared .fc-settings-form
+     voice and action row (freecore-ui.css). The four Material expansion panels and their
+     Previous/Next steppers became four sections in one flat form; the title is the wizard's
+     settingsTitle. The [hidden] cell binding is load-bearing: jail-form.service.ts setDisabled flips
+     field.isHidden at runtime (https, jailtype on edit) and form-input/form-checkbox render nothing
+     when hidden, which would otherwise leave an empty grid slot. -->
+<div class="fc-page fc-page--capped">
+  <h1 class="fc-page-title">{{ 'Jail' | translate }}</h1>
+  <div class="form-card fc-settings-form">
+    @if (showSpinner) {
+      <hlm-spinner id="entity-table-spinner" />
+    }
     <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup">
-        <mat-expansion-panel *ngFor="let fieldSet of fieldSets; let i = index" [expanded]="step === i && isReady" (opened)="setStep(i)">
-            <mat-expansion-panel-header>
-                <mat-panel-title>{{fieldSet.name | translate}}</mat-panel-title>
-            </mat-expansion-panel-header>
-            <div class="form-wrap">
-            <ng-container>
-                <div [ngClass]="fieldSet.class" class="fieldset divider-{{fieldSet.divider}}"
-                    fxLayout="row wrap" fxLayoutAlign="start start" fxFlex="100%" fxFlex.gt-xs="calc({{fieldSets[i].width}} - 16px)">
-                    <mat-divider *ngIf="fieldSets[i].divider && i > 0"></mat-divider>
-                    <h4 *ngIf="fieldSet.label" class="fieldset-label">{{fieldSet.name | translate}}</h4>
-                    <div *ngFor="let field of fieldSet.config; let ii = index" fxFlex="100%" fxFlex.gt-xs="calc({{field.width}} - 16px)"
-                    [ngClass]="field.class == 'inline' ? 'form-inline' : 'form-line'" id="{{fieldSet.name}}-{{ii}}">
-                        <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'"></div>
-                    </div>
+      <div class="fieldset-container fieldset-display-default">
+        @for (fieldSet of fieldSets; track fieldSet; let i = $index) {
+          <section class="fc-settings-section" [ngClass]="fieldSet.class" [attr.aria-labelledby]="'jail-section-' + i">
+            <h2 class="fieldset-label" id="jail-section-{{i}}">{{ fieldSet.name | translate }}</h2>
+            <div class="fc-settings-fields">
+              @for (field of fieldSet.config; track field; let ii = $index) {
+                <div class="entity-form-field-layout form-line"
+                  [class.fc-settings-wide]="field.type !== 'input' && field.type !== 'select' || field.inputType === 'file'"
+                  [hidden]="field.isHidden"
+                  id="{{fieldSet.name}}-{{ii}}">
+                  <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'"></div>
                 </div>
-            </ng-container>
+              }
             </div>
-            <mat-action-row>
-                <button mat-button color="warn" type="button" *ngIf="i !== 0" (click)="prevStep()">{{ "Previous" | translate }}</button>
-                <button mat-button color="primary" type="button" *ngIf="i !== fieldSets.length - 1" (click)="nextStep()">{{ "Next" | translate }}</button>
-            </mat-action-row>
-        </mat-expansion-panel>
-        <mat-card-actions>
-            <button class="btn btn-block btn-warning" type="submit" mat-button color="primary" [disabled]="!formGroup.valid || !save_button_enabled" >{{ "Save" | translate }}</button>
-            <button *ngIf="route_success" (click)="goBack()" mat-button color="accent" type="button">{{ "Cancel" | translate }}</button>
-        </mat-card-actions>
+          </section>
+        }
+        <div class="buttons">
+          <button hlmBtn id="save_button" type="submit" [disabled]="!formGroup.valid || !save_button_enabled">{{ 'Save' | translate }}</button>
+          @if (route_success) {
+            <button hlmBtn variant="outline" id="goback_button" type="button" (click)="goBack()">{{ 'Cancel' | translate }}</button>
+          }
+        </div>
+      </div>
     </form>
-    <mat-error *ngIf="error" type="danger" id="error_message"><div [innerHTML]="error"></div></mat-error>
-</mat-card>
+    @if (error) {
+      <div id="error_message" class="form-error-line" role="alert"><div [innerHTML]="error"></div></div>
+    }
+  </div>
+</div>

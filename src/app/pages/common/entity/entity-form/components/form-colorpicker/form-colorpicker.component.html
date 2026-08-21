@@ -1,23 +1,45 @@
-<div id="{{config.name}}" class="dynamic-field form-input colorpicker" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
-        ix-auto ix-auto-type="colorpicker" ix-auto-identifier="{{config.placeholder}}">
-        <div (click)="togglePicker()" class="color-swatch" [style.background-color]="colorProxy"></div>
-	<mat-form-field class="full-width">
-                <input matInput
-		      [placeholder]="config.placeholder"
-                      [(value)]="colorProxy"
-                      (input)="colorProxy=$event.target.value">
-
-		<input matInput (cpInputChange)="inputListener('cpInputChange', $event)" (colorPickerChange)="cpListener('cpInputChange' , $event)"
-                  style="opacity:0; position:absolute;"
-                        [(colorPicker)]="colorProxy"
-                        [cpToggle]="picker"
-                        cpOutputFormat="hex"
-                        cpPosition="bottom"
-                        cpWidth="180px"
-                        [cpAlphaChannel]="disabled"
-                        [cpPositionRelativeToArrow]="true"
-                        [formControlName]="config.name">
-                </mat-form-field>
-	<tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-	<mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-</div>
+@if (!config['isHidden']) {
+  <!-- the internal development record: the colour field on the #351 box -- the swatch is the box's inline-start
+       addon (a button that opens the picker), the hex text is the input; the ngx-color-picker
+       directive keeps its hidden native input and the control, as before. -->
+  <div id="{{config.name}}" class="dynamic-field form-input colorpicker" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="colorpicker" ix-auto-identifier="{{config.placeholder}}">
+    <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <!-- .color-box is the positioned parent the directive measures its popup from: the anchor
+           sits at the box's bottom-left, so the popup drops 10px under the box. -->
+      <div class="color-box">
+        <hlm-input-group>
+          <hlm-input-group-addon>
+            <button type="button" class="color-swatch" [style.background-color]="colorProxy" (click)="togglePicker()"
+              [attr.aria-label]="('Pick a color' | translate)"></button>
+          </hlm-input-group-addon>
+          <input hlmInputGroupInput [id]="inputId" type="text" [forceInvalid]="!!config['hasErrors']"
+            [placeholder]="config | fieldPlaceholder | translate"
+            [value]="colorProxy"
+            (input)="colorProxy=$event.target.value">
+        </hlm-input-group>
+        <input class="color-picker-anchor" (cpInputChange)="inputListener('cpInputChange', $event)" (colorPickerChange)="cpListener('cpInputChange' , $event)"
+          [(colorPicker)]="colorProxy"
+          [cpToggle]="picker"
+          (cpToggleChange)="picker = $event"
+          cpOutputFormat="hex"
+          cpPosition="bottom"
+          cpWidth="180px"
+          [cpAlphaChannel]="disabled"
+          [cpPositionRelativeToArrow]="true"
+          [formControlName]="config.name">
+      </div>
+      <div class="field-subscript">
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert">{{config['errors']}}</p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
+  </div>
+}

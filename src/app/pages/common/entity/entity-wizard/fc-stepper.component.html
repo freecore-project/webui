@@ -1,0 +1,53 @@
+<div class="fc-stepper-header" role="tablist" aria-orientation="horizontal">
+  @for (step of steps; track step; let i = $index; let last = $last) {
+    <button
+      type="button"
+      cdkStepHeader
+      class="fc-step-header"
+      role="tab"
+      [id]="_getStepLabelId(i)"
+      [tabIndex]="_getFocusIndex() === i ? 0 : -1"
+      [attr.aria-posinset]="i + 1"
+      [attr.aria-setsize]="steps.length"
+      [attr.aria-selected]="step.isSelected()"
+      [attr.aria-controls]="_getStepContentId(i)"
+      [attr.aria-disabled]="step.isNavigable() ? null : true"
+      [attr.aria-label]="step.ariaLabel || null"
+      [attr.aria-labelledby]="!step.ariaLabel && step.ariaLabelledby ? step.ariaLabelledby : null"
+      [attr.data-state]="step.isSelected() ? 'selected' : (step.completed ? 'completed' : 'upcoming')"
+      (click)="step.select()"
+      (keydown)="_onKeydown($event)"
+    >
+      <span class="fc-step-icon" aria-hidden="true">
+        @if (!step.isSelected() && step.completed) {
+          <svg class="fc-step-check" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        } @else {
+          {{ i + 1 }}
+        }
+      </span>
+      <span class="fc-step-label">
+        @if (step.stepLabel; as stepLabel) {
+          <ng-container [ngTemplateOutlet]="stepLabel.template" />
+        } @else {
+          {{ step.label }}
+        }
+      </span>
+    </button>
+    @if (!last) {
+      <span class="fc-step-line" aria-hidden="true"></span>
+    }
+  }
+</div>
+<div class="fc-stepper-content">
+  @for (step of steps; track step; let i = $index) {
+    <div
+      class="fc-step-panel"
+      role="tabpanel"
+      [id]="_getStepContentId(i)"
+      [attr.aria-labelledby]="_getStepLabelId(i)"
+      [attr.inert]="selectedIndex === i ? null : ''"
+    >
+      <ng-container [ngTemplateOutlet]="step.content" />
+    </div>
+  }
+</div>

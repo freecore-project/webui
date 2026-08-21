@@ -1,40 +1,29 @@
-.padding-16 {
-  padding:16px;
+/* the internal development record: the page is the .fc-page--capped shell (freecore-ui.css) -- no card, no insets.
+ * This page carries no form, so the hairline action row the settings forms get from
+ * `.fc-ui .fc-settings-form .buttons` is restated here on the page's own row. */
+#group-members-page {
+  position: relative; /* the containing block of the absolute spinner */
+  color: var(--fg2); /* the fg2 12px body the card gave the page */
+  font-size: 12px;
 }
 .pointer{
   cursor: pointer;
-}
-.mat-fab-bottom-right-1 {
-  top: auto !important;
-  right: 30px !important;
-  bottom: 48px !important;
-  left: auto !important;
-  position: fixed !important;
-  z-index: 1;
-}
-
-.mat-fab-bottom-right-2 {
-  top: auto !important;
-  right: 90px !important;
-  bottom: 48px !important;
-  left: auto !important;
-  position: fixed !important;
-  z-index: 1;
 }
 
 #group-member-spinner {
   position: absolute;
   left: 48%;
   top: 25px;
+  font-size: 40px; /* the internal development record: the kit spinner's glyph at the 40px the mat-spinner drew */
 }
 
-.button-container {
-  position: relative;
-  bottom: 15px;
-  left: 23px;
-}
-
-.form-card .mat-card-title {
-  margin-left: 15px;
-  margin-top: 15px;
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  border-top: 1px solid var(--fc-line, var(--lines));
+  padding: 20px 0 0;
+  margin: 12px 0 0;
+  min-height: 64px;
 }

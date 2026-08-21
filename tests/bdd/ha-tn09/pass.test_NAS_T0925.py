@@ -79,7 +79,7 @@ def click_add_select_create_new_pool_and_click_create_pool(driver):
 @then('the Pool Manager page should open')
 def the_pool_manager_page_should_open(driver):
     """the Pool Manager page should open."""
-    assert wait_on_element(driver, 0.5, 5, '//div[contains(.,"Pool Manager")]')
+    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Pool")]')
 
 
 @then('enter dozer for pool name, check the box next to da1, press right arrow under data vdev, click create')
@@ -97,9 +97,9 @@ def enter_dozer_for_pool_name_check_the_box_next_to_da1_press_right_arrow_under_
 @then('check confirm, click CREATE POOL')
 def check_confirm_click_create_pool(driver):
     """check confirm, click CREATE POOL."""
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Warning")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Warning")]')
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Warning")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Warning")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CREATE POOL"]').click()
 
 
@@ -131,7 +131,7 @@ def navigate_to_systems_then_system_dataset(driver):
 @then('the Configure System Dataset page should open')
 def the_configure_system_dataset_page_should_open(driver):
     """the Configure System Dataset page should open."""
-    assert wait_on_element(driver, 1, 5, '//h4[contains(.,"Configure System Dataset")]')
+    assert wait_on_element(driver, 1, 5, '//h2[contains(.,"General")]')
 
 
 @then('click on System Dataser Pool select dozer')
@@ -146,8 +146,8 @@ def click_on_system_dataser_pool_select_dozer(driver):
 @then('check confirm and click CONTINUE')
 def check_confirm_and_click_continue(driver):
     """check confirm and click CONTINUE."""
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"WARNING")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"WARNING")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 0.5, 5, '//button[@ix-auto="button__CONTINUE"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
 

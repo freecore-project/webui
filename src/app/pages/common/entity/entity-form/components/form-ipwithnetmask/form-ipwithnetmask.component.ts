@@ -1,7 +1,8 @@
 import {
   Component, Output, ViewChild, EventEmitter, OnInit, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -10,16 +11,26 @@ import { TooltipComponent } from '../tooltip/tooltip.component';
 import { NetworkService } from '../../../../../../services';
 
 @Component({
+  standalone: false,
   selector: 'form-ipwithnetmask',
   templateUrl: './form-ipwithnetmask.component.html',
-  styleUrls: ['../dynamic-field/dynamic-field.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: [
+    '../dynamic-field/dynamic-field.css',
+    './form-ipwithnetmask-layout.css',
+  ],
 })
 export class FormIpWithNetmaskComponent implements Field, OnInit, OnDestroy {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
   address = '';
+
+  /** the internal development record: the address input's id, tied to the label's `for`. */
+  get inputId(): string {
+    return this.config.id || `${this.config.name}-input`;
+  }
   netmask = '24';
   netmaskOptions = this.network.getV4Netmasks();
   value: string;
@@ -60,8 +71,9 @@ export class FormIpWithNetmaskComponent implements Field, OnInit, OnDestroy {
     }
   }
 
-  setNetmask($event) {
-    this.netmask = $event.value;
+  /** the internal development record: hlm-select emits the value itself, not a MatSelectChange. */
+  setNetmask(value: string) {
+    this.netmask = value;
     this.setValue();
   }
 

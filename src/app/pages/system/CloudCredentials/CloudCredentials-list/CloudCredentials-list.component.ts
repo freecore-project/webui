@@ -1,10 +1,12 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_cloudcredentials } from 'app/helptext/system/cloudcredentials';
 import { WebSocketService } from '../../../../services';
 
 @Component({
+  standalone: false,
   selector: 'app-cloudcredentials-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class CloudCredentialsListComponent {

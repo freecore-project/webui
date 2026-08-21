@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 import { DocsService } from '../../../../../../services/docs.service';
 
 @Pipe({
+  standalone: false,
   name: 'docreplace',
 })
 export class TooltipDocReplacePipe implements PipeTransform {

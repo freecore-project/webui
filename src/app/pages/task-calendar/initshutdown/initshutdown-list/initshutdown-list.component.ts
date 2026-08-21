@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-initshutdown-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class InitshutdownListComponent {

@@ -1,5 +1,5 @@
-import { Component, ViewContainerRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -8,14 +8,22 @@ import { TooltipComponent } from '../tooltip/tooltip.component';
 import globalHelptext from '../../../../../../helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'form-textarea',
   templateUrl: './form-textarea.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../dynamic-field/dynamic-field.css'],
 })
 export class FormTextareaComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
+
+  /** the internal development record: the control's id -- the config's own (the theme and e2e key on some, like
+   * `#password`), else one derived from the name so the label's `for` always has a target. */
+  get inputId(): string {
+    return this.config.id || `${this.config.name}-input`;
+  }
   private hasPasteEvent = false;
   fileString;
 

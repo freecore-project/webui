@@ -1,6 +1,21 @@
-<div id="{{config.name}}" class="dynamic-field form-readfile" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
+@if (!config['isHidden']) {
+  <!-- the internal development record: the read-file field on the #351 stack -- a label (it had none), the
+       native file input with a per-field id, the error line in the reserved subscript. -->
+  <div id="{{config.name}}" class="dynamic-field form-readfile" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
     ix-auto ix-auto-type="readfile" ix-auto-identifier="{{config.placeholder}}">
-    <input type="file" id="input" (change)="changeListener($event)">
-    <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-    <mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-</div>
+    <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <input type="file" [id]="inputId" (change)="changeListener($event)">
+      <div class="field-subscript">
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert">{{config['errors']}}</p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
+  </div>
+}

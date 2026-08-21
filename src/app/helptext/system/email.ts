@@ -91,10 +91,12 @@ export const helptext_system_email = {
     },
     client_id: {
       placeholder: T('Client ID'),
-      tooltip: T('Use the <i>Log In to GMail</i> button to obtain the credentials for this form.'),
+      tooltip: T('Imported GMail OAuth credentials remain available as migration state. New hosted OAuth enrollment is unavailable in FreeCORE.'),
     },
     client_secret: T('Client Secret'),
     refresh_token: T('Refresh Token'),
-    login_button: T('Log In to GMail'),
+    login_button: T('Log In to GMail (Unavailable)'),
+    applied: T('Imported GMail OAuth credentials are configured and remain available for sending mail.'),
+    unavailable: T('New hosted GMail OAuth enrollment is unavailable in FreeCORE. Existing imported GMail OAuth credentials remain usable; use SMTP for a new mail configuration.'),
   },
 };
