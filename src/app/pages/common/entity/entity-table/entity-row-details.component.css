@@ -1,0 +1,35 @@
+.entity-row-details-layout,
+.entity-row-details-action-layout {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.entity-row-details-layout {
+  justify-content: flex-start;
+}
+
+.entity-row-details-action-layout {
+  justify-content: center;
+}
+
+.entity-row-details-summary-layout > :not(:last-child) {
+  margin-inline-end: 48px;
+}
+
+.entity-row-details-actions-layout > :not(:last-child) {
+  margin-inline-end: 8px;
+}
+
+/* the internal development record: the actions are ghost buttons; the separator is a block line. */
+.details-separator {
+  display: block;
+}
+.entity-row-details-action-layout mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
+}

@@ -59,8 +59,8 @@ def on_the_dashboard_click_storage_on_the_side_menu_and_click_pools(driver):
 def on_the_pools_page_click_on_encrypted_three_dots_button_select_add_dataset(driver):
     """on the Pools page, click on encrypted three dots button, select Add Dataset."""
     assert wait_on_element(driver, 5, '//div[contains(.,"Pools")]')
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__encrypted"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__encrypted"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__encrypted"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__encrypted"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__encrypted_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__encrypted_Add Dataset"]').click()
 
@@ -68,7 +68,7 @@ def on_the_pools_page_click_on_encrypted_three_dots_button_select_add_dataset(dr
 @then('enter a Name, unset Inherit (encrypted), and unset Encryption')
 def enter_a_name_unset_inherit_encrypted_and_unset_encryption(driver):
     """enter a Name, unset Inherit (encrypted), and unset Encryption."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
     assert wait_on_element(driver, 7, '//input[@ix-auto="input__Name"]', 'inputable')
     driver.find_element_by_xpath('//input[@ix-auto="input__Name"]').send_keys('notencrypteddataset')
     assert attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Inherit (encrypted)"]', 'class', 'mat-checkbox-checked')
@@ -82,8 +82,8 @@ def enter_a_name_unset_inherit_encrypted_and_unset_encryption(driver):
 @then('confirm the dataset will be unencrypted click the SUBMIT button')
 def confirm_the_dataset_will_be_unencrypted_click_the_submit_button(driver):
     """confirm the dataset will be unencrypted click the SUBMIT button."""
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
     rsc.click_The_Summit_Button(driver)
@@ -102,8 +102,8 @@ def verify_that_the_unencrypted_dataset_cant_be_create_and_go_back_to_the_pool_p
 @then('click on tank three dots button, select Add Dataset')
 def on_the_pools_page_click_on_tank_three_dots_button_select_add_dataset(driver):
     """on the Pools page, click on tank three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
@@ -113,7 +113,7 @@ def on_the_pools_page_click_on_tank_three_dots_button_select_add_dataset(driver)
 @then('enter a Name, unset Inherit (non-encrypted)')
 def enter_a_name_unset_inherit_nonencrypted(driver):
     """enter a Name, unset Inherit (non-encrypted)."""
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Name and Options")]')
     assert wait_on_element(driver, 5, '//input[@ix-auto="input__Name"]', 'inputable')
     driver.find_element_by_xpath('//input[@ix-auto="input__Name"]').send_keys('encrypteddataset')
     assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__Inherit (non-encrypted)"]', 'clickable')

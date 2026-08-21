@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { FieldConfig } from '../../../../common/entity/entity-form/models/field-config.interface';
@@ -11,10 +11,43 @@ import { helptext_sharing_iscsi } from 'app/helptext/sharing';
 import * as _ from 'lodash';
 import { ipv4or6OptionalCidrValidator } from '../../../../common/entity/entity-form/validators/ip-validation';
 
+/**
+ * the internal development record: the connected initiators the operator ticked. The two dynamic lists read them through
+ * the shape MatSelectionList gave them -- `selectedOptions.selected[i].value` and `deselectAll()` -- so the
+ * field configs' customEventMethod stays as written.
+ */
+export class InitiatorPick {
+  private readonly picked = new Set<any>();
+
+  get selectedOptions(): { selected: { value: any }[] } {
+    return { selected: [...this.picked].map((value) => ({ value })) };
+  }
+
+  isSelected(value: any): boolean {
+    return this.picked.has(value);
+  }
+
+  toggle(value: any, on: boolean): void {
+    if (on) {
+      this.picked.add(value);
+    } else {
+      this.picked.delete(value);
+    }
+  }
+
+  deselectAll(): void {
+    this.picked.clear();
+  }
+}
+
 @Component({
+  standalone: false,
   selector: 'app-iscsi-initiator-form',
   templateUrl: './initiator-form.component.html',
-  styleUrls: ['./initiator-form.component.css', '../../../../common/entity/entity-form/entity-form.component.scss'],
+  // the internal development record: dynamic-field.css carries the #394 checkbox row the pick list draws on
+  styleUrls: ['./initiator-form.component.css', '../../../../common/entity/entity-form/entity-form.component.scss',
+    '../../../../common/entity/entity-form/components/dynamic-field/dynamic-field.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [FieldRelationService, NetworkService],
 })
 export class InitiatorFormComponent implements OnInit {
@@ -81,6 +114,7 @@ export class InitiatorFormComponent implements OnInit {
 
   formGroup;
   connectedInitiators;
+  connectedSelection = new InitiatorPick();
   connectedInitiatorsDisabled = false;
   connectedInitiatorsTooltip = helptext_sharing_iscsi.initiator_form_tooltip_connected_initiators;
   error;
@@ -99,6 +133,8 @@ export class InitiatorFormComponent implements OnInit {
   getConnectedInitiators() {
     this.ws.call('iscsi.global.sessions').subscribe(
       (res) => {
+        // a refresh re-renders the options, which dropped the mat-selection-list's picks too
+        this.connectedSelection.deselectAll();
         this.connectedInitiators = _.unionBy(res, (item) => item['initiator'] && item['initiator_addr']);
       },
       (err) => {

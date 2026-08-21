@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmLabelImports } from '@spartan-ng/helm/label';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../appMaterial.module';
+import { FC_TAB_NAV } from '../../components/common/tab-nav/fc-tab-nav.component';
 import { TranslateModule } from '@ngx-translate/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { CommonDirectivesModule } from '../../directives/common/common-directives.module';
 
 import { JailService } from '../../services';
@@ -37,8 +40,6 @@ import { ExtentListComponent } from './iscsi/extent/extent-list';
 import { ExtentFormComponent } from './iscsi/extent/extent-form';
 import { AssociatedTargetListComponent } from './iscsi/associated-target/associated-target-list';
 import { AssociatedTargetFormComponent } from './iscsi/associated-target/associated-target-form';
-import { FibreChannelPortsComponent } from './iscsi/fibre-channel-ports/fibre-channel-ports.component';
-import { FibreChannelPortComponent } from './iscsi/fibre-channel-ports/fibre-channel-port/fibre-channel-port.component';
 
 @NgModule({
   imports: [
@@ -49,8 +50,10 @@ import { FibreChannelPortComponent } from './iscsi/fibre-channel-ports/fibre-cha
     EntityModule,
     MaterialModule,
     TranslateModule,
-    FlexLayoutModule,
     CommonDirectivesModule,
+    ...HlmButtonImports, // the internal development record: the initiator form's tiers
+    ...HlmCheckboxImports, ...HlmLabelImports, // the internal development record: the connected-initiators pick list
+    ...FC_TAB_NAV, // the internal development record: the iSCSI tab bar
   ],
   declarations: [
     AFPListComponent,
@@ -78,15 +81,12 @@ import { FibreChannelPortComponent } from './iscsi/fibre-channel-ports/fibre-cha
     ExtentFormComponent,
     AssociatedTargetListComponent,
     AssociatedTargetFormComponent,
-    FibreChannelPortsComponent,
-    FibreChannelPortComponent,
   ],
   providers: [
     JailService,
     EntityFormService,
     UserService,
   ],
-  entryComponents: [FibreChannelPortComponent],
 })
 export class SharingModule {
 }

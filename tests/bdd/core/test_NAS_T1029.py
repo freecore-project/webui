@@ -69,8 +69,8 @@ def the_pools_page_should_open(driver):
 @then('click on the tank three dots button, select Add Dataset')
 def click_on_the_tank_three_dots_button_select_add_dataset(driver):
     """click on the tank three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
@@ -80,7 +80,7 @@ def click_on_the_tank_three_dots_button_select_add_dataset(driver):
 @then('the Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """the Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('input dataset name {dataset_name} and click save'))
@@ -102,8 +102,8 @@ def the_luns_dataset_should_be_created_and_be_in_the_tank_dataset_list(driver, d
 @then(parsers.parse('click on the {dataset_name} dataset three dots button, select Add Zvol'))
 def click_on_the_luns_dataset_three_dots_button_select_add_zvol(driver, dataset_name):
     """click on the luns dataset three dots button, select Add Zvol."""
-    assert wait_on_element(driver, 7, f'//mat-icon[@id="actions_menu_button__{dataset_name}"]')
-    driver.find_element_by_xpath(f'//mat-icon[@id="actions_menu_button__{dataset_name}"]').click()
+    assert wait_on_element(driver, 7, f'//*[@id="actions_menu_button__{dataset_name}"]')
+    driver.find_element_by_xpath(f'//*[@id="actions_menu_button__{dataset_name}"]').click()
     assert wait_on_element(driver, 7, f'//button[@ix-auto="action__{dataset_name}_Add Zvol"]')
     driver.find_element_by_xpath(f'//button[@ix-auto="action__{dataset_name}_Add Zvol"]').click()
 
@@ -133,6 +133,7 @@ def click_the_submit_button_please_wait_should_appear(driver):
 @then(parsers.parse('the {zvol_name} zvol should be created, and in the list under luns dataset'))
 def the_ds3_zvol_should_be_created_and_in_the_list_under_luns_dataset(driver, zvol_name, ):
     """the ds3 zvol should be created, and in the list under luns dataset."""
-    assert wait_on_element(driver, 10, '//p-treetabletoggler[@ix-auto="expander__luns"]')
-    driver.find_element_by_xpath('//p-treetabletoggler[@ix-auto="expander__luns"]').click()
+    toggler = '//button[contains(@class,"entity-tree-table__toggler") and @ix-auto="expander__luns"]'
+    assert wait_on_element(driver, 10, toggler)
+    driver.find_element_by_xpath(toggler).click()
     assert wait_on_element(driver, 10, f'//span[contains(.,"{zvol_name}")]')

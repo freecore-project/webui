@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { shared, helptext_sharing_afp } from 'app/helptext/sharing';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-afp-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class AFPListComponent {

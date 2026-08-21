@@ -75,8 +75,8 @@ def the_pools_page_should_open(driver):
 @then('Click on the tank 3 dots button, select Add Zvol')
 def click_on_the_tank_3_dots_button_select_add_zvol(driver):
     """Click on the tank 3 dots button, select Add Zvol."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__tank_Add Zvol"]')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Zvol"]').click()
 

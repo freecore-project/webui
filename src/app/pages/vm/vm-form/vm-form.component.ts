@@ -1,6 +1,6 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import * as _ from 'lodash';
 import {
   FieldConfig,
@@ -15,10 +15,11 @@ import {
 import { Validators } from '@angular/forms';
 
 @Component({
+  standalone: false,
   selector: 'app-vm',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [StorageService],
-
 })
 export class VmFormComponent {
   protected queryCall = 'vm.query';
@@ -32,6 +33,7 @@ export class VmFormComponent {
   threads: number;
   protected queryCallOption: any[] = [];
 
+  readonly settingsTitle = T('Virtual Machine'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -133,12 +135,21 @@ export class VmFormComponent {
     },
   ];
   private bootloader: any;
+  private currentBootloader: string;
   bootloader_type: any[];
 
   constructor(protected router: Router,
     protected ws: WebSocketService, protected storageService: StorageService,
     protected _injector: Injector, protected _appRef: ApplicationRef,
     protected vmService: VmService, protected route: ActivatedRoute) {}
+
+  private setBootloaderOptions(currentBootloader?: string) {
+    this.bootloader = this.bootloader || _.find(this.fieldConfig, { name: 'bootloader' });
+    this.bootloader.options = this.vmService.getBootloaderOptions(currentBootloader).map((item) => ({
+      label: item[1],
+      value: item[0],
+    }));
+  }
 
   preInit(entityForm: any) {
     this.entityForm = entityForm;
@@ -151,10 +162,7 @@ export class VmFormComponent {
   }
 
   afterInit(entityForm: any) {
-    this.bootloader = _.find(this.fieldConfig, { name: 'bootloader' });
-    this.vmService.getBootloaderOptions().forEach((item) => {
-      this.bootloader.options.push({ label: item[1], value: item[0] });
-    });
+    this.setBootloaderOptions(this.currentBootloader);
 
     entityForm.formGroup.controls['memory'].valueChanges.subscribe((value) => {
       const mem = _.find(this.fieldConfig, { name: 'memory' });
@@ -196,7 +204,7 @@ export class VmFormComponent {
 
   cpuValidator(name: string) {
     const self = this;
-    return function validCPU(control: FormControl) {
+    return function validCPU(control: UntypedFormControl) {
       const config = self.fieldConfig.find((c) => c.name === name);
       setTimeout(() => {
         const errors = self.vcpus * self.cores * self.threads > 16
@@ -216,6 +224,8 @@ export class VmFormComponent {
   }
 
   resourceTransformIncomingRestData(wsResponse) {
+    this.currentBootloader = wsResponse['bootloader'];
+    this.setBootloaderOptions(this.currentBootloader);
     wsResponse['memory'] = this.storageService.convertBytestoHumanReadable(wsResponse['memory'] * 1048576, 0);
     return wsResponse;
   }

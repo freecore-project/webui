@@ -1,53 +1,63 @@
-<mat-card>
-  <mat-card-title>
-    {{ "Network Summary" | translate}}
-  </mat-card-title>
-  <mat-card-content>
-    <mat-list>
-      <mat-divider></mat-divider>
-      <h3 mat-subheader>{{ "Interfaces" | translate }}</h3>
-      <mat-list>
-        <mat-list-item class="pseudo-table-header">
-          <div fxFlex="20">{{ "Name" | translate }}</div>
-          <div fxFlex="40">{{ "IPv4 Address" | translate }}</div>
-          <div fxFlex="40">{{ "IPv6 Address" | translate }}</div>
-        </mat-list-item>
-        <mat-divider></mat-divider>
-        <mat-list-item *ngFor="let ip of ips | keyvalue; let i=index" class="dynamic-height">
-          <div fxFlex="20">{{ip.key}}</div>
-          <div fxFlex="40" *ngIf="ip.value.IPV4">
-            <div *ngFor="let ipv4 of ip.value.IPV4 | keyvalue">
-              {{ipv4.value}}
-            </div>
-          </div>
-          <div fxFlex="40" *ngIf="ip.value.IPV6">
-            <div *ngFor="let ipv6 of ip.value.IPV6 | keyvalue">
-              {{ipv6.value}}
-            </div>
-          </div>
-          <mat-divider *ngIf="i < ipSize - 1"></mat-divider>
-        </mat-list-item>
-      </mat-list>
-      <mat-divider></mat-divider>
-      <h3 mat-subheader>{{ "Default Routes" | translate }}</h3>
-      <mat-list-item *ngFor="let route of default_routes">
-        <mat-icon mat-list-icon>router</mat-icon>
-        {{route}}
-      </mat-list-item>
-      <mat-divider></mat-divider>
-      <h3 mat-subheader>{{ "Nameservers" | translate }}</h3>
-      <ng-container *ngIf="nameservers.length > 0; else nonameservers">
-        <mat-list-item *ngFor="let server of nameservers">
-          <mat-icon mat-list-icon>dns</mat-icon>
-          {{server}}
-        </mat-list-item>
-      </ng-container>
-      <ng-template #nonameservers>
-        <mat-list-item>
-          <mat-icon mat-list-icon>info_circle</mat-icon>
-          {{"Name servers not configured" | translate}}
-        </mat-list-item>
-      </ng-template>
-    </mat-list>
-  </mat-card-content>
-</mat-card>
+<section id="network-summary-page" class="fc-page fc-page--capped" aria-labelledby="network-summary-title">
+  <h1 id="network-summary-title" class="fc-page-title">{{ "Network Summary" | translate }}</h1>
+
+  <dl class="fc-network-facts">
+    <div>
+      <dt>{{ "Default Routes" | translate }}</dt>
+      @for (route of default_routes; track route) {
+        <dd>{{ route }}</dd>
+      } @empty {
+        <dd>-</dd>
+      }
+    </div>
+    <div>
+      <dt>{{ "Nameservers" | translate }}</dt>
+      @if (nameservers.length > 0) {
+        @for (server of nameservers; track server) {
+          <dd>{{ server }}</dd>
+        }
+      } @else {
+        <dd>{{ "Name servers not configured" | translate }}</dd>
+      }
+    </div>
+  </dl>
+
+  <h2 id="network-summary-interfaces-title">{{ "Interfaces" | translate }}</h2>
+  <div class="fc-network-table" tabindex="0" role="region" aria-labelledby="network-summary-interfaces-title">
+    <table>
+      <caption class="cdk-visually-hidden">{{ "Interfaces" | translate }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ "Name" | translate }}</th>
+          <th scope="col">{{ "IPv4 Address" | translate }}</th>
+          <th scope="col">{{ "IPv6 Address" | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (ip of ips | keyvalue; track ip.key) {
+          <tr>
+            <td>{{ ip.key }}</td>
+            <td>
+              @if (ip.value.IPV4) {
+                @for (ipv4 of ip.value.IPV4 | keyvalue; track ipv4.key) {
+                  <div>{{ ipv4.value }}</div>
+                }
+              }
+            </td>
+            <td>
+              @if (ip.value.IPV6) {
+                @for (ipv6 of ip.value.IPV6 | keyvalue; track ipv6.key) {
+                  <div>{{ ipv6.value }}</div>
+                }
+              }
+            </td>
+          </tr>
+        } @empty {
+          <tr class="fc-network-empty">
+            <td colspan="3">{{ "None" | translate }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</section>

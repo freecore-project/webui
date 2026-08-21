@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -8,12 +8,15 @@ import { FieldConfig } from '../../common/entity/entity-form/models/field-config
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { ipv4Validator, ipv6Validator } from '../../common/entity/entity-form/validators/ip-validation';
 import helptext from '../../../helptext/network/configuration/configuration';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-networkconfiguration',
   template: `
   <entity-form [conf]="this"></entity-form>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TooltipsService],
 })
 export class ConfigurationComponent {
@@ -21,6 +24,7 @@ export class ConfigurationComponent {
   protected queryCall = 'network.configuration.config';
   protected updateCall = 'network.configuration.update';
   isEntity = false;
+  readonly settingsTitle = T('Global Configuration'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
 
@@ -204,8 +208,6 @@ export class ConfigurationComponent {
   resourceTransformIncomingRestData(data) {
     if (data.hosts && data.hosts !== '') {
       data['hosts'] = data.hosts.split('\n');
-    } else {
-      data.hosts === [];
     }
     data['netbios'] = data['service_announcement']['netbios'];
     data['mdns'] = data['service_announcement']['mdns'];

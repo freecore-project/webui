@@ -1,5 +1,6 @@
 import {
   Component, OnInit, Output, EventEmitter,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NavigationService } from '../../../services/navigation/navigation.service';
 import { WebSocketService } from '../../../services';
@@ -11,9 +12,14 @@ import * as _ from 'lodash';
 import * as Ps from 'perfect-scrollbar';
 import { filter } from 'rxjs/operators';
 
+const SUB_ITEM_LINKS = new WeakMap<object, string[]>();
+
 @Component({
+  standalone: false,
   selector: 'navigation',
   templateUrl: './navigation.template.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./navigation.component.css'],
 })
 export class NavigationComponent extends ViewControllerComponent implements OnInit {
   productType = window.localStorage.getItem('product_type');
@@ -24,6 +30,26 @@ export class NavigationComponent extends ViewControllerComponent implements OnIn
 
   constructor(private navService: NavigationService, private router: Router, private ws: WebSocketService, private docsService: DocsService) {
     super();
+  }
+
+  /**
+   * Build a sub-item's router link. A dropdown child with an empty state means "the
+   * parent's own page": appending the empty segment would produce a trailing slash
+   * ('/jails/'), which matches no route, so the link is the parent's state alone.
+   */
+  // the internal development record: one array per sub-item, for the life of the menu. A template
+  // array literal is memoised by the compiler; a method call is not, and returning a
+  // fresh array on every change-detection pass changes RouterLink's input on every
+  // pass. Once the clicked link is the active one, change detection never settles
+  // and the tab hangs at 100 % CPU. Keyed by the menu object, not the component, so
+  // the method also works unbound (the #330 spec calls it off the prototype).
+  subItemLink(item: any, subItem: any): string[] {
+    let link = SUB_ITEM_LINKS.get(subItem);
+    if (!link) {
+      link = subItem.state ? ['/', item.state, subItem.state] : ['/', item.state];
+      SUB_ITEM_LINKS.set(subItem, link);
+    }
+    return link;
   }
 
   ngOnInit() {
@@ -48,7 +74,6 @@ export class NavigationComponent extends ViewControllerComponent implements OnIn
 
       // Temporarily hide some things in SCALE
       if (this.productType === 'SCALE') {
-        _.find(_.find(menuItem, { state: 'system' }).sub, { state: 'kmip' }).disabled = true;
         _.find(menuItem, { state: 'vm' }).disabled = true;
         _.find(_.find(menuItem, { state: 'directoryservice' }).sub, { state: 'nis' }).disabled = true;
         _.find(_.find(menuItem, { state: 'network' }).sub, { state: 'staticroutes' }).disabled = true;
@@ -65,14 +90,6 @@ export class NavigationComponent extends ViewControllerComponent implements OnIn
       // ====================
 
       if (window.localStorage.getItem('product_type') === 'ENTERPRISE') {
-        this.ws.call('failover.licensed').subscribe((is_ha) => {
-          if (is_ha) {
-            _.find(_.find(menuItem,
-              { name: 'System' }).sub,
-            { name: 'Failover' }).disabled = false;
-          }
-        });
-
         this.ws
           .call('system.feature_enabled', ['VM'])
           .pipe(filter((vmsEnabled) => !vmsEnabled))

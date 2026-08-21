@@ -1,14 +1,12 @@
-.padding-16 {
-  padding: 16px;
-}
+/* the internal development record: the shell is .fc-page, the title row .fc-page-header (freecore-ui.css). The scan
+   facts take the boot-pool status page's dl voice -- freecore-ui.css keys its copy on
+   #boot-pool-status-page, so this page carries its own under its id (the update.component.css
+   precedent). reset.css zeroes dl/dt/dd, so nothing else fights it. */
+#pool-status-page .fc-boot-scan { display: flex; flex-wrap: wrap; gap: 18px 40px; margin: 0 0 28px; }
+#pool-status-page .fc-boot-scan dt { color: var(--fg2); font-size: 12px; }
+#pool-status-page .fc-boot-scan dd { margin: 8px 0 0; }
 
-.CellHighlight {
-  color: red;
-}
 .time-remaining {
   margin-left: 5px;
 }
-
-mat-list-item {
-  height: 24px !important;
-}
+#pool-status-page .fc-boot-scan dd .time-remaining:first-child { margin-left: 0; }

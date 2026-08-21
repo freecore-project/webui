@@ -114,14 +114,14 @@ def pytest_runtest_makereport(item):
         screenshot_error_name = f'screenshot/{folder}/{filename}_error.png'
         traceback_name = f'screenshot/{folder}/{filename}.txt'
         # look if there is a Error window
-        error_xpath = '//h1[normalize-space(text())="Error"]'
-        failed_xpath = '//h1[normalize-space(text())="FAILED"]'
-        download_xpath = '//h1[normalize-space(text())="Error Downloading File"]'
-        validation_error = '//h1[normalize-space(text())="ValidationErrors"]'
-        call_error = '//h1[normalize-space(text())="CallError"]'
+        error_xpath = '//h2[normalize-space(text())="Error"]'
+        failed_xpath = '//h2[normalize-space(text())="FAILED"]'
+        download_xpath = '//h2[normalize-space(text())="Error Downloading File"]'
+        validation_error = '//h2[normalize-space(text())="ValidationErrors"]'
+        call_error = '//h2[normalize-space(text())="CallError"]'
         # This looks for plugins install error box and will close the dialog.
         if is_element_present(web_driver, error_xpath) or is_element_present(web_driver, failed_xpath) or is_element_present(web_driver, download_xpath) or is_element_present(web_driver, validation_error) or is_element_present(web_driver, call_error):
-            web_driver.find_element_by_xpath('//div[@ix-auto="button__backtrace-toggle"]').click()
+            web_driver.find_element_by_xpath('//details[@ix-auto="button__backtrace-toggle"]/summary').click()
             time.sleep(2)
             save_traceback(traceback_name)
             save_screenshot(screenshot_error_name)
@@ -173,7 +173,7 @@ def save_screenshot(name):
 
 def save_traceback(name):
     traceback_file = open(name, 'w')
-    traceback_file.writelines(web_driver.find_element_by_xpath('//textarea[@id="err-bt-text"]').text)
+    traceback_file.writelines(web_driver.find_element_by_xpath('//pre[@id="err-bt-text"]').text)
     traceback_file.close()
 
 
@@ -185,14 +185,14 @@ def enable_failover():
     web_driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__System"]').click()
     wait_on_element(web_driver, 5, '//mat-list-item[@ix-auto="option__Failover"]')
     web_driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__Failover"]').click()
-    wait_on_element(web_driver, 5, '//h4[contains(.,"Failover Configuration")]')
+    wait_on_element(web_driver, 5, '//h2[contains(.,"Failover Configuration")]')
     element = web_driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Disable Failover"]')
     class_attribute = element.get_attribute('class')
     if 'mat-checkbox-checked' in class_attribute:
         web_driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Disable Failover"]').click()
         wait_on_element(web_driver, 5, '//button[@ix-auto="button__SAVE"]')
         web_driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
-        wait_on_element(web_driver, 5, '//h1[contains(.,"Settings saved")]')
+        wait_on_element(web_driver, 5, '//h2[contains(.,"Settings saved")]')
         if is_element_present(web_driver, '//button[@ix-auto="button__CLOSE"]'):
             web_driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     time.sleep(1)
@@ -249,7 +249,7 @@ def disable_nis():
     assert wait_on_element(web_driver, 7, xpaths.sideMenu.directory_services_nis)
     web_driver.find_element_by_xpath(xpaths.sideMenu.directory_services_nis).click()
     assert wait_on_element(web_driver, 5, '//li[span/a/text()="NIS"]')
-    assert wait_on_element(web_driver, 5, '//h4[contains(.,"Network Information Service (NIS)")]')
+    assert wait_on_element(web_driver, 5, '//h2[contains(.,"Network Information Service (NIS)")]')
     assert wait_on_element(web_driver, 5, xpaths.checkbox.enable, 'clickable')
     web_driver.find_element_by_xpath(xpaths.checkbox.enable).click()
     assert wait_on_element(web_driver, 5, xpaths.button.save, 'clickable')

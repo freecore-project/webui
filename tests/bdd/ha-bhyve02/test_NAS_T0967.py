@@ -93,7 +93,7 @@ def click_the_add_button_on_the_right_side_of_the_screen(driver):
 @then('The Users Add Page should open')
 def the_users_add_page_should_open(driver):
     """The Users Add Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('Fill in the following fields Full Name, Username, Password, Confirm Password and click Save')

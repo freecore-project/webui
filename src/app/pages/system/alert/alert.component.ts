@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { EntityUtils } from 'app/pages/common/entity/utils';
@@ -26,9 +26,11 @@ interface AlertCategory {
  * middleware.
  */
 @Component({
+  standalone: false,
   selector: 'app-system-alert',
   templateUrl: './alert.component.html',
   styleUrls: ['../../common/entity/entity-form/entity-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [EntityFormService],
 })
 export class AlertConfigComponent implements OnInit {
@@ -97,7 +99,7 @@ export class AlertConfigComponent implements OnInit {
             type: 'select',
             name: c.id + '_level',
             inlineLabel: c.title,
-            placeholder: T('Set Warning Level'),
+            placeholder: T('Warning Level'),
             tooltip: helptext.level_tooltip,
             options: warningOptions,
             value: c.level,
@@ -106,7 +108,7 @@ export class AlertConfigComponent implements OnInit {
             type: 'select',
             name: c.id + '_policy',
             inlineLabel: ' ',
-            placeholder: T('Set Frequency'),
+            placeholder: T('Frequency'),
             tooltip: helptext.policy_tooltip,
             options: this.settingOptions,
             value: 'IMMEDIATELY',

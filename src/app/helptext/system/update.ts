@@ -107,4 +107,35 @@ Apply updates and reboot?'),
   ha_pending_msg: T('Upgrades both controllers. Files are downloaded to the Active Controller \
 and then transferred to the Standby Controller. The upgrade process starts concurrently on both TrueNAS Controllers.'),
 
+  rollback: {
+    title: T('Rollback to the captured system?'),
+    action: T('Rollback'),
+    confirmation: T(`<p><b>This operation discards system, jail, and plugin changes made after the capture.</b></p>
+      <ul>
+        <li>Restores the system dataset and complete iocage tree to the capture timestamp.</li>
+        <li>Discards post-upgrade jail, plugin, and system-setting changes stored there.</li>
+        <li>Does not restore unrelated user datasets.</li>
+        <li>Returns jails and plugins to their captured 13.3 state; legacy plugin software may contain known vulnerabilities.</li>
+        <li>Activates the captured origin boot environment and reboots the system.</li>
+      </ul>
+      <p>Rollback is no longer possible after an incompatible pool upgrade or after the capture is removed.</p>`),
+    remove_title: T('Remove the captured return?'),
+    remove_action: T('Remove'),
+    remove_confirmation: T(`<p><b>This permanently removes the ability to return to TrueNAS CORE 13.3.</b></p>
+      <ul>
+        <li>Destroys the coordinated system-dataset and iocage snapshots.</li>
+        <li>Removes the keep pin from the 13.3 boot environment. It does not delete that boot environment or immediately free its deletion estimate.</li>
+        <li>Snapshot space can be released as the snapshots are destroyed. ZFS space accounting can change while data diverges.</li>
+        <li>The captured return otherwise persists with no automatic expiry, unless a confirmed pool feature upgrade forfeits it.</li>
+        <li>There is no undo.</li>
+      </ul>`),
+    retry_cleanup_title: T('Retry captured-return cleanup?'),
+    retry_cleanup_action: T('Retry'),
+    retry_cleanup_confirmation: T(`<p>The return is already closed, but some snapshots or the boot-environment keep pin still remain.</p>
+      <ul>
+        <li>Retries destruction of only the snapshots recorded for this captured return.</li>
+        <li>Retries removing the keep pin from the origin boot environment without deleting the boot environment.</li>
+      </ul>`),
+  },
+
 };

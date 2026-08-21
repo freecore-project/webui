@@ -1,4 +1,5 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
 import * as _ from 'lodash';
@@ -6,11 +7,15 @@ import { RestService, WebSocketService } from '../../../../services';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 
 @Component({
+  standalone: false,
   selector: 'bootenv-replace-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class BootEnvReplaceFormComponent {
+  settingsTitle = T('Boot Device'); // the internal development record: the object noun; the verb is on the button
+  saveSubmitText = T('Replace');
   protected route_success: string[] = ['system', 'boot', 'status'];
   protected isEntity = true;
   protected addCall = 'boot.replace';
