@@ -1,14 +1,17 @@
-import { Component } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import * as _ from 'lodash';
 import helptext from '../../../../../../helptext/services/components/service-rsync';
 import { UserService, WebSocketService } from '../../../../../../services';
 import { FieldConfig } from '../../../../../common/entity/entity-form/models/field-config.interface';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-rsync-configuration-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
@@ -16,11 +19,12 @@ export class RYSNCConfigurationFormComponent {
   protected queryCall = 'rsyncmod.query';
   protected route_success: string[] = ['services', 'rsync', 'rsync-module'];
   protected isEntity = true;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   protected pk: any;
   protected queryKey = 'id';
   protected addCall = 'rsyncmod.create';
   protected isNew: boolean;
+  readonly settingsTitle = T('Rsync Module'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -83,6 +87,7 @@ export class RYSNCConfigurationFormComponent {
           type: 'combobox',
           name: 'user',
           label: helptext.rsyncmod_user_label,
+          showLabel: true,
           placeholder: helptext.rsyncmod_user_placeholder,
           tooltip: helptext.rsyncmod_user_tooltip,
           options: [],
@@ -94,6 +99,7 @@ export class RYSNCConfigurationFormComponent {
           type: 'combobox',
           name: 'group',
           label: helptext.rsyncmod_group_label,
+          showLabel: true,
           placeholder: helptext.rsyncmod_group_placeholder,
           tooltip: helptext.rsyncmod_group_tooltip,
           options: [],

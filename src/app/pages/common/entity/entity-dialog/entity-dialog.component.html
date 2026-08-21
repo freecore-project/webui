@@ -1,49 +1,56 @@
-<h1 mat-dialog-title class="entity-dialog-form-title" [innerHTML]="title | translate"></h1>
+<h2 mat-dialog-title class="entity-dialog-form-title" [innerHTML]="title | translate"></h2>
 
 <div mat-dialog-content ix-auto ix-auto-type="dialog" ix-auto-identifier="title" class="entity-dialog-form-content">
-  <div class="entity-dialog-form-message" >
-    <span [innerHTML]="conf.message | translate"></span>
-  </div>
-  <div *ngIf="conf['confirmInstructions']" >
-    <div [innerHTML]="instructions" [ngStyle]="{marginTop:'10px', marginBottom: '-1rem'}"></div>
-    <div id="double-confirm-mask" [ngStyle]="{opacity: '.38', position: 'relative', top: '35px'}"><pre>{{conf['name']}}</pre></div>
-  </div>
-  <ng-container *ngFor="let field of fieldConfig;" dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'">
-    <button mat-icon-button type="button" *ngIf="field.hideButton===false" (click)="togglePW()"
-      ix-auto
-      ix-auto-type="button"
-      ix-auto-identifier="{{config.placeholder}}_toggle-pw">
-      <mat-icon matTooltip="Hide" *ngIf="showPassword">visibility</mat-icon>
-      <mat-icon matTooltip="Show" *ngIf="!showPassword">visibility_off</mat-icon>
-    </button>
-  </ng-container>
-  <span [innerHTML]="conf.warning | translate"></span>
-</div>
-<div>
-  <mat-error *ngIf="error" type="danger" id="error_message"><div [innerHTML]="error | translate"></div></mat-error>
+  @if (conf.message) {
+    <div class="entity-dialog-form-message" [innerHTML]="conf.message | translate"></div>
+  }
+  @if (conf['confirmInstructions']) {
+    <div>
+      <div [innerHTML]="instructions" [ngStyle]="{marginTop:'10px', marginBottom: '-1rem'}"></div>
+      <div id="double-confirm-mask" [ngStyle]="{opacity: '.38', position: 'relative', top: '35px'}"><pre>{{conf['name']}}</pre></div>
+    </div>
+  }
+  @for (field of fieldConfig; track field) {
+    <ng-container dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'"></ng-container>
+  }
+  @if (conf.warning) {
+    <div class="warning-box" [innerHTML]="conf.warning | translate"></div>
+  }
+  @if (error) {
+    <p class="form-error-line" id="error_message" role="alert" [innerHTML]="error | translate"></p>
+  }
 </div>
 
 <div mat-dialog-actions>
-  <mat-checkbox id="confirm-dialog__confirm-checkbox" name="confirm_checkbox" class="confirm-checkbox" *ngIf="confirmCheckbox" (change)="toggleSubmit($event)"
-  ix-auto
-  ix-auto-type="checkbox"
-  ix-auto-identifier="CONFIRM">{{"Confirm" | translate}}</mat-checkbox>
-  <span fxFlex></span>
-  <button mat-button *ngIf="!conf.hideCancel" class="mat-button mat-accent action-btn" (click)="cancel()" [name]="cancelButtonText + '_button'">{{cancelButtonText | translate}}</button>
-  <span *ngFor="let custBtn of conf.custActions">
-    <button id="cust_button_{{custBtn.id}}" mat-button class="mat-button action-btn"
-      *ngIf="!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)" type="button"
-      [ix-auto]=""
+  @if (confirmCheckbox) {
+    <div class="checkbox-row">
+      <span class="checkbox-cell">
+        <hlm-checkbox inputId="confirm-dialog__confirm-checkbox" name="confirm_checkbox" (checkedChange)="toggleSubmit($event)"
+          ix-auto
+          ix-auto-type="checkbox"
+          ix-auto-identifier="CONFIRM" />
+      </span>
+      <label hlmLabel class="checkbox-label" for="confirm-dialog__confirm-checkbox">{{ 'Confirm' | translate }}</label>
+    </div>
+  }
+  <span class="dialog-action-spacer"></span>
+  @if (!conf.hideCancel) {
+    <button hlmBtn variant="outline" type="button" (click)="cancel()" [name]="cancelButtonText + '_button'">{{ cancelButtonText | translate }}</button>
+  }
+  @for (custBtn of conf.custActions; track custBtn) {
+    @if (!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)) {
+      <button id="cust_button_{{custBtn.id}}" hlmBtn variant="ghost" type="button"
+        ix-auto
+        ix-auto-type="button"
+        ix-auto-identifier="{{custBtn.name | uppercase}}"
+        (click)="custBtn['function']()" [name]="custBtn.name + '_button'">{{ custBtn.name | translate }}</button>
+    }
+  }
+  @if (saveButtonText) {
+    <button hlmBtn type="button" (click)="submit()" [disabled]="!formGroup.valid || !submitEnabled"
+      ix-auto
       ix-auto-type="button"
-      ix-auto-identifier="{{custBtn.name | uppercase}}"
-      (click)="custBtn['function']()" [name]="custBtn.name + '_button'"
-      [ix-auto]=""
-      ix-auto-type="button"
-      ix-auto-identifier="{{cancelButtonText | uppercase}}">{{custBtn.name | translate}}</button>
-  </span>
-  <button mat-button class="mat-button mat-primary" (click)="submit()" [disabled]="!formGroup.valid || !submitEnabled"
-    [ix-auto]=""
-    ix-auto-type="button"
-    ix-auto-identifier="{{saveButtonText | uppercase}}"
-    *ngIf="saveButtonText" [name]="saveButtonText + '_button'">{{saveButtonText | translate}}</button>
+      ix-auto-identifier="{{saveButtonText | uppercase}}"
+      [name]="saveButtonText + '_button'">{{ saveButtonText | translate }}</button>
+  }
 </div>

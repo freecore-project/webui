@@ -1,0 +1,127 @@
+/*
+ * fork-polish.css — TrueNAS 15 fork surface geometry (the internal development record, the internal development record).
+ * Loaded LAST in angular.json so equal-specificity rules win over Material 9
+ * defaults and fn-styles without !important. Delete this file + its
+ * angular.json line to revert the whole item.
+ *
+ * Scope: surface geometry + elevation only. No colors or typography.
+ */
+
+:root {
+  --fork-radius-md: 8px;  /* cards, menus, panels */
+  --fork-radius-sm: 6px;  /* buttons, search */
+  --fork-shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --fork-shadow-overlay: 0 4px 12px rgba(0, 0, 0, 0.16), 0 12px 32px rgba(0, 0, 0, 0.20);
+}
+
+/* Cards (dashboard widgets, entity tables and forms are all mat-card) */
+.mat-card:not([class*='mat-elevation-z']),
+.mat-mdc-card:not([class*='mat-elevation-z']) {
+  border-radius: var(--fork-radius-md);
+  box-shadow: var(--fork-shadow-rest);
+}
+.mat-card.default > :first-child,
+.mat-mdc-card.default > :first-child {
+  border-radius: var(--fork-radius-md) var(--fork-radius-md) 0 0;
+}
+
+/* Buttons */
+.mat-mdc-button,
+.mat-mdc-raised-button,
+.mat-mdc-outlined-button,
+.mat-mdc-unelevated-button {
+  border-radius: var(--fork-radius-sm);
+}
+
+/* the internal development record: Material's M2 density-0 icon button paints a 48px
+ * circular state layer around a 24px glyph. Compact fork toolbars use a 36px
+ * visible control; retain Material's separate 48px touch target. */
+:root .mat-mdc-icon-button.mat-mdc-button-base {
+  --mdc-icon-button-state-layer-size: 36px;
+  --mat-icon-button-state-layer-size: 36px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+}
+
+/* the internal development record: About's component geometry was authored around the
+ * legacy dialog's 24px container inset. Restore that inset only for About;
+ * ordinary MDC dialogs keep their native title/content/action geometry. */
+.about-dialog-panel .mat-mdc-dialog-surface.mdc-dialog__surface {
+  padding: 24px;
+}
+
+/* Datatable edges inside padded-zero entity cards */
+.datatable-header {
+  border-radius: var(--fork-radius-md) var(--fork-radius-md) 0 0;
+}
+.datatable-footer {
+  border-radius: 0 0 var(--fork-radius-md) var(--fork-radius-md);
+}
+
+/* fn-styles 2px stragglers */
+.search-bar .top-search-form {
+  border-radius: var(--fork-radius-sm);
+}
+div.hopscotch-bubble,
+div.hopscotch-bubble .hopscotch-nav-button {
+  border-radius: var(--fork-radius-md);
+}
+
+/* the internal development record: hide the "unsorted" sort caret in entity-table headers.
+
+   ngx-datatable renders a double-caret placeholder on every sortable column
+   whether or not that column is sorted, so each header carried a permanent
+   glyph riding ~5px above the text. Matching 13.3, which shows an indicator
+   only on the column actually being sorted.
+
+   Only the unset state is hidden. The active states are separate classes
+   (datatable-icon-up / datatable-icon-down), so ascending and descending
+   arrows still appear on the sorted column and continue to sit where they
+   always did -- sorting behaviour and its feedback are untouched.
+
+   Note this hides an indicator, not the control: the click target is the
+   header cell, so columns remain sortable.
+
+   The selector mirrors ngx-datatable's own
+       .ngx-datatable .datatable-header .datatable-header-cell .sort-btn
+   (0,4,0) and adds the state class to reach (0,5,0). Being loaded last is NOT
+   sufficient here -- the shorter `.datatable-header-cell .sort-btn.<state>`
+   is only (0,3,0) and loses on specificity regardless of order, which is the
+   same trap that left #23 silently dead. Measured, not assumed. */
+.ngx-datatable .datatable-header .datatable-header-cell .sort-btn.datatable-icon-sort-unset {
+  display: none;
+}
+
+/* the internal development record: retain the 53px Preferences checkbox rhythm after MDC
+ * enlarged the control. Remove duplicate row spacing, keeping the native
+ * checkbox touch target and allowing wrapped labels and warnings to grow. */
+general-preferences-form .fieldset.preferences .form-inline:has(> form-checkbox) {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+general-preferences-form .fieldset.preferences form-checkbox .form-checkbox {
+  margin-bottom: 5px;
+}
+
+/* the internal development record: a paragraph field renders its text through [innerHTML],
+ * which emulated-encapsulation styles cannot reach, so a <code> command inside
+ * one had no styling at all. In the Bastille Settings dialog that left an
+ * unbreakable 470px path running 74px outside a 420px dialog, over the page
+ * behind it.
+ *
+ * Wrapping is the fix; the rest earns its keep by making the command usable --
+ * `user-select: all` selects the whole line on one click, so nobody has to
+ * drag-select or retype a path. */
+.dynamic-field p code {
+  background: var(--alt-bg1);
+  border-radius: 3px;
+  display: inline-block;
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  padding: 3px 6px;
+  user-select: all;
+}

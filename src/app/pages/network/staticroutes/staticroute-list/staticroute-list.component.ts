@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { RestService } from '../../../../services/rest.service';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-staticroute-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class StaticRouteListComponent {

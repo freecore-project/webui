@@ -1,13 +1,12 @@
-<h1 mat-dialog-title>{{ 'Scan This QR Code' | translate }}</h1>
+<h2 mat-dialog-title>{{ 'Scan This QR Code' | translate }}</h2>
 <div mat-dialog-content>
   <div id="qr-wrapper">
-  <qr-code 
-    [value]="data.qrInfo" 
-    [size]="150">
-  </qr-code>
-</div>
-  
+    <qrcode
+      [qrdata]="data.qrInfo"
+      [width]="150">
+    </qrcode>
+  </div>
 </div>
 <div mat-dialog-actions id="qr-dialog-buttons">
-  <button mat-flat-button cdkFocusInitial (click)="onNoClick()" color="accent">{{ "CLOSE" | translate }}</button>
+  <button hlmBtn variant="outline" type="button" cdkFocusInitial (click)="onNoClick()">{{ "Close" | translate }}</button>
 </div>

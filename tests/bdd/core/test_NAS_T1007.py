@@ -69,7 +69,7 @@ def when_windows_sharessmb_page_appears_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"Samba")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then(parsers.parse('set Path to the ACL dataset "{dataset_path}"'))

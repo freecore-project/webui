@@ -1,15 +1,20 @@
+/* the internal development record: one outline icon font for the whole shell.
+ * Material Symbols Outlined, a static instance at the brand round-3 axes
+ * (FILL 0, wght 300, GRAD -25, opsz 20), all 4,284 icons, Apache-2.0.
+ * The .material-icons class stays: it is MatIcon's default font set, so
+ * every <mat-icon>ligature</mat-icon> in the app switches with it. */
 @font-face {
-  font-family: "Material Icons";
+  font-family: "Material Symbols Outlined";
   font-style: normal;
-  font-weight: 400;
-  src: url("MaterialIcons-Regular.eot");
-  /* For IE6-8 */
-  src: local("Material Icons"), local("MaterialIcons-Regular"), url("MaterialIcons-Regular.woff2") format("woff2"), url("MaterialIcons-Regular.woff") format("woff"), url("MaterialIcons-Regular.ttf") format("truetype");
+  font-weight: 300;
+  font-display: block;
+  src: url("MaterialSymbolsOutlined-w300-fill0-grad-25-opsz20.woff2") format("woff2");
 }
 
-.material-icons {
-  font-family: "Material Icons";
-  font-weight: normal;
+.material-icons,
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: 300;
   font-style: normal;
   font-size: 24px;
   display: inline-block;
@@ -19,12 +24,8 @@
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-  /* Support for all WebKit browsers. */
   -webkit-font-smoothing: antialiased;
-  /* Support for Safari and Chrome. */
   text-rendering: optimizeLegibility;
-  /* Support for Firefox. */
   -moz-osx-font-smoothing: grayscale;
-  /* Support for IE. */
   font-feature-settings: 'liga';
 }

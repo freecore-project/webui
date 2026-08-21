@@ -2,12 +2,11 @@ import { T } from 'app/translate-marker';
 import globalHelptext from '../global-helptext';
 
 export const helptext_system_failover = {
-  save_button_text: T('SAVE'),
+  save_button_text: T('Save'),
   failover_button_text: T('SAVE AND FAILOVER'),
   dialog_initiate_failover_title: T('Initiate Failover'),
   dialog_initiate_failover_message: T('WARNING: A failover will \
  temporarily interrupt system services.'),
-  dialog_initiate_failover_checkbox: T('Confirm'),
   dialog_initiate_cancel: T('Cancel'),
   dialog_initiate_action: T('Failover'),
 

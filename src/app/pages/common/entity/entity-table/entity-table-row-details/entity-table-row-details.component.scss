@@ -2,8 +2,20 @@
     display: block;
     padding: 16px;
 
-    button {
-        padding: 8px 16px;
+    /* the internal development record: the actions are ghost buttons (32px, 12px sides), their glyph 16px fg2. */
+    .row-action {
+        padding: 0 12px;
+    }
+
+    .entity-table-row-action-layout mat-icon {
+        font-size: 16px;
+        height: 16px;
+        line-height: 16px;
+        width: 16px;
+    }
+
+    .details-separator {
+        display: block;
     }
 
     h4 {
@@ -30,7 +42,68 @@
     .wrapper__action-buttons {
         padding: 4px 0;
     }
-    .mat-button:hover {
-      background-color: rgba(0,0,0,0.1);
+
+    .entity-table-row-detail-layout,
+    .entity-table-row-detail-value-layout,
+    .entity-table-row-actions-layout,
+    .entity-table-row-action-layout {
+        align-content: center;
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+    }
+
+    .entity-table-row-detail-layout,
+    .entity-table-row-detail-value-layout,
+    .entity-table-row-actions-layout {
+        justify-content: flex-start;
+    }
+
+    .entity-table-row-action-layout {
+        justify-content: center;
+    }
+
+    .entity-table-row-detail-layout > :not(:last-child) {
+        margin-inline-end: 16px;
+    }
+
+    /* the internal development record: the widget menu is an ng-template now (no hidden host in the row). */
+    .entity-table-row-detail-value-layout > :not(:last-child) {
+        margin-inline-end: 4px;
+    }
+
+    .entity-table-row-actions-layout > :not(:last-child),
+    .entity-table-row-action-layout > :not(:last-child) {
+        margin-inline-end: 8px;
+    }
+
+}
+
+:host.wrap-row-actions {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+
+    .entity-table-row-actions-layout {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .entity-table-row-actions-layout > .row-action {
+        height: auto;
+        margin-inline-end: 0;
+        max-width: 100%;
+        min-height: 32px;
+    }
+
+    .entity-table-row-action-layout p {
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .entity-table-row-action-layout mat-icon {
+        flex-shrink: 0;
     }
 }

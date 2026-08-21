@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ConsolePanelModalDialog } from 'app/components/common/dialog/consolepanel/consolepanel-dialog.component';
 import { Observable, Subscription } from 'rxjs';
@@ -8,13 +8,18 @@ import {
 import { WebSocketService } from '../ws.service';
 
 @Component({
+  standalone: false,
   selector: 'app-app-loader',
   templateUrl: './app-loader.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./app-loader.component.css'],
 })
 export class AppLoaderComponent {
   title: string;
   message: string;
+  detail: string;
+  fullscreen = false;
+  copyrightYear: string | number;
 
   consoleMsg: string;
   consoleMSgList: string[] = [];
@@ -33,13 +38,12 @@ export class AppLoaderComponent {
       .subscribe((res) => {
         if (res.consolemsg) {
           this.isShowConsole = true;
-          this.dialogRef.updateSize('200px', '248px');
         }
       });
   }
 
   onOpenConsole(): void {
-    this.consoleDialog = this._dialog.open(ConsolePanelModalDialog, {});
+    this.consoleDialog = this._dialog.open(ConsolePanelModalDialog, { width: '80vw' });
 
     this._consoleSubscription = this.consoleDialog.componentInstance.onEventEmitter
       .pipe(switchMap(() => this._ws.consoleMessages))

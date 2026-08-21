@@ -1,0 +1,69 @@
+<section id="security-keys-page" class="fc-page fc-page--capped" aria-labelledby="security-keys-title">
+  <header class="fc-page-header">
+    <h1 id="security-keys-title" class="fc-page-title">{{ helptext.formTitle | translate }}</h1>
+    <button hlmBtn variant="outline" type="button" (click)="addKey()" [disabled]="!browserOk">
+      {{ helptext.add_button | translate }}
+    </button>
+  </header>
+  <div class="fc-security-intro">
+    <p>{{ helptext.intro | translate }}</p>
+    <p>{{ helptext.either_or_note | translate }}</p>
+  </div>
+  @if (!browserOk) {
+    <p class="fc-page-notice fc-page-notice--warn" role="status">{{ helptext.banner_unavailable | translate }}</p>
+  }
+  @if (!twoFactorEnabled && !config.enabled) {
+    <p class="fc-page-notice fc-page-notice--warn" role="status">{{ helptext.requires_totp | translate }}</p>
+  }
+
+  <dl class="fc-security-status">
+    <div>
+      <dt>{{ helptext.status_label | translate }}</dt>
+      <dd>{{ (config.enabled ? helptext.enabled_label : helptext.disabled_label) | translate }}</dd>
+    </div>
+  </dl>
+
+  @if (loading) {
+    <hlm-progress [attr.aria-label]="'Loading Security Keys' | translate"><hlm-progress-indicator /></hlm-progress>
+  }
+  @if (credentials.length) {
+    <div class="fc-security-table" tabindex="0" role="region" [attr.aria-label]="helptext.formTitle | translate">
+      <table>
+        <caption class="cdk-visually-hidden">{{ helptext.formTitle | translate }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ helptext.columns.name | translate }}</th>
+            <th scope="col">{{ helptext.columns.created | translate }}</th>
+            <th scope="col">{{ helptext.columns.last_used | translate }}</th>
+            <th scope="col"><span class="cdk-visually-hidden">{{ 'Actions' | translate }}</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (credential of credentials; track credential) {
+            <tr>
+              <td>{{ credential.name }}</td>
+              <td>{{ credential.created_at?.$date ? (credential.created_at.$date | date: 'medium') : '-' }}</td>
+              <td>{{ credential.last_used?.$date ? (credential.last_used.$date | date: 'medium') : ('Never' | translate) }}</td>
+              <td class="fc-security-row-action">
+                <button hlmBtn variant="ghost" size="icon" type="button" (click)="deleteKey(credential)" [attr.aria-label]="('Delete' | translate) + ' ' + credential.name" hlmTooltip="{{ 'Delete' | translate }}">
+                  <mat-icon aria-hidden="true">delete</mat-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (!loading && !credentials.length) {
+    <p class="fc-security-empty">{{ helptext.no_keys | translate }}</p>
+  }
+
+  <div class="fc-security-actions">
+    <button hlmBtn variant="outline" type="button" (click)="toggleEnabled()"
+      [disabled]="!config.enabled && (!credentials.length || !twoFactorEnabled)">
+      {{ (config.enabled ? helptext.disable_button : helptext.enable_button) | translate }}
+    </button>
+  </div>
+  <p class="fc-security-recovery">{{ helptext.recovery_note | translate }}</p>
+</section>

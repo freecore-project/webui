@@ -1,64 +1,128 @@
 <ng-template [ngTemplateOutlet]="templateTop" [ngTemplateOutletContext]="this"></ng-template>
-<p *ngIf="!hasConf">
-    Please <button mat-button color="primary" class="btn btn-link" type="button" (click)="goConf()">Click here</button> to set up configuration first.
-</p>
-<mat-card class="form-card">
-    <div class="mat-content">
+@if (!hasConf) {
+  <p>
+    Please <button hlmBtn variant="link" type="button" (click)="goConf()">Click here</button> to set up configuration first.
+  </p>
+}
+@if (conf.settingsTitle) {
+  <h1 class="fc-settings-title">{{conf.settingsTitle | translate}}</h1>
+}
+<!-- the internal development record: the leaf container is a plain div; the box Material's card gave it lives in
+     the component sheet and the card-keyed theme rules have `entity-form .form-card` twins.
+     the internal development record: every form is the settings container (1120 anchored, no inset, the hairline
+     action row) and renders its fieldsets as sections; `legacyLayout` keeps the flex fieldsets for
+     the few forms whose columns are structural. -->
+<div class="form-card fc-settings-form" [class.fc-legacy-layout]="conf.legacyLayout">
+  <div class="mat-content">
 
-        <mat-spinner 
-            [diameter]='40' 
-            id="entity-table-spinner"
-            *ngIf="showSpinner" #entityspinner>
-          </mat-spinner> 
-        
-        <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" class="form-wrap" #entityForm="ngForm" *ngIf="showDefaults">
-                <div class="fieldset-container fieldset-display-default" *ngIf="fieldSets">
-            <ng-container *ngFor="let fieldSet of fieldSets; let i = index">
-              <div [ngClass]="fieldSet.class" class="fieldset divider-{{fieldSet.divider}}"
-                  fxLayout="row wrap" fxLayoutAlign="start start" fxFlex="100%" fxFlex.gt-xs="calc({{fieldSets[i].width}} - 16px)">
-                <mat-divider *ngIf="fieldSets[i].divider && i > 0"></mat-divider>
-                <h4 *ngIf="fieldSet.label && isFieldsetAvailabel(fieldSet)" class="fieldset-label">{{fieldSet.name | translate}}</h4>
-                <div *ngFor="let field of fieldSet.config; let ii = index" fxFlex="100%" fxFlex.gt-xs="calc({{field.width}} - 16px)"
-                  [ngClass]="field.class == 'inline' ? 'form-inline' : field.class+ ' form-line'" id="{{fieldSet.name}}-{{ii}}">
-                  <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="isShow(field.name) ? 'show' :'hide'"></div>
-                </div>
+    @if (showSpinner) {
+      <!-- the internal development record: the loading overlay is hlm-spinner, sized and centred by its id rule. -->
+      <hlm-spinner id="entity-table-spinner" #entityspinner />
+    }
+
+    @if (showDefaults) {
+      <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" class="form-wrap" #entityForm="ngForm">
+        @if (fieldSets) {
+          <div class="fieldset-container fieldset-display-default">
+            @if (!conf.legacyLayout) {
+              @for (fieldSet of fieldSets; track fieldSet; let i = $index) {
+                @if (fieldSet.config?.length) {
+                  <section class="fc-settings-section" [ngClass]="fieldSet.class"
+                    [hidden]="!isSettingsSectionVisible(fieldSet)" [attr.aria-labelledby]="fieldSet.settingsLabel || fieldSet.label ? 'settings-section-' + i : null">
+                    @if (fieldSet.settingsLabel || fieldSet.label) {
+                      <h2 class="fieldset-label" id="settings-section-{{i}}">{{fieldSet.settingsLabel || fieldSet.name | translate}}</h2>
+                    }
+                    <div class="fc-settings-fields" [class.fc-settings-fields-unlabelled]="!fieldSet.settingsLabel && !fieldSet.label">
+                      @for (field of fieldSet.config; track field; let ii = $index) {
+                        <div class="entity-form-field-layout form-line" [ngClass]="field.class"
+                          [class.fc-settings-wide]="field.type !== 'input' && field.type !== 'select' || field.inputType === 'file'"
+                          [hidden]="!isSettingsFieldVisible(field)"
+                          id="{{fieldSet.name}}-{{ii}}">
+                          <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="isShow(field.name) ? 'show' : 'hide'"></div>
+                        </div>
+                      }
+                    </div>
+                  </section>
+                }
+              }
+            } @else {
+            @for (fieldSet of fieldSets; track fieldSet; let i = $index) {
+              <div [ngClass]="fieldSet.class"
+                [class.entity-form-fieldset-layout-sized]="fieldSets[i].width"
+                [style.--entity-form-fieldset-width]="fieldSets[i].width"
+                class="entity-form-fieldset-layout fieldset divider-{{fieldSet.divider}}">
+                @if (fieldSets[i].divider && i > 0) {
+                  <!-- the internal development record: the fieldset rule is hlm-separator -- the --line hairline the
+                       settings sections draw (.fc-settings-section border-top); mat-divider was invisible
+                       by accident (M2 outline at 12% under the theme's .15 opacity). -->
+                  <hlm-separator></hlm-separator>
+                }
+                @if (fieldSet.label && isFieldsetAvailabel(fieldSet)) {
+                  <h4 class="fieldset-label">{{fieldSet.name | translate}}</h4>
+                }
+                @for (field of fieldSet.config; track field; let ii = $index) {
+                  <div
+                    [class.entity-form-field-layout-sized]="field.width"
+                    [style.--entity-form-field-width]="field.width"
+                    [ngClass]="field.class == 'inline' ? 'form-inline' : field.class+ ' form-line'"
+                    class="entity-form-field-layout" id="{{fieldSet.name}}-{{ii}}">
+                    <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="isShow(field.name) ? 'show' :'hide'"></div>
+                  </div>
+                }
               </div>
-            </ng-container>
-              <mat-card-actions class="buttons">
-                <button id="save_button" class="btn btn-block btn-warning mat-primary" type="submit" mat-button color="primary" [disabled]="!entityForm.form.valid || !conf.save_button_enabled" 
-                  [ix-auto]=""
-                  ix-auto-type="button"
-                  ix-auto-identifier="{{saveSubmitText | uppercase}}"
-                  >{{saveSubmitText | translate}}</button>
-                <button id="goback_button" *ngIf="conf.route_success" class="btn  btn-block btn-lg mat-accent" type="button" (click)="goBack()" mat-button color="accent"
+            }
+            }
+            <!-- the internal development record: the action row on spartan. One div, the buttons on hlmBtn in the
+                 #353 tier the theme painted them: Save = default (the one primary), Cancel = outline,
+                 custom actions = ghost, Delete = destructive. Ids, types, disabled gates, ix-auto and
+                 the span around each custom action are the hooks the pages and specs key on. -->
+            <div class="buttons">
+              <button hlmBtn id="save_button" type="submit" [disabled]="!entityForm.form.valid || !conf.save_button_enabled"
+                [ix-auto]=""
+                ix-auto-type="button"
+                ix-auto-identifier="{{saveSubmitText | uppercase}}"
+              >{{saveSubmitText | translate}}</button>
+              @if (conf.route_success) {
+                <button hlmBtn variant="outline" id="goback_button" type="button" (click)="goBack()"
                   [ix-auto]=""
                   ix-auto-type="button"
                   ix-auto-identifier="CANCEL"
-                  >{{"Cancel" | translate}}</button>
-                <!-- </div> -->
-                <!-- <div class="btn-group btn-group-justified"> -->
-                <span *ngFor="let custBtn of conf.custActions">
-                  <button id="cust_button_{{custBtn.name}}" mat-button class="mat-basic" *ngIf="!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)" [disabled]="conf.isCustActionDisabled !== undefined ? conf.isCustActionDisabled(custBtn.id) : custBtn.disabled" type="button" (click)="custBtn['function']()"
+                >{{"Cancel" | translate}}</button>
+              }
+            @for (custBtn of conf.custActions; track custBtn) {
+              <span>
+                @if (!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)) {
+                  <button hlmBtn variant="ghost" id="cust_button_{{custBtn.name}}" [disabled]="conf.isCustActionDisabled !== undefined ? conf.isCustActionDisabled(custBtn.id) : custBtn.disabled" type="button" (click)="custBtn['function']()"
                     [ix-auto]=""
                     ix-auto-type="button"
                     ix-auto-identifier="{{custBtn.name | uppercase}}"
-                    >{{custBtn.name | translate}}</button>
-                </span>
-                <button mat-button *ngIf="conf.route_delete" class="btn btn-block btn-danger" type="button" (click)="gotoDelete()"
-                  [ix-auto]=""
-                  ix-auto-type="button"
-                  ix-auto-identifier="DELETE"
-                  >{{"Delete" | translate}}</button>
-                <!-- </div> -->
-                <div id="success-msg-wrapper">
-                  <div *ngIf="success && entityForm.form.dirty === false" type="success" id="successfully_updated">{{successMessage | translate}}</div>
-                </div>
-            </mat-card-actions>
-            </div>
-            <!-- <div class="btn-group btn-group-justified"> -->
-        </form>
-        <span *ngIf="conf.form_message" id="form_message" class="form-message" [ngClass]="conf.form_message.type" [innerHTML]="conf.form_message.content | translate"></span>
-        <mat-error *ngIf="error" type="danger" id="error_message"><div [innerHTML]="error"></div></mat-error>
-    </div>
-</mat-card>
-
+                  >{{custBtn.name | translate}}</button>
+                }
+              </span>
+            }
+            @if (conf.route_delete) {
+              <button hlmBtn variant="destructive" id="delete_button" type="button" (click)="gotoDelete()"
+                [ix-auto]=""
+                ix-auto-type="button"
+                ix-auto-identifier="DELETE"
+              >{{"Delete" | translate}}</button>
+            }
+          <div id="success-msg-wrapper">
+            @if (success && entityForm.form.dirty === false) {
+              <div type="success" id="successfully_updated">{{successMessage | translate}}</div>
+            }
+          </div>
+        </div>
+      </div>
+    }
+    <!-- <div class="btn-group btn-group-justified"> -->
+  </form>
+}
+@if (conf.form_message) {
+  <span id="form_message" class="form-message" [ngClass]="conf.form_message.type" [innerHTML]="conf.form_message.content | translate"></span>
+}
+@if (error) {
+  <div id="error_message" class="form-error-line" role="alert"><div [innerHTML]="error"></div></div>
+}
+</div>
+</div>

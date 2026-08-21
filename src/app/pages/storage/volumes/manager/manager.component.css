@@ -48,20 +48,38 @@
     flex-direction: column;
 }
 
+/* the internal development record: the hairline action row -- the .fc-settings-form row restated, since this page
+ * is a two-pane builder, not a form on the engine sheet. */
 .buttons {
+	align-items: center;
+	border-top: 1px solid var(--fc-line, var(--lines));
 	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 12px 0 0;
+	min-height: 64px;
+	padding: 20px 0 0;
 }
 
-button {
-	margin-right: 5px;
+/* the internal development record: the pane and group headings in the section voice (15px/400 fg1), left-aligned
+ * on their pane at the page edge; the free-standing group h4s sit on the .data-div's offset = the vdev
+ * table's text column (32px arrow column + 16px table margin + 8px cell padding = 56px), 72px under 1399px
+ * (the vdev table takes another 1rem there, vdev.component.css). Measured on the box, #417. */
+#create-pool-card #avail-disks-title,
+#create-pool-card .vdev-h4 {
+	color: var(--fg1);
+	font-size: 15px;
+	font-weight: 400; /* keyed on the page id: the theme's `h1..h6 { font-weight: 500 }` (0,1,1) outranks a bare class */
+	line-height: 1.5;
+	margin: 0;
 }
 
-h4 {
-	text-align: center;
+#create-pool-card #avail-disks-title {
+	margin: 0 0 12px;
 }
 
-#avail-disks-title {
-	margin-bottom: 25px;
+#create-pool-card .pool > div > .vdev-h4 {
+	margin-left: 56px;
 }
 
 .volumeTooltip {
@@ -69,11 +87,7 @@ h4 {
 }
 
 .sizeMessage {
-	margin: 0.5rem 1rem;
-}
-
-.vdev-h4 {
-	margin-bottom: 0;
+	margin: 8px 0;
 }
 
 .footer-div {
@@ -92,8 +106,8 @@ h4 {
 .data-div {
 	display: flex;
 	padding:0;
-	margin-left: 102px;
-	width: 477px;
+	margin-left: 56px; /* the internal development record: the arrow column is 32px now (was 64); on the table's text column */
+	width: 509px;
 	align-items: center;
 }
 
@@ -102,32 +116,37 @@ h4 {
 }
 
 .duplicate-button {
-	width: 60px;
+	width: auto;
 }
 
-#pool-manager__encryption-checkbox {
+/* the internal development record: the encryption row's 32px cell sits where the mat-checkbox host did */
+.manager-encryption-layout .checkbox-cell {
 	margin-left: 10px;
 }
 
-#pool-manager__reset-layout-button:disabled,
-#pool-manager__suggest-layout-button:disabled {
-	color: var(--fg2);
-	opacity: .38;
+/* the internal development record: the kit inputs keep the Material field's 202px box; the rows keep the 20px bands
+ * the field reserved above and below it, so nothing below moves. */
+#pool-manager__name-input-field,
+#pool-manager__extend-name-input-field {
+	width: 202px;
 }
 
-.pool-manager-title {
-	margin: 16px !important;
+.manager-extend-name-row {
+	padding: 20px 0;
 }
+
 .fields {
-	/*display: flex;*/
-        width: 600px;
-	margin: 0.75rem 3rem 3rem 1rem !important;
+	width: 600px;
+	margin: 0 0 24px;
 }
-#filter-wrapper, #pool-manager__button-group {
-	margin-left: 1rem;
+#filter-wrapper {
+	margin-left: 0;
+	padding: 20px 0;
+	align-items: center;
 }
-#create-pool-card {
-	min-width: 660px !important;
+
+.manager-filter-error {
+	margin: 0 0 0 16px;
 }
 
 .adjust-upward {
@@ -145,31 +164,58 @@ tooltip, tooltip.vdevTooltip{
 		top: 40px;
 		margin-bottom: 50px;
 	}
-	.data-div {
-		margin-left: 118px;
+	.data-div,
+	#create-pool-card .pool > div > .vdev-h4 {
+		margin-left: 72px;
 	}
 }
 
 .forceCreateCheckbox {
-	margin-left: 13px;
-	margin-bottom: 13px;
+	margin: 0 0 12px;
 }
 
 .tbl{display:table;}
 .tr{display:table-row;}
 .td{display:table-cell}
 
+/* the internal development record: the rich rows on the helm item (h-8 by default): auto height, the row's
+ * 12px sides, the table-like markup inside; the trigger carries the #404 caret. */
 button.vdev-option{
-  width:98.5% !important;
   height:auto !important;
   padding:12px 12px 12px 0;
+  text-align: start;
+}
+/* the panel wraps its descriptions at the width the mat-menu gave it (280px + the rows' 12px sides) */
+.vdev-menu {
+  max-width: 320px;
+}
+.menu-toggle {
+  padding-inline-end: 8px;
+}
+.menu-toggle > span {
+  align-items: center;
+  display: inline-flex;
+  gap: 2px;
+}
+.menu-caret {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  opacity: .8;
+  width: 16px;
 }
 
 button.vdev-option .td.icon{
-  font-size:200%;
   padding:0 16px;
   vertical-align: middle;
-  line-height: 0.5;
+}
+/* a rich (three-line) row carries a 24px fg2 glyph, not the standard row's 16px: recorded in the internal development record */
+button.vdev-option .td.icon .mat-icon{
+  font-size: 24px;
+  height: 24px;
+  line-height: 24px;
+  width: 24px;
+  color: var(--sp-muted-foreground, var(--fg2, #97a6ae));
 }
 
 button.vdev-option h3{
@@ -184,8 +230,10 @@ button.vdev-option p{
 }
 
 .button-bar {
-	display:flex;
-        margin-top:12px;
+	align-items: center;
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
 }
 
 .button-spacer {
@@ -209,4 +257,92 @@ button.vdev-option p{
   color: var(--orange);
   margin: 0;
   padding: 1.2rem 1.2rem 0;
+}
+
+.manager-fields-layout {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.manager-new-pool-row-layout {
+  align-content: stretch;
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  padding: 20px 0; /* the internal development record: the band the Material field reserved around its box */
+}
+
+.manager-filter-row-layout {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.manager-name-layout,
+.manager-encryption-layout,
+.manager-algorithm-layout,
+.manager-column-full-layout,
+.manager-filter-field-layout,
+.manager-filter-spacer-layout {
+  box-sizing: border-box;
+}
+
+.manager-name-layout {
+  flex: 1 1 40%;
+  max-width: 40%;
+  min-width: auto;
+  /* the internal development record: the kit input and the info glyph centred on one 32px line; as inline content
+   * the glyph's font and the input's baseline made the line 53px and pushed the box down. */
+  display: flex;
+  align-items: center;
+}
+
+.manager-encryption-layout {
+  flex: 1 1 25%;
+  max-width: 25%;
+  min-width: auto;
+}
+
+.manager-algorithm-layout {
+  flex: 1 1 0%;
+  min-width: auto;
+}
+
+.manager-column-full-layout {
+  flex: 1 1 100%;
+  max-height: 100%;
+  min-height: auto;
+}
+
+.manager-filter-field-layout,
+.manager-filter-spacer-layout {
+  flex: 1 1 100%;
+}
+
+.manager-filter-field-layout {
+  max-width: 40%;
+  min-width: 0;
+}
+
+.manager-filter-spacer-layout {
+  max-width: 5%;
+  min-width: auto;
+}
+
+/* the internal development record: ix-blue's legacy headerCheckBox offset predates MDC's
+ * 40px checkbox target. Recenter only Manager's datatable header selectors;
+ * body-row and encryption checkboxes retain their existing alignment. */
+:host ::ng-deep .datatable-header-cell .headerCheckBox {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  margin: 0;
+  position: absolute;
 }

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Validators, ValidationErrors, FormControl } from '@angular/forms';
+import { Validators, ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Subscription, combineLatest } from 'rxjs';
 import * as _ from 'lodash';
@@ -34,10 +34,13 @@ interface ZvolFormData {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-zvol-add',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ZvolFormComponent implements Formconfiguration {
+  readonly settingsTitle = T('Zvol'); // the internal development record: the page's h1
   pk: any;
   protected path: string;
   sub: Subscription;
@@ -105,6 +108,7 @@ export class ZvolFormComponent implements Formconfiguration {
       name: 'general',
       class: 'general',
       label: false,
+      settingsLabel: T('General'), // the internal development record: the section heading (the set was headless)
       config: [
         {
           type: 'input',
@@ -131,7 +135,7 @@ export class ZvolFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'volsize');
 
               const size = control.value ? this.storageService.convertHumanStringToNum(control.value, true) : null;

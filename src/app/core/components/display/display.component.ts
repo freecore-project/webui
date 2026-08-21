@@ -1,29 +1,43 @@
 import {
-  Component, ViewChild, OnInit, AfterViewInit, Input, Renderer2, ViewContainerRef, ComponentRef, ComponentFactory, ComponentFactoryResolver,
+  AfterViewInit,
+  Component,
+  ComponentRef,
+  createComponent,
+  EnvironmentInjector,
+  OnInit,
+  Renderer2,
+  Type,
+  ViewChild,
+  ViewContainerRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { LayoutContainer, LayoutChild } from 'app/core/classes/layouts';
-import { ViewConfig } from 'app/core/components/viewcontroller/viewcontroller.component';
-import { Subject } from 'rxjs';
-import { CoreEvent } from 'app/core/services/core.service';
 
 @Component({
+  standalone: false,
   selector: '[displayContainer]',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<!-- This is just a placeholder similar to RouterOutlet. DONT PUT ANYTHING HERE!! -->',
 })
 export class DisplayContainer {
   constructor(public viewContainerRef: ViewContainerRef) {}
 }
 @Component({
+  standalone: false,
   selector: 'display',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<ng-container #test><ng-container displayContainer  #wrapper></ng-container></ng-container>',
 })
 export class Display implements OnInit, AfterViewInit {
   displayList: any[] = []; // items in DOM
-  children: any[] = [];
+  children: ComponentRef<any>[] = [];
   @ViewChild('wrapper', { static: true }) wrapper;
   @ViewChild('test', { static: true, read: ViewContainerRef }) test: ViewContainerRef;
 
-  constructor(private resolver: ComponentFactoryResolver, private viewContainerRef: ViewContainerRef, private renderer: Renderer2) {
+  constructor(
+    private environmentInjector: EnvironmentInjector,
+    private viewContainerRef: ViewContainerRef,
+    private renderer: Renderer2,
+  ) {
     console.log('Display Component Constructor');
   }
 
@@ -38,11 +52,13 @@ export class Display implements OnInit, AfterViewInit {
     console.log('******** Display is Ready!!!! ********');
   }
 
-  create(component: any) {
+  create<T>(component: Type<T>): T {
     console.log('******** Create()!!!! ********');
     console.log(this.wrapper);
-    const compRef = <any> this.resolver.resolveComponentFactory(component).create(this.viewContainerRef.injector);
-    // let compRef = <any>this.resolver.resolveComponentFactory(component).create(this.test.injector);
+    const compRef = createComponent(component, {
+      elementInjector: this.viewContainerRef.injector,
+      environmentInjector: this.environmentInjector,
+    });
     this.children.push(compRef);
     return compRef.instance;
   }

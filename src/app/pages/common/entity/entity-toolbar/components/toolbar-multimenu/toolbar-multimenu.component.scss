@@ -1,20 +1,41 @@
-button.menu-toggle .mat-button-wrapper {
-  vertical-align:baseline;
-  max-height:36px;
+/* the internal development record: the trigger is the ghost tier with the caret (the Reporting bar is the text tier); the menu's rows draw a
+ * display-only #352 box (inert: the row is the control) and a 16px muted glyph at the row end. */
+.menu-toggle {
+  padding-inline-end: 8px;
+}
+.menu-toggle > span {
+  align-items: center;
+  display: inline-flex;
+  gap: 2px;
+}
+.menu-caret {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  opacity: .8;
+  width: 16px;
 }
 
-.icon-suffix.community {
-  font-size: 20px; 
+.toolbar-multimenu .menu-box {
+  display: flex;
+  align-items: center;
+  height: 16px;
+  width: 16px;
 }
-.icon-suffix {
-  color: var(--fg1);
-  position: absolute;
-  right: 8px;
-  text-align: right;
+.toolbar-multimenu .menu-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-inline-end: 8px;
 }
-
-.icon-suffix .mat-icon{
-  /*margin: -12px 0 0 8px;*/
-  opacity: 0.8;
-  color: var(--fg2);
+.toolbar-multimenu .icon-suffix {
+  display: inline-flex;
+  align-items: center;
+  color: var(--sp-muted-foreground, var(--fg2, #97a6ae));
+}
+.toolbar-multimenu .icon-suffix .mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
+  opacity: .8;
 }

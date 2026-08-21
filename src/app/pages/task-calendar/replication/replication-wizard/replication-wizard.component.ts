@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Validators, FormControl } from '@angular/forms';
 import { DatePipe } from '@angular/common';
@@ -21,11 +21,14 @@ import { forbiddenValues } from '../../../common/entity/entity-form/validators/f
 import { combineLatest } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-replication-wizard',
   template: '<entity-wizard [conf]="this"></entity-wizard>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [KeychainCredentialService, ReplicationService, TaskService, DatePipe, EntityFormService],
 })
 export class ReplicationWizardComponent {
+  readonly settingsTitle = T('Replication Task'); // the internal development record
   route_success: string[] = ['tasks', 'replication'];
   isLinear = true;
   summary_title = 'Replication Summary';
@@ -602,7 +605,7 @@ export class ReplicationWizardComponent {
           label: T('Manual'),
           value: 'manual',
         }, {
-          label: T('Semi-automatic (TrueNAS CORE only)'),
+          label: T('Semi-automatic (FreeCORE only)'),
           value: 'semiautomatic',
         },
       ],

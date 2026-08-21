@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { DialogFormConfiguration } from '../../../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { EntityUtils } from '../../../../common/entity/utils';
@@ -6,7 +6,9 @@ import { EntityUtils } from '../../../../common/entity/utils';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-extent-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <entity-table [conf]="this" [title]="tableTitle"></entity-table>
   `,

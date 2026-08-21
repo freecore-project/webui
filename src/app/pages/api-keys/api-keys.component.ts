@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 
@@ -10,8 +10,10 @@ import { ConfirmDialog } from '../common/confirm-dialog/confirm-dialog.component
 import { EntityUtils } from '../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-api-keys',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [Clipboard],
 })
 export class ApiKeysComponent {
@@ -139,7 +141,7 @@ export class ApiKeysComponent {
 
   displayKey(key) {
     const self = this;
-    const dialogRef = this.dialog.open(ConfirmDialog, { disableClose: true });
+    const dialogRef = this.dialog.open(ConfirmDialog, { width: '420px', disableClose: true });
     dialogRef.componentInstance.title = helptext.apikeyCopyDialog.title;
     dialogRef.componentInstance.buttonMsg = helptext.apikeyCopyDialog.save_button;
     dialogRef.componentInstance.cancelMsg = helptext.apikeyCopyDialog.close_button;

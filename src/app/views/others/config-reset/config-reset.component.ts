@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebSocketService } from '../../../services/ws.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
@@ -12,9 +12,11 @@ import { T } from '../../../translate-marker';
 import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'app-config-reset',
   templateUrl: './config-reset.component.html',
   styleUrls: ['./config-reset.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class ConfigResetComponent implements OnInit {
@@ -40,6 +42,7 @@ export class ConfigResetComponent implements OnInit {
   isWSConnected() {
     if (this.ws.connected) {
       this.loader.close();
+
       // ws is connected
       this.router.navigate(['/session/signin']);
     } else {
@@ -67,7 +70,8 @@ export class ConfigResetComponent implements OnInit {
     this.dialogRef.componentInstance.success.subscribe(() => {
       this.dialogRef.close();
       this.ws.prepare_shutdown();
-      this.loader.open();
+      this.loader.open(T('Resetting configuration'), { message: T('Restoring the default system configuration.'), detail: T('The system will restart.'), fullscreen: true, copyrightYear: this.copyrightYear });
+
       setTimeout(() => {
         this.isWSConnected();
       }, 15000);

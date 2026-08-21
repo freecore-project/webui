@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
 import { BootEnvService, RestService, WebSocketService } from '../../../../services';
@@ -6,11 +7,15 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { regexValidator } from '../../../common/entity/entity-form/validators/regex-validation';
 
 @Component({
+  standalone: false,
   selector: 'app-bootenv-rename',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [BootEnvService],
 })
 export class BootEnvironmentRenameComponent {
+  settingsTitle = T('Boot Environment'); // the internal development record: the object noun; the verb is on the button
+  saveSubmitText = T('Rename');
   protected route_success: string[] = ['system', 'boot'];
   protected editCall = 'bootenv.update';
   protected pk: any;

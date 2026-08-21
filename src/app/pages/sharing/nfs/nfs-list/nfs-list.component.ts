@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { shared, helptext_sharing_nfs } from 'app/helptext/sharing';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-nfs-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class NFSListComponent {

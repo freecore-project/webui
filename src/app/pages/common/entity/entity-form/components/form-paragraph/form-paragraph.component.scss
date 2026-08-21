@@ -1,0 +1,12 @@
+.paragraph-layout-row {
+  align-content: flex-start;
+  align-items: flex-start;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
+  > :not(:last-child) {
+    margin-inline-end: 8px;
+  }
+}

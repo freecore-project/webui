@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import {
-  CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
 
 import { WebSocketService } from '../ws.service';
 
 @Injectable()
-export class AuthService implements CanActivate {
+export class AuthService {
   authToken;
 
   constructor(private router: Router, private ws: WebSocketService) { }

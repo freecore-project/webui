@@ -1,5 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MaterialModule } from '../../appMaterial.module';
 import { NgxDualListboxModule } from '../../components/common/dual-list/dual-list.module';
@@ -20,6 +22,8 @@ import { MembersComponent } from './groups/members/members.component';
   imports: [
     EntityModule, CommonModule, FormsModule, MaterialModule, NgxDualListboxModule,
     ReactiveFormsModule, routing, TranslateModule,
+    ...HlmButtonImports, // the internal development record: the members page's tiers
+    ...HlmSpinnerImports, // the internal development record: the members page's loading spinner
   ],
   declarations: [
     GroupListComponent,

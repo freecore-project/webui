@@ -1,93 +1,159 @@
-<div id="{{config.name}}" class="dynamic-field form-select" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
-  ix-auto ix-auto-type="scheduler" ix-auto-identifier="{{config.placeholder}}">
-    <mat-form-field class="full-width" matTooltip="{{currentValue}}" matTooltipPosition="above" [ngClass]="{'overlay-opened': isOpen}">
-    <mat-select [formControlName]="config.name" [required]="config.required" [placeholder]="config.placeholder | translate" (change)="onChangeOption($event)">
-      <mat-option *ngFor="let preset of presets" [value]="preset.value">
-        {{ preset.label }} <em class="crontab">({{preset.value}})</em>
-        <span class="text-small preset-description" *ngIf="preset.description"> {{preset.description}}</span>
-      </mat-option>
-      <mat-option #trigger="cdkOverlayOrigin" cdkOverlayOrigin (click)="togglePopup()" [value]="crontab">
-        Custom <em class="crontab">({{crontab}})</em>
-      </mat-option>
-      </mat-select>
-    </mat-form-field>
-    <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip"></tooltip>
-    <div class="margin-for-error">
-      <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-      <mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-    </div>
-
+@if (!config['isHidden']) {
+  <!-- the internal development record: the scheduler on spartan -- the preset select is the #351 field (#393);
+       the custom-cron popup stays a CDK overlay but is a #354 surface: a template month grid for the
+       preview (no mat-month-view, no DOM hacks), #351 boxes for minutes/hours/days, #352 cells for
+       the month and weekday grids, separators between sections, a #353 Done. -->
+  <div id="{{config.name}}" class="dynamic-field form-select form-scheduler" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="scheduler" ix-auto-identifier="{{config.placeholder}}"
+    cdkOverlayOrigin #trigger="cdkOverlayOrigin">
+    <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <hlm-select [formControlName]="config.name" [required]="config.required" [itemToString]="labelOf" [isItemEqualToValue]="isSameValue" (valueChange)="onChangeOption($event)"
+        ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}">
+        <hlm-select-trigger [buttonId]="inputId" [forceInvalid]="!!config['hasErrors']" [attr.title]="currentValue">
+          <hlm-select-value [placeholder]="config | fieldPlaceholder | translate" />
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (preset of presets; track preset.value) {
+            <hlm-select-item [value]="preset.value" ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_{{preset.label}}">
+              {{ preset.label | translate }} <em class="crontab">({{preset.value}})</em>
+              @if (preset.description) {
+                <span class="preset-description">{{ preset.description | translate }}</span>
+              }
+            </hlm-select-item>
+          }
+          <!-- Custom is a sentinel value: picking it (click or Enter) reaches the control's valueChanges,
+               which restores the crontab and opens the popup; the item reads as selected only for a
+               crontab no preset owns. -->
+          <hlm-select-item class="custom-option" [value]="CUSTOM" ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_Custom">
+            {{ 'Custom' | translate }} <em class="crontab">({{crontab}})</em>
+          </hlm-select-item>
+        </hlm-select-content>
+      </hlm-select>
+      <div class="field-subscript">
+        <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip"></tooltip>
+    }
     <ng-template (backdropClick)="backdropClicked($event)"
+      (detach)="onOverlayDetach()"
       cdkConnectedOverlay
       [cdkConnectedOverlayOrigin]="trigger"
       [cdkConnectedOverlayOpen]="isOpen">
-      <mat-card  class="mat-card advanced-date-picker" role="dialog">
-        <div class="mat-calendar-content">
-          <h4 class="preview-label">{{"Schedule Preview" | translate}}
+      <div class="advanced-date-picker" role="dialog" [attr.aria-label]="'Schedule' | translate">
+        <div class="schedule-preview">
+          <div class="preview-head">
+            <h4 class="preview-label">{{"Schedule Preview" | translate}}</h4>
             <div class="controls">
-              <button mat-icon-button [disabled]="disablePrevious" (click)="setCalendar('previous')">
-                <mat-icon aria-label="Previous Month">keyboard_arrow_left</mat-icon>
+              <button hlmBtn variant="ghost" size="icon" type="button" [disabled]="disablePrevious" (click)="setCalendar('previous')" [attr.aria-label]="'Previous Month' | translate">
+                <mat-icon>keyboard_arrow_left</mat-icon>
               </button>
-              <button mat-icon-button (click)="setCalendar('next')">
-                <mat-icon aria-label="Next Month" >keyboard_arrow_right</mat-icon>
+              <button hlmBtn variant="ghost" size="icon" type="button" (click)="setCalendar('next')" [attr.aria-label]="'Next Month' | translate">
+                <mat-icon>keyboard_arrow_right</mat-icon>
               </button>
             </div>
-          </h4>
-          <mat-divider></mat-divider>
-          <div class="calendar-wrapper">
-            <mat-month-view #calendar
-              [activeDate]="activeDate">
-            </mat-month-view>
           </div>
-          <mat-divider id="spacer"></mat-divider>
+          <hlm-separator />
+          <div class="calendar-wrapper">
+            <div class="calendar-month">{{ calendarTitle }}</div>
+            <table class="schedule-calendar" role="grid" [attr.aria-label]="calendarTitle">
+              <thead>
+                <tr>
+                  @for (letter of weekLetters; track $index) {
+                    <th scope="col">{{ letter }}</th>
+                  }
+                </tr>
+              </thead>
+              <tbody>
+                @for (week of calendarWeeks; track $index) {
+                  <tr>
+                    @for (day of week; track $index) {
+                      <td [class.scheduled]="day?.scheduled" [class.today]="day?.today" [attr.aria-label]="day?.label" [attr.data-date]="day?.iso">
+                        @if (day) {
+                          <span class="day">{{ day.day }}</span>
+                        }
+                      </td>
+                    }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <hlm-separator />
           <ul class="schedule-list" #preview>
-            <div class="text-small time-zone-label"><strong>{{"System Time Zone:" | translate}}</strong> {{timezone}}</div>
-            <ng-container *ngFor="let date of generatedSchedule;">
+            <li class="time-zone-label"><strong>{{"System Time Zone:" | translate}}</strong> {{timezone}}</li>
+            @for (date of generatedSchedule; track date) {
               <li>{{ date | date:ngDateFormat:convertToUtcOffset(date._date._offset) }}</li>
-            </ng-container>
+            }
           </ul>
         </div>
-
         <div class="cron-fields">
-
-          <section style="text-align:left;">
-            <h4 class="preview-label">{{"Presets" | translate}}</h4>
-            <mat-form-field class="cron-presets">
-              <mat-select [placeholder]="'Choose a preset' | translate" [(ngModel)]="preset" [ngModelOptions]="{standalone: true}">
-                <mat-option *ngFor="let preset of presets" [value]="preset">
-                  {{ preset.label }}
-                </mat-option>
-              </mat-select>
-            </mat-form-field>
+          <section class="cron-presets">
+            <hlm-field>
+              <label hlmFieldLabel for="{{config.name}}-cron-preset">{{"Presets" | translate}}</label>
+              <hlm-select [ngModel]="preset" (ngModelChange)="preset = $event" [ngModelOptions]="{standalone: true}" [itemToString]="presetLabel">
+                <hlm-select-trigger buttonId="{{config.name}}-cron-preset">
+                  <hlm-select-value [placeholder]="'Choose a preset' | translate" />
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  @for (item of presets; track item.value) {
+                    <hlm-select-item [value]="item">{{ item.label | translate }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
+            </hlm-field>
           </section>
-          <mat-divider></mat-divider>
-
-          <section style="text-align:left;" class="m-h-d">
-            <div class="preview-label">
-              <h4 class="preview-label"><span *ngIf="!config.noMinutes">Minutes/</span>Hours/Days</h4>
+          <hlm-separator />
+          <section class="m-h-d">
+            <div class="section-head">
+              <h4 class="preview-label">@if (!config.noMinutes) {<span>{{"Minutes/" | translate}}</span>}{{"Hours/Days" | translate}}</h4>
               <tooltip [header]="config.noMinutes ? helptext.scheduler.general.headerWithoutMinutes : helptext.scheduler.general.header" [message]="helptext.scheduler.general.tooltip"></tooltip>
             </div>
-            <span id="no-spaces">{{"Separate values with commas, and without spaces." | translate}}</span>
-              <mat-form-field *ngIf="!config.noMinutes">
-                <input matInput [(ngModel)]="minutes" [ngModelOptions]="{standalone: true}" [value]="minutes" placeholder="Minutes" required [ngClass]=" {'invalid' : validMinutes === false}">
-              </mat-form-field>
-              <tooltip *ngIf="!config.noMinutes" [header]="helptext.scheduler.minutes.header" [message]="helptext.scheduler.minutes.tooltip"></tooltip>
-              <mat-form-field>
-                <input matInput [(ngModel)]="hours" [ngModelOptions]="{standalone: true}" [value]="hours" placeholder="Hours" required [ngClass]="{'invalid': validHours === false}">
-              </mat-form-field>
-              <tooltip [header]="helptext.scheduler.hours.header" [message]="helptext.scheduler.hours.tooltip"></tooltip>
-              <br *ngIf="config.noMinutes"/>
-              <mat-form-field>
-                <input matInput [(ngModel)]="days" [ngModelOptions]="{standalone: true}" [value]="days" placeholder="Days" required [ngClass]="{'invalid': validDays === false}">
-              </mat-form-field>
-              <tooltip [header]="helptext.scheduler.days.header" [message]="helptext.scheduler.days.tooltip"></tooltip>
+            <p class="section-note" id="no-spaces">{{"Separate values with commas, and without spaces." | translate}}</p>
+            <div class="m-h-d-row">
+              @if (!config.noMinutes) {
+                <hlm-field class="m-h-d-field" [forceInvalid]="validMinutes === false">
+                  <div class="field-head">
+                  <label hlmFieldLabel for="{{config.name}}-cron-minutes">{{"Minutes" | translate}}</label>
+                  <tooltip [header]="helptext.scheduler.minutes.header" [message]="helptext.scheduler.minutes.tooltip"></tooltip>
+                </div>
+                  <hlm-input-group>
+                    <input hlmInputGroupInput id="{{config.name}}-cron-minutes" type="text" [ngModel]="minutes" (ngModelChange)="minutes = $event" [ngModelOptions]="{standalone: true}" [forceInvalid]="validMinutes === false" required>
+                                      </hlm-input-group>
+                </hlm-field>
+              }
+              <hlm-field class="m-h-d-field" [forceInvalid]="validHours === false">
+                <div class="field-head">
+                  <label hlmFieldLabel for="{{config.name}}-cron-hours">{{"Hours" | translate}}</label>
+                  <tooltip [header]="helptext.scheduler.hours.header" [message]="helptext.scheduler.hours.tooltip"></tooltip>
+                </div>
+                <hlm-input-group>
+                  <input hlmInputGroupInput id="{{config.name}}-cron-hours" type="text" [ngModel]="hours" (ngModelChange)="hours = $event" [ngModelOptions]="{standalone: true}" [forceInvalid]="validHours === false" required>
+                                  </hlm-input-group>
+              </hlm-field>
+              <hlm-field class="m-h-d-field" [forceInvalid]="validDays === false">
+                <div class="field-head">
+                  <label hlmFieldLabel for="{{config.name}}-cron-days">{{"Days" | translate}}</label>
+                  <tooltip [header]="helptext.scheduler.days.header" [message]="helptext.scheduler.days.tooltip"></tooltip>
+                </div>
+                <hlm-input-group>
+                  <input hlmInputGroupInput id="{{config.name}}-cron-days" type="text" [ngModel]="days" (ngModelChange)="days = $event" [ngModelOptions]="{standalone: true}" [forceInvalid]="validDays === false" required>
+                                  </hlm-input-group>
+              </hlm-field>
+            </div>
           </section>
-          <mat-divider></mat-divider>
-
+          <hlm-separator />
           <!-- Months-->
           <section>
             <h4 class="preview-label">{{"Months" | translate}}</h4>
-            <table class="months jan-jun">
+            <table class="check-grid months">
               <tbody>
                 <tr>
                   <td>{{"Jan" | translate}}</td>
@@ -98,17 +164,13 @@
                   <td>{{"Jun" | translate}}</td>
                 </tr>
                 <tr>
-                  <td><mat-checkbox [(ngModel)]="jan" [ngModelOptions]="{standalone: true}" [value]="jan" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="feb" [ngModelOptions]="{standalone: true}" [value]="feb" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="mar" [ngModelOptions]="{standalone: true}" [value]="mar" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="apr" [ngModelOptions]="{standalone: true}" [value]="apr" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="may" [ngModelOptions]="{standalone: true}" [value]="may" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="jun" [ngModelOptions]="{standalone: true}" [value]="jun" class="month"></mat-checkbox></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="jan" (ngModelChange)="jan = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Jan" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="feb" (ngModelChange)="feb = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Feb" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="mar" (ngModelChange)="mar = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Mar" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="apr" (ngModelChange)="apr = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Apr" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="may" (ngModelChange)="may = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="May" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="jun" (ngModelChange)="jun = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Jun" /></span></td>
                 </tr>
-              </tbody>
-            </table>
-            <table class="months jul-dec">
-              <tbody>
                 <tr>
                   <td>{{"Jul" | translate}}</td>
                   <td>{{"Aug" | translate}}</td>
@@ -118,23 +180,21 @@
                   <td>{{"Dec" | translate}}</td>
                 </tr>
                 <tr>
-                  <td><mat-checkbox [(ngModel)]="jul" [ngModelOptions]="{standalone: true}" [value]="jul" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="aug" [ngModelOptions]="{standalone: true}" [value]="aug" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="sep" [ngModelOptions]="{standalone: true}" [value]="sep" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="oct" [ngModelOptions]="{standalone: true}" [value]="oct" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="nov" [ngModelOptions]="{standalone: true}" [value]="nov" class="month"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="dec" [ngModelOptions]="{standalone: true}" [value]="dec" class="month"></mat-checkbox></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="jul" (ngModelChange)="jul = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Jul" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="aug" (ngModelChange)="aug = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Aug" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="sep" (ngModelChange)="sep = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Sep" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="oct" (ngModelChange)="oct = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Oct" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="nov" (ngModelChange)="nov = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Nov" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="dec" (ngModelChange)="dec = $event" [ngModelOptions]="{standalone: true}" class="month" aria-label="Dec" /></span></td>
                 </tr>
               </tbody>
             </table>
           </section>
-
-          <mat-divider></mat-divider>
-
+          <hlm-separator />
           <!-- Days of Week-->
           <section>
             <h4 class="preview-label">{{"Days of Week" | translate}}</h4>
-            <table class="days-of-week">
+            <table class="check-grid days-of-week">
               <tbody>
                 <tr>
                   <td>{{"Sun" | translate}}</td>
@@ -146,22 +206,23 @@
                   <td>{{"Sat" | translate}}</td>
                 </tr>
                 <tr>
-                  <td><mat-checkbox [(ngModel)]="sun" [ngModelOptions]="{standalone: true}" [value]="sun" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="mon" [ngModelOptions]="{standalone: true}" [value]="mon" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="tue" [ngModelOptions]="{standalone: true}" [value]="tue" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="wed" [ngModelOptions]="{standalone: true}" [value]="wed" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="thu" [ngModelOptions]="{standalone: true}" [value]="thu" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="fri" [ngModelOptions]="{standalone: true}" [value]="fri" class="weekday"></mat-checkbox></td>
-                  <td><mat-checkbox [(ngModel)]="sat" [ngModelOptions]="{standalone: true}" [value]="sat" class="weekday"></mat-checkbox></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="sun" (ngModelChange)="sun = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Sun" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="mon" (ngModelChange)="mon = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Mon" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="tue" (ngModelChange)="tue = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Tue" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="wed" (ngModelChange)="wed = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Wed" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="thu" (ngModelChange)="thu = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Thu" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="fri" (ngModelChange)="fri = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Fri" /></span></td>
+                  <td><span class="checkbox-cell"><hlm-checkbox [ngModel]="sat" (ngModelChange)="sat = $event" [ngModelOptions]="{standalone: true}" class="weekday" aria-label="Sat" /></span></td>
                 </tr>
               </tbody>
             </table>
           </section>
-
-          <mat-divider></mat-divider>
-
-          <button mat-button color="accent" (click)="onPopupSave()" [disabled]="validPopup()" style="margin:9px;">{{"Done" | translate}}</button>
+          <hlm-separator />
+          <div class="popup-actions">
+            <button hlmBtn type="button" id="{{config.name}}-cron-done" (click)="onPopupSave()" [disabled]="validPopup()">{{"Done" | translate}}</button>
+          </div>
         </div>
-      </mat-card>
+      </div>
     </ng-template>
-</div>
+  </div>
+}

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -22,9 +22,12 @@ export interface GeneralDialogConfig {
  * - use interface GerneralDialogConfig for general config
  */
 @Component({
+  standalone: false,
   selector: 'app-general-dialog',
   templateUrl: './general-dialog.component.html',
-  styleUrls: ['./general-dialog.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  // the internal development record: the confirm checkbox is the engine's #394 row (dynamic-field.css).
+  styleUrls: ['../entity/entity-form/components/dynamic-field/dynamic-field.css'],
 })
 export class GeneralDialogComponent {
   @Input() conf: GeneralDialogConfig;

@@ -1,5 +1,6 @@
+import { T } from 'app/translate-marker';
 import { Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebSocketService } from '../../../services/ws.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
@@ -10,8 +11,10 @@ import globalHelptext from '../../../helptext/global-helptext';
 import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'system-failover',
   templateUrl: './failover.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./failover.component.css'],
 })
 export class FailoverComponent implements OnInit {
@@ -36,6 +39,7 @@ export class FailoverComponent implements OnInit {
   isWSConnected() {
     if (this.ws.connected) {
       this.loader.close();
+
       // ws is connected
       this.router.navigate(['/session/signin']);
     } else {
@@ -62,7 +66,8 @@ export class FailoverComponent implements OnInit {
       },
       () => { // show reboot screen
         this.ws.prepare_shutdown();
-        this.loader.open();
+        this.loader.open(T('Switching controllers'), { message: T('Waiting for the active controller.'), detail: T('The login page will open when the controller is available.'), fullscreen: true, copyrightYear: this.copyrightYear });
+
         setTimeout(() => {
           this.isWSConnected();
         }, 1000);

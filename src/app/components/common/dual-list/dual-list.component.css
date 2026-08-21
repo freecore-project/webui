@@ -50,6 +50,20 @@
   width: 100%;
 }
 
+/* the internal development record: the row mat-list (8px above and below) and its mat-list-item (48px, 16px sides) drew
+ * around a template item: 64px, the text on a 24px line from 20px down, one line, clipped. */
+.dual-list-row {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 64px;
+  padding: 0 16px;
+  overflow: hidden;
+  font-size: 14px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
 .chosen, .draggable:active {
   width: 100%;
   background: var(--primary);

@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 
 @Directive({
+  standalone: false,
   selector: '[ix-auto]',
 })
 export class IXAutoDirective implements OnChanges {

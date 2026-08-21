@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/directoryservice/kerberosrealms-form-list';
 
 @Component({
+  standalone: false,
   selector: 'app-user-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class KerberosRealmsListComponent {

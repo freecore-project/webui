@@ -1,16 +1,20 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import { helptext_sharing_smb } from 'app/helptext/sharing/smb/smb';
 import * as _ from 'lodash';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-smb-acl',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class SMBAclComponent {
+  readonly settingsTitle = T('Share ACL'); // the internal development record: the page's h1
   protected queryCall = 'smb.sharesec.query';
   protected editCall = 'smb.sharesec.update';
 
@@ -22,6 +26,7 @@ export class SMBAclComponent {
     {
       name: helptext_sharing_smb.share_acl_basic,
       label: true,
+      settingsLabel: T('Share'), // the internal development record: 'Basic' is a mode word
       class: 'basic',
       width: '100%',
       config: [

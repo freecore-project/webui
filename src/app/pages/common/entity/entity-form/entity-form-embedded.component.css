@@ -5,14 +5,31 @@
   height:100%;
 }
 
-.mat-card-actions{
+/* the internal development record: the action row is a plain div -- Material's mat-card-actions box restated
+ * (flex row, 52px minimum, 8px inset) on top of what this sheet always gave it. The leaf messages
+ * carry the entity-form vocabulary: fg2 12px success, the #392 error line in --red. */
+.buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
   width: 100%;
-  height: 10%;
+  min-height: 52px;
+  padding: 8px;
   text-align: center;
-  /*background-color: #fff;*/
   margin: 5px 0px;
-  /*position: absolute;*/
-  bottom: 0; 
+}
+.form-success-line {
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 12px;
+  line-height: 16px;
+}
+.form-error-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-destructive, var(--red));
 }
 
 .fieldset-container{
@@ -27,7 +44,22 @@
   display:flex;
   flex-flow:row wrap;
   -webkit-box-orient: horizontal;
-  -webkit-box-direction: normal; 
+  -webkit-box-direction: normal;
+}
+
+.entity-form-embedded-fieldset-layout {
+  align-content: flex-start;
+  align-items: flex-start;
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.entity-form-embedded-field-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 100%;
 }
 .fieldset-container .fieldset .tooltip .material-icons{
   font-size:12px;
@@ -66,4 +98,21 @@ div.form-inline{
 
 .fieldset.hidden{
   display:none !important;
+}
+
+@media (min-width: 600px) {
+  .entity-form-embedded-fieldset-layout,
+  .entity-form-embedded-field-layout {
+    max-width: none;
+  }
+
+  .entity-form-embedded-fieldset-layout-sized {
+    flex-basis: calc(var(--entity-form-embedded-fieldset-width) - 16px);
+    min-width: calc(var(--entity-form-embedded-fieldset-width) - 16px);
+  }
+
+  .entity-form-embedded-field-layout-sized {
+    flex-basis: calc(var(--entity-form-embedded-field-width) - 16px);
+    min-width: calc(var(--entity-form-embedded-field-width) - 16px);
+  }
 }

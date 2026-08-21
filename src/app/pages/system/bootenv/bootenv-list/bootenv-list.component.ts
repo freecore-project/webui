@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
 import { EntityTableComponent } from 'app/pages/common/entity/entity-table';
@@ -16,7 +16,9 @@ import { T } from '../../../../translate-marker';
 import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/dialog-form-configuration.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-bootenv-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class BootEnvironmentListComponent {
@@ -189,7 +191,7 @@ export class BootEnvironmentListComponent {
     label: T('Delete'),
     icon: 'delete',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       for (let i = selected.length - 1; i >= 0; i--) {
         if (selected[i].active !== '-') {
@@ -245,7 +247,7 @@ export class BootEnvironmentListComponent {
         this.scrub_msg = T('Never');
       }
       this.size_consumed = this.storage.convertBytestoHumanReadable(wres.properties.allocated.parsed);
-      this.condition = wres.properties.health.value;
+      this.condition = wres.properties.health.value === 'ONLINE' ? T('Healthy') : wres.properties.health.value;
       if (this.condition === 'DEGRADED') {
         this.condition = this.condition + T(' Check Notifications for more details.');
       }
@@ -323,7 +325,7 @@ export class BootEnvironmentListComponent {
             {
               type: 'paragraph',
               name: 'scrub_msg',
-              paraText: T(`<b>Last Scrub Run:</b> ${this.scrub_msg}<br /><br />`),
+              paraText: T(`<b>Last Scrub Run:</b> ${this.scrub_msg}`),
             },
             {
               type: 'input',
@@ -337,6 +339,7 @@ export class BootEnvironmentListComponent {
 
           const statusSettings: DialogFormConfiguration = {
             title: T('Stats/Settings'),
+            settingsStyle: true,
             fieldConfig: statusConfigFieldConf,
             saveButtonText: T('Update Interval'),
             cancelButtonText: T('Close'),

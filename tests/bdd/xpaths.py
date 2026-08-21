@@ -38,7 +38,7 @@ class button:
     save = '//button[@ix-auto="button__SAVE"]'
     advanced_options = '//button[@ix-auto="button__ADVANCED OPTIONS"]'
     initiate_failover = '//button[@ix-auto="button__INITIATE FAILOVER"]'
-    failover = '//button[span/text()="Failover"]'
+    failover = '//button[normalize-space()="Failover"]'
     leave_Domain = '//button[@ix-auto="button__LEAVE DOMAIN"]'
     i_Agree = '//button[@ix-auto="button__I AGREE"]'
     summit = '//button[@ix-auto="button__SUBMIT"]'
@@ -46,7 +46,7 @@ class button:
 
 
 class checkbox:
-    confirm = '//mat-checkbox[contains(.,"Confirm")]'
+    confirm = '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]'
     enable = '//mat-checkbox[@ix-auto="checkbox__Enable"]'
     ad_enable = '//mat-checkbox[@ix-auto="checkbox__Enable (requires password or Kerberos principal)"]'
 
@@ -56,7 +56,7 @@ class dashboard:
 
 
 class domain_Credentials:
-    title = '//h4[contains(.,"Domain Credentials")]'
+    title = '//h2[contains(.,"Domain Credentials")]'
 
 
 class google_Drive:
@@ -87,14 +87,14 @@ class login:
 
 
 class pool:
-    title = '//div[contains(text(),"Pools")]'
+    title = '//h1[contains(text(),"Pools")]'
 
 
 class popup:
     please_wait = '//h6[contains(.,"Please wait")]'
-    initiate_failover = '//h1[text()="Initiate Failover"]'
+    initiate_failover = '//h2[text()="Initiate Failover"]'
     help = '//div[contains(.,"Looking for help?")]'
-    leave_Domain_Title = '//h1[text()="Leave Domain"]'
+    leave_Domain_Title = '//h2[text()="Leave Domain"]'
     leave_Domain_Button = f'//mat-dialog-container{button.leave_Domain}'
     left_Domain_Message = '//span[text()="You have left the domain."]'
 

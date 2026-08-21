@@ -1,21 +1,19 @@
-<h1 mat-dialog-title>{{title | translate}}</h1>
+<!-- the internal development record: the resilver monitor on the dialog law -- an h2 title, the indeterminate
+     bar with the percent line while the scan runs, the pool and state as facts, an outline Close.
+     (The bar stays indeterminate: progress bars are the open workstream.) -->
+<h2 mat-dialog-title>{{ title | translate }}</h2>
 <mat-dialog-content class="resilver-progress-dialog"
-	ix-auto ix-auto-type="dialog" ix-auto-identifier="title">
-	<div *ngIf="state !== 'FINISHED'">
-		<mat-progress-bar class="example-margin"
-			color="primary"
-			mode="indeterminate"
-			[value]="progressTotalPercent"
-			bufferValue="bufferValue">
-		</mat-progress-bar>
-		<label>
-			{{ progressTotalPercent | number: '1.2-2'}}% {{ timeRemainingLabel | translate}}{{ timeRemaining }}
-		</label>
+  ix-auto ix-auto-type="dialog" ix-auto-identifier="title">
+  @if (state !== 'FINISHED') {
+    <div>
+      <hlm-progress><hlm-progress-indicator /></hlm-progress>
+      <label>{{ progressTotalPercent | number: '1.2-2' }}%</label>
     </div>
-    <div>{{ description | translate }}{{ diskName }}</div>
-	<div>{{ statusLabel | translate}}{{ state }}</div>
+  }
+  <div>{{ description | translate }}<strong>{{ diskName }}</strong></div>
+  <div>{{ statusLabel | translate }}<strong>{{ state }}</strong></div>
 </mat-dialog-content>
-<div>
-	<button mat-button mat-dialog-close="close"
-		ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{"Close" | translate}}</button>
-</div>
+<mat-dialog-actions>
+  <button hlmBtn variant="outline" type="button" mat-dialog-close="close"
+    ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{ 'Close' | translate }}</button>
+</mat-dialog-actions>

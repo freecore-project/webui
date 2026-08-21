@@ -1,41 +1,74 @@
 <div id="entity-form-embedded.component_html">
   <ng-template [ngTemplateOutlet]="templateTop" [ngTemplateOutletContext]="this"></ng-template>
-  <p *ngIf="!hasConf">
-    {{"Please" | translate}} <button id="click_here_setup_configuration_button" mat-button color="primary" class="btn btn-link" type="button" (click)="goConf()"
-      ix-auto ix-auto-type="button" ix-auto-identifier="CLICK HERE">{{"click here" | translate}}</button> {{"to set up configuration first." | translate}}
+  @if (!hasConf) {
+    <p>
+      {{"Please" | translate}} <button hlmBtn variant="link" id="click_here_setup_configuration_button" type="button" (click)="goConf()"
+    ix-auto ix-auto-type="button" ix-auto-identifier="CLICK HERE">{{"click here" | translate}}</button> {{"to set up configuration first." | translate}}
   </p>
-  <p *ngIf="success" type="success">{{"Successfully updated." | translate}}</p>
-  <p *ngIf="error" type="danger"><span [innerHTML]="error"></span></p>
+}
+<!-- the internal development record: the leaf messages carry the entity-form vocabulary -- the fg2 12px success
+     line of #success-msg-wrapper, the #392 error line in --red. -->
+@if (success) {
+  <p id="successfully_updated" class="form-success-line">{{"Successfully updated." | translate}}</p>
+}
+@if (error) {
+  <p id="error_message" class="form-error-line" role="alert"><span [innerHTML]="error"></span></p>
+}
 
-  <div class="">
-    <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" #entityForm="ngForm" class="form-wrap">
-      <div *ngIf="fieldSets && fieldSets.length > 0" class="fieldset-container fieldset-display-{{ fieldSetDisplay }}">
-        <ng-container *ngFor="let fieldSet of fieldSets; let i = index">
-          <div [ngClass]="{'hidden': hiddenFieldSets.indexOf(fieldSet.name) !== -1}" class="fieldset {{fieldSet.class}}" 
-            fxLayout="row wrap" fxLayoutAlign="start start" fxFlex="100%" fxFlex.gt-xs="calc({{fieldSets[i].width}} - 16px)">
-            <h4 *ngIf="fieldSet.label" class="fieldset-label">{{fieldSet.name | translate}}</h4>
-            <div *ngFor="let field of fieldSet.config; let ii = index" fxFlex="100%" fxFlex.gt-xs="calc({{field.width}} - 16px)"
-              [ngClass]="field.class == 'inline' ? 'form-inline' : 'form-line'" id="{{fieldSet.name}}-{{ii}}">
-              <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="isShow(field.name) ? 'show' :'hide'">
+<div class="">
+  <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" #entityForm="ngForm" class="form-wrap">
+    @if (fieldSets && fieldSets.length > 0) {
+      <div class="fieldset-container fieldset-display-{{ fieldSetDisplay }}">
+        @for (fieldSet of fieldSets; track fieldSet; let i = $index) {
+          <div [ngClass]="{'hidden': hiddenFieldSets.indexOf(fieldSet.name) !== -1}"
+            [class.entity-form-embedded-fieldset-layout-sized]="fieldSets[i].width"
+            [style.--entity-form-embedded-fieldset-width]="fieldSets[i].width"
+            class="entity-form-embedded-fieldset-layout fieldset {{fieldSet.class}}">
+            @if (fieldSet.label) {
+              <h4 class="fieldset-label">{{fieldSet.name | translate}}</h4>
+            }
+            @for (field of fieldSet.config; track field.name; let ii = $index) {
+              <div
+                [class.entity-form-embedded-field-layout-sized]="field.width"
+                [style.--entity-form-embedded-field-width]="field.width"
+                [ngClass]="field.class == 'inline' ? 'form-inline' : 'form-line'"
+                class="entity-form-embedded-field-layout" id="{{fieldSet.name}}-{{ii}}">
+                <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="isShow(field.name) ? 'show' :'hide'">
+                </div>
               </div>
-            </div>
+            }
           </div>
-        </ng-container>
+        }
       </div>
-      <mat-card-actions style.text-align="{{actionButtonsAlign}}">
-        <button class="submit_button" class="btn btn-block btn-warning" type="submit" mat-button class="mat-primary" color="primary" [disabled]="entityForm.dirty === false || !entityForm.form.valid"
-          ix-auto ix-auto-type="button" ix-auto-identifier="{{saveSubmitText | uppercase}}">{{saveSubmitText | translate}}</button>
-        <form-status *ngIf="conf.multiStateSubmit" [statusIcon]="saveSubmitStatus"></form-status>
-        <button *ngIf="conf.goBack" id="goback_button" class="btn btn-block btn-lg btn-primary mat-accent" type="button" (click)="goBack()" mat-button color="accent"
-          ix-auto ix-auto-type="button" ix-auto-identifier="CANCEL">{{"Cancel" | translate}}</button>
-        <span *ngFor="let custBtn of conf.custActions">
-          <button id="cust_button_{{custBtn.name}}" mat-button class="mat-basic" *ngIf="!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)" type="submit" (click)="onSubmit($event,custBtn.eventName)"
+    }
+    <!-- the internal development record: the action row on spartan, the same tier map as entity-form (Save =
+         default, Cancel = outline, custom = ghost, Delete = destructive). The submit had three
+         class attributes; it keeps the one that names it (no id: Preferences hosts two of these
+         forms on one page). -->
+    <div class="buttons" [style.text-align]="actionButtonsAlign">
+      <button hlmBtn class="submit_button" type="submit" [disabled]="entityForm.dirty === false || !entityForm.form.valid"
+      ix-auto ix-auto-type="button" ix-auto-identifier="{{saveSubmitText | uppercase}}">{{saveSubmitText | translate}}</button>
+      @if (conf.multiStateSubmit) {
+        <form-status [statusIcon]="saveSubmitStatus"></form-status>
+      }
+      @if (conf.goBack) {
+        <button hlmBtn variant="outline" id="goback_button" type="button" (click)="goBack()"
+        ix-auto ix-auto-type="button" ix-auto-identifier="CANCEL">{{"Cancel" | translate}}</button>
+      }
+      @for (custBtn of conf.custActions; track custBtn) {
+        <span>
+          @if (!conf.isCustActionVisible || conf.isCustActionVisible(custBtn.id)) {
+            <button hlmBtn variant="ghost" id="cust_button_{{custBtn.name}}" type="submit" (click)="onSubmit($event,custBtn.eventName)"
             ix-auto ix-auto-type="button" ix-auto-identifier="{{custBtn.name | uppercase}}">{{custBtn.name | translate}}</button>
+          }
         </span>
-        <button id="delete_button" mat-button *ngIf="conf.route_delete" class="btn btn-block btn-danger" type="button" (click)="gotoDelete()"
-          ix-auto ix-auto-type="button" ix-auto-identifier="DELETE">{{"Delete" | translate}}</button>
-      </mat-card-actions>
-    </form>
-  </div>
+      }
+      @if (conf.route_delete) {
+        <button hlmBtn variant="destructive" id="delete_button" type="button" (click)="gotoDelete()"
+        ix-auto ix-auto-type="button" ix-auto-identifier="DELETE">{{"Delete" | translate}}</button>
+      }
+    </div>
+  </form>
+</div>
 
 </div>

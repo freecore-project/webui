@@ -1,14 +1,18 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../helptext/directoryservice/kerberossettings';
 
 @Component({
+  standalone: false,
   selector: 'directoryservice-kerberossettings',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class KerberosSettingsComponent {
+  readonly settingsTitle = T('Kerberos Settings');
   protected queryCall = 'kerberos.config';
   protected addCall = 'kerberos.update';
   protected editCall = 'kerberos.update';
@@ -17,6 +21,7 @@ export class KerberosSettingsComponent {
   fieldSets: FieldSet[] = [
     {
       name: helptext.ks_label,
+      settingsLabel: T('Auxiliary parameters'),
       class: 'heading',
       label: true,
       config: [

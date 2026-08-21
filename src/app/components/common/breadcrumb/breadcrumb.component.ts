@@ -1,28 +1,28 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy } from '@angular/core';
 import {
   Router, NavigationEnd, ActivatedRoute, ActivatedRouteSnapshot,
 } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { RoutePartsService } from '../../../services/route-parts/route-parts.service';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import globalHelptext from '../../../helptext/global-helptext';
-import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'app-breadcrumb',
   templateUrl: './breadcrumb.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./breadcrumb.component.css'],
 })
 export class BreadcrumbComponent implements OnInit {
   @Input() product_type;
-  copyrightYear = this.localeService.getCopyrightYearFromBuildTime();
 
   routeParts: any[];
   isEnabled = true;
   constructor(private router: Router,
     private routePartsService: RoutePartsService,
     private activeRoute: ActivatedRoute,
-    private core: CoreService,
-    private localeService: LocaleService) { }
+    private core: CoreService) { }
 
   ngOnInit() {
   // must be running once to get breadcrumbs
@@ -43,7 +43,7 @@ export class BreadcrumbComponent implements OnInit {
     });
 
     // only execute when routechange
-    this.router.events.filter((event) => event instanceof NavigationEnd).subscribe((routeChange) => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((routeChange) => {
       this.routeParts = this.routePartsService.generateRouteParts(this.activeRoute.snapshot);
       // generate url from parts
       this.routeParts.reverse().map((item, i) => {

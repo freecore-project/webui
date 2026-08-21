@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 
 import { helptext_sharing_webdav } from 'app/helptext/sharing';
 
 @Component({
+  standalone: false,
   selector: 'webdav-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 

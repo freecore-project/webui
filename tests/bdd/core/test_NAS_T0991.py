@@ -57,7 +57,7 @@ def the_user_field_should_expand_down_then_click_the_edit_button(driver):
 @then('the User Edit Page should open')
 def the_user_edit_page_should_open(driver):
     """the User Edit Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('change the path of the users Home Directory')

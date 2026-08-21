@@ -1,31 +1,42 @@
-<h1 mat-dialog-title>{{ 'Batch Operation Results' | translate }}</h1>
+<h2 mat-dialog-title>{{ 'Batch Operation Results' | translate }}</h2>
 <div mat-dialog-content>
-  <div *ngIf="errorsCount > 0">
-    <h4><strong>{{ errorsTitle  }}</strong></h4>
-    <ul>
-      <li *ngFor="let error of snapshotNamesWithErrors" class="item">
-        <div><strong>{{ 'Snapshot: ' | translate }}</strong> {{ error.snapshot }}</div>
-        <div><strong>{{ 'Error: ' | translate }}</strong> {{ error.error }}</div>
-      </li>
-    </ul>
-  </div>
-  <div *ngIf="snapshotsFailedToDelete.length">
-    <h4><strong>{{ failureMsg }}</strong></h4>
-    <ul>
-      <li *ngFor="let snapshot of snapshotsFailedToDelete">{{ snapshot }}</li>
-    </ul>
-  </div>
-  <div *ngIf="snapshotsDeleted.length">
-    <h4><strong>{{ successMsg }}</strong></h4>
-    <ul>
-      <li *ngFor="let snapshot of snapshotsDeleted">{{ snapshot }}</li>
-    </ul>
-  </div>
+  @if (errorsCount > 0) {
+    <div>
+      <h4><strong>{{ errorsTitle  }}</strong></h4>
+      <ul>
+        @for (error of snapshotNamesWithErrors; track error) {
+          <li class="item">
+            <div><strong>{{ 'Snapshot: ' | translate }}</strong> {{ error.snapshot }}</div>
+            <div><strong>{{ 'Error: ' | translate }}</strong> {{ error.error }}</div>
+          </li>
+        }
+      </ul>
+    </div>
+  }
+  @if (snapshotsFailedToDelete.length) {
+    <div>
+      <h4><strong>{{ failureMsg }}</strong></h4>
+      <ul>
+        @for (snapshot of snapshotsFailedToDelete; track snapshot) {
+          <li>{{ snapshot }}</li>
+        }
+      </ul>
+    </div>
+  }
+  @if (snapshotsDeleted.length) {
+    <div>
+      <h4><strong>{{ successMsg }}</strong></h4>
+      <ul>
+        @for (snapshot of snapshotsDeleted; track snapshot) {
+          <li>{{ snapshot }}</li>
+        }
+      </ul>
+    </div>
+  }
 </div>
 <div mat-dialog-actions>
-  <span fxFlex></span>
-  <button 
-    mat-button class="mat-button" mat-dialog-close
-    ix-auto ix-auto-type="button" x-auto-identifier="CLOSE"
+  <button
+    hlmBtn variant="outline" type="button" mat-dialog-close
+    ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE"
   >{{"Close" | translate }}</button>
 </div>

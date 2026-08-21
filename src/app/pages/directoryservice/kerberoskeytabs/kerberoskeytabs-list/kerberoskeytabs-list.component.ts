@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import helptext from '../../../../helptext/directoryservice/kerberoskeytabs-form-list';
 
 @Component({
+  standalone: false,
   selector: 'app-kerberos-keytabs-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class KerberosKeytabsListComponent {

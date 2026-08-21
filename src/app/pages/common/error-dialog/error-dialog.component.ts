@@ -1,5 +1,5 @@
 import { MatDialogRef } from '@angular/material/dialog';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 
@@ -8,9 +8,10 @@ import { StorageService } from '../../../services/storage.service';
 import { EntityUtils } from '../entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'error-dialog',
   templateUrl: './error-dialog.component.html',
-  styleUrls: ['./error-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class ErrorDialog {
   title: string;
@@ -22,39 +23,11 @@ export class ErrorDialog {
   constructor(public dialogRef: MatDialogRef < ErrorDialog >, public translate: TranslateService,
     private ws: WebSocketService, public http: HttpClient, public storage: StorageService) {}
 
-  toggleOpen() {
-    const dialogs = document.getElementsByClassName('mat-dialog-container');
-    const dialog = dialogs[dialogs.length - 1];
-    const messageWrapper = (<HTMLElement>dialog.querySelector('#err-message-wrapper'));
-    const title = (<HTMLElement>dialog.querySelector('#err-title'));
-    const content = (<HTMLElement>dialog.querySelector('#err-md-content'));
-    const btPanel = (<HTMLElement>dialog.querySelector('#err-bt-panel'));
-    const txtarea = (<HTMLElement>dialog.querySelector('#err-bt-text'));
-
-    this.isCloseMoreInfo = !this.isCloseMoreInfo;
-    if (!this.isCloseMoreInfo) {
-      dialog.setAttribute('style', 'width : 800px; height: 600px');
-      let errMsgHeight = messageWrapper.offsetHeight - 21;
-      if (errMsgHeight > 63) {
-        errMsgHeight = 63;
-      }
-      const tracebackHeight = (400 - errMsgHeight).toString() + 'px';
-      title.setAttribute('style', 'height: 40px; overflow: hidden');
-      content.setAttribute('style', 'height: 450px');
-      messageWrapper.setAttribute('style', 'max-height: 63px; overflow: auto');
-      btPanel.setAttribute('style', 'width: 750px; max-height: 400px');
-      btPanel.style.height = tracebackHeight;
-      setTimeout(() => {
-        txtarea.style.height = tracebackHeight;
-      }, 215);
-    } else {
-      dialog.removeAttribute('style');
-      title.removeAttribute('style');
-      content.removeAttribute('style');
-      btPanel.removeAttribute('style');
-      messageWrapper.removeAttribute('style');
-      txtarea.removeAttribute('style');
-    }
+  // the internal development record: 'More info...' is a <details> disclosure; the dialog widens to the
+  // log-pane width while the backtrace is open and returns to the message width when folded.
+  toggleOpen(event: Event) {
+    this.isCloseMoreInfo = !(event.target as HTMLDetailsElement).open;
+    this.dialogRef.updateSize(this.isCloseMoreInfo ? '420px' : '800px');
   }
 
   downloadLogs() {

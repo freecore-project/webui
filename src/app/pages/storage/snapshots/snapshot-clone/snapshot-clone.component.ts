@@ -3,6 +3,7 @@ import {
   Component,
   Injector,
   ViewChildren,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
@@ -14,13 +15,18 @@ import { RestService, WebSocketService } from '../../../../services';
 
 import * as _ from 'lodash';
 import helptext from '../../../../helptext/storage/snapshots/snapshots';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'snapshot-clone',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class SnapshotCloneComponent {
+  readonly settingsTitle = T('Snapshot Clone'); // the internal development record: the page's h1
+  saveSubmitText = T('Clone'); // the internal development record: the verb on the button, as Boot Environment Clone
   protected route_success: string[] = ['storage', 'pools'];
   protected route_cancel: string[] = ['storage', 'snapshots'];
   protected addCall = 'zfs.snapshot.clone';

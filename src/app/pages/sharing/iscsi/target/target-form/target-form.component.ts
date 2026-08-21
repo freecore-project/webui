@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
@@ -9,11 +10,15 @@ import { helptext_sharing_iscsi } from 'app/helptext/sharing';
 import { FieldSet } from '../../../../common/entity/entity-form/models/fieldset.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-target-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class TargetFormComponent {
+  readonly settingsTitle = T('Target');
+
   protected queryCall = 'iscsi.target.query';
   protected addCall = 'iscsi.target.create';
   protected editCall = 'iscsi.target.update';

@@ -1,12 +1,14 @@
+import { FC_DRAWER } from './drawer/fc-drawer';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '../../appMaterial.module';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmTooltipImports } from '@spartan-ng/helm/tooltip';
 
-import { ChartistModule } from 'ng-chartist';
 import { TopbarComponent } from './topbar/topbar.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { NotificationsComponent } from './notifications/notifications.component';
@@ -15,27 +17,26 @@ import { AuthLayoutComponent } from './layouts/auth-layout/auth-layout.component
 import { CommonDirectivesModule } from '../../directives/common/common-directives.module';
 import { ThemeService } from '../../services/theme/theme.service';
 import { DialogService } from '../../services/dialog.service';
-import { CustomizerComponent } from './customizer/customizer.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 // import { LineChartComponent } from './lineChart';
 // import { LineChartService } from './lineChart/lineChart.service';
 import { LanguageService } from '../../services/language.service';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { LocaleService } from '../../services/locale.service';
 
 import { AngularSvgIconModule, SvgIconRegistryService } from 'angular-svg-icon';
 
 @NgModule({
   imports: [
+    ...FC_DRAWER, // the internal development record: the admin layout's drawers
+    ...HlmButtonImports, ...HlmDropdownMenuImports, // the internal development record: the helm menus
+    ...HlmTooltipImports, // the internal development record: the helm tooltip on the shell (topbar, navigation, notifications)
     CommonModule,
     FormsModule,
     RouterModule,
-    FlexLayoutModule,
     MaterialModule,
     CommonDirectivesModule,
     TranslateModule,
-    ChartistModule,
-    HttpClientModule,
     AngularSvgIconModule.forRoot(),
   ],
   declarations: [
@@ -43,9 +44,9 @@ import { AngularSvgIconModule, SvgIconRegistryService } from 'angular-svg-icon';
     AuthLayoutComponent,
     TopbarComponent,
     NavigationComponent,
-    NotificationsComponent, CustomizerComponent, BreadcrumbComponent, // LineChartComponent
+    NotificationsComponent, BreadcrumbComponent, // LineChartComponent
   ],
-  providers: [ThemeService, DialogService, /* LineChartService, */ LanguageService, LocaleService, SvgIconRegistryService],
+  providers: [ThemeService, DialogService, /* LineChartService, */ LanguageService, LocaleService, SvgIconRegistryService, provideHttpClient(withXhr(), withInterceptorsFromDi())],
   exports: [/* LineChartComponent */],
 })
 export class AppCommonModule {}

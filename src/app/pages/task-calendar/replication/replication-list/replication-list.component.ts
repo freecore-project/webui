@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Validators } from '@angular/forms';
@@ -13,8 +13,10 @@ import globalHelptext from '../../../../helptext/global-helptext';
 import helptext from '../../../../helptext/task-calendar/replication/replication';
 
 @Component({
+  standalone: false,
   selector: 'app-replication-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [JobService, StorageService],
 })
 export class ReplicationListComponent {

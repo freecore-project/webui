@@ -1,17 +1,17 @@
 import { Injectable } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 @Injectable({ providedIn: 'root' })
 export class ValidationService {
   greaterThan(otherControlName: string, fieldPlaceholers: [string]) {
-    return function greaterThanValidate(control: FormControl) {
+    return function greaterThanValidate(control: UntypedFormControl) {
       if (!control.parent) {
         return null;
       }
 
       // Initializing the validator.
       const thisControl = control;
-      const otherControl = control.parent.get(otherControlName) as FormControl;
+      const otherControl = control.parent.get(otherControlName) as UntypedFormControl;
       if (!thisControl) {
         if (!otherControl) {
           throw new Error(
@@ -38,7 +38,7 @@ export class ValidationService {
   }
 
   rangeValidator(min: number, max?: number) {
-    return function rangeValidate(control: FormControl) {
+    return function rangeValidate(control: UntypedFormControl) {
       let regex;
       if (min === 0) {
         regex = /^(0|[1-9]\d*)$/;
@@ -75,14 +75,14 @@ export class ValidationService {
   }
 
   matchOtherValidator(otherControlName: string) {
-    return function matchOtherValidate(control: FormControl) {
+    return function matchOtherValidate(control: UntypedFormControl) {
       if (!control.parent) {
         return null;
       }
 
       // Initializing the validator.
       const thisControl = control;
-      const otherControl = control.parent.get(otherControlName) as FormControl;
+      const otherControl = control.parent.get(otherControlName) as UntypedFormControl;
       if (!thisControl) {
         if (!otherControl) {
           throw new Error(

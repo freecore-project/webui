@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -9,9 +9,12 @@ import { AppLoaderService } from '../../../../services/app-loader/app-loader.ser
 import { EntityUtils } from '../../../common/entity/utils';
 import { WebSocketService, DialogService, StorageService } from '../../../../services';
 import { atLeastOne } from 'app/pages/common/entity/entity-form/validators/at-least-one-validation';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-ssh-keypairs-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class SshKeypairsFormComponent {
@@ -23,11 +26,13 @@ export class SshKeypairsFormComponent {
   protected isEntity = true;
   protected entityForm: any;
 
+  readonly settingsTitle = T('SSH Keypair'); // the internal development record: the page's h1
   protected fieldConfig: FieldConfig[];
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_basic,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       class: 'basic',
       width: '100%',
       config: [
@@ -128,8 +133,8 @@ export class SshKeypairsFormComponent {
 
   clearPreviousErrors() {
     // Clears error messages from MW from previous attempts to Save
-    const elements = document.getElementsByTagName('mat-error');
-    while (elements[0]) elements[0].parentNode.removeChild(elements[0]);
+    // the internal development record: the entity-form error is a `#error_message` line, no longer a mat-error.
+    document.querySelectorAll('mat-error, #error_message').forEach((element) => element.parentNode.removeChild(element));
   }
 
   resourceTransformIncomingRestData(wsResponse) {

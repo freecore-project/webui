@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { WebSocketService, DialogService } from '../../../../services';
 import { EntityUtils } from '../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-ssh-connections-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class SshConnectionsListComponent {

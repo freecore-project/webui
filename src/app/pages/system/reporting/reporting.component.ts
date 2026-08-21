@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { helptext } from 'app/helptext/system/reporting';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
 import { DialogService, RestService, WebSocketService } from '../../../services';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { EntityUtils } from '../../common/entity/utils';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-system-reporting',
   templateUrl: 'reporting.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['reporting.component.css'],
 })
 export class ReportingComponent {
@@ -34,11 +37,13 @@ export class ReportingComponent {
     },
   ];
 
+  readonly settingsTitle = T('Reporting'); // the internal development record: the page's h1
   fieldSets = new FieldSets([
     {
       name: helptext.fieldset_general,
       class: 'general',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'checkbox',

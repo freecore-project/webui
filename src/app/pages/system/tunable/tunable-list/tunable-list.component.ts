@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -8,7 +9,9 @@ import { WebSocketService } from '../../../../services';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'system-tunables-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 
@@ -34,7 +37,7 @@ export class TunableListComponent {
       label: T('Delete'),
       icon: 'delete',
       enable: true,
-      ttpos: 'above',
+      ttpos: 'top',
       onClick: (selected) => {
         this.entityList.doMultiDelete(selected);
       },

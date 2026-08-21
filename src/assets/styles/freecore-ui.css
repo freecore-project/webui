@@ -1,0 +1,927 @@
+/* FreeCORE 15.2 application frame. Theme preferences remain the colour source;
+ * auth/status screens and embedded editors keep their own reviewed layouts.
+ * the internal development record: the frame sits on the surface ladder the theme service
+ * emits for every theme -- bg0 canvas (page ground), bg1 panel (sidebar,
+ * header, cards), bg2 raised (menus, dialogs) -- with --line for hairlines.
+ * No literal colours here: every value derives from the active theme.
+ * (.fc-sidenav-container -- the shell's drawer container, .mat-sidenav-container until #486 -- is repeated so
+ * the ladder outranks the inherited `.ix-blue .fc-sidenav-container { background: var(--bg1) }`.) */
+.fc-ui,
+.fc-ui.fc-sidenav-container {
+  --fc-header-height: 48px;
+  --fc-line: var(--line);
+  --fc-hover: color-mix(in srgb, var(--fg1) 5%, transparent);
+  --fc-sidebar: var(--bg1);
+  /* the internal development record: the rail sits on the canvas; only an expanded group
+   * takes the panel step, so the sidebar no longer reads as one bright slab.
+   * The brand block keeps --fc-sidebar with the header band. */
+  --fc-sidebar-rail: var(--bg0);
+  --fc-sidebar-open: var(--bg1);
+  background: var(--bg0);
+  color: var(--fg1);
+}
+
+.fc-ui .sidebar-panel.fc-sidenav {
+  width: 216px;
+  min-width: 216px;
+  border-right: 1px solid var(--fc-line);
+  box-shadow: none;
+  border-radius: 0;
+}
+.fc-ui .sidebar-panel.fc-sidenav .navigation-hold {
+  padding-top: calc(var(--fc-header-height) + 8px);
+  background: var(--fc-sidebar-rail) !important;
+}
+.fc-ui .branding.topbar {
+  max-width: 216px;
+  height: var(--fc-header-height);
+  min-height: var(--fc-header-height);
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--fc-line);
+  background: var(--fc-sidebar) !important;
+}
+.fc-ui .fc-brand-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 0 22px;
+  color: var(--fg1);
+  line-height: 1;
+}
+.fc-ui .fc-brand-mark { width: 25px; height: 25px; }
+.fc-ui .fc-brand-name { font-size: 17px; font-weight: 400; letter-spacing: -.3px; }
+/* the internal development record: navigation rows on the shell geometry tokens -- 34px
+ * top level at 13px, 30px sub-items at 12.5px, 18px outline icons at .7,
+ * a 2px accent bar for the active entry, a 1px rail under open groups, a
+ * chevron that turns 90 degrees. Information architecture unchanged. */
+.fc-ui {
+  --fc-nav-row: 34px;
+  --fc-subnav-row: 30px;
+  --fc-nav-icon: 18px;
+  --fc-nav-inset: 20px;   /* icon left edge */
+  --fc-nav-gap: 12px;
+  --fc-nav-text: calc(var(--fc-nav-inset) + var(--fc-nav-icon) + var(--fc-nav-gap)); /* 50px: label and sub-item text column */
+  --fc-nav-rail: calc(var(--fc-nav-inset) + var(--fc-nav-icon) / 2); /* 29px: icon centre */
+}
+.fc-ui .sidebar-panel.fc-sidenav .navigation-hold { padding-top: calc(var(--fc-header-height) + 6px); }
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item .fc-nav-item__content { font-size: 13px !important; }
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item { max-height: var(--fc-nav-row); height: auto; transition-duration: 120ms; }
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.open { max-height: 1100px; }
+.fc-ui .sidebar-panel .fc-nav-list a {
+  position: relative;
+  /* the internal development record: the theme paints every nav anchor on bg2
+   * (`.ix-blue .fc-nav-list a`); the rail shows through instead, and
+   * only hover, the active link and an open group add a tone. */
+  background: transparent;
+  height: var(--fc-nav-row);
+  padding: 0 12px 0 0;
+  color: var(--fg2);
+  font-size: 13px;
+  line-height: 1;
+}
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item mat-icon:not(.menu-caret) {
+  width: var(--fc-nav-icon);
+  height: var(--fc-nav-icon);
+  min-width: var(--fc-nav-icon);
+  margin: 0 var(--fc-nav-gap) 0 var(--fc-nav-inset);
+  font-size: var(--fc-nav-icon);
+  line-height: var(--fc-nav-icon);
+  opacity: .7;
+  transition: opacity 120ms;
+}
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item mat-icon.menu-caret {
+  width: 14px;
+  height: 14px;
+  font-size: 14px;
+  line-height: 14px;
+  opacity: .5;
+  transform: rotate(0deg);
+  transition: transform 120ms;
+}
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.open mat-icon.menu-caret { transform: rotate(90deg); }
+.fc-ui .sidebar-list-item.open > .fc-nav-item__content { background: transparent !important; }
+/* the internal development record: an expanded group -- its row and its sub-menu -- is the
+ * one thing on the rail that takes the panel step. routerLinkActive puts
+ * "open" on plain links too, so this is scoped to groups; the collapsed rail
+ * keeps its bg2 flyout instead. */
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.has-submenu.open { background: var(--fc-sidebar-open); }
+/* The inherited `.fc-sidenav .fc-nav-item:hover` paints 3.5% black with
+ * !important, which would wipe the backdrop while the pointer is on the row;
+ * anchors carry the hover tint themselves. */
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.has-submenu.open:hover { background: var(--fc-sidebar-open) !important; }
+.collapsed-menu .fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.has-submenu.open { background: transparent; }
+.fc-ui .sidebar-panel .fc-nav-list a:hover,
+.fc-ui .sidebar-panel .fc-nav-list a:focus-visible { background: var(--fc-hover); color: var(--fg1); }
+.fc-ui .sidebar-panel .fc-nav-list a.selected,
+.fc-ui .sidebar-panel .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > a { color: var(--fg1); }
+.fc-ui .sidebar-panel .fc-nav-list a.selected mat-icon:not(.menu-caret),
+.fc-ui .sidebar-panel .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > a mat-icon:not(.menu-caret) { opacity: 1; }
+.fc-ui .sidebar-panel .fc-nav-list a.selected { background: var(--fc-hover); }
+/* The sub-item bar lives on ::after: the list sheet keeps .fc-nav-item::before as (MDC's .mat-mdc-list-item::before until #485)
+ * its state layer at opacity 0. */
+.fc-ui .sidebar-panel .fc-nav-list a.selected::before,
+.fc-ui .sidebar-panel .sub-menu .fc-nav-item.selected::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  bottom: 7px;
+  width: 2px;
+  border-radius: 0 1px 1px 0;
+  background: var(--accent);
+}
+.fc-ui .sidebar-panel .sub-menu { position: relative; margin: 0 0 4px; padding: 0; }
+.fc-ui .sidebar-panel .sub-menu::before {
+  content: '';
+  position: absolute;
+  left: var(--fc-nav-rail);
+  top: 2px;
+  bottom: 2px;
+  width: 1px;
+  background: var(--fc-line);
+}
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu .fc-nav-item { position: relative; height: var(--fc-subnav-row); min-height: var(--fc-subnav-row); }
+/* the internal development record: a disabled sub-item is rendered without its anchor (e.g.
+ * Multipaths on a host without multipath hardware); it must not keep a 30px
+ * row, which the group's backdrop would now show as a blank tail. */
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu .fc-nav-item:not(:has(a)) { display: none; }
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu .fc-nav-item.selected { background: transparent !important; border-radius: 0; }
+.fc-ui .sidebar-panel .sub-menu .fc-nav-item.selected::after { left: calc(var(--fc-nav-rail) - 0.5px); top: 6px; bottom: 6px; }
+.fc-ui .sidebar-panel .selected a { color: var(--fg1); }
+/* Sub-item anchors are transparent so the rail shows through; the inherited
+ * theme painted them on bg2. */
+.fc-ui .sidebar-panel.fc-sidenav .sub-menu a { height: var(--fc-subnav-row); padding-left: var(--fc-nav-text); font-size: 12.5px; background: transparent; }
+.fc-ui .sidebar-panel.fc-sidenav .sub-menu a:hover,
+.fc-ui .sidebar-panel.fc-sidenav .sub-menu a:focus-visible { background: var(--fc-hover); }
+.collapsed-menu .fc-ui .sidebar-panel { width: 48px; min-width: 48px; }
+.collapsed-menu .fc-ui .branding { max-width: 48px; }
+.collapsed-menu .fc-ui .fc-brand-link { padding: 0; justify-content: center; }
+.collapsed-menu .fc-ui .fc-brand-name { display: none; }
+.collapsed-menu .fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item mat-icon:not(.menu-caret) { margin: 0 calc((48px - var(--fc-nav-icon)) / 2); }
+.collapsed-menu .fc-ui .sidebar-panel .fc-nav-list a.selected::before { top: 8px; bottom: 8px; }
+.collapsed-menu .fc-ui .sidebar-panel .sub-menu { margin: 0; background: var(--bg2) !important; border: 1px solid var(--fc-line); border-radius: 6px; }
+.collapsed-menu .fc-ui .sidebar-panel .sub-menu::before { display: none; }
+.collapsed-menu .fc-ui .sidebar-panel.fc-sidenav .sub-menu a { padding-left: 16px; }
+.collapsed-menu .fc-ui .sidebar-panel .sub-menu .fc-nav-item.selected::after { left: 0; }
+
+.fc-ui topbar .topbar {
+  --mat-toolbar-standard-height: var(--fc-header-height);
+  --mat-toolbar-mobile-height: var(--fc-header-height);
+  height: var(--fc-header-height);
+  min-height: var(--fc-header-height);
+  background: var(--topbar) !important;
+  color: var(--topbar-txt) !important;
+  border-bottom: 1px solid var(--fc-line);
+  box-shadow: none;
+}
+.fc-ui topbar .fc-toolbar-row { height: var(--fc-header-height); padding: 0 18px; gap: 2px; }
+.fc-ui topbar .mat-icon { font-size: 20px; }
+.fc-ui .fc-hostname {
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 8px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fc-ui #fc-mark .fc-topbar-mark { width: 22px; height: 22px; }
+.fc-ui topbar .notification-number { font-size: 9px; border-radius: 6px; }
+.fc-ui topbar .topbar-button-right { position: relative; } /* anchors the absolute .notification-number badge (MDC used to provide this) */
+.fc-ui .notification-sidenav { min-width: 0; width: 400px; max-width: 100%; }
+.fc-ui .breadcrumb-bar {
+  background: var(--bg0) !important;
+  box-shadow: none;
+  padding: 0 32px;
+}
+.fc-ui .breadcrumb li a { font-size: 12px; color: var(--fg2); }
+.fc-ui .breadcrumb li:not(:first-child)::before { content: '›'; color: var(--fg2); opacity: .55; padding: 0 10px; }
+.fc-ui .rightside-content-hold { display: flex; flex-direction: column; padding: 18px 32px 20px !important; }
+.fc-ui .rightside-content-hold > * { flex-shrink: 0; }
+.fc-ui .fc-project-footer { display: flex; gap: 14px; margin-top: auto; padding: 30px 0 4px; color: var(--fg2); font-size: 11px; }
+.fc-ui .fc-project-footer a { color: inherit; }
+.embedding-active .fc-project-footer { display: none; }
+.embedding-active .fc-ui .rightside-content-hold { display: block; }
+
+/* Standalone forms retain their dynamic field widths, messages and actions. */
+.fc-ui entity-form .form-card { background: transparent; border: 0; box-shadow: none; color: var(--fg2); } /* the internal development record: the fg2 the theme's card list gave the wrapper */
+.fc-ui entity-wizard .form-card { background: transparent; border: 0; box-shadow: none; color: var(--fg2); } /* the internal development record: the wizard's wrapper is the same div */
+.fc-ui entity-wizard .fieldset-label { color: var(--fg1); font-weight: 400; font-size: 15px; } /* the internal development record: the form's fieldset voice */
+.fc-ui .fc-settings-form { color: var(--fg2); font-size: 12px; } /* the internal development record: the fg2 12px body the card gave every form (ix-blue `.form-card.mat-mdc-card`), for the hand-built editors that carry the form class without an entity-form wrapper */
+.fc-ui .fc-settings-form .fieldset-label { color: var(--fg1); font-weight: 400; font-size: 15px; } /* the internal development record: keyed on the form class -- the hand-built editors carry it too */
+/* the internal development record: the `.buttons > button` hairline + hover that stood here were inert on
+ * Material (the #353 tier rules outrank them) and, at (0,2,2), would have beaten every helm
+ * utility on the spartan row -- a hairline on the tier-1 Save, the hover surface over a
+ * destructive. The tiers now live in the helm button file. */
+
+/* the internal development record: no form is centred inside the admin shell; #413: every form is the settings
+ * container (the `.fc-settings-form` rules below) and every wizard sits at the same 1120 anchored
+ * geometry with the page's h1 above it and no inset -- the values #408 had scoped to the iSCSI
+ * wizard are the default. */
+.fc-ui entity-wizard .form-card { max-width: 1120px; margin: 0; }
+.fc-ui entity-wizard .form-card > .mat-content { padding: 0 !important; }
+.fc-ui entity-wizard div.wizard-action { padding: 20px 0 0; } /* div.: outranks the component sheet at (0,2,1) */
+.fc-ui entity-wizard .wizard-summary { padding: 0; }
+
+/* the internal development record: the page shell. ONE title voice (.fc-page-title; .fc-settings-title is the
+ * form engine's name for it), one header-with-action row, one page container (min-width 0, the 1120
+ * cap where the page is prose or a form), one notice box (the security-keys notice, promoted). The
+ * seven id-keyed copies of the title rule and their 24px twins collapsed into these.
+ * the internal development record: pages anchor at the content edge like the lists do; the
+ * 1120px cap stays, the centring goes (dialogs and status screens are centred by design). */
+.fc-ui .fc-page-title, .fc-ui .fc-settings-title { color: var(--fg1); font-size: 27px; line-height: 1.3; font-weight: 400; letter-spacing: -.55px; margin: 8px 0 30px; max-width: 1120px; }
+.fc-ui .fc-page { min-width: 0; }
+.fc-ui .fc-page--capped { max-width: 1120px; margin: 0; container-type: inline-size; }
+.fc-ui .fc-page-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 8px 0 24px; flex-wrap: wrap; }
+.fc-ui .fc-page-header .fc-page-title { margin: 0; }
+.fc-ui .fc-page-notice { display: block; margin: 8px 0 18px; padding: 14px 16px; border: 1px solid var(--fc-line); border-radius: 6px; background: transparent; box-shadow: none; color: var(--fg2); font-size: 13px; line-height: 1.7; max-width: 1120px; }
+.fc-ui .fc-page-notice--warn { border-left: 2px solid var(--yellow); color: var(--fg1); }
+.fc-ui .fc-page-notice p { margin: 0 0 8px; }
+.fc-ui .fc-page-notice p:last-child { margin-bottom: 0; }
+/* a pane under a page's tab bar is named by its tab: it carries no title of its own; the pane starts 26px under
+ * the bar (the list's filter row and the form's first section alike -- the first section draws no second rule) */
+.fc-ui .fc-tabbed .entity-table-title-layout, .fc-ui .fc-tabbed entity-form .fc-settings-title { display: none; }
+.fc-ui .fc-tabbed .fc-tab-bar { margin-bottom: 26px; } /* the internal development record: the page's tab bar */
+.fc-ui .fc-tabbed entity-form .fieldset-container > .fc-settings-section:first-child { border-top: 0; padding-top: 0; }
+/* the internal development record: the CONSOLE law (D6). A console page is section.fc-page.fc-console: the h1 in the page voice, then the
+   #354 surface (bg2, hairline, 6px) holding <ix-terminal>. The terminal fills the content hold to the footer through a
+   min-height:0 flex column chain (hold > routed host > .fc-console > .fc-console-surface > ix-terminal > .terminal-wrapper);
+   `:has()` fires only for a routed host that carries a console, so no other page changes; the (0,3,0) beats the hold's
+   `> * { flex-shrink: 0 }`. */
+.fc-ui .rightside-content-hold > :has(> .fc-console) { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.fc-ui .fc-console { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+.fc-ui .fc-console-surface { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 310px; background: var(--bg2); border: 1px solid var(--fc-line); border-radius: 6px; } /* no overflow clip: the toolbar's help pop-over is positioned inside; the 310px floor (260 wrapper + 48 toolbar + border) makes a short viewport scroll the hold instead of clipping the prompt */
+.fc-ui .fc-console-surface .tooltiptext:not(.show):not(.lock) { display: none; } /* the hidden pop-over (visibility:hidden, absolute, 90vw) sits below the toolbar and would push the hold into a scrollbar; shown, it renders as everywhere */
+/* the notice's action row (Interfaces: Save / Revert) sits on the text's edge, not on Material's 8px */
+.fc-ui .fc-page-notice .fc-notice-actions { display: flex; align-items: center; flex-wrap: wrap; padding: 0; min-height: 0; margin: 10px 0 0; gap: 8px; }
+.fc-ui entity-form .fc-settings-form { max-width: 1120px; margin: 0; } /* the internal development record: no longer a mat-card */
+.fc-ui entity-form .fc-settings-form > .mat-content { padding: 0 !important; }
+/* the internal development record: the quota forms flag a rejected entry with .chip-warn; on the badge chip. */
+.fc-ui .form-chip-row.chip-warn { background-color: var(--red); border-color: var(--red); color: var(--red-txt, white); }
+.fc-ui .form-chip-row.chip-warn .form-chip-remove { color: var(--red-txt, white); }
+/* the internal development record: the file input look every dynamic field draws (it was reviewed on the
+ * settings forms; the dialogs, wizards and plain forms drew the browser default). */
+.fc-ui .dynamic-field input[type="file"] {
+  max-width: 100%;
+  color: var(--fg2);
+  font: inherit;
+}
+.fc-ui .dynamic-field input[type="file"]::file-selector-button {
+  padding: 8px 12px;
+  margin: 8px 10px 8px 0;
+  border: 1px solid var(--fc-line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg1);
+  font: inherit;
+  cursor: pointer;
+}
+.fc-ui .dynamic-field input[type="file"]::file-selector-button:hover { background: var(--fc-hover); }
+.fc-ui .fc-settings-form .buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--fc-line); padding: 20px 0 0; margin: 12px 0 0; min-height: 64px; } /* the internal development record: one row rule for the engine and the hand-built editors */
+.fc-ui .fc-settings-form.fc-legacy-layout .buttons { border-top: 0; } /* the internal development record: the legacy branch draws its trailing divider fieldset as the rule */
+.fc-ui entity-form .fc-settings-form #success-msg-wrapper { color: var(--fg2); font-size: 12px; padding-left: 8px; margin: 0; }
+
+@media (max-width: 700px) {
+  .fc-ui .rightside-content-hold { padding: 12px 16px 18px !important; }
+  .fc-ui .breadcrumb-bar { padding: 0 16px; }
+  .fc-ui topbar .fc-toolbar-row { padding: 0 6px; gap: 0; overflow-x: auto; }
+  .fc-ui .fc-hostname { display: none; }
+  .fc-ui .fc-page-title, .fc-ui .fc-settings-title { color: var(--fg1); font-size: 24px; margin-bottom: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fc-ui topbar .movement, .fc-ui topbar .fa-spin { animation: none; }
+  .fc-ui .sidebar-panel .navigation-hold, .fc-ui .sidebar-list-item, .fc-ui .sidebar-list-item .sub-menu { transition: none !important; }
+}
+
+/* The table search has no validation messages; settings fields still reserve
+ * their subscript/error area. Override legacy card padding only at this toolbar. */
+entity-table .fc-records > .entity-table-toolbar-layout { padding: 0 0 16px !important; }
+
+.fc-ui .sidebar-panel.fc-sidenav .fc-nav-list .fc-nav-item { border: 0; background: transparent; }
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > a > span,
+.fc-ui .sidebar-panel.fc-sidenav .sidebar-list-item.open .sub-menu .fc-nav-item.selected a { color: var(--fg1) !important; }
+
+/* the internal development record: the mark keeps its brand colours (no grayscale, no dimming);
+ * the mono discipline governs the UI, not the mark. */
+.fc-ui .fc-fork-mark { filter: none; }
+
+.embedding-active .fc-ui .rightside-content-hold { padding-top: 0 !important; }
+
+/* Align lists with the settings page inset. the internal development record: the toolbar's text buttons
+ * (Add, Actions, custom actions) are the #353 outline tier and the icon buttons the ghost tier
+ * on hlmBtn now; the Material tier retargets that stood here are gone with the last
+ * `.mat-mdc-button` in the toolbar. The multi-actions bar and the row controls keep theirs
+ * (#405). */
+.fc-ui entity-table #entity-table-component.fc-records { margin: 8px 0 0; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header,
+.fc-ui .fc-records .ngx-datatable.material .datatable-footer { background: transparent !important; }
+
+/* Sharing: native nested editors. */
+/* the internal development record: the iSCSI section is .fc-page.fc-tabbed with a .fc-page-header; its titles are .fc-page-title */
+/* the internal development record: the shell's tab vocabulary (the one #319 wrote for iSCSI), off Material since #479-#481 --
+ * `.fc-tab-bar` of `.fc-tab`s, drawn by nav[fcTabNav] (the Rsync and iSCSI route bars) and by the Applications
+ * tab list (brain tabs). The bar is 42px tabs over the 1px hairline; a tab
+ * is 13px/400 fg2 on no fill with 16px sides, fg1 when active, hovered or focused, with the 1px fg2 ring 3px in on
+ * keyboard focus. --stretch shares the free width out; --underline puts the 1px fg2 line along the active tab's
+ * foot. The paginator (nav[fcTabNav] when the tabs overflow) is Material's: 32px arrows 4px off the ends, an
+ * 8px two-sided chevron in fg2, dimmed to .4 at its end. */
+.fc-ui .fc-tab-bar { display: flex; position: relative; flex-shrink: 0; box-sizing: content-box; overflow: hidden; border-bottom: 1px solid var(--fc-line); background: transparent; }
+.fc-ui .fc-tab { position: relative; z-index: 1; display: flex; flex: 0 0 auto; align-items: center; justify-content: center; box-sizing: border-box; height: 42px; min-width: 0; margin: 0; padding: 0 16px; border: 0; background: transparent; color: var(--fg2); font-family: inherit; font-size: 13px; font-weight: 400; line-height: 1; letter-spacing: normal; text-align: center; text-decoration: none; text-transform: none; white-space: nowrap; cursor: pointer; outline: none; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; -webkit-tap-highlight-color: transparent; transition: color 150ms linear; }
+.fc-ui .fc-tab:hover, .fc-ui .fc-tab:focus, .fc-ui .fc-tab[data-state=active] { color: var(--fg1); }
+.fc-ui .fc-tab:focus-visible { outline: 1px solid var(--fg2); outline-offset: -3px; border-radius: 6px; }
+.fc-ui .fc-tab-bar--stretch .fc-tab { flex-grow: 1; }
+.fc-ui .fc-tab-bar--underline .fc-tab[data-state=active]::after { content: ''; position: absolute; right: 0; bottom: 0; left: 0; border-top: 1px solid var(--fg2); }
+.fc-ui .fc-tab-nav-viewport { display: flex; flex-grow: 1; z-index: 1; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+.fc-ui .fc-tab-nav-list { display: flex; position: relative; flex: 1 0 auto; }
+.fc-ui .fc-tab-nav-pagination { display: none; position: relative; z-index: 2; align-items: center; justify-content: center; box-sizing: content-box; min-width: 32px; cursor: pointer; user-select: none; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.fc-ui .fc-tab-nav--paginated .fc-tab-nav-pagination { display: flex; }
+.fc-ui .fc-tab-nav-pagination--before { padding-left: 4px; }
+.fc-ui .fc-tab-nav-pagination--after { padding-right: 4px; }
+.fc-ui .fc-tab-nav-chevron { box-sizing: border-box; width: 8px; height: 8px; border-style: solid; border-width: 2px 2px 0 0; border-color: var(--fg2); }
+.fc-ui .fc-tab-nav-pagination--before .fc-tab-nav-chevron { transform: rotate(-135deg); }
+.fc-ui .fc-tab-nav-pagination--after .fc-tab-nav-chevron { transform: rotate(45deg); }
+.fc-ui .fc-tab-nav-pagination--disabled { cursor: default; pointer-events: none; }
+.fc-ui .fc-tab-nav-pagination--disabled .fc-tab-nav-chevron { opacity: 0.4; }
+/* the internal development record: the expansion panel off Material -- div.fc-expansion-panel[brnCollapsible] holding an
+ * [fcExpansionHeader] row and a .fc-expansion-panel-content-wrapper[brnCollapsibleContent] -- drawn as
+ * mat-expansion-panel drew it under the theme on Storage -> Pools:
+ * - The panel is flat and in fg2.
+ * - The header is a flex row (24px sides unless the page sets its own), 14px/500, with the pointer, and ends in
+ *   the theme's legacy chevron: a 2px fg1 corner turned 45deg in an 8px box, which turns over when open.
+ * - A closed header takes Material's hover layer (on-surface .87 at 4%); a keyboard-focused one, open or closed,
+ *   its focus layer (12%).
+ * - The body opens and closes on the 225ms grid-row animation, is hidden (and inert) when closed, and sets its
+ *   text at 14px/20px with 0.25px tracking over a 16px foot. */
+.fc-ui .fc-expansion-panel { position: relative; display: block; box-sizing: content-box; margin: 0; overflow: hidden; border-radius: 0; background: transparent; box-shadow: none; color: var(--fg2); }
+.fc-ui .fc-expansion-panel-header { position: relative; display: flex; flex-direction: row; align-items: center; padding: 0 24px; border-radius: inherit; outline: 0; font-size: 14px; font-weight: 500; letter-spacing: normal; cursor: pointer; }
+.fc-ui .fc-expansion-panel-header[aria-disabled=true] { cursor: default; }
+.fc-ui .fc-expansion-panel:not([data-state=open]) > .fc-expansion-panel-header:not([aria-disabled=true]):hover { background: color-mix(in srgb, rgba(0, 0, 0, .87) 4%, transparent); }
+.fc-ui .fc-expansion-panel > .fc-expansion-panel-header:not([aria-disabled=true]):focus-visible { background: color-mix(in srgb, rgba(0, 0, 0, .87) 12%, transparent); }
+@media (hover: none) {
+  .fc-ui .fc-expansion-panel:not([data-state=open]) > .fc-expansion-panel-header:not([aria-disabled=true]):hover { background: transparent; }
+}
+.fc-ui .fc-expansion-content { display: flex; flex: 1; flex-direction: row; overflow: hidden; }
+.fc-ui .fc-expansion-indicator { display: block; transition: transform 225ms cubic-bezier(0.4, 0, 0.2, 1); }
+.fc-ui .fc-expansion-panel[data-state=open] > .fc-expansion-panel-header .fc-expansion-indicator { transform: rotate(180deg); }
+.fc-ui .fc-expansion-indicator::after { content: ''; display: inline-block; box-sizing: content-box; padding: 3px; border-style: solid; border-width: 0 2px 2px 0; color: var(--fg1); transform: rotate(45deg); vertical-align: middle; }
+.fc-ui .fc-expansion-panel-content-wrapper { display: grid; grid-template-rows: 0fr; grid-template-columns: 100%; transition: grid-template-rows 225ms cubic-bezier(0.4, 0, 0.2, 1); }
+.fc-ui .fc-expansion-panel[data-state=open] > .fc-expansion-panel-content-wrapper { grid-template-rows: 1fr; }
+.fc-ui .fc-expansion-panel-content { display: flex; flex-direction: column; overflow: visible; min-height: 0; visibility: hidden; transition: visibility 190ms linear; font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: .0178571429em; }
+.fc-ui .fc-expansion-panel[data-state=open] > .fc-expansion-panel-content-wrapper > .fc-expansion-panel-content { visibility: visible; }
+.fc-ui .fc-expansion-panel-body { position: relative; padding: 0 24px 16px; }
+/* the internal development record: the iSCSI header Wizard is an outline hlmBtn; its flattener (the last #396 twin) went. */
+/* the internal development record: the initiator form is a .fc-page--capped page on the engine's section grid (entity-form.component.scss, emulated) and the shared row/voice rules above; the card strip, the private 2-column grid and the button flatteners (the #396 trap) went. */
+.fc-ui .fc-initiator-form { color: var(--fg2); } /* the fg2 body the card gave it */
+.fc-ui .fc-initiator-form [data-slot="button"] .mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
+.fc-ui .fc-initiator-form .initiator-refresh-layout .mat-icon { width: 16px; height: 16px; font-size: 16px; line-height: 16px; }
+.fc-ui .fc-initiator-form .connected-initiators-list { height: 320px; border: 1px solid var(--fc-line); border-radius: 6px; margin: 16px 0 12px; }
+.fc-ui .fc-initiator-form div.dynamic-list { height: 122px; border: 1px solid var(--fc-line); border-radius: 6px; }
+.fc-ui .fc-initiator-form .dynamic-list-flex-content-layout { min-width: 0; }
+.fc-ui .fc-initiator-form .move-to-action { padding-right: 8px; }
+/* the internal development record: the iSCSI wizard's own 1120/anchored/no-inset overrides became every wizard's default; its h1 is the engine's. */
+@media (max-width: 800px) {
+  .fc-ui .fc-initiator-form .connected-initiators-list { height: 200px; }
+}
+
+/* the internal development record: the iSCSI wizard's own stepper/action rules are gone -- the shell now carries
+ * the hairline header (56px, --line, 24px below), the 13px labels, the flex-shrink/12px connector
+ * rules at 700px and the action row on a hairline for every wizard. The `.wizard-action button`
+ * block that stood here (transparent, fg1 !important, 400 !important) would have flattened every
+ * hlmBtn tier at (0,3,1) -- the #396 trap. */
+
+/* the internal development record: the settings-form list-action override (#319) went with mat-button -- the
+ * list's actions are hlmBtn outlines now, the tier drawn once in the helm file. */
+
+
+/* Storage keeps its native source choices. (the internal development record: the destination browser's
+ * import-disk overrides went -- the explorer's own sheet is that grid now, on every page.) */
+.fc-ui app-import-disk .fc-settings-form #fs_type_radiogroup { display: flex; flex-wrap: wrap; column-gap: 20px; }
+.fc-ui app-import-disk .fc-settings-form .form-ex-flex-container { max-width: none; }
+
+/* the internal development record: the explorer tree on the shell. The theme painted a bg1 slab behind toggle,
+ * box and tree; the box is bg1 itself now, so the slab goes and the tree becomes its own surface
+ * -- the "open field" of the #351 family: bg1, --line hairline, 6px, 8px inset, 24px rows on the
+ * ladder, the hover surface for hover / focus / selected (the lib's light-theme fills and inset
+ * shadow neutralised), 18px fg2 glyphs. The theme's grey chevron and 300px viewport stay. */
+.fc-ui .form-explorer .form-ex-flex-container { background: transparent; }
+.fc-ui .form-explorer tree-root { display: block; background: var(--bg1); border: 1px solid var(--fc-line); border-radius: 6px; padding: 6px 8px; box-sizing: border-box; }
+.fc-ui .form-explorer .node-wrapper { align-items: center; }
+.fc-ui .form-explorer .node-content-wrapper { display: inline-flex; align-items: center; height: 24px; padding: 0 6px; margin-left: 0; border-radius: 4px; box-shadow: none !important; color: var(--fg1); font-size: 13px; line-height: 18px; }
+.fc-ui .form-explorer .node-content-wrapper:hover,
+.fc-ui .form-explorer .node-content-wrapper-focused,
+.fc-ui .form-explorer .node-content-wrapper-active,
+.fc-ui .form-explorer .node-content-wrapper-active:hover,
+.fc-ui .form-explorer .node-content-wrapper-active.node-content-wrapper-focused { background: var(--fc-hover); }
+.fc-ui .form-explorer .node-content-wrapper-active { color: var(--fg1); }
+.fc-ui .form-explorer tree-node-content { display: inline-flex; align-items: center; height: 18px; }
+.fc-ui .form-explorer tree-node-content mat-icon { width: 18px; height: 18px; font-size: 18px; line-height: 18px; color: var(--fg2); }
+.fc-ui .form-explorer tree-node-content span { line-height: 18px; padding-left: 4px; }
+/* The lib's inline-block tree sat on a baseline (a descender gap under it); its per-node 2px
+ * drop slots and the theme's chevron offset (tuned for 25px rows) go with the 24px row. */
+.fc-ui .form-explorer .angular-tree-component { display: block; }
+.fc-ui .form-explorer .node-drop-slot { height: 0; }
+.fc-ui .form-explorer .toggle-children-wrapper { display: inline-flex; align-items: center; height: 24px; padding: 0 3px 0 1px; }
+.fc-ui .form-explorer .toggle-children { top: 0; }
+/* Drag paints on the ladder (allowDrag is on in the options), the tri-state checkboxes of a
+ * `multiple` explorer in the mono tone, and the ACL mark as a quiet badge, not an accent slab. */
+.fc-ui .form-explorer .node-content-wrapper.is-dragging-over { background: var(--fc-hover); }
+.fc-ui .form-explorer .node-drop-slot.is-dragging-over { height: 20px; background: transparent; border-color: var(--fc-line); }
+.fc-ui .form-explorer input.tree-node-checkbox { accent-color: var(--fg1); }
+.fc-ui .form-explorer .dataset-subtitle { display: inline-block; background: var(--fc-hover); color: var(--fg1); font-size: 11px; line-height: 16px; padding: 0 5px; border-radius: 4px; margin-left: 5px; vertical-align: middle; }
+
+/* Multipaths retains the native expandable, sortable and resizable tree; the
+ * tree table's geometry is the shared rule under #368. It has no row actions. */
+.fc-ui #multipaths-page .entity-tree-table__actions-column { display: none; } /* the internal development record: the shell and title are .fc-page / .fc-page-title */
+
+/* System alert rules and security-key controls retain their native forms. */
+/* the internal development record: the shells are .fc-page.fc-page--capped, the titles .fc-page-title, the security header .fc-page-header, the notices .fc-page-notice--warn */
+/* the internal development record: the categories are .fc-settings-section on the engine grid (entity-form.component.scss, emulated) with the shared .fc-settings-form voice + row; the card strip, the 140px column and the button repaint (which also hit the hlm-select triggers) went. */
+.fc-ui #alert-settings-page .fc-alert-rules { min-width: 0; }
+.fc-ui #alert-settings-page .fc-alert-rule { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(340px, 1.5fr); gap: 24px; }
+.fc-ui #alert-settings-page h3 { margin: 14px 0 24px; color: var(--fg1); font-size: 13px; line-height: 1.5; font-weight: 400; }
+.fc-ui #alert-settings-page .fc-alert-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; min-width: 0; }
+.fc-ui #alert-settings-page .fc-alert-options > div { min-width: 0; }
+.fc-ui #alert-settings-page .inline-label > div.label { display: none; }
+.fc-ui #alert-settings-page .inline-label hlm-field { flex: 1 1 calc(100% - 25px); width: calc(100% - 25px); min-width: 0; padding: 0; }
+/* the internal development record: the Security Keys buttons are hlmBtn tiers (outline Add/toggle, ghost icon Delete); the `#security-keys-page button` repaint went with them -- an unlayered `button` rule beats every layered tier (the #396 trap). */
+.fc-ui #security-keys-page .fc-security-intro { max-width: 800px; color: var(--fg2); font-size: 13px; line-height: 1.7; }
+.fc-ui #security-keys-page .fc-security-intro p { margin: 0 0 12px; }
+.fc-ui #security-keys-page .fc-page-notice { margin: 18px 0; }
+.fc-ui #security-keys-page .fc-security-status { display: flex; flex-wrap: wrap; gap: 18px 40px; margin: 24px 0 18px; } /* the internal development record: the boot-status facts voice (dl) */
+.fc-ui #security-keys-page .fc-security-status dt { color: var(--fg2); font-size: 12px; }
+.fc-ui #security-keys-page .fc-security-status dd { margin: 8px 0 0; }
+.fc-ui #security-keys-page .fc-security-table { overflow-x: auto; }
+.fc-ui #security-keys-page .fc-security-table:focus-visible { outline: 1px solid var(--fg2); outline-offset: -1px; }
+.fc-ui #security-keys-page table { width: 100%; min-width: 620px; border-collapse: collapse; background: transparent; }
+.fc-ui #security-keys-page th, .fc-ui #security-keys-page td { box-sizing: border-box; padding: 6px 14px; text-align: left; border-bottom: 1px solid var(--fc-line); font-weight: 400; }
+.fc-ui #security-keys-page th { height: 40px; font-size: 12px; color: var(--fg2); }
+.fc-ui #security-keys-page td { height: 50px; font-size: 13px; color: var(--fg1); }
+.fc-ui #security-keys-page td:not(:first-child) { white-space: nowrap; }
+.fc-ui #security-keys-page td:first-child { overflow-wrap: anywhere; }
+.fc-ui #security-keys-page tbody tr:hover { background: var(--fc-hover); }
+.fc-ui #security-keys-page .fc-security-row-action { width: 48px; text-align: right; }
+.fc-ui #security-keys-page .fc-security-row-action [data-slot="button"] .mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; } /* the internal development record: hlmBtn sizes only ng-icon */
+.fc-ui #security-keys-page .fc-security-empty { margin: 0; padding: 32px 0; border-block: 1px solid var(--fc-line); color: var(--fg2); font-size: 13px; }
+.fc-ui #security-keys-page .fc-security-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 24px 0; }
+.fc-ui #security-keys-page .fc-security-recovery { max-width: 800px; font-size: 12px; line-height: 1.7; color: var(--fg2); overflow-wrap: anywhere; }
+@container (max-width: 620px) {
+  .fc-ui #alert-settings-page .fc-alert-rule { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .fc-ui #alert-settings-page .fc-alert-rule:not(:last-child) { margin-bottom: 20px; }
+  .fc-ui #alert-settings-page h3 { margin: 0 0 12px; }
+}
+@container (max-width: 420px) {
+  .fc-ui #alert-settings-page .fc-alert-options { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+}
+
+/* ACME keeps each DNS name beside its authenticator, with no spacer column. */
+.fc-ui app-certificate-acme-add #authenticators { top: 0; }
+.fc-ui app-certificate-acme-add #domains .form-list-item-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+.fc-ui app-certificate-acme-add #domains .form-list-field-layout { min-width: 0; width: auto; max-width: none; margin: 0; }
+.fc-ui app-certificate-acme-add #domains .form-list-field-layout:first-child { display: none; }
+.fc-ui app-certificate-acme-add #domains #name_text p { margin: 0; padding-top: 12px; overflow-wrap: anywhere; }
+@container (max-width: 550px) {
+  .fc-ui app-certificate-acme-add #domains .form-list-item-layout { grid-template-columns: minmax(0, 1fr); }
+  .fc-ui app-certificate-acme-add #domains #name_text p { padding: 0; }
+}
+
+/* Boot status retains the native tree and disk actions; the tree table's
+ * geometry is the shared rule under #368. */
+/* the internal development record: the EULA text arrives through [innerHTML] -- no _ngcontent, so its p/h1 voice must be global. */
+.fc-ui #eula-page #eula p { margin: 0 0 12px; }
+.fc-ui #eula-page #eula h1 { margin: 0 0 12px; color: var(--fg1); font-size: 15px; font-weight: 400; line-height: 1.5; }
+/* the internal development record: the boot status shell is .fc-page, its title .fc-page-title */
+
+.fc-ui #boot-pool-status-page .fc-boot-scan { display: flex; flex-wrap: wrap; gap: 18px 40px; margin: 0 0 28px; }
+.fc-ui #boot-pool-status-page .fc-boot-scan dt { color: var(--fg2); font-size: 12px; }
+.fc-ui #boot-pool-status-page .fc-boot-scan dd { margin: 8px 0 0; }
+/* the internal development record: the support shell is .fc-page.fc-page--capped, its title .fc-page-title */
+.fc-ui #system-support-page #FN-sys-info-wrapper { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 34px; border-top: 1px solid var(--fc-line); margin: 0; padding: 28px 0; }
+.fc-ui #system-support-page #fn-support-title { margin: 0; padding: 0; color: var(--fg1); font-size: 15px; font-weight: 400; line-height: 1.5; }
+.fc-ui #system-support-page .fc-system-facts { margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 30px; }
+.fc-ui #system-support-page .fc-system-facts dt { color: var(--fg2); font-size: 12px; font-weight: 400; }
+.fc-ui #system-support-page .fc-system-facts dd { margin: 8px 0 0; color: var(--fg1); overflow-wrap: anywhere; } /* the internal development record: the fact voice = the inherited 14px body, as Boot Status */
+.fc-ui #system-support-page #fn-instructions { margin: 0; padding: 24px 0; border-top: 1px solid var(--fc-line); color: var(--fg2); font-size: 13px; line-height: 1.8; max-width: none; }
+.fc-ui #system-support-page #fn-instructions a { color: var(--fg1); text-decoration: underline; text-underline-offset: 3px; }
+/* the internal development record: the update page's action row is div.buttons on hlmBtn (update.component.css draws the row); the .mat-basic repaint went. */
+@container (max-width: 1050px) {
+  .fc-ui #system-support-page #FN-sys-info-wrapper { grid-template-columns: 140px minmax(0, 1fr); gap: 24px; } /* the internal development record: the engine's middle step */
+}
+@container (max-width: 800px) {
+  .fc-ui #system-support-page #FN-sys-info-wrapper { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+}
+@container (max-width: 550px) {
+  .fc-ui #system-support-page .fc-system-facts { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+}
+
+/* Reviewed maintenance dialogs opt in without changing other dialog layouts. */
+.cdk-overlay-pane:has(.fc-settings-dialog) { min-width: 0 !important; max-width: calc(100vw - 32px) !important; }
+.fc-settings-dialog .mat-mdc-dialog-content { color: var(--fg2); font-size: 13px; line-height: 1.7; }
+.fc-settings-dialog form-paragraph p { margin: 0 0 10px; }
+.fc-settings-dialog form-paragraph b { font-weight: 400; color: var(--fg1); }
+
+/* the internal development record: controls, part 1 -- fields. The field box itself is the kit's (hlm-field /
+ * hlmInput / hlm-select, freecore-spartan.css); the Material re-skin that drew mat-form-field,
+ * mat-select and their --fc-field-* tokens here went with their last users (#472, #473). What stays
+ * is the focus ring the shell's own controls share. Scoped to .fc-ui: the login and status screens
+ * keep their reviewed layouts. */
+.fc-ui {
+  --fc-focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
+}
+/* Textarea: form-textarea draws its growing three-row box on spartan since the internal development record
+ * (hlm-textarea); the Material twin went with form-textarea-button in the internal development record. */
+/* Help: the info glyph sits at the right end of the label row; the field runs full width. */
+.fc-ui .dynamic-field.has-tooltip { position: relative; }
+/* !important: form-select's emulated stylesheet re-applies the 25px narrowing
+ * with attribute specificity and is injected after the bundle. */
+.fc-ui .dynamic-field.has-tooltip > hlm-field.full-width { width: 100% !important; }
+/* the internal development record: the same anchor for a spartan field (form-input, form-textarea). */
+.fc-ui .dynamic-field.has-tooltip:has(> hlm-field) > tooltip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 16px;
+  line-height: 16px;
+  z-index: 2;
+}
+/* the internal development record -> #392: the password toggle is now an addon inside the spartan input
+ * group (form-input), a 16px glyph on the box row; the theme's own `.toggle_pw` rule keeps the
+ * --toggle_pw_display_prop switch working. */
+.fc-ui .tooltip .material-icons.tooltip-icon { font-size: 14px; width: 14px; height: 14px; line-height: 16px; color: var(--fg2); opacity: .6; vertical-align: top; }
+.fc-ui .tooltip .material-icons.tooltip-icon:hover { opacity: 1; }
+
+/* the internal development record: controls, part 3 -- buttons in three tiers. The theme
+ * paints every mat-button as a filled block in primary or accent, uppercase,
+ * with !important, which is why a form's Submit, Cancel and Advanced options
+ * were three coloured slabs. One primary per view (fg1 ground, bg0 text);
+ * `accent` buttons become the hairline secondary; plain and `mat-basic`
+ * buttons are text-only tertiaries; `warn` and .btn-danger keep --red.
+ * Overrides carry !important to meet the theme at (0,3,0), later. */
+.fc-ui .mat-mdc-button,
+.fc-ui .mat-mdc-raised-button,
+.fc-ui .mat-mdc-unelevated-button,
+.fc-ui .mat-mdc-outlined-button {
+  height: 32px;
+  min-height: 32px;
+  min-width: 0;
+  line-height: 30px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500 !important;
+  letter-spacing: normal;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: background-color 120ms, border-color 120ms, color 120ms;
+}
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button) .mat-mdc-button-persistent-ripple::before,
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .mat-mdc-icon-button) .mat-ripple { display: none; }
+/* Tier 1: the one primary action. */
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-primary {
+  background-color: var(--fg1) !important;
+  color: var(--bg0) !important;
+  border-color: transparent;
+}
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-primary:not(:disabled):hover { background-color: color-mix(in srgb, var(--fg1) 86%, var(--bg0)) !important; }
+/* Tier 2: secondary, a hairline outline. */
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-accent,
+.fc-ui .mat-mdc-outlined-button {
+  background-color: transparent !important;
+  color: var(--fg1) !important;
+  border-color: var(--fc-line);
+}
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-accent:not(:disabled):hover,
+.fc-ui .mat-mdc-outlined-button:not(:disabled):hover { background-color: var(--fc-hover) !important; border-color: color-mix(in srgb, var(--fg2) 40%, transparent); }
+/* Tier 3: tertiary, text only. */
+.fc-ui .mat-mdc-button:not(.mat-primary):not(.mat-accent):not(.mat-warn),
+.fc-ui .mat-mdc-button.mat-basic {
+  background-color: transparent !important;
+  color: var(--fg2) !important;
+}
+.fc-ui .mat-mdc-button:not(.mat-primary):not(.mat-accent):not(.mat-warn):not(:disabled):hover,
+.fc-ui .mat-mdc-button.mat-basic:not(:disabled):hover { background-color: var(--fc-hover) !important; color: var(--fg1) !important; }
+/* Danger keeps the status red, as an outline. */
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-warn,
+.fc-ui .mat-mdc-button.btn-danger {
+  background-color: transparent !important;
+  color: var(--red) !important;
+  border-color: color-mix(in srgb, var(--red) 45%, transparent);
+}
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button).mat-warn:not(:disabled):hover,
+.fc-ui .mat-mdc-button.btn-danger:not(:disabled):hover { background-color: color-mix(in srgb, var(--red) 10%, transparent) !important; }
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button):disabled { opacity: .4; cursor: default; }
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button, .mat-mdc-icon-button):focus-visible { outline: none; box-shadow: var(--fc-focus-ring) !important; }
+/* the internal development record: a menu trigger ends in the shell's chevron -- expand_more
+ * at 16px on the label's line, the same box the select field draws (#351) --
+ * not MatIcon's 24px default; the button's right padding pulls in so the
+ * chevron sits where the field chevron sits. Material's own
+ * `.mat-mdc-button:has(mat-icon)` padding is injected after this sheet and
+ * ties the tier rule at (0,2,0), so any button carrying an icon was on MDC's
+ * with-icon padding, not the tier's 14px; the first rule restates it at (0,3,0). */
+.fc-ui :is(.mat-mdc-button, .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-outlined-button):has(.material-icons, mat-icon, [matButtonIcon]) { padding: 0 14px; }
+/* the internal development record: the Material caret rules that stood here left with the last mat-button menu trigger;
+ * each helm trigger carries its caret geometry in its own sheet (#404/#409). */
+/* Icon buttons: quiet, fg2 to fg1 on hover, a 6px hover surface. */
+.fc-ui .mat-mdc-icon-button { color: var(--fg2); border-radius: 6px; transition: background-color 120ms, color 120ms; }
+.fc-ui .mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before { display: none; }
+.fc-ui .mat-mdc-icon-button:not(:disabled):hover { color: var(--fg1); background-color: var(--fc-hover); }
+/* the internal development record: a disabled glyph stays legible-but-muted; .4 on fg2 over
+ * bg2 vanished (Reporting's zoom-in/forward). */
+.fc-ui .mat-mdc-icon-button:disabled { opacity: .55; cursor: default; background: transparent !important; }
+/* The legacy flex layout sizes a 50% field to 50% - 16px and grows it back,
+ * so two columns touched once the 25px help narrowing went; sized fields
+ * outside the reviewed settings grid get a 16px gutter, and their glyph
+ * follows the box's right edge. */
+.fc-ui { --fc-field-gap: 16px; }
+.fc-ui entity-form .form-card.fc-legacy-layout .entity-form-fieldset-layout { margin-right: calc(-1 * var(--fc-field-gap)); }
+.fc-ui entity-form .form-card.fc-legacy-layout .entity-form-field-layout { padding-right: var(--fc-field-gap); }
+/* the internal development record: the fieldset rule (hlm-separator, full width of the fieldset) ends where the
+ * field boxes end, not 16px past them in the gutter the fieldset borrows above. */
+.fc-ui entity-form .form-card.fc-legacy-layout .entity-form-fieldset-layout > hlm-separator { width: calc(100% - var(--fc-field-gap)); }
+@media (min-width: 600px) {
+  .fc-ui entity-form .form-card.fc-legacy-layout .entity-form-field-layout-sized {
+    flex: 0 0 var(--entity-form-field-width);
+    min-width: 0;
+    max-width: var(--entity-form-field-width);
+  }
+}
+/* Form action rows: 8px apart, primary first (the internal development record: the Material margin
+ * counter-rule went with the last mat-button in the row). */
+
+/* the internal development record: tables, dialogs, menus. */
+/* Tables: the entity table's ngx-datatable on the shell tokens -- 32px header
+ * in 11px uppercase fg2 over one hairline, 40px rows in 13px fg1, no vertical
+ * rules (the header's resize handles show only on hover), a hover surface,
+ * the row kebab at .5 until the row is hovered, a 12px fg2 pager. */
+.fc-ui .fc-records .ngx-datatable.material { background: transparent; box-shadow: none; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header { border-bottom: 1px solid var(--fc-line); }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell {
+  height: 32px; /* the internal development record: a custom header template without ngx's wrapper otherwise grows past the header */
+  box-sizing: border-box;
+  overflow: hidden;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--fg2);
+  line-height: 32px;
+  border: 0;
+}
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell .datatable-header-cell-template-wrap { height: 32px; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell .datatable-header-cell-wrapper { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0; }
+/* the internal development record: the theme pins the label 7px down and 7px right
+ * (`.ix-blue .datatable-header-cell-label`); centred in the 32px header and on
+ * the body text's column (cell 12px + the body label's 8px). */
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell .datatable-header-cell-label { line-height: 1; top: 0; margin-left: 8px; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell .sort-btn { line-height: 1; opacity: .7; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell .resize-handle { border-right-color: transparent !important; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell:hover .resize-handle { border-right-color: var(--fc-line) !important; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-row { background: transparent !important; border: 0; transition: background-color 120ms; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-row-wrapper:hover .datatable-body-row,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-row:hover { background: var(--fc-hover) !important; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-row.active { background: color-mix(in srgb, var(--accent) 10%, transparent) !important; }
+/* the internal development record: a flex cell keeps the width ngx gives it -- it neither
+ * shrinks by the scrollbar's share nor grows to its content (min-width: auto
+ * let a 150px column render 180px and drift from its header). */
+.fc-ui .fc-records .ngx-datatable.material .datatable-header .datatable-header-cell { flex-shrink: 0; min-width: 0; overflow: hidden; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+  display: flex;
+  flex-shrink: 0;
+  min-width: 0;
+  overflow: hidden;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 13px;
+  color: var(--fg1);
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--fc-line) 60%, transparent);
+  box-sizing: border-box;
+}
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell .datatable-body-cell-label { line-height: 1.4; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .mat-mdc-icon-button,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .service-action,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .row-kebab { opacity: .5; transition: opacity 120ms; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-row-wrapper:hover .mat-mdc-icon-button,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-row-wrapper:hover .service-action,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-row-wrapper:hover .row-kebab,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .mat-mdc-icon-button:focus-visible,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .service-action:focus-visible,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .row-kebab:focus-visible,
+.fc-ui .fc-records .ngx-datatable.material .datatable-body .datatable-body-cell .row-kebab[aria-expanded="true"] { opacity: 1; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-footer { border-top: 0; font-size: 12px; color: var(--fg2); }
+.fc-ui .fc-records .ngx-datatable.material .datatable-footer .datatable-footer-inner { padding: 0 12px; }
+.fc-ui .fc-records .ngx-datatable.material .datatable-footer .datatable-pager .pager li a { color: var(--fg2); }
+.fc-ui .fc-records .ngx-datatable.material .datatable-footer .datatable-pager .pager li.active a { color: var(--fg1); background: var(--fc-hover); border-radius: 6px; }
+.fc-ui .fc-records .ngx-datatable.material .empty-row { padding: 12px; color: var(--fg2); font-size: 13px; }
+/* the internal development record: the app-owned tree table (Pools, Boot status,
+ * Multipaths) on the same geometry as the list table above -- 32px header in
+ * 11px uppercase fg2, 40px rows in 13px fg1, 12px cell padding, one hairline
+ * per row, no stripes, the hover surface, fg1 for the sorted column. The
+ * component pins its own values behind emulated encapsulation (its
+ * `tbody tr:nth-child(even)` weighs (0,5,2)), so the declarations it pins
+ * carry !important here, once, instead of a page-scoped copy per page. */
+.fc-ui .entity-tree-table,
+.fc-ui .entity-tree-table table { background: transparent !important; }
+.fc-ui .entity-tree-table th,
+.fc-ui .entity-tree-table td { padding: 0 12px !important; border-bottom: 1px solid var(--fc-line) !important; }
+/* the internal development record: the tree table's row kebab dims like the list tables' (#405/#406): .5 until its
+ * row is hovered, the button focused or its menu open. */
+.fc-ui .entity-tree-table tbody tr .row-kebab { opacity: .5; transition: opacity 120ms; }
+.fc-ui .entity-tree-table tbody tr:hover .row-kebab, .fc-ui .entity-tree-table .row-kebab:focus-visible, .fc-ui .entity-tree-table .row-kebab[aria-expanded="true"] { opacity: 1; }
+.fc-ui .entity-tree-table th {
+  height: 32px;
+  background: transparent !important;
+  color: var(--fg2) !important;
+  font-size: 11px;
+  font-weight: 500 !important;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  line-height: 20px !important;
+}
+.fc-ui .entity-tree-table td { height: 40px; color: var(--fg1); font-size: 13px; line-height: 20px !important; }
+.fc-ui .entity-tree-table tbody tr:nth-child(even) { background: transparent !important; }
+.fc-ui .entity-tree-table tbody tr:hover,
+.fc-ui .entity-tree-table .entity-tree-table__sortable-column:hover { background: var(--fc-hover) !important; }
+.fc-ui .entity-tree-table th.entity-tree-table__sorted-column { color: var(--fg1) !important; }
+.fc-ui .entity-tree-table .entity-tree-table__column-resizer:hover::after { background: var(--fc-line) !important; }
+.fc-ui .entity-tree-table .entity-tree-table__toggler { color: var(--fg2) !important; border-radius: 6px !important; }
+.fc-ui .entity-tree-table .entity-tree-table__toggler:hover { color: var(--fg1) !important; background: var(--fc-hover) !important; }
+.fc-ui .entity-tree-table .entity-tree-table__sortable-column:focus-visible,
+.fc-ui .entity-tree-table .entity-tree-table__toggler:focus-visible { outline: 1px solid var(--fg2) !important; outline-offset: -2px; }
+/* the internal development record: no primary paint in the shell -- the Alerts drawer head is the dialog title, 16/500 fg1 on the
+ * surface over one hairline; !important meets the theme's !important. (the internal development record: the console cards' slab twin
+ * went with the consoles -- they title themselves with the page h1 now.) */
+.fc-ui .notification-sidenav .mat-bg-primary { background: transparent !important; color: var(--fg1) !important; }
+.fc-ui .notification-sidenav .mat-bg-primary { box-sizing: border-box; min-height: 48px; display: flex; align-items: center; justify-content: flex-start; padding: 0 20px !important; border-bottom: 1px solid var(--fc-line); }
+.fc-ui .notification-sidenav .mat-bg-primary h6 { font-size: 16px; font-weight: 500; line-height: 1.3; color: var(--fg1); }
+/* Filter: the search glyph sits inside a 32px box with no label row (the internal development record: the
+ * #351 input group with the glyph as its addon; the width is #filter's flex 1 1 200 / max 300). */
+.fc-ui .fc-table-search { position: relative; display: block; }
+
+/* Dialogs (the internal development record, the dialog law): a bg2 surface with a hairline and 6px
+ * radius, no elevation; a 16/500 title (an h2 -- the 27px h1 is the page
+ * voice) with an optional 20px glyph on the line, 13px body, actions
+ * right-aligned 8px apart on the hlmBtn tiers (Cancel/Close outline, the one
+ * affirmative verb default); the backdrop is the canvas at 60%. Widths are the
+ * opener's (DialogService), never the component's. No close X anywhere;
+ * Escape/backdrop only when the opener leaves disableClose false. */
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-surface.mdc-dialog__surface {
+  background: var(--bg2) !important;
+  color: var(--fg1);
+  border: 1px solid var(--fc-line);
+  border-radius: 6px;
+  box-shadow: none;
+}
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-title { color: var(--fg1); font-size: 16px; font-weight: 500; letter-spacing: -.1px; line-height: 1.4; padding: 20px 24px 8px; margin: 0; display: flex; align-items: center; gap: 8px; }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-title::before { display: none; }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-title .mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; color: var(--fg2); flex: 0 0 auto; }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-title .warning-icon { color: var(--yellow); }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-content { color: var(--fg2); font-size: 13px; line-height: 1.6; padding: 4px 24px 12px; }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-content b,
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-content strong { color: var(--fg1); font-weight: 500; }
+.fc-ui .mat-mdc-dialog-container .mat-mdc-dialog-actions { justify-content: flex-end; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 24px 20px; min-height: 0; }
+/* A mono pane inside a dialog (a backtrace, a plain-text report, a console
+ * log) in the fact voice on bg1; a disclosure keeps it folded. Class-keyed so
+ * the job dialog's .fc-status-details pre (freecore-status.css) is not
+ * outranked. */
+.fc-ui .mat-mdc-dialog-container .fc-dialog-pre { margin: 0; padding: 12px; border: 1px solid var(--fc-line); border-radius: 6px; background: var(--bg1); color: var(--fg1); font: 12px/18px 'IBM Plex Mono', 'Menlo', monospace; white-space: pre-wrap; overflow-wrap: anywhere; max-height: 50vh; overflow: auto; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-details { margin-top: 12px; font-size: 12px; color: var(--fg2); }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-details summary { cursor: pointer; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-details .fc-dialog-pre { margin-top: 8px; }
+/* the internal development record: a table inside a docked panel (Directory Services Monitor, Task Manager) -- the #354 table
+ * voice on a native <table>: transparent on the dialog surface, a 32px header in 11px uppercase fg2 over one
+ * hairline, 40px rows in 13px fg1 over the soft row rule, the hover surface on activatable rows, the panel's 24px
+ * edge on the first and last cells, fixed columns with an ellipsis. (The mat-table it replaces had never been
+ * themed: a white block with near-black text inside the dark panel.) */
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table { width: 100%; table-layout: fixed; border-collapse: collapse; border-spacing: 0; background: transparent; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table th { box-sizing: border-box; height: 32px; padding: 0 12px; font-size: 11px; font-weight: 500; letter-spacing: .06em; line-height: 1; text-transform: uppercase; color: var(--fg2); text-align: left; vertical-align: middle; border: 0; border-bottom: 1px solid var(--fc-line); white-space: nowrap; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table td { box-sizing: border-box; height: 40px; padding: 0 12px; font-size: 13px; line-height: 1.4; color: var(--fg1); text-align: left; vertical-align: middle; border: 0; border-bottom: 1px solid color-mix(in srgb, var(--fc-line) 60%, transparent); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table :is(th, td):first-child { padding-left: 24px; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table :is(th, td):last-child { padding-right: 24px; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table td .mat-icon { vertical-align: middle; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-row { cursor: pointer; transition: background-color 120ms; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-row:hover { background: var(--fc-hover); }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-row:focus-visible { outline: 1px solid var(--fg2); outline-offset: -1px; }
+/* the internal development record: a sortable header -- the label as a plain button in the header voice, the direction mark beside it */
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-sort { display: inline-flex; align-items: center; gap: 4px; margin: 0; padding: 0; border: 0; background: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; cursor: pointer; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-sort:hover { color: var(--fg1); }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-sort:focus-visible { outline: 1px solid var(--fg2); outline-offset: 2px; border-radius: 2px; }
+.fc-ui .mat-mdc-dialog-container .fc-dialog-table .fc-dialog-table-sort-mark { width: 12px; height: 12px; font-size: 12px; line-height: 12px; opacity: .7; }
+/* The confirm/entity-dialog process box (was ix-blue's light-grey slab). */
+.fc-ui .mat-mdc-dialog-container :is(#pool_processes p, .warning-box) { max-height: 170px; overflow-y: auto; margin: 0; padding: 8px 10px; background: var(--bg1); border: 1px solid var(--fc-line); border-radius: 6px; color: var(--fg1); }
+.fc-ui.cdk-overlay-container .cdk-overlay-dark-backdrop,
+.fc-ui .cdk-overlay-dark-backdrop { background: color-mix(in srgb, var(--bg0) 60%, transparent); }
+
+/* The entity-form help popup: same surface as a dialog. the internal development record:
+ * the component pins var(--primary) !important on its own text box and its
+ * wrapper carries the theme's fn-theme-primary, so the surface is stated
+ * with !important here, on both. */
+.fc-ui .tooltip .tooltip-container.fn-theme-primary { background: transparent !important; color: var(--fg1) !important; }
+.fc-ui .tooltip .tooltiptext { background: var(--bg2) !important; color: var(--fg1) !important; border: 1px solid var(--fc-line) !important; border-radius: 8px; font-size: 13px; line-height: 1.6; box-shadow: none !important; }
+.fc-ui .tooltip .tooltiptext #tooltip-header { background: transparent !important; border-bottom: 1px solid var(--fc-line); color: var(--fg1) !important; font-size: 13px; font-weight: 500; }
+.fc-ui .tooltip .tooltiptext .tooltip-message { color: var(--fg2) !important; }
+.fc-ui .tooltip .tooltiptext .tooltip-message a { color: var(--fg1); }
+.fc-ui .tooltip .tooltiptext .pin .mat-icon { color: var(--fg2); width: 16px; height: 16px; font-size: 16px; }
+.fc-ui .tooltip .tooltiptext .pin:hover .mat-icon { color: var(--fg1); }
+/* the internal development record: the tail was 13.3's 20px primary diamond. A 10px caret on
+ * the panel's own surface, its two outward edges carrying the hairline,
+ * re-centred on the same anchor as the 20px one (42 -> 47, -8 -> -6). The
+ * component's rules are plain `div.tooltiptext.<side>:before`; these outrank
+ * them by the shell scope. */
+.fc-ui .tooltip div.tooltiptext::before {
+  width: 10px;
+  height: 10px;
+  background: var(--bg2);
+  border: 0 solid var(--fc-line);
+  z-index: 101;
+}
+.fc-ui .tooltip div.tooltiptext.above::before { bottom: -6px; left: 47px; border-width: 0 1px 1px 0; }
+.fc-ui .tooltip div.tooltiptext.below::before { top: -6px; left: 47px; border-width: 1px 0 0 1px; }
+.fc-ui .tooltip div.tooltiptext.left::before { top: 27px; right: -6px; border-width: 1px 1px 0 0; }
+.fc-ui .tooltip div.tooltiptext.right::before { top: 27px; left: -6px; border-width: 0 0 1px 1px; }
+
+/* Services (the internal development record): the one list that is not an entity table, on
+ * the same vocabulary -- no card chrome, the lists' title and 32px filter, the
+ * the internal development record table rules through .fc-records, a small mono spinner while a
+ * service changes state. The inherited layout rules stay for the specs that
+ * measure them off-shell. */
+.fc-ui .fc-services-title { margin: 8px 0 16px; } /* the internal development record: the voice is .fc-page-title; the pitch the list toolbar row has */
+/* the internal development record: the services host is div.fc-page with the #351 filter group and hlm-spinner (services.component.css draws the header row); the card strip and the Material filter rules went. */
+
+/* ===== Material component sheets, restated (the internal development record-#486) =====
+ * Each sheet below used to load at run time with its Material component and land after every global sheet,
+ * so it won the ties it met; it sits at the end of the last global sheet to keep winning the same ones.
+ * Same theme tokens (the theme mixins still emit them), same specificity. */
+
+/* the internal development record: Material's toolbar sheet, restated. The topbar is a div.fc-toolbar now (its one row a
+ * div.fc-toolbar-row); the sheet only ever loaded because the topbar was a <mat-toolbar>, and the entity-table
+ * toolbar's root div keeps its .mat-toolbar hook class and inherits the same title typography -- so the rule
+ * covers both. Same theme tokens, same specificity: each rule below that the topbar or the table already beat,
+ * it still beats. */
+.fc-toolbar, .mat-toolbar { background: var(--mat-toolbar-container-background-color, var(--mat-sys-surface)); color: var(--mat-toolbar-container-text-color, var(--mat-sys-on-surface)); }
+.fc-toolbar, .mat-toolbar, .mat-toolbar h1, .mat-toolbar h2, .mat-toolbar h3, .mat-toolbar h4, .mat-toolbar h5, .mat-toolbar h6 {
+  font-family: var(--mat-toolbar-title-text-font, var(--mat-sys-title-large-font));
+  font-size: var(--mat-toolbar-title-text-size, var(--mat-sys-title-large-size));
+  line-height: var(--mat-toolbar-title-text-line-height, var(--mat-sys-title-large-line-height));
+  font-weight: var(--mat-toolbar-title-text-weight, var(--mat-sys-title-large-weight));
+  letter-spacing: var(--mat-toolbar-title-text-tracking, var(--mat-sys-title-large-tracking));
+  margin: 0;
+}
+.fc-toolbar-row { display: flex; box-sizing: border-box; padding: 0 16px; width: 100%; flex-direction: row; align-items: center; white-space: nowrap; height: var(--mat-toolbar-standard-height, 64px); }
+.fc-toolbar-multiple-rows { display: flex; box-sizing: border-box; flex-direction: column; width: 100%; min-height: var(--mat-toolbar-standard-height, 64px); }
+@media (max-width: 599px) {
+  .fc-toolbar-row { height: var(--mat-toolbar-mobile-height, 56px); }
+  .fc-toolbar-multiple-rows { min-height: var(--mat-toolbar-mobile-height, 56px); }
+}
+
+/* the internal development record: Material's list sheet for the sidebar list (mat-nav-list / mat-list-item), restated on
+ * .fc-nav-list / .fc-nav-item and the item's mirrored layers (.fc-nav-item__content / __text / __focus):
+ * the list's 8px band, the item's flex box, overflow and pointer, the text's nowrap/ellipsis and label
+ * tokens, the ::before state layer (hover / focus) and the focus-indicator layer. Doubled classes stand in for
+ * MDC's two-class selectors. */
+.fc-nav-list { display: block; box-sizing: content-box; margin: 0; padding: 8px 0; list-style-type: none; } /* content-box: <mat-nav-list> was no div, so fn-styles' `div { box-sizing: border-box }` never reached it */
+.fc-nav-list:focus { outline: none; }
+.fc-nav-item { display: flex; position: relative; justify-content: flex-start; overflow: hidden; align-items: stretch; cursor: pointer; width: 100%; box-sizing: border-box; padding: 0 16px; background-color: var(--mat-list-list-item-container-color, transparent); border-radius: var(--mat-list-list-item-container-shape, var(--mat-sys-corner-none)); -webkit-tap-highlight-color: transparent; }
+.fc-nav-item:focus { outline: 0; }
+.fc-nav-item.fc-nav-item { height: var(--mat-list-list-item-one-line-container-height, 48px); }
+.fc-nav-list .fc-nav-item { border-radius: var(--mat-list-active-indicator-shape, var(--mat-sys-corner-full)); --mat-focus-indicator-border-radius: var(--mat-list-active-indicator-shape, var(--mat-sys-corner-full)); }
+.fc-nav-item::before { content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0; opacity: 0; pointer-events: none; border-radius: inherit; }
+.fc-nav-item:hover::before { background-color: var(--mat-list-list-item-hover-state-layer-color, var(--mat-sys-on-surface)); opacity: var(--mat-list-list-item-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity)); }
+.fc-nav-item:focus::before { background-color: var(--mat-list-list-item-focus-state-layer-color, var(--mat-sys-on-surface)); opacity: var(--mat-list-list-item-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity)); }
+.fc-nav-item__content { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; align-self: center; flex: 1; pointer-events: none; }
+.fc-nav-list .fc-nav-item__content { pointer-events: auto; }
+.fc-nav-item__text { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--mat-list-list-item-label-text-color, var(--mat-sys-on-surface)); font-family: var(--mat-list-list-item-label-text-font, var(--mat-sys-body-large-font)); line-height: var(--mat-list-list-item-label-text-line-height, var(--mat-sys-body-large-line-height)); font-size: var(--mat-list-list-item-label-text-size, var(--mat-sys-body-large-size)); font-weight: var(--mat-list-list-item-label-text-weight, var(--mat-sys-body-large-weight)); letter-spacing: var(--mat-list-list-item-label-text-tracking, var(--mat-sys-body-large-tracking)); }
+.fc-nav-item:hover .fc-nav-item__text { color: var(--mat-list-list-item-hover-label-text-color, var(--mat-sys-on-surface)); }
+.fc-nav-item:focus .fc-nav-item__text { color: var(--mat-list-list-item-focus-label-text-color, var(--mat-sys-on-surface)); }
+.fc-nav-item > .fc-nav-item__focus { position: absolute; top: 0; right: 0; bottom: 0; left: 0; pointer-events: none; }
+.fc-nav-divider { display: block; margin: 0; border-top: 1px solid var(--fc-line); } /* never rendered: no menu item is a separator */
+
+/* the internal development record: Material's sidenav sheet (mat-sidenav-container / mat-sidenav / mat-sidenav-content), restated
+ * on fc-drawer-container / fc-drawer / fc-drawer-content:
+ * - The container is a clipped, stacked box.
+ * - The backdrop is absolute over it (z 3), shown with the scrim while an over drawer is open.
+ * - The content is a z 1 block.
+ * - A drawer is absolute (z 3, z 2 in side mode), off-canvas until opened, then in place. It is hidden (inner
+ *   container display:none) while closed and not sliding; a side drawer carries the 1px divider edge.
+ * - The 400ms transitions (drawer slide, content margins, backdrop fade) run once the container has
+ *   .fc-drawer-transition.
+ * Same theme tokens. */
+.fc-drawer-container { position: relative; z-index: 1; color: var(--mat-sidenav-content-text-color, var(--mat-sys-on-background)); background-color: var(--mat-sidenav-content-background-color, var(--mat-sys-background)); box-sizing: border-box; display: block; overflow: hidden; }
+.fc-drawer-backdrop { top: 0; left: 0; right: 0; bottom: 0; position: absolute; display: block; z-index: 3; visibility: hidden; }
+.fc-drawer-backdrop.fc-drawer-shown { visibility: visible; background-color: var(--mat-sidenav-scrim-color, color-mix(in srgb, var(--mat-sys-neutral-variant20) 40%, transparent)); }
+.fc-drawer-transition .fc-drawer-backdrop { transition-duration: 400ms; transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1); transition-property: background-color, visibility; }
+.fc-drawer-content { position: relative; z-index: 1; display: block; height: 100%; overflow: auto; }
+.fc-drawer-transition .fc-drawer-content { transition-duration: 400ms; transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1); transition-property: transform, margin-left, margin-right; }
+.fc-drawer { position: absolute; top: 0; bottom: 0; z-index: 3; display: block; box-sizing: border-box; width: var(--mat-sidenav-container-width, 360px); outline: 0; overflow-y: auto; transform: translate3d(-100%, 0, 0); color: var(--mat-sidenav-container-text-color, var(--mat-sys-on-surface-variant)); box-shadow: var(--mat-sidenav-container-elevation-shadow, none); background-color: var(--mat-sidenav-container-background-color, var(--mat-sys-surface)); border-top-right-radius: var(--mat-sidenav-container-shape, var(--mat-sys-corner-large)); border-bottom-right-radius: var(--mat-sidenav-container-shape, var(--mat-sys-corner-large)); }
+.fc-drawer.fc-drawer-side { z-index: 2; }
+.fc-drawer.fc-drawer-end { right: 0; transform: translate3d(100%, 0, 0); border-top-left-radius: var(--mat-sidenav-container-shape, var(--mat-sys-corner-large)); border-bottom-left-radius: var(--mat-sidenav-container-shape, var(--mat-sys-corner-large)); border-top-right-radius: 0; border-bottom-right-radius: 0; }
+.fc-drawer-transition .fc-drawer { transition: transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1); }
+.fc-drawer:not(.fc-drawer-opened):not(.fc-drawer-animating) { visibility: hidden; box-shadow: none; }
+.fc-drawer:not(.fc-drawer-opened):not(.fc-drawer-animating) .fc-drawer-inner-container { display: none; }
+.fc-drawer.fc-drawer-opened.fc-drawer-opened { transform: none; }
+.fc-drawer-side { box-shadow: none; border-right-color: var(--mat-sidenav-container-divider-color, transparent); border-right-width: 1px; border-right-style: solid; }
+.fc-drawer-side.fc-drawer-end { border-left-color: var(--mat-sidenav-container-divider-color, transparent); border-left-width: 1px; border-left-style: solid; border-right: none; }
+.fc-drawer-inner-container { width: 100%; height: 100%; overflow: auto; }

@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { WebSocketService } from 'app/services/ws.service';
-import { Subject } from 'rxjs';
-import { Observable } from 'rxjs';
+import { Subject, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
 import { HttpClient } from '@angular/common/http';
@@ -22,19 +21,29 @@ export enum ReportingDatabaseError {
   InvalidTimestamp = 206,
 }
 
+export interface ReportResponse {
+  requestId: number;
+  result: any;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ReportsService implements OnDestroy {
   dataEvents: Subject<CoreEvent> = new Subject<CoreEvent>();
   private reportsUtils: Worker;
+  private requests = new Subscription();
 
   constructor(private ws: WebSocketService, private core: CoreService, private http: HttpClient) {
     // @ts-ignore
-    this.reportsUtils = new Worker('./reports-utils.worker', { type: 'module' });
+    this.reportsUtils = new Worker(new URL('./reports-utils.worker', import.meta.url), { type: 'module' });
 
     this.core.register({ observerClass: this, eventName: 'ReportDataRequest' }).subscribe((evt: CoreEvent) => {
-      this.ws.call('reporting.get_data', [[evt.data.params], evt.data.timeFrame]).subscribe((raw_res) => {
+      // Preserve the originating intent, even if the component has moved on by
+      // the time middleware or the worker completes this request.
+      const sender = evt.sender.chartId;
+      const requestId = evt.data.requestId;
+      this.requests.add(this.ws.call('reporting.get_data', [[evt.data.params], evt.data.timeFrame]).subscribe((raw_res) => {
         let res;
 
         // If requested, we truncate trailing null values
@@ -67,25 +76,26 @@ export class ReportsService implements OnDestroy {
             input: res[0],
           }];
 
-          this.reportsUtils.postMessage({ name: 'ProcessCommandsAsReportData', data: repl, sender: evt.sender.chartId });
+          this.reportsUtils.postMessage({ name: 'ProcessCommandsAsReportData', data: repl, sender, requestId });
         } else {
-          // this.core.emit({name:"ReportData-" + evt.sender.chartId, data: res[0], sender:this});
-          this.reportsUtils.postMessage({ name: 'ProcessCommandsAsReportData', data: commands, sender: evt.sender.chartId });
+          this.reportsUtils.postMessage({ name: 'ProcessCommandsAsReportData', data: commands, sender, requestId });
         }
       }, (err) => {
-        this.reportsUtils.postMessage({ name: 'FetchingError', data: err, sender: evt.sender.chartId });
-      });
+        this.reportsUtils.postMessage({ name: 'FetchingError', data: err, sender, requestId });
+      }));
     });
 
     this.reportsUtils.onmessage = ({ data }) => {
       if (data.name == 'ReportData') {
-        this.core.emit({ name: 'ReportData-' + data.sender, data: data.data, sender: this });
+        this.core.emit({ name: 'ReportData-' + data.sender, data: { requestId: data.requestId, result: data.data }, sender: this });
       }
     };
   }
 
   ngOnDestroy() {
     this.core.unregister({ observerClass: this });
+    this.requests.unsubscribe();
+    this.reportsUtils.onmessage = null;
     this.reportsUtils.terminate();
   }
 
@@ -106,6 +116,7 @@ export class ReportsService implements OnDestroy {
   }
 
   truncateData(data) {
+    if (data.length === 0) { return data; }
     let finished = false;
     let index = data.length - 1;
     do {

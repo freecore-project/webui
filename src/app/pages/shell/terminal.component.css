@@ -1,0 +1,83 @@
+/* the internal development record: the widget is one link of the CONSOLE law's flex column
+   (hold > routed host > .fc-console > .fc-console-surface > this host >
+   .terminal-wrapper). Every link carries min-height: 0, or the item's
+   min-height:auto is xterm's rendered rows and the terminal grows but never
+   shrinks. */
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.terminal-wrapper {
+  position: relative;
+  /* The terminal is the page: it fills whatever the surface hands it. The
+     viewport-minus-chrome figure is only the flex basis, which is what the
+     wrapper measures when no flex chain reaches it (`?embedded`, where the
+     hold is display:block) -- never a row count guessed from
+     document.body.offsetHeight, which is what the old pages did and why they
+     were always slightly wrong. */
+  flex: 1 1 auto;
+  min-height: 260px;
+  height: calc(100vh - 260px);
+  overflow: hidden;
+  padding: 8px;
+}
+
+.terminal-surface {
+  height: 100%;
+  width: 100%;
+}
+
+.terminal-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.terminal-overlay-box {
+  align-items: center;
+  background: var(--bg2);
+  border: 1px solid var(--fc-line);
+  border-radius: 6px;
+  color: var(--fg2);
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.terminal-overlay-reason {
+  max-width: 480px;
+}
+
+.terminal-toolbar {
+  align-items: center;
+  border-top: 1px solid var(--fc-line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 12px 0 16px;
+}
+
+.terminal-toolbar-label {
+  color: var(--fg2);
+  font-size: 12px;
+}
+
+.terminal-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.terminal-font-slider {
+  height: 48px; /* the internal development record: the row and the 8px sides mat-slider gave the toolbar */
+  margin: 0 8px;
+  min-width: 140px;
+  width: 140px;
+}

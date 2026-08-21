@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -10,10 +11,13 @@ import {
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/services/components/service-webdav';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'webdav-edit',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 
@@ -23,12 +27,14 @@ export class ServiceWebdavComponent implements OnDestroy {
   protected editCall = 'webdav.update';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('WebDAV'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_title,
       width: '100%',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       config: [
         {
           type: 'select',

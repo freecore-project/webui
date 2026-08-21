@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import helptext from '../../../../helptext/task-calendar/smart/smart';
 
 @Component({
+  standalone: false,
   selector: 'app-smart-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class SmartListComponent {

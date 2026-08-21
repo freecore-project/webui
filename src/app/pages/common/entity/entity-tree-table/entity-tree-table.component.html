@@ -1,86 +1,183 @@
-<p-treeTable [value]="conf.tableData || treeTableData" [columns]="conf.columns" [resizableColumns]="true" [customSort]="true" (sortFunction)="customSort($event)" [autoLayout]="true">
-	<ng-template pTemplate="header" let-columns>
-		<tr>
-			<th *ngFor="let col of columns" [ttSortableColumn]="col.prop" id="theader_{{col.prop}}" ttResizableColumn>
-				{{col.name | translate}}
-				<p-treeTableSortIcon [field]="col.prop"
-					ix-auto
-					ix-auto-type="sorter"
-					ix-auto-identifier="{{col.name}}"></p-treeTableSortIcon>
-			</th>
-			<th *ngIf="showActions"></th>
-		</tr>
-	</ng-template>
-	<ng-template pTemplate="body" let-rowNode let-rowData="rowData" let-columns="columns">
-		<tr>
-			<td *ngFor="let col of columns; let i = index" id="tbody__{{col.prop}}_{{rowData[col.prop]}}"
-          		  [ix-auto]="col.prop"
-				  ix-auto-type="value"
-				  ix-auto-identifier="{{rowData.name}}">
-				<p-treeTableToggler [rowNode]="rowNode" *ngIf="i == 0"
-          			ix-auto
-					ix-auto-type="expander"
-					ix-auto-identifier="{{rowData.name}}"></p-treeTableToggler>
-				<span *ngIf="col.filesizePipe">{{ (rowData[col.prop] || 0) | filesize : {standard : "iec"} }}</span>
-				<span *ngIf="!col.filesizePipe">{{ rowData[col.prop]?.value || rowData[col.prop] }}</span>
-				<span class="icons">
-					<span *ngIf="col.prop === 'name' && rowData.hasOwnProperty('is_encrypted_root') && rowData.hasOwnProperty('non_encrypted_on_encrypted')">
-						&nbsp;
-						<mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-lock-open-variant"
-							*ngIf="rowData.is_encrypted_root && !rowData.locked">
-						</mat-icon>
-						<mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-lock" 
-							*ngIf="rowData.is_encrypted_root && rowData.locked">
-						</mat-icon>
-						<mat-icon svgIcon="anti-lock"
-							*ngIf="rowData.non_encrypted_on_encrypted || (!rowData.encrypted && rowData.has_encrypted_children)">
-						</mat-icon>
-					</span>
-				</span>
-			</td>
-			<td *ngIf="showActions && rowData.actions">
-				<mat-icon [matMenuTriggerFor]="appMenu" [style.cursor]="'pointer'" id="actions_menu_button__{{rowData.name}}"
-				(click)="conf.clickAction ? conf.clickAction(rowData) : clickAction()"
-				ix-auto
-				ix-auto-type="options"
-				ix-auto-identifier="{{rowData.name}}">more_vert</mat-icon>
-				<mat-menu style="padding:12px 0;" #appMenu="matMenu">
-					<span *ngIf="!rowData.group_actions;else groupMenu">
-						<span *ngFor="let action of rowData.actions" 
-							id="action_button__{{rowData.name}}_{{action.label}}" 
-							[matTooltip]="action.matTooltip" 
-							[matTooltipDisabled]="!action.disabled"
-							[matTooltipPosition]="action.ttposition ? action.ttposition : 'below'">
-							<button mat-menu-item *ngIf="!action.isHidden" (click)="action.onClick(rowData);" [disabled]="action.disabled"
-							ix-auto
-							ix-auto-type="action"
-							ix-auto-identifier="{{rowData.name}}_{{action.label}}">
-								<span>{{action.label | translate}}</span>
-							</button>
-						</span>
-					</span>
-					<ng-template #groupMenu>
-						<span *ngFor= "let group of rowData.actions">
-							<div class="group-menu-header" *ngIf="group.actions && group.actions.length > 0">
-								<mat-divider></mat-divider>
-                                                                <div class="title" ><strong>{{group?.title | translate}}</strong></div>
-							</div>
-							<span *ngFor="let action of group.actions"
-								id="action_button__{{rowData.name}}_{{action.label}}" 
-								[matTooltip]="action.matTooltip" 
-								[matTooltipDisabled]="!action.disabled"
-								[matTooltipPosition]="action.ttposition ? action.ttposition : 'left'">
-								<button mat-menu-item *ngIf="!action.isHidden" (click)="action.onClick(rowData);" [disabled]="action.disabled"
-								ix-auto
-								ix-auto-type="action"
-								ix-auto-identifier="{{rowData.name}}_{{action.label}}">
-									<span>{{action.label | translate}}</span>
-								</button>
-							</span>
-						</span>
-					</ng-template>
-				</mat-menu>
-			</td>
-		</tr>
-	</ng-template>
-</p-treeTable>
+<div class="entity-tree-table" [class.entity-tree-table--projected]="hasColumnProjection">
+  <div class="entity-tree-table__wrapper">
+    <table #table [style.width.px]="tableWidth" [style.min-width.px]="projectedMinimumWidth">
+      @if (hasColumnProjection) {
+        <colgroup>
+          @for (col of visibleColumns; track col.prop; let i = $index) {
+            <col [style.width.px]="columnWidths[i] || projectedColumnWidth(col)">
+          }
+          @if (showActions) { <col style="width:56px"> }
+        </colgroup>
+      }
+      <thead>
+        <tr>
+          @for (col of visibleColumns; track col; let columnIndex = $index) {
+            <th
+              #header
+              class="entity-tree-table__sortable-column"
+              [class.entity-tree-name-column]="col.prop === 'name'"
+              [class.entity-tree-table__sorted-column]="sortField === col.prop && sortOrder !== 0"
+              [style.width.px]="columnWidths[columnIndex]"
+              [attr.aria-sort]="sortField === col.prop ? (sortOrder < 0 ? 'descending' : 'ascending') : 'none'"
+              (click)="sortColumn(col.prop)"
+              (keydown.enter)="sortColumn(col.prop); $event.preventDefault()"
+              id="theader_{{col.prop}}"
+              role="columnheader"
+              tabindex="0">
+              <span class="entity-tree-table__column-title">{{col.name | translate}}</span>
+              @if (sortField === col.prop && sortOrder !== 0) {
+                <svg
+                  class="entity-tree-table__sort-icon"
+                  [attr.data-sort-order]="sortOrder > 0 ? 'ascending' : 'descending'"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  focusable="false"
+                  ix-auto
+                  ix-auto-type="sorter"
+                  ix-auto-identifier="{{col.name}}">
+                  @if (sortOrder > 0) {
+                    <path d="M7 14l5-5 5 5z"></path>
+                  } @else {
+                    <path d="M7 10l5 5 5-5z"></path>
+                  }
+                </svg>
+              }
+              <span
+                class="entity-tree-table__column-resizer"
+                aria-hidden="true"
+                (click)="$event.stopPropagation()"
+                (mousedown)="startColumnResize($event, columnIndex, header, table)">
+              </span>
+            </th>
+          }
+          @if (showActions) {
+            <th class="entity-tree-table__actions-column" [attr.aria-label]="'Actions' | translate"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of visibleRows; track row.node) {
+          <tr>
+            @for (col of visibleColumns; track col; let i = $index) {
+              <td id="tbody__{{col.prop}}_{{row.node.data[col.prop]}}"
+                [class.entity-tree-name-column]="col.prop === 'name'"
+                [ix-auto]="col.prop"
+                ix-auto-type="value"
+                ix-auto-identifier="{{row.node.data.name}}">
+                @if (i === 0) {
+                  <button
+                    type="button"
+                    class="entity-tree-table__toggler"
+                    [class.entity-tree-table__toggler--hidden]="!hasChildren(row.node)"
+                    [style.marginInlineStart.px]="row.level * 16"
+                    [attr.aria-expanded]="hasChildren(row.node) ? !!row.node.expanded : null"
+                    [attr.aria-label]="hasChildren(row.node) ? ((row.node.expanded ? 'Collapse' : 'Expand') | translate) : null"
+                    [attr.tabindex]="hasChildren(row.node) ? 0 : -1"
+                    (click)="toggleNode(row.node, $event)"
+                    ix-auto
+                    ix-auto-type="expander"
+                    ix-auto-identifier="{{row.node.data.name}}">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      @if (row.node.expanded) {
+                        <path d="M6 9l6 6 6-6"></path>
+                      } @else {
+                        <path d="M9 6l6 6-6 6"></path>
+                      }
+                    </svg>
+                  </button>
+                }
+                @if (col.filesizePipe) {
+                  <span class="entity-tree-table__size">{{ (row.node.data[col.valueProp || col.prop] || 0) | filesize : {standard : "iec"} }}</span>
+                }
+                @if (!col.filesizePipe) {
+                  <span>{{ row.node.data[col.valueProp || col.prop]?.value || row.node.data[col.valueProp || col.prop] }}</span>
+                }
+                <span class="icons">
+                  @if (col.prop === 'name' && row.node.data.hasOwnProperty('is_encrypted_root') && row.node.data.hasOwnProperty('non_encrypted_on_encrypted')) {
+                    <span>
+                      &nbsp;
+                      @if (row.node.data.is_encrypted_root && !row.node.data.locked) {
+                        <mat-icon role="img">lock_open</mat-icon>
+                      }
+                      @if (row.node.data.is_encrypted_root && row.node.data.locked) {
+                        <mat-icon role="img">lock</mat-icon>
+                      }
+                      @if (row.node.data.non_encrypted_on_encrypted || (!row.node.data.encrypted && row.node.data.has_encrypted_children)) {
+                        <mat-icon svgIcon="anti-lock">
+                        </mat-icon>
+                      }
+                    </span>
+                  }
+                </span>
+              </td>
+            }
+            @if (showActions) {
+              <td class="entity-tree-table__actions-column" [class.entity-tree-table__actions-column--kebab]="!!row.node.data.actions">
+                @if (row.node.data.actions) {
+                  <!-- the internal development record: the row menu is the #405 kebab on the #407 helm dropdown-menu (M1).
+                       conf.clickAction (the Pools tree disables Edit Permissions on a root dataset) runs on
+                       the OPEN event, so the keyboard open paths (ArrowDown) run it too. -->
+                  <button hlmBtn variant="ghost" size="icon" type="button" class="row-kebab"
+                    id="actions_menu_button__{{row.node.data.name}}"
+                    [hlmDropdownMenuTrigger]="appMenu"
+                    (hlmDropdownMenuOpened)="conf.clickAction ? conf.clickAction(row.node.data) : clickAction()"
+                    [attr.aria-label]="'Actions' | translate"
+                    ix-auto
+                    ix-auto-type="options"
+                    ix-auto-identifier="{{row.node.data.name}}"><mat-icon>more_vert</mat-icon></button>
+                  <ng-template #appMenu>
+                    <hlm-dropdown-menu class="row-menu">
+                      @if (!row.node.data.group_actions) {
+                        @for (action of row.node.data.actions; track action) {
+                          @if (!action.isHidden) {
+                            <span class="row-menu-item"
+                              id="action_button__{{row.node.data.name}}_{{action.label}}"
+                              [hlmTooltip]="action.matTooltip"
+                              [tooltipDisabled]="!action.disabled"
+                              [position]="action.ttposition ? action.ttposition : 'bottom'">
+                              <button hlmDropdownMenuItem type="button" (triggered)="action.onClick(row.node.data);" [disabled]="action.disabled"
+                                ix-auto
+                                ix-auto-type="action"
+                                ix-auto-identifier="{{row.node.data.name}}_{{action.label}}">
+                                <span>{{action.label | translate}}</span>
+                              </button>
+                            </span>
+                          }
+                        }
+                      } @else {
+                        @for (group of row.node.data.actions; track group; let first = $first) {
+                          @if (group.actions && group.actions.length > 0) {
+                            @if (!first) {
+                              <hlm-dropdown-menu-separator />
+                            }
+                            <hlm-dropdown-menu-label class="group-menu-header">{{group?.title | translate}}</hlm-dropdown-menu-label>
+                          }
+                          @for (action of group.actions; track action) {
+                            @if (!action.isHidden) {
+                              <span class="row-menu-item"
+                                id="action_button__{{row.node.data.name}}_{{action.label}}"
+                                [hlmTooltip]="action.matTooltip"
+                                [tooltipDisabled]="!action.disabled"
+                                [position]="action.ttposition ? action.ttposition : 'left'">
+                                <button hlmDropdownMenuItem type="button" (triggered)="action.onClick(row.node.data);" [disabled]="action.disabled"
+                                  ix-auto
+                                  ix-auto-type="action"
+                                  ix-auto-identifier="{{row.node.data.name}}_{{action.label}}">
+                                  <span>{{action.label | translate}}</span>
+                                </button>
+                              </span>
+                            }
+                          }
+                        }
+                      }
+                    </hlm-dropdown-menu>
+                  </ng-template>
+                }
+              </td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

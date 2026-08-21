@@ -92,7 +92,7 @@ def click_save_then_an_install_window_should_be_visible_outlining_progress(drive
 @then('when Plugin installed successfully appear, click CLOSE')
 def when_plugin_installed_successfully_appear_click_close(driver):
     """when Plugin installed successfully appear, click CLOSE."""
-    assert wait_on_element(driver, 20, '//h1[text()="Plugin installed successfully"]')
+    assert wait_on_element(driver, 20, '//h2[text()="Plugin installed successfully"]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 

@@ -12,18 +12,18 @@ import {
   OnChanges,
   ChangeDetectorRef,
   AfterViewChecked,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
-  FormBuilder, FormControl, FormGroup, FormArray, Validators,
+  UntypedFormBuilder, FormControl, UntypedFormGroup, UntypedFormArray, Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
-import { Subscription } from 'rxjs/Rx';
+import { Subscription, Subject } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { RestService, WebSocketService } from '../../../../services';
 import { CoreEvent } from 'app/core/services/core.service';
-import { Subject } from 'rxjs';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
 import { EntityTemplateDirective } from '../entity-template.directive';
 import { EntityUtils } from '../utils';
@@ -38,6 +38,10 @@ import { T } from '../../../../translate-marker';
 import { AdminLayoutComponent } from '../../../../components/common/layouts/admin-layout/admin-layout.component';
 
 export interface Formconfiguration {
+  /** The page's h1 (the internal development record: every form carries one; the object noun, singular). */
+  settingsTitle?: string;
+  /** the internal development record: keep the legacy flex fieldsets (side-by-side columns, %-width slots) instead of the section layout. */
+  legacyLayout?: boolean;
   prerequisite?;
   fieldSets?;
   fieldSetDisplay?;
@@ -100,9 +104,11 @@ export interface Formconfiguration {
 }
 
 @Component({
+  standalone: false,
   selector: 'entity-form',
   templateUrl: './entity-form.component.html',
   styleUrls: ['./entity-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [EntityFormService, FieldRelationService],
 })
 export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterViewInit, AfterViewChecked {
@@ -111,7 +117,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   pk: any;
   fieldSetDisplay = 'default';
   fieldSets: FieldSet[];
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   fieldConfig: FieldConfig[];
   resourceName: string;
   getFunction;
@@ -150,7 +156,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
   isFromPending = false;
   constructor(protected router: Router, protected route: ActivatedRoute,
     protected rest: RestService, protected ws: WebSocketService,
-    protected location: Location, private fb: FormBuilder,
+    protected location: Location, private fb: UntypedFormBuilder,
     protected entityFormService: EntityFormService,
     protected fieldRelationService: FieldRelationService,
     protected loader: AppLoaderService,
@@ -260,6 +266,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
             class: 'fallback',
             width: '100%',
             divider: false,
+            settingsLabel: T('General'), // the internal development record: the single-group section keeps the label column (S8); the legacy h4 keys on `label`
             config: this.fieldConfig,
           },
           {
@@ -321,7 +328,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
                 if (current_field.type === 'array') {
                   this.setArrayValue(this.data[i], fg, i);
                 } else if (current_field.type === 'list') {
-                  this.setListValue(this.data[i], fg as FormArray, i);
+                  this.setListValue(this.data[i], fg as UntypedFormArray, i);
                 } else {
                   if (!_.isArray(this.data[i]) && current_field.type === 'select' && current_field.multiple) {
                     if (this.data[i]) {
@@ -554,6 +561,14 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     return false;
   }
 
+  isSettingsFieldVisible(field: FieldConfig): boolean {
+    return !field.isHidden && this.isShow(field.name) && field.name !== 'spacer';
+  }
+
+  isSettingsSectionVisible(fieldset: FieldSet): boolean {
+    return fieldset.config?.some((field) => this.isSettingsFieldVisible(field)) ?? false;
+  }
+
   isShow(id: any): any {
     if (this.conf.isBasicMode) {
       if (this.conf.advanced_field.indexOf(id) > -1) {
@@ -641,7 +656,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     });
   }
 
-  setListValue(data: string[], formArray: FormArray, fieldName: string): void {
+  setListValue(data: string[], formArray: UntypedFormArray, fieldName: string): void {
     const config = this.fieldConfig.find((conf) => conf.name === fieldName);
     const template: FieldConfig[] = config.templateListField;
 
@@ -660,7 +675,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
     });
   }
 
-  setObjectListValue(listValue: object[], formArray: FormArray, fieldName: string) {
+  setObjectListValue(listValue: object[], formArray: UntypedFormArray, fieldName: string) {
     for (let i = 0; i < listValue.length; i++) {
       if (formArray.controls[i] == undefined) {
         const templateListField = _.cloneDeep(_.find(this.conf.fieldConfig, { name: fieldName }).templateListField);
@@ -671,7 +686,7 @@ export class EntityFormComponent implements OnInit, OnDestroy, OnChanges, AfterV
       }
 
       for (const [key, value] of Object.entries(listValue[i])) {
-        (<FormGroup>formArray.controls[i]).controls[key].setValue(value);
+        (<UntypedFormGroup>formArray.controls[i]).controls[key].setValue(value);
       }
     }
     formArray.markAllAsTouched();

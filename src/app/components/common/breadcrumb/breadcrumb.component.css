@@ -1,10 +1,13 @@
 .breadcrumb-bar {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
   width: 100%;
   height: 40px !important;
   min-height: 40px !important;
-  padding: 0 .666rem;
+  padding: 0 32px;
   float: left;
-  box-shadow: 0 3px 1px -2px rgba(0,0,0,.08), 0 2px 2px 0 rgba(0,0,0,.05), 0 1px 5px 0 rgba(0,0,0,.05);
+  box-shadow: none;
 }
 .breadcrumb {
   margin: 0;
@@ -16,34 +19,18 @@
   line-height: 40px;
 }
 .breadcrumb li:not(:first-child):before {
-  content: "/\A0";
+  content: "›";
+  opacity: .55;
   padding: 0 8px;
 }
 .breadcrumb li a {
   font-weight: 400;
-  font-size: 1rem;
+  font-size: 12px;
+  color: var(--fg2);
 }
 
 .clickable {
   cursor: pointer;
 }
 
-.copyright-txt {
-  margin: 0;
-  padding: 0;
-  line-height: 40px;
-  position: absolute;
-  right: 4px;
-}
-
-@media screen and (max-width: 400px) {
-  .copyright-txt {
-    font-size: 75%;
-  }
-}
-
-@media screen and (max-width: 348px) {
-  .copyright-txt {
-    font-size: 65%;
-  }
-}
+@media (max-width: 700px) { .breadcrumb-bar { padding: 0 16px; } }

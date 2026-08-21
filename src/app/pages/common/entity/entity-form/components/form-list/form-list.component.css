@@ -1,7 +1,41 @@
-button.listBtn {
-    padding: 0 0px;
+/* the internal development record: the row actions stay compact -- the consumers sized their rows for the
+ * Material-era zero padding (jail-form's 30/50/20 rows leave 48px, the interfaces gutter 72px),
+ * so the ghost gets a 3px inset instead of the tier's 14px (Delete = 47px in the 48). The
+ * relative position keeps the interfaces-form theme nudge (`.listBtn { bottom }`) working, which
+ * used to ride on .mdc-button. */
+.listBtn {
+    position: relative;
+    padding: 0 3px;
 }
 
 .list-action {
     margin-left: auto;
+}
+
+.form-list-item-layout {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.form-list-item-layout-wrap {
+    flex-wrap: wrap;
+}
+
+.form-list-field-layout {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+@media (min-width: 600px) {
+    .form-list-field-layout {
+        max-width: none;
+    }
+
+    .form-list-field-layout-sized {
+        flex-basis: calc(var(--form-list-field-width) - 16px);
+        min-width: calc(var(--form-list-field-width) - 16px);
+    }
 }

@@ -1,72 +1,74 @@
 <section class="wrapper__details">
+  @for (column of this.columns; track column) {
     <div
-        *ngFor="let column of this.columns"
-        fxLayoutAlign="start center"
-        fxLayoutGap="16px"
-    >
-        <h4>{{ column.name | translate}}:</h4>
-        <div
-            fxLayoutAlign="start center"
-            fxLayoutGap="4px"
+      class="entity-table-row-detail-layout"
+      >
+      <h4>{{ column.name | translate}}:</h4>
+      <div
+        class="entity-table-row-detail-value-layout"
         >
-            <ng-container *ngIf="column?.widget?.component; else notScheduleList">
-                <mat-icon
-                    class="widget-icon"
-                    [matMenuTriggerFor]="widget"
-                    role="img"
-                    fontSet="mdi-set"
-                    fontIcon="mdi-{{ column.widget.icon }}"
-                ></mat-icon>
-                <mat-menu #widget="matMenu">
-                    <!-- column widgets need to be registered with this switch case -->
-                    <ng-container [ngSwitch]="column.widget.component">
-                        <app-task-schedule-list
-                            *ngSwitchCase="'TaskScheduleListComponent'"
-                            [value]="getPropValue(column.prop)"
-                            [config]="config"
-                            [parent]="parent"
-                        ></app-task-schedule-list>
-                    </ng-container>
-                </mat-menu>
-                <p>{{ getPropValue(column.prop, true) }}</p>
-            </ng-container>
-            <ng-template #notScheduleList>
-                <p>{{ getPropValue(column.prop) }}</p>
-            </ng-template>
-        </div>
+        @if (column?.widget?.component) {
+          <!-- the internal development record: the widget menu on the helm dropdown-menu (M1). -->
+          <mat-icon
+            class="widget-icon"
+            [hlmDropdownMenuTrigger]="widget"
+            role="button"
+            tabindex="0"
+            aria-hidden="false"
+            [attr.aria-label]="column.name | translate"
+          >{{ column.widget.icon }}</mat-icon>
+          <ng-template #widget>
+            <hlm-dropdown-menu class="widget-menu">
+              <!-- column widgets need to be registered with this switch case -->
+              @switch (column.widget.component) {
+                @case ('TaskScheduleListComponent') {
+                  <app-task-schedule-list
+                    [value]="getPropValue(column.prop)"
+                    [config]="config"
+                    [parent]="parent"
+                  ></app-task-schedule-list>
+                }
+              }
+            </hlm-dropdown-menu>
+          </ng-template>
+          <p>{{ getPropValue(column.prop, true) }}</p>
+        } @else {
+          <p [attr.title]="column.detailTooltip ? column.detailTooltip(config) : null">{{ getPropValue(column.prop) }}</p>
+        }
+      </div>
     </div>
+  }
 </section>
 
-<mat-divider></mat-divider>
+<hlm-separator class="details-separator" />
 
-<div
-    fxLayoutAlign="start center"
-    fxLayoutGap="8px"
-    class="wrapper__action-buttons"
-    *ngIf="parent.hasActions"
->
-    <ng-container *ngFor="let action of actions">
+@if (parent.hasActions) {
+  <div
+    class="wrapper__action-buttons entity-table-row-actions-layout"
+    >
+    @for (action of actions; track action) {
+      @if (!parent.conf.isActionVisible || parent.conf.isActionVisible.bind(parent.conf)(action.id, this.config)) {
         <button
-            *ngIf="!parent.conf.isActionVisible || parent.conf.isActionVisible.bind(parent.conf)(action.id, this.config)"
-            mat-button
-            [disabled]="action.disabled"
-            id="action_button_{{ action?.name }}__{{action.id}}"
-            [ix-auto]="config.name"
-            ix-auto-type="button"
-            ix-auto-identifier="{{ action?.name | uppercase }}_{{action.id}}"
-            (click)="action.onClick(this.config)"
-        >
-            <div
-                fxLayoutAlign="center center"
-                fxLayoutGap="8px"
+          hlmBtn variant="ghost" type="button" class="row-action"
+          [disabled]="action.disabled"
+          id="action_button_{{ action?.name }}__{{action.id}}"
+          [ix-auto]="config.name"
+          ix-auto-type="button"
+          ix-auto-identifier="{{ $safeNavigationMigration(action?.name) | uppercase }}_{{action.id}}"
+          (click)="action.onClick(this.config)"
+          >
+          <div
+            class="entity-table-row-action-layout"
             >
-                <mat-icon>{{ action.icon }}</mat-icon>
-                <p
-                    [matTooltip]="action.matTooltip" 
-                    [matTooltipDisabled]="!action.disabled"
-                    [matTooltipPosition]="action.ttposition ? action.ttposition : 'below'"
-                >{{ action.label | translate}}</p>
-            </div>
+            <mat-icon>{{ action.icon }}</mat-icon>
+            <p
+              [hlmTooltip]="action.matTooltip"
+              [tooltipDisabled]="!action.disabled"
+              [position]="action.ttposition ? action.ttposition : 'bottom'"
+            >{{ action.label | translate}}</p>
+          </div>
         </button>
-    </ng-container>
-</div>
+      }
+    }
+  </div>
+}

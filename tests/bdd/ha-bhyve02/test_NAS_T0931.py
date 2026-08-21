@@ -119,7 +119,7 @@ def click_the_edit_button_that_appears(driver):
 @then('The User Edit Page should open')
 def the_user_edit_page_should_open(driver):
     """The User Edit Page should open."""
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Identification")]')
 
 
 @then('In the SSH public Key field paste a public key and save the change')
@@ -146,7 +146,7 @@ def reopen_the_root_user_edit_page_and_ensure_that_the_key_was_saved(driver):
     driver.find_element_by_xpath('//a[@ix-auto="expander__root"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__EDIT_root"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__EDIT_root"]').click()
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Identification")]')
     time.sleep(1)
 
 

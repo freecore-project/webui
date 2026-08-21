@@ -1,60 +1,71 @@
-<mat-card-content class="plugin-info">
-    <section>
-        <div *ngIf="expand; else textTemplate">
-            <mat-form-field>
-                <mat-label fxFlex>{{ "Browse a Collection" | translate}}</mat-label>
-                <mat-select [(ngModel)]="selectedRepo" (selectionChange)="switchRepo($event)"
-                    ix-auto ix-auto-type="select" ix-auto-identifier="Browse a Collection">
-                    <mat-option *ngFor="let repo of availableRepo" [value]="repo.git_repository">
-                        {{repo.name}}
-                    </mat-option>
-                </mat-select>
-            </mat-form-field>
-            <button mat-flat-button id="plugin-refresh-button" (click)="getPlugin(false)" class="plugin-button"
-                ix-auto ix-auto-type="button" ix-auto-identifier="REFRESH INDEX">
-                <mat-icon>refresh</mat-icon>
-                {{ "REFRESH INDEX" | translate }}
-            </button>
-        </div>
-        <ng-template #textTemplate>
-            <span><span class="subtitle">{{ 'Available Plugins' | translate }}</span> - {{plugins?.length}} {{' official plugins' | translate}}</span>
-        </ng-template>
+<!-- the internal development record: the 15.0 Plugins header on the 15.1 kit. ROW ONE is the collection (13.3 "Browse a
+     Collection": a select while the middleware offers more than one, else a fact) with Refresh Index on the
+     outline tier and the collapse toggle; then the selected plugin as 13.3 drew it (icon, description,
+     facts, Install); then the strip of the collection's plugins. -->
+<section class="available-plugins">
+  <div class="plugins-toolbar">
+    @if (expand) {
+      <div class="plugins-collection">
+        @if (availableRepo.length > 1) {
+          <hlm-field orientation="horizontal" class="plugins-collection-select">
+            <label hlmFieldLabel for="plugins-collection">{{ 'Browse a Collection' | translate }}</label>
+            <hlm-select [ngModel]="selectedRepo" (ngModelChange)="switchRepo($event)" [itemToString]="repoLabel">
+              <hlm-select-trigger buttonId="plugins-collection"><hlm-select-value /></hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                @for (repo of availableRepo; track repo.git_repository) {
+                  <hlm-select-item [value]="repo.git_repository">{{ repo.name }}</hlm-select-item>
+                }
+              </hlm-select-content>
+            </hlm-select>
+          </hlm-field>
+        } @else if (availableRepo.length === 1) {
+          <span class="plugins-collection-label">{{ 'Collection' | translate }}</span>
+          <span class="plugins-collection-name">{{ availableRepo[0].name }}</span>
+        }
+      </div>
+      <button hlmBtn variant="outline" type="button" id="plugin-refresh-button" class="plugins-action"
+        (click)="getPlugin(false)" [disabled]="loading || !selectedRepo">
+        <mat-icon aria-hidden="true">refresh</mat-icon>{{ 'Refresh Index' | translate }}
+      </button>
+    } @else {
+      <span class="plugins-summary">
+        <span class="plugins-summary-title">{{ 'Available Plugins' | translate }}</span>
+        &ndash; {{ plugins?.length || 0 }} {{ 'official plugins' | translate }}
+      </span>
+    }
+    <button hlmBtn variant="ghost" size="icon" type="button" class="plugins-toggle" (click)="updatePreference()"
+      [attr.aria-expanded]="expand" [hlmTooltip]="(expand ? 'Collapse' : 'Expand') | translate"
+      [attr.aria-label]="(expand ? 'Collapse' : 'Expand') | translate">
+      <mat-icon aria-hidden="true">{{ expand ? 'expand_less' : 'expand_more' }}</mat-icon>
+    </button>
+  </div>
 
-        <span fxFlex></span>
-        <button mat-icon-button (click)="updatePreference()">
-            <mat-icon *ngIf="expand">expand_less</mat-icon>
-            <mat-icon *ngIf="!expand">expand_more</mat-icon>
-        </button>
-    </section>
-    <div fxLayout="row wrap" fxLayoutAlign="space-around center" *ngIf="expand && selectedPlugin">
-        <div fxFlex fxFlex.xs="100">
-            <div>
-                <img class="plugin-img" height="150" [src]="selectedPlugin.icon" alt="{{selectedPlugin.name}}" />
-            </div>
+  @if (expand) {
+    @if (selectedPlugin; as plugin) {
+      <div class="plugin-detail">
+        <div class="plugin-detail-icon">
+          <!-- the internal development record: no URL, no <img> (src="" re-requests the page as an image) -->
+          @if (plugin.icon) {
+            <img [src]="plugin.icon" [alt]="plugin.name">
+          } @else {
+            <mat-icon aria-hidden="true">extension</mat-icon>
+          }
         </div>
-        <div fxFlex="40" fxFlexOffset="3" fxFlex.xs="100">
-            <p class="plugin-description">{{selectedPlugin.description}}</p>
+        <p class="plugin-description">{{ plugin.description }}</p>
+        <div class="plugin-facts">
+          @if (plugin.official) {
+            <p class="plugin-official">{{ 'Official Plugin' | translate }}<mat-icon aria-hidden="true">verified_user</mat-icon></p>
+          }
+          <p>{{ 'Version' | translate }}: {{ plugin.version }}</p>
+          <p>{{ 'Installed Instances' | translate }}: {{ installedPlugins[plugin.plugin] || 0 }}</p>
+          <button hlmBtn type="button" id="plugin-install-button" (click)="install(plugin)" [disabled]="!parent?.conf?.activatedPool">
+            {{ 'Install' | translate }}
+          </button>
         </div>
-        <div fxFlex="25" fxFlexOffset="3" fxFlex.xs="100">
-            <div class="plugin-vinfo">
-                <p *ngIf="selectedPlugin.official">Official Plugin <mat-icon class="official-plugin">verified_user</mat-icon></p>
-                <p>Version: {{selectedPlugin.version}}</p>
-                <p>Installed Instances: {{installedPlugins[selectedPlugin.plugin] || 0}}</p>
-            </div>
-            <button mat-flat-button id="plugin-install-button" (click)="install(selectedPlugin);" class="plugin-button" [disabled]="!parent.conf.activatedPool" 
-                ix-auto ix-auto-type="button" ix-auto-identifier="INSTALL">
-                {{ "INSTALL" | translate }}
-            </button>
-        </div>
-    </div>
-</mat-card-content>
-<mat-button-toggle-group class="plugin-buttons" [(ngModel)]='selectedPlugin' *ngIf="expand">
-    <ng-container *ngFor="let plugin of plugins; let index">
-        <mat-button-toggle [value]='plugin' ix-auto ix-auto-type="button" ix-auto-identifier="{{plugin.name}}">
-            <figure>
-                <img class="plugin-img" height="40" [src]="plugin.icon" alt="{{plugin.plugin}} icon" />
-                <figcaption>{{plugin.name}}</figcaption>
-            </figure>
-        </mat-button-toggle>
-    </ng-container>
-</mat-button-toggle-group>
+      </div>
+    }
+    <app-catalog-strip [entries]="entries" [selectedId]="selectedPlugin?.plugin" [loading]="loading"
+      [label]="'Available Plugins' | translate" [emptyText]="'No plugins in this collection.' | translate"
+      (selected)="select($event)"></app-catalog-strip>
+  }
+</section>

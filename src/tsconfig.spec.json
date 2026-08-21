@@ -2,14 +2,13 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/spec",
-    "module": "commonjs",
-    "target": "es5",
-    "baseUrl": "",
+    "module": "es2020",
     "types": [
       "jasmine",
       "node"
     ]
   },
+  "exclude": [],
   "files": [
     "test.ts",
     "polyfills.ts"
@@ -17,5 +16,8 @@
   "include": [
     "**/*.spec.ts",
     "**/*.d.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": false
+  }
 }

@@ -1,38 +1,23 @@
-<h1 mat-dialog-title>{{title | translate}}</h1>
-<mat-dialog-content class="entity-job-dialog"
-	ix-auto ix-auto-type="dialog" ix-auto-identifier="title">
-	<div *ngIf="job && job.state == 'RUNNING'">
-	    <mat-progress-bar class="example-margin"
-			color="primary"
-			mode="indeterminate"
-			[value]="progressTotalPercent"
-			bufferValue="bufferValue">
-		</mat-progress-bar>
-		<label *ngIf="!hideProgressValue">
-			{{ progressTotalPercent | number: '1.2-2'}}%
-		</label>
-	</div>
-    <div>
-		<span *ngIf="description" [innerHTML]="description | translate"></span>
-	</div>
-	<div *ngIf="!description && !job">
-		<mat-progress-bar class="example-margin"
-			color="primary"
-			mode="indeterminate">
-		</mat-progress-bar>
-	</div>
-	<div *ngIf="!description">
-		<span *ngIf="altMessage" [innerHTML]="altMessage"></span>
-		<span *ngIf="!altMessage">{{ "Starting job..." | translate }}</span>
-	</div>
-	<div *ngIf="showRealtimeLogs && realtimeLogs">
-		<h5>{{'Logs' | translate}}</h5>
-		<pre class="message">{{realtimeLogs}}</pre>
-	</div>
-</mat-dialog-content>
-<div mat-dialog-actions>
-	<button mat-button *ngIf="showAbortButton && (job && job.state == 'RUNNING')" ix-auto ix-auto-type="button"
-		ix-auto-identifier="ABORT" (click)="abortJob()">{{"Abort" | translate}}</button>
-	<button mat-button mat-dialog-close="close" *ngIf="showCloseButton || (job && (job.state == 'FAILED' || job.state === 'ABORTED'))" ix-auto
-		ix-auto-type="button" ix-auto-identifier="CLOSE">{{"Close" | translate}}</button>
-</div>
+<section class="fc-status-panel">
+  <div class="fc-status-brand"><img src="assets/images/freecore-fork-mark.svg" width="24" height="24" alt=""><span>Free<strong>CORE</strong></span></div>
+  <h1 mat-dialog-title class="fc-status-title">{{ statusTitle | translate }}</h1>
+  <mat-dialog-content class="entity-job-dialog" ix-auto ix-auto-type="dialog" ix-auto-identifier="title">
+    @if(statusPending){
+      @if(statusProgress !== null){<div class="fc-status-progress-copy"><span>{{ 'Progress' | translate }}</span><span>{{statusProgress | number:'1.0-1'}}%</span></div>}
+      <div class="fc-status-track" [class.indeterminate]="statusProgress === null" role="progressbar" [attr.aria-label]="statusTitle | translate" [attr.aria-valuenow]="statusProgress" [attr.aria-valuemin]="statusProgress === null ? null : 0" [attr.aria-valuemax]="statusProgress === null ? null : 100"><span [style.width.%]="statusProgress"></span></div>
+    }@else{<div class="fc-status-rule" [class.complete]="job.state === 'SUCCESS'" [class.failed]="job.state === 'FAILED' || job.state === 'ABORTED'"></div>}
+    <div class="fc-status-copy" role="status">
+      @if(description){<div [innerHTML]="description | translate"></div>}
+      @else if(altMessage){<div [innerHTML]="altMessage"></div>}
+      @else if(job.state === 'ABORTED'){<p>{{ 'The operation was aborted.' | translate }}</p>}
+      @else if(job.state === 'SUCCESS'){<p>{{ 'The operation completed.' | translate }}</p>}
+      @else{<p>{{ 'Waiting for the operation to finish.' | translate }}</p>}
+    </div>
+    @if(showRealtimeLogs && realtimeLogs){<details class="fc-status-details" open><summary>{{ 'Logs' | translate }}</summary><pre class="message">{{realtimeLogs}}</pre></details>}
+  </mat-dialog-content>
+  <div mat-dialog-actions class="fc-status-actions">
+    @if(showAbortButton && job?.state === 'RUNNING'){<button type="button" ix-auto ix-auto-type="button" ix-auto-identifier="ABORT" (click)="abortJob()">{{ 'Abort' | translate }}</button>}
+    @if(showCloseButton || job?.state === 'FAILED' || job?.state === 'ABORTED'){<button mat-dialog-close="close" ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{ 'Close' | translate }}</button>}
+  </div>
+</section>
+@if(isUpdate){<footer class="fc-status-footer"><a href="https://freecore.org" target="_blank" rel="noopener noreferrer">freecore.org</a></footer>}

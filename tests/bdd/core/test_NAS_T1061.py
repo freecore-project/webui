@@ -29,7 +29,7 @@ def test_verify_root_ftp_login_access(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Root Login"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow Root Login"]', 'class', 'mat-checkbox-checked')
     if value_exist:
@@ -83,14 +83,14 @@ def on_the_ftp_edit_page_enable_the_allow_root_login_checkbox_and_confirm(driver
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Root Login"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow Root Login"]', 'class', 'mat-checkbox-checked')
     if not value_exist:
         driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Allow Root Login"]').click()
-        assert wait_on_element(driver, 7, '//h1[contains(.,"Allow Root Login")]')
-        assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-        driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+        assert wait_on_element(driver, 7, '//h2[contains(.,"Allow Root Login")]')
+        assert wait_on_element(driver, 7, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+        driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
         assert wait_on_element(driver, 7, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
 

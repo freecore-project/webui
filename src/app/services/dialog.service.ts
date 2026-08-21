@@ -3,7 +3,7 @@ import { MatDialog, MatDialogRef, MatDialogConfig } from '@angular/material/dial
 import { ConfirmOptions, ConfirmOptionsWithSecondaryCheckbox } from 'app/interfaces/dialog.interface';
 import { T } from 'app/translate-marker';
 import { filter } from 'rxjs/operators';
-import { Observable } from 'rxjs/Rx';
+import { Observable } from 'rxjs';
 import { ConfirmDialog } from '../pages/common/confirm-dialog/confirm-dialog.component';
 import { PasswordDialog } from '../pages/common/password-dialog/password-dialog.component';
 import { EntityDialogComponent } from '../pages/common/entity/entity-dialog/entity-dialog.component';
@@ -24,13 +24,13 @@ export class DialogService {
     this.ws.onCloseSubject.pipe(filter((didClose) => !!didClose)).subscribe(() => this.closeAllDialogs());
   }
 
-  confirm(confirmOptions: ConfirmOptions): Observable<boolean>
-  confirm(confirmOptions: ConfirmOptionsWithSecondaryCheckbox): MatDialogRef<ConfirmDialog, unknown>
+  confirm(confirmOptions: ConfirmOptions): Observable<boolean>;
+  confirm(confirmOptions: ConfirmOptionsWithSecondaryCheckbox): MatDialogRef<ConfirmDialog, unknown>;
   /**
    * @deprecated Replace with newer syntax that uses options object.
    */
   confirm(title: string, message: string, hideCheckBox?: boolean, buttonMsg?: string, secondaryCheckBox?: boolean,
-    secondaryCheckBoxMsg?: string, method?: string, data?: any, tooltip?: any, hideCancel?: boolean, cancelMsg?: string, disableClose?: boolean): any
+    secondaryCheckBoxMsg?: string, method?: string, data?: any, tooltip?: any, hideCancel?: boolean, cancelMsg?: string, disableClose?: boolean): any;
   confirm(...args: any[]): any {
     let options: ConfirmOptions | ConfirmOptionsWithSecondaryCheckbox;
     if (typeof args[0] === 'object') {
@@ -45,7 +45,7 @@ export class DialogService {
       ) as ConfirmOptionsWithSecondaryCheckbox;
     }
 
-    const dialogRef = this.dialog.open(ConfirmDialog, { disableClose: options.disableClose || false });
+    const dialogRef = this.dialog.open(ConfirmDialog, { width: '420px', disableClose: options.disableClose || false });
 
     dialogRef.componentInstance.title = options.title;
     dialogRef.componentInstance.message = options.message;
@@ -93,7 +93,7 @@ export class DialogService {
   }
 
   passwordConfirm(message: string, disableClose = true): Observable<boolean> {
-    const dialogRef = this.dialog.open(PasswordDialog, { disableClose });
+    const dialogRef = this.dialog.open(PasswordDialog, { width: '420px', disableClose });
 
     dialogRef.componentInstance.message = message;
 
@@ -101,7 +101,7 @@ export class DialogService {
   }
 
   errorReport(title: string, message: string, backtrace = '', logs?: any): Observable<boolean> {
-    const dialogRef = this.dialog.open(ErrorDialog);
+    const dialogRef = this.dialog.open(ErrorDialog, { width: '420px' });
 
     dialogRef.componentInstance.title = title;
     dialogRef.componentInstance.message = message;
@@ -139,13 +139,12 @@ export class DialogService {
       } else {
         data = { [params]: selection };
       }
-      dialogRef.afterClosed().subscribe((res) => {
-        if (res) {
-          this.ws.call(method, [data]).subscribe((out) => {
-            // this.snackBar.open(message, 'close', { duration: 5000 });
-          });
-        }
-      });
+    });
+    // the internal development record: one close subscription, not one per pick (N picks used to issue N calls).
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res && data !== undefined) {
+        this.ws.call(method, [data]).subscribe();
+      }
     });
   }
 
@@ -183,7 +182,7 @@ export class DialogService {
           isHidden: !confirmBox,
         },
       ],
-      saveButtonText: buttonMsg || T('DELETE'),
+      saveButtonText: buttonMsg || T('Delete'),
       afterInit(entityDialog: EntityDialogComponent) {
         entityDialog.formGroup.controls['name'].valueChanges.subscribe((res) => {
           entityDialog.submitEnabled = res === name && (confirmBox ? entityDialog.formGroup.controls['confirm'].value : true);
@@ -206,7 +205,7 @@ export class DialogService {
   }
 
   generalDialog(conf: GeneralDialogConfig, matConfig?: MatDialogConfig) {
-    const dialogRef = this.dialog.open(GeneralDialogComponent, matConfig);
+    const dialogRef = this.dialog.open(GeneralDialogComponent, { width: '420px', ...matConfig });
     dialogRef.componentInstance.conf = conf;
 
     return dialogRef.afterClosed();

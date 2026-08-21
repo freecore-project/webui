@@ -1,9 +1,11 @@
 import {
   Component, OnInit, AfterViewInit, OnDestroy, Input, ViewChild, Renderer2, ElementRef, TemplateRef, ChangeDetectorRef, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { Router } from '@angular/router';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
+import { LayoutMediaObserver } from 'app/services/layout-media-observer.service';
 import { MaterialModule } from 'app/appMaterial.module';
 
 import filesize from 'filesize';
@@ -36,6 +38,8 @@ import {
   // transformMap,
   // clamp
 } from 'popmotion';
+import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
 
 interface NetIfInfo {
   name: string;
@@ -96,12 +100,30 @@ export interface VolumeData {
   vol_name?: string;
 }
 
+interface PoolRow {
+  name: string;
+  status: string;
+  unhealthy: boolean;
+  percent: number | null;
+  available: string;
+  used: string;
+  total: string;
+  errors: number;
+  errorsKnown: boolean;
+  scanErrors: number;
+}
+
 @Component({
+  standalone: false,
   selector: 'widget-pool',
   templateUrl: './widgetpool.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./widgetpool.component.css'],
 })
 export class WidgetPoolComponent extends WidgetComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+  @Input() pools: any[] = [];
+  rows: PoolRow[] = [];
+  // Retained for the legacy carousel helpers below; Dashboard uses pools.
   @Input() poolState;
   @Input() volumeData: any;// VolumeData;
   @ViewChild('carousel', { static: true }) carousel: ElementRef;
@@ -113,7 +135,10 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
   @ViewChild('disk_details', { static: false }) disk_details: TemplateRef<any>;
   @ViewChild('empty', { static: false }) empty: TemplateRef<any>;
   templates: any;
-  tpl = this.overview;
+  // Was `tpl = this.overview`, which always read undefined: @ViewChild queries are
+  // resolved after view init, long after property initializers run. TypeScript 4.0
+  // now rejects the read (TS2729); dropping it keeps the identical starting value.
+  tpl: TemplateRef<any>;
 
   // NAVIGATION
   currentSlide = '0';
@@ -157,15 +182,20 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     if (this.poolState && this.poolState.topology) {
       const unhealthy = []; // Disks with errors
       this.poolState.topology.data.forEach((item) => {
+        // Error counters live under .stats on this platform; the old flat
+        // item.read_errors reads were undefined, so NaN > 0 never flagged
+        // a disk and the card always reported zero errors.
         if (item.type == 'DISK') {
-          const diskErrors = item.read_errors + item.write_errors + item.checksum_errors;
+          const stats = item.stats || {};
+          const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
           if (diskErrors > 0) {
             unhealthy.push(item.disk);
           }
         } else {
           item.children.forEach((device) => {
-            const diskErrors = device.read_errors + device.write_errors + device.checksum_errors;
+            const stats = device.stats || {};
+            const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
             if (diskErrors > 0) {
               unhealthy.push(device.disk);
@@ -176,6 +206,54 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
       return { totalErrors: unhealthy.length/* errors.toString() */, disks: unhealthy };
     }
     return { totalErrors: 'Unknown', disks: [] };
+  }
+
+  // Card-spec facts (the internal development record): vdev summary, per-role disk counts
+  // and the read/write/cksum error triple, all from the pool.query payload
+  // the widget already receives.
+  get vdevSummary(): string {
+    if (!this.poolState || !this.poolState.topology || !this.poolState.topology.data.length) { return ''; }
+    const data = this.poolState.topology.data;
+    const types = data.map((v) => v.type).filter((t, i, all) => all.indexOf(t) == i);
+    return data.length + ' ' + (data.length == 1 ? 'vdev' : 'vdevs') + ' · ' + types.join(' + ');
+  }
+
+  private countDisks(category): number {
+    if (!category || !category.length) { return 0; }
+    let count = 0;
+    category.forEach((item) => {
+      if (item.type == 'DISK') { count++; } else { count += item.children.length; }
+    });
+    return count;
+  }
+
+  get diskCounts() {
+    const topology = this.poolState && this.poolState.topology ? this.poolState.topology : null;
+    if (!topology) { return { data: 0, spare: 0, log: 0 }; }
+    return {
+      data: this.countDisks(topology.data),
+      spare: this.countDisks(topology.spare),
+      log: this.countDisks(topology.log),
+    };
+  }
+
+  get errorTriple() {
+    const totals = { read: 0, write: 0, cksum: 0 };
+    if (!this.poolState || !this.poolState.topology) { return totals; }
+    ['data', 'log', 'spare', 'cache', 'special', 'dedup'].forEach((categoryName) => {
+      const category = this.poolState.topology[categoryName];
+      if (!category) { return; }
+      category.forEach((item) => {
+        const devices = item.type == 'DISK' ? [item] : item.children;
+        devices.forEach((device) => {
+          if (!device.stats) { return; }
+          totals.read += device.stats.read_errors || 0;
+          totals.write += device.stats.write_errors || 0;
+          totals.cksum += device.stats.checksum_errors || 0;
+        });
+      });
+    });
+    return totals;
   }
 
   get allDiskNames(): string[] {
@@ -209,8 +287,13 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return allDiskNames;
   }
 
-  title: string = this.path.length > 0 && this.poolState && this.currentSlide !== '0' ? this.poolState.name : 'Pool';
+  // This initializer always produced 'Pool': `path` is initialized to [] earlier in
+  // the class, so `path.length > 0` short-circuits the ternary before `poolState`
+  // (an @Input, still unset at construction) is ever read. TypeScript 4.0 rejects
+  // the read of the uninitialized input (TS2729); the constant is what it evaluated to.
+  title = 'Pool';
   displayValue: any;
+  screenType = 'Desktop';
   diskSize: any;
   diskSizeLabel: string;
   poolHealth: PoolDiagnosis = {
@@ -227,22 +310,70 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return this.currentDiskDetails ? Object.keys(this.currentDiskDetails) : [];
   }
 
-  constructor(public router: Router, public translate: TranslateService, private cdr: ChangeDetectorRef) {
+  private mediaSub: Subscription;
+
+  constructor(public router: Router, public translate: TranslateService, private cdr: ChangeDetectorRef, public mediaObserver: LayoutMediaObserver) {
     super(translate);
+    this.mediaSub = this.mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
+      this.screenType = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
+    });
     this.configurable = false;
   }
 
   ngOnDestroy() {
+    this.mediaSub?.unsubscribe();
     this.core.unregister({ observerClass: this });
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.poolState) {
+    if (changes.pools || changes.volumeData) {
+      this.rows = (this.pools || []).map((pool) => this.poolRow(pool));
     }
+  }
 
-    if (changes.volumeData) {
-      this.getAvailableSpace();
+  private poolRow(pool: any): PoolRow {
+    const locked = pool.is_decrypted === false || pool.status === 'LOCKED';
+    const capacity = this.volumeData?.[pool.name];
+    const used = capacity?.used;
+    const available = capacity?.avail;
+    const total = used + available;
+    const hasCapacity = !locked && this.validCounter(used) && this.validCounter(available) && Number.isFinite(total) && total > 0;
+    const errors = { count: 0, known: true, devices: 0 };
+    const visit = (device: any): void => {
+      if (device?.children?.length) {
+        device.children.forEach(visit);
+        return;
+      }
+      errors.devices++;
+      for (const key of ['read_errors', 'write_errors', 'checksum_errors']) {
+        const count = device?.stats?.[key];
+        if (this.validCounter(count)) { errors.count += count; } else { errors.known = false; }
+      }
+    };
+    for (const category of ['data', 'log', 'spare', 'cache', 'special', 'dedup']) {
+      (pool.topology?.[category] || []).forEach(visit);
     }
+    return {
+      name: pool.name,
+      status: locked ? 'Locked' : pool.status || 'Unknown',
+      unhealthy: locked || pool.healthy === false || !['ONLINE', 'HEALTHY'].includes(pool.status),
+      percent: hasCapacity ? Math.round(used / total * 100) : null,
+      available: hasCapacity ? String(filesize(available, { standard: 'iec', round: 1 })) : '',
+      used: hasCapacity ? String(filesize(used, { standard: 'iec', round: 1 })) : '',
+      total: hasCapacity ? String(filesize(total, { standard: 'iec', round: 1 })) : '',
+      errors: errors.count,
+      errorsKnown: errors.known && errors.devices > 0,
+      // A completed scan can report errors without leaf I/O counters. Keep its
+      // result separate: adding the two counts could double-count the same fault.
+      scanErrors: this.validCounter(pool.scan?.errors) ? pool.scan.errors : 0,
+    };
+  }
+
+  private validCounter(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0;
   }
 
   ngOnInit() {
@@ -253,6 +384,8 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
   }
 
   ngAfterViewInit() {
+    // Aggregate rows do not enter the inherited per-pool carousel lifecycle.
+    if (!this.poolState) { return; }
     this.templates = {
       overview: this.overview,
       data: this.data,
