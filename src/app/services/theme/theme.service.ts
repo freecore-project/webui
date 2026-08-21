@@ -6,33 +6,62 @@ import { ThemeUtils } from 'app/core/classes/theme-utils';
 import { ApiService } from 'app/core/services/api.service';
 import { Router } from '@angular/router';
 
+// the internal development record: labels are what the theme picker shows, so the vendor name
+// had to go. The `name` keys stay as-is on purpose -- they are the CSS class
+// (index.html ships <body class="ix-blue">, ix-blue.scss defines .ix-blue) and
+// the value persisted in user preferences. Renaming them buys nothing visible
+// and breaks both.
+// FreeCORE — the modern default identity. Coretrident mark, refined cool-steel
+// palette from the FreeCORE brand tokens; distinct from the inherited TrueNAS blue.
 export const DefaultTheme = {
-  name: 'ix-dark',
-  label: 'iX Dark',
+  name: 'freecore',
+  label: 'FreeCORE',
   labelSwatch: 'blue',
-  description: 'TrueNAS 12 default theme',
-  accentColors: ['blue', 'magenta', 'orange', 'cyan', 'yellow', 'violet', 'red', 'green'],
+  description: 'FreeCORE — modern dark',
+  mascot: 'FreeCORE_mascot.png',
+  logo: 'FreeCORE_logo_horizontal.png',
+  accentColors: ['blue', 'cyan', 'green', 'violet', 'orange', 'magenta', 'yellow', 'red'],
   primary: 'var(--blue)',
-  topbar: '#111111',
-  'topbar-txt': 'var(--fg2)',
-  accent: 'var(--alt-bg2)',
-  bg1: '#1E1E1E',
-  bg2: '#282828',
-  fg1: '#fff',
-  fg2: 'rgba(255,255,255,0.85)',
-  'alt-bg1': '#383838',
-  'alt-bg2': '#545454',
-  'alt-fg1': 'rgba(194,194,194,0.5)',
-  'alt-fg2': '#e1e1e1',
-  yellow: '#DED142',
-  orange: '#E68D37',
-  red: '#CE2929',
-  magenta: '#C006C7',
-  violet: '#7617D8',
-  blue: '#0095D5',
-  cyan: '#00d0d6',
-  green: '#71BF44',
+  // the internal development record: the header sits on the bg1 panel step with the sidebar;
+  // the page ground is bg0. Ladder from freecore-brand tokens.json (round 3).
+  topbar: '#10151A',
+  // the internal development record: the mono world's one accent (brand core.accent), spent
+  // on focus, the active-nav bar, links and one primary per view -- a literal,
+  // not one of the eight chart colours.
+  accent: '#8FB4C7',
+  bg0: '#0B0F13',
+  bg1: '#10151A',
+  bg2: '#171E24',
+  line: '#2A353D',
+  fg1: '#DCE3E6',
+  fg2: '#97A6AE',
+  'alt-bg1': '#212A31',
+  'alt-bg2': '#2C3740',
+  'alt-fg1': 'rgba(151,166,174,0.5)',
+  'alt-fg2': '#C7D1D6',
+  yellow: '#D6AD4C',
+  orange: '#DC8752',
+  red: '#E3625A',
+  magenta: '#C676A6',
+  violet: '#9A83D3',
+  blue: '#4E93C4',
+  cyan: '#3DB2BC',
+  green: '#56A96A',
 };
+
+/**
+ * the internal development record: the surface ladder every theme exposes as CSS vars.
+ * A theme that carries bg0/line (the FreeCORE default, from the brand tokens)
+ * is used as-is. The others derive: the canvas is bg1 pulled toward black --
+ * 29% for a dark theme, 4% for a light one -- and the hairline is 12% of fg1
+ * mixed into bg1. color-mix() keeps the derivation in the browser, so no
+ * colour math here has to agree with the CSS.
+ */
+export function ladderVars(theme: Pick<Theme, 'bg0' | 'bg1' | 'line' | 'fg1'>, isDark: boolean): { bg0: string; line: string } {
+  const bg0 = theme.bg0 || `color-mix(in srgb, ${theme.bg1} ${isDark ? 71 : 96}%, black)`;
+  const line = theme.line || `color-mix(in srgb, ${theme.fg1} 12%, ${theme.bg1})`;
+  return { bg0, line };
+}
 
 export interface Theme {
   name: string;
@@ -41,14 +70,24 @@ export interface Theme {
   labelSwatch?: string;
   accentColors: string[];
   topbar?: string; // CSS var from palette. Defaults to primary
+  'topbar-txt'?: string; // Optional topbar text override (ix-dark carries it; setCssVars recomputes anyway)
   favorite?: boolean; // Deprecate: Hasn't been used since the theme switcher was in the topbar
   hasDarkLogo?: boolean; // Deprecate: logo colors are set with CSS now
   logoPath?: string; // Deprecate: Themes haven't used this in a couple of releases now
   logoTextPath?: string; // Deprecate: Themes haven't used this in a couple of releases now
+  mascot?: string; // Identity image (System widget) — follows the active theme (FreeCORE vs FreeBSD)
+  logo?: string; // Horizontal lockup (signin) — follows the active theme
+  slogan?: string; // Signin slogan — follows the active theme
   primary: string;
   accent: string;
+  // the internal development record: bg0 (page canvas, one step under bg1) and line (every
+  // hairline) are the ONLY keys added since the brand tokens were locked --
+  // setCssVars() emits each key as a global CSS var, so it derives both for the
+  // themes that do not carry them. Do not add others.
+  bg0?: string;
   bg1: string;
   bg2: string;
+  line?: string;
   fg1: string;
   fg2: string;
   'alt-bg1': string;
@@ -69,7 +108,7 @@ export interface Theme {
 export class ThemeService {
   readonly freeThemeDefaultIndex = 0;
   activeTheme = 'default';
-  defaultTheme = 'ix-dark';
+  defaultTheme = 'freecore';
   activeThemeSwatch: string[];
   private utils: ThemeUtils;
 
@@ -81,10 +120,38 @@ export class ThemeService {
   freenasThemes: Theme[] = [
     DefaultTheme,
     {
-      name: 'ix-blue',
-      label: 'iX Blue',
+      // The inherited TrueNAS CORE 13.3 look, preserved and honestly named.
+      name: 'ix-dark',
+      label: 'TrueNAS 13.3',
       labelSwatch: 'blue',
-      description: 'Official iX System Colors on light',
+      description: 'Inherited TrueNAS CORE 13.3 dark palette',
+      accentColors: ['blue', 'magenta', 'orange', 'cyan', 'yellow', 'violet', 'red', 'green'],
+      primary: 'var(--blue)',
+      topbar: '#111111',
+      'topbar-txt': 'var(--fg2)',
+      accent: 'var(--alt-bg2)',
+      bg1: '#1E1E1E',
+      bg2: '#282828',
+      fg1: '#fff',
+      fg2: 'rgba(255,255,255,0.85)',
+      'alt-bg1': '#383838',
+      'alt-bg2': '#545454',
+      'alt-fg1': 'rgba(194,194,194,0.5)',
+      'alt-fg2': '#e1e1e1',
+      yellow: '#DED142',
+      orange: '#E68D37',
+      red: '#CE2929',
+      magenta: '#C006C7',
+      violet: '#7617D8',
+      blue: '#0095D5',
+      cyan: '#00d0d6',
+      green: '#71BF44',
+    },
+    {
+      name: 'ix-blue',
+      label: 'Classic Blue',
+      labelSwatch: 'blue',
+      description: 'Inherited CORE 13.3 light palette',
       accentColors: ['blue', 'orange', 'cyan', 'violet', 'yellow', 'magenta', 'red', 'green'],
       primary: 'var(--blue)',
       topbar: 'var(--blue)',
@@ -262,12 +329,42 @@ export class ThemeService {
       cyan: '#00d0d6',
       green: '#59d600',
     },
+    {
+      // The previous FreeCORE look, preserved whole as the FreeBSD heritage
+      // identity: same palette, the Beastie daemon, and "Think correctly."
+      // (name kept as 'truenas-15' so saved theme preferences don't orphan).
+      name: 'truenas-15',
+      label: 'FreeBSD',
+      labelSwatch: 'blue',
+      description: 'FreeBSD heritage — the daemon, Think correctly.',
+      mascot: 'FreeBSD_mascot.png',
+      logo: 'FreeBSD_logo_horizontal.png',
+      slogan: 'Think correctly.',
+      accentColors: ['blue', 'cyan', 'green', 'violet', 'orange', 'magenta', 'yellow', 'red'],
+      primary: 'var(--blue)',
+      topbar: '#0b0f14',
+      accent: 'var(--cyan)',
+      bg1: '#10151b',
+      bg2: '#171e26',
+      fg1: '#e8edf4',
+      fg2: '#c0cad6',
+      'alt-bg1': '#1f2833',
+      'alt-bg2': '#2c3846',
+      'alt-fg1': 'rgba(170,186,204,0.55)',
+      'alt-fg2': '#dbe3ec',
+      yellow: '#e3b341',
+      orange: '#f0883e',
+      red: '#f85149',
+      magenta: '#db61a2',
+      violet: '#a371f7',
+      blue: '#409cf0',
+      cyan: '#39c5cf',
+      green: '#3fb950',
+    },
   ];
 
   savedUserTheme = '';
   private loggedIn: boolean;
-  globalPreview = false;
-  globalPreviewData: any;
 
   userThemeLoaded = false;
   constructor(private rest: RestService, private ws: WebSocketService, private core: CoreService, private api: ApiService,
@@ -280,21 +377,6 @@ export class ThemeService {
 
     this.core.register({ observerClass: this, eventName: 'ThemeDataRequest' }).subscribe((evt: CoreEvent) => {
       this.core.emit({ name: 'ThemeData', data: this.findTheme(this.activeTheme), sender: this });
-    });
-
-    this.core.register({ observerClass: this, eventName: 'GlobalPreviewChanged' }).subscribe((evt: CoreEvent) => {
-      if (evt.data) {
-        this.globalPreview = true;
-      } else {
-        this.globalPreview = false;
-      }
-      this.globalPreviewData = evt.data;
-      if (this.globalPreview) {
-        this.setCssVars(evt.data.theme);
-      } else if (!this.globalPreview) {
-        this.setCssVars(this.findTheme(this.activeTheme));
-        this.globalPreviewData = null;
-      }
     });
 
     this.core.register({ observerClass: this, eventName: 'UserPreferencesChanged' }).subscribe((evt: CoreEvent) => {
@@ -373,9 +455,15 @@ export class ThemeService {
 
   setCssVars(theme: Theme) {
     const keys = Object.keys(theme);
+    const isDark = this.darkTest(theme.bg2);
+
+    // the internal development record: the spartan layer keys its `dark:` modifiers off `html.dark`
+    // (hlm-tailwind-preset's @custom-variant). The ladder already carries each theme's
+    // light or dark values; this only tells helm which side of the switch it is on.
+    (<any>document).documentElement.classList.toggle('dark', isDark);
 
     // Filter out deprecated properties and meta properties
-    const palette = keys.filter((v) => v != 'label' && v != 'logoPath' && v != 'logoTextPath' && v != 'favorite' && v != 'labelSwatch' && v != 'description' && v != 'name');
+    const palette = keys.filter((v) => v != 'label' && v != 'logoPath' && v != 'logoTextPath' && v != 'mascot' && v != 'logo' && v != 'slogan' && v != 'favorite' && v != 'labelSwatch' && v != 'description' && v != 'name');
 
     palette.forEach((color) => {
       const swatch = theme[color];
@@ -389,10 +477,21 @@ export class ThemeService {
       (<any>document).documentElement.style.setProperty('--' + color, theme[color]);
     });
 
+    // the internal development record: every theme gets the surface ladder. Themes without
+    // bg0/line derive them here, so switching themes never leaves the previous
+    // theme's values behind.
+    const ladder = ladderVars(theme, isDark);
+    (<any>document).documentElement.style.setProperty('--bg0', ladder.bg0);
+    (<any>document).documentElement.style.setProperty('--line', ladder.line);
+
     // Add Black White and Grey Variables
     (<any>document).documentElement.style.setProperty('--black', '#000000');
     (<any>document).documentElement.style.setProperty('--white', '#ffffff');
     (<any>document).documentElement.style.setProperty('--grey', '#989898');
+
+    // Utility links sit on bg2 surfaces. Keep them recognizably blue while
+    // maintaining AA contrast across the built-in dark and light palettes.
+    (<any>document).documentElement.style.setProperty('--project-link', isDark ? '#67b7ed' : '#005f96');
 
     // Set Material palette colors
     (<any>document).documentElement.style.setProperty('--primary', theme['primary']);
@@ -401,9 +500,13 @@ export class ThemeService {
     // Set Material aux. text styles
     const primaryColor = this.utils.colorFromMeta(theme['primary']); // eg. blue
     const accentColor = this.utils.colorFromMeta(theme['accent']); // eg. yellow
-    const primaryTextColor = this.utils.textContrast(theme[primaryColor], theme['bg2']);
-    const accentTextColor = this.utils.textContrast(theme[accentColor], theme['bg2']);
-    const topbarTextColor = this.utils.textContrast(theme[accentColor], theme['bg2']);
+    // the internal development record: primary/accent may be a literal colour instead of a
+    // var(--name) reference to one of the eight chart colours.
+    const primarySwatch = theme[primaryColor] ?? theme['primary'];
+    const accentSwatch = theme[accentColor] ?? theme['accent'];
+    const primaryTextColor = this.utils.textContrast(primarySwatch, theme['bg2']);
+    const accentTextColor = this.utils.textContrast(accentSwatch, theme['bg2']);
+    const topbarTextColor = this.utils.textContrast(accentSwatch, theme['bg2']);
     (<any>document).documentElement.style.setProperty('--topbar-txt', primaryTextColor);
     (<any>document).documentElement.style.setProperty('--primary-txt', primaryTextColor);
     (<any>document).documentElement.style.setProperty('--accent-txt', accentTextColor);
@@ -419,7 +522,6 @@ export class ThemeService {
     } */
 
     // Set line colors
-    const isDark: boolean = this.darkTest(theme.bg2);
     const lineColor = isDark ? 'var(--dark-theme-lines)' : 'var(--light-theme-lines)';
     (<any>document).documentElement.style.setProperty('--lines', lineColor);
 
