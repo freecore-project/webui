@@ -1,7 +1,7 @@
 import {
   AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
@@ -26,7 +26,7 @@ import { DiskBus } from 'app/enums/disk-bus.enum';
   templateUrl: 'manager.component.html',
   styleUrls: ['manager.component.css'],
   providers: [DialogService],
-})
+  })
 export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
   disks: any[] = [];
   suggestable_disks: any[] = [];

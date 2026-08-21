@@ -15,7 +15,7 @@ import {
   AfterViewInit,
 } from '@angular/core';
 import {
-  FormBuilder, FormControl, FormGroup, FormArray, Validators,
+  UntypedFormBuilder, FormControl, UntypedFormGroup, FormArray, Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -91,14 +91,14 @@ export interface FormConfig {
   templateUrl: './entity-form-embedded.component.html',
   styleUrls: ['./entity-form-embedded.component.css'],
   providers: [EntityFormService, FieldRelationService],
-})
+  })
 export class EntityFormEmbeddedComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @Input('conf') conf: FormConfig;
   @Input() data: any;
   @Input() hiddenFieldSets: string[] = [];
   @Input() target: Subject<CoreEvent>;
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   fieldSetDisplay: string;
   fieldSets: FieldSet[];
   fieldConfig: FieldConfig[];
@@ -131,7 +131,7 @@ export class EntityFormEmbeddedComponent implements OnInit, OnDestroy, AfterView
 
   constructor(protected router: Router, protected route: ActivatedRoute,
     protected rest: RestService, protected ws: WebSocketService,
-    protected location: Location, private fb: FormBuilder,
+    protected location: Location, private fb: UntypedFormBuilder,
     protected entityFormService: EntityFormService,
     protected fieldRelationService: FieldRelationService,
     protected loader: AppLoaderService,

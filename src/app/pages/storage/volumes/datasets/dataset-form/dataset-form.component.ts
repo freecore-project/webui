@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 
 import * as _ from 'lodash';
 import { WebSocketService, StorageService } from '../../../../../services';
@@ -15,9 +15,8 @@ import { T } from '../../../../../translate-marker';
 import helptext from '../../../../../helptext/storage/volumes/datasets/dataset-form';
 import globalHelptext from '../../../../../helptext/global-helptext';
 import { forbiddenValues } from 'app/pages/common/entity/entity-form/validators/forbidden-values-validation';
-import { Validators, ValidationErrors, FormControl } from '@angular/forms';
+import { Validators, ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { filter } from 'rxjs/operators';
-import { combineLatest } from 'rxjs';
 import { DialogFormConfiguration } from 'app/pages/common/entity/entity-dialog/dialog-form-configuration.interface';
 
 interface DatasetFormData {
@@ -58,7 +57,7 @@ interface DatasetFormData {
 @Component({
   selector: 'app-dataset-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class DatasetFormComponent implements Formconfiguration {
   volid: string;
   sub: Subscription;
@@ -206,7 +205,7 @@ export class DatasetFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'refquota');
 
               const size = this.convertHumanStringToNum(control.value, 'refquota');
@@ -302,7 +301,7 @@ export class DatasetFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'refreservation');
 
               const errors = control.value && isNaN(this.convertHumanStringToNum(control.value, 'refreservation'))
@@ -339,7 +338,7 @@ export class DatasetFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'quota');
 
               const size = this.convertHumanStringToNum(control.value, 'quota');
@@ -435,7 +434,7 @@ export class DatasetFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'reservation');
 
               const errors = control.value && isNaN(this.convertHumanStringToNum(control.value, 'reservation'))
@@ -657,7 +656,7 @@ export class DatasetFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'special_small_block_size');
 
               const size = this.convertHumanStringToNum(control.value, 'special_small_block_size');

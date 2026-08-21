@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_sharing_iscsi } from 'app/helptext/sharing';
 import { matchOtherValidator, doesNotEqual } from 'app/pages/common/entity/entity-form/validators/password-validation';
@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-iscsi-authorizedaccess-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class AuthorizedAccessFormComponent {
   protected addCall = 'iscsi.auth.create';
   protected queryCall = 'iscsi.auth.query';
@@ -130,8 +130,8 @@ export class AuthorizedAccessFormComponent {
   }
 
   afterInit(entityForm) {
-    const secretControl: FormControl = entityForm.formGroup.controls['secret'];
-    const peersecretControl: FormControl = entityForm.formGroup.controls['peersecret'];
+    const secretControl: UntypedFormControl = entityForm.formGroup.controls['secret'];
+    const peersecretControl: UntypedFormControl = entityForm.formGroup.controls['peersecret'];
     const peeruserFieldset = _.find(this.fieldSets, { class: 'peeruser' });
     const peersecretConfig = _.find(peeruserFieldset.config, { name: 'peersecret' });
 

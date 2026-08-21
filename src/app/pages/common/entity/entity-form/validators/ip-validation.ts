@@ -1,13 +1,13 @@
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import * as _ from 'lodash';
 import * as ipRegex from 'ip-regex';
 import * as isCidr from 'is-cidr';
 
 // Accepts ipv4 or ipv6 addresses with no CIDR (ie, /24)
 export function ipv4or6Validator(control: string) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function ipValidate(control: FormControl) {
+  return function ipValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
@@ -31,9 +31,9 @@ export function ipv4or6Validator(control: string) {
 
 // Accepts ipv4 or ipv6 addresses with a CIDR (ie, /24)
 export function ipv4or6cidrValidator(control: string) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function ipValidate(control: FormControl) {
+  return function ipValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
@@ -56,9 +56,9 @@ export function ipv4or6cidrValidator(control: string) {
 
 // Accepts ipv4 or ipv6 addresses with an OPTIONAL CIDR (ie, /24)
 export function ipv4or6OptionalCidrValidator(control: string) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function ipValidate(control: FormControl) {
+  return function ipValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
@@ -82,9 +82,9 @@ export function ipv4or6OptionalCidrValidator(control: string) {
 
 // Accepts ipv4 addresses with no CIDR (ie, /24)
 export function ipv4Validator(control: string) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function ipValidate(control: FormControl) {
+  return function ipValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
@@ -108,9 +108,9 @@ export function ipv4Validator(control: string) {
 
 // Accepts ipv6 addresses with no CIDR (ie, /24)
 export function ipv6Validator(control: string) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function ipValidate(control: FormControl) {
+  return function ipValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
@@ -135,9 +135,9 @@ export function ipv6Validator(control: string) {
 export function ipValidator(type: string = 'ipv4' || 'ipv6' || 'all') {
   const ipv4_regex = ipRegex.v4();
   const ipv6_regex = ipRegex.v6();
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function isValidIp(control: FormControl) {
+  return function isValidIp(control: UntypedFormControl) {
     let error = null;
 
     if (!control.parent) {

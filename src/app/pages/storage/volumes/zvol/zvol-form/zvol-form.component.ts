@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Validators, ValidationErrors, FormControl } from '@angular/forms';
+import { Validators, ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Subscription, combineLatest } from 'rxjs';
 import * as _ from 'lodash';
@@ -36,7 +36,7 @@ interface ZvolFormData {
 @Component({
   selector: 'app-zvol-add',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class ZvolFormComponent implements Formconfiguration {
   pk: any;
   protected path: string;
@@ -131,7 +131,7 @@ export class ZvolFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'volsize');
 
               const size = control.value ? this.storageService.convertHumanStringToNum(control.value, true) : null;

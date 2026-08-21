@@ -2,11 +2,11 @@ import {
   Component, OnInit, ViewChild, OnDestroy, ElementRef, AfterViewInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatProgressBar } from '@angular/material/progress-bar';
-import { MatButton } from '@angular/material/button';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacyProgressBar as MatProgressBar } from '@angular/material/legacy-progress-bar';
+import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import {
-  FormBuilder, FormGroup, Validators, FormControl,
+  UntypedFormBuilder, UntypedFormGroup, Validators, UntypedFormControl,
 } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { matchOtherValidator } from '../../../pages/common/entity/entity-form/validators/password-validation';
@@ -21,15 +21,17 @@ import { WebSocketService } from '../../../services/ws.service';
 import { DialogService } from '../../../services/dialog.service';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { ApiService } from 'app/core/services/api.service';
+import { ThemeService } from 'app/services/theme/theme.service';
 import { AutofillMonitor } from '@angular/cdk/text-field';
 import { LocaleService } from 'app/services/locale.service';
 import { UpdateService } from 'app/services/update.service';
+import { WebauthnService } from 'app/services/webauthn.service';
 
 @Component({
   selector: 'app-signin',
   templateUrl: './signin.component.html',
   styleUrls: ['./signin.component.scss'],
-})
+  })
 export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild(MatProgressBar, { static: false }) progressBar: MatProgressBar;
   @ViewChild(MatButton, { static: false }) submitButton: MatButton;
@@ -49,10 +51,10 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private interval: any;
-  exposeLegacyUI = false;
   tokenObservable: Subscription;
   HAInterval;
   isTwoFactor = false;
+  isWebauthn = false;
   private didSetFocus = false;
 
   signinData = {
@@ -60,7 +62,7 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     password: '',
     otp: '',
   };
-  setPasswordFormGroup: FormGroup;
+  setPasswordFormGroup: UntypedFormGroup;
   has_root_password: Boolean = true;
   failover_status = '';
   failover_statuses = {
@@ -77,8 +79,16 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
   reason_text = {};
   ha_status_text = T('Checking HA status');
   ha_status = false;
-  tc_ip;
-  protected tc_url;
+
+  // Signin identity follows the active theme: FreeCORE (Coretrident, no slogan)
+  // by default, FreeBSD (Beastie + "Think correctly.") when that theme is chosen.
+  get themeLogo(): string {
+    return this.themeService.currentTheme()?.logo || 'FreeCORE_logo_horizontal.png';
+  }
+
+  get themeSlogan(): string {
+    return this.themeService.currentTheme()?.slogan || '';
+  }
 
   constructor(
     private ws: WebSocketService,
@@ -86,7 +96,7 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     private snackBar: MatSnackBar,
     public translate: TranslateService,
     private dialogService: DialogService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private core: CoreService,
     private api: ApiService,
     private _autofill: AutofillMonitor,
@@ -94,6 +104,8 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     private sysGeneralService: SystemGeneralService,
     private localeService: LocaleService,
     private updateService: UpdateService,
+    private webauthnService: WebauthnService,
+    private themeService: ThemeService,
   ) {
     this.ws = ws;
     const ha_status = window.sessionStorage.getItem('ha_status');
@@ -102,12 +114,7 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     this.checkSystemType();
     this.checkTwoFactor();
-    this.ws.call('truecommand.connected').subscribe((res) => {
-      if (res.connected) {
-        this.tc_ip = res.truecommand_ip;
-        this.tc_url = res.truecommand_url;
-      }
-    });
+    this.checkWebauthn();
     this.reason_text = helptext.ha_disabled_reasons;
   }
 
@@ -133,9 +140,6 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
           this.loginToken();
         }
         window.localStorage.setItem('product_type', res);
-        if (this.product_type === 'ENTERPRISE' && window.localStorage.exposeLegacyUI === 'true') {
-          this.exposeLegacyUI = true;
-        }
       });
     }
   }
@@ -171,8 +175,8 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     });
 
     this.setPasswordFormGroup = this.fb.group({
-      password: new FormControl('', [Validators.required]),
-      password2: new FormControl('', [Validators.required, matchOtherValidator('password')]),
+      password: new UntypedFormControl('', [Validators.required]),
+      password2: new UntypedFormControl('', [Validators.required, matchOtherValidator('password')]),
     });
   }
 
@@ -192,6 +196,12 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
   checkTwoFactor() {
     this.ws.call('auth.two_factor_auth').subscribe((res) => {
       this.isTwoFactor = res;
+    });
+  }
+
+  checkWebauthn() {
+    this.ws.call('auth.webauthn.status').subscribe((res) => {
+      this.isWebauthn = res;
     });
   }
 
@@ -327,13 +337,48 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
     this.submitButton.disabled = true;
     this.progressBar.mode = 'indeterminate';
 
-    if (this.isTwoFactor) {
+    if (this.isWebauthn && !(this.isTwoFactor && this.signinData.otp)) {
+      // Security key is the second factor; when TOTP is also enabled, a typed
+      // OTP code takes the classic path instead (either/or).
+      this.webauthnSignin();
+    } else if (this.isTwoFactor) {
       this.ws.login(this.signinData.username, this.signinData.password, this.signinData.otp)
         .subscribe((result) => { this.loginCallback(result); });
     } else {
       this.ws.login(this.signinData.username, this.signinData.password)
         .subscribe((result) => { this.loginCallback(result); });
     }
+  }
+
+  webauthnSignin() {
+    if (!this.webauthnService.available()) {
+      this.webauthnError({
+        message: T('Security keys need HTTPS and a DNS hostname (not an IP address).'),
+      });
+      return;
+    }
+    this.webauthnService.loginCeremony(this.signinData.username, this.signinData.password).subscribe(
+      (result) => { this.loginCallback(result); },
+      (err) => { this.webauthnError(err); },
+    );
+  }
+
+  webauthnError(err) {
+    this.submitButton.disabled = false;
+    this.progressBar.mode = 'determinate';
+    this.signinData.password = '';
+    this.signinData.otp = '';
+    let message = '';
+    if (err && err.name === 'NotAllowedError') {
+      message = T('Security key not provided (cancelled or timed out). Try again.');
+    } else {
+      message = (err && (err.reason || err.message)) || T('Security key sign-in failed.');
+    }
+    this.translate.get('close').subscribe((ok: string) => {
+      this.translate.get(message).subscribe((res: string) => {
+        this.snackBar.open(res, ok, { duration: 6000 });
+      });
+    });
   }
 
   setpassword() {
@@ -350,6 +395,7 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
       this.successLogin();
     } else {
       this.checkTwoFactor();
+      this.checkWebauthn();
       this.errorLogin();
     }
   }
@@ -398,33 +444,6 @@ export class SigninComponent implements OnInit, OnDestroy, AfterViewInit {
       this.translate.get(message).subscribe((res: string) => {
         this.snackBar.open(res, ok, { duration: 4000 });
       });
-    });
-  }
-
-  onGoToLegacy() {
-    this.dialogService.confirm(T('Warning'),
-      globalHelptext.legacyUIWarning,
-      true, T('Continue to Legacy UI')).subscribe((res) => {
-      if (res) {
-        window.location.href = '/legacy/';
-      }
-    });
-  }
-
-  openIX() {
-    window.open('https://www.ixsystems.com/', '_blank');
-  }
-
-  gotoTC() {
-    this.dialogService.generalDialog({
-      title: helptext.tcDialog.title,
-      message: helptext.tcDialog.message,
-      is_html: true,
-      confirmBtnMsg: helptext.tcDialog.confirmBtnMsg,
-    }).subscribe((res) => {
-      if (res) {
-        window.open(this.tc_url);
-      }
     });
   }
 }

@@ -1,7 +1,7 @@
 import {
   Component, ViewContainerRef, AfterViewInit, OnInit, ViewChild,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -16,10 +16,10 @@ import * as _ from 'lodash';
   selector: 'form-task',
   templateUrl: './form-task.component.html',
   styleUrls: ['./form-task.component.css'],
-})
+  })
 export class FormTaskComponent implements Field, AfterViewInit, OnInit {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
   tabFormGroup: any;

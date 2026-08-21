@@ -10,7 +10,7 @@ import { RestService, WebSocketService } from 'app/services/';
 import { ThemeService, Theme } from 'app/services/theme/theme.service';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
 import { Subject } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogService } from 'app/services/dialog.service';
 import { T } from 'app/translate-marker';
 
@@ -23,7 +23,7 @@ interface FormSnapshot {
   selector: 'custom-theme',
   templateUrl: './customtheme.component.html',
   styleUrls: ['./customtheme.component.css'],
-})
+  })
 export class CustomThemeComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   saveSubmitText = T('Submit');
   actionButtonsAlign = 'left';

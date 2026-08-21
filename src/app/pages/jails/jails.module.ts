@@ -15,22 +15,24 @@ import { StorageListComponent } from './storages/storage-list';
 import { StorageFormComponent } from './storages/storage-form';
 import { JailWizardComponent } from './jail-wizard';
 import { JailShellComponent } from './jail-shell';
+import { TerminalModule } from '../shell/terminal.module';
 
 @NgModule({
   imports: [
-    CommonModule, FormsModule, ReactiveFormsModule, routing, EntityModule, MaterialModule, TranslateModule, FlexLayoutModule,
+  CommonModule, FormsModule, ReactiveFormsModule, routing, EntityModule, MaterialModule, TranslateModule, FlexLayoutModule,
+  TerminalModule,
   ],
   declarations: [
-    JailListComponent,
-    JailFormComponent,
-    StorageListComponent,
-    StorageFormComponent,
-    JailWizardComponent,
-    JailShellComponent,
+  JailListComponent,
+  JailFormComponent,
+  StorageListComponent,
+  StorageFormComponent,
+  JailWizardComponent,
+  JailShellComponent,
   ],
   providers: [
-    JailService,
+  JailService,
   ],
-})
+  })
 export class JailsModule {
 }

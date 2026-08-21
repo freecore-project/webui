@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { RestService, WebSocketService, DialogService } from '../../../../services';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { Wizard } from '../../../common/entity/entity-form/models/wizard.interface';
 import { EntityWizardComponent } from '../../../common/entity/entity-wizard/entity-wizard.component';
 import * as _ from 'lodash';
@@ -11,7 +11,7 @@ import { EntityUtils } from '../../../common/entity/utils';
 
 import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job.component';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/storage/volumes/volume-import-wizard';
 
@@ -19,13 +19,13 @@ import helptext from '../../../../helptext/storage/volumes/volume-import-wizard'
   selector: 'app-volumeimport-wizard',
   template: '<entity-wizard [conf]="this"></entity-wizard>',
   providers: [],
-})
+  })
 export class VolumeImportWizardComponent {
   route_success: string[] = ['storage', 'pools'];
   route_create: string[] = ['storage', 'pools', 'manager'];
   summary = {};
   isLinear = true;
-  firstFormGroup: FormGroup;
+  firstFormGroup: UntypedFormGroup;
   protected dialogRef: any;
   objectKeys = Object.keys;
   summary_title = 'Pool Import Summary';
@@ -268,7 +268,7 @@ export class VolumeImportWizardComponent {
     const createPoolText = T('Create Pool');
     this.entityWizard = entityWizard;
     this.entityWizard.customNextText = createPoolText;
-    this.is_new_subscription = (< FormGroup > entityWizard.formArray.get([0]).get('is_new'))
+    this.is_new_subscription = (< UntypedFormGroup > entityWizard.formArray.get([0]).get('is_new'))
       .valueChanges.subscribe((isNew) => {
         this.isNew = isNew;
         if (isNew) {
@@ -279,13 +279,13 @@ export class VolumeImportWizardComponent {
       });
 
     if (this.productType !== 'SCALE') {
-      this.encrypted = (< FormGroup > entityWizard.formArray.get([1]).get('encrypted'));
+      this.encrypted = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('encrypted'));
       this.devices = _.find(this.wizardConfig[1].fieldConfig, { name: 'devices' });
-      this.devices_fg = (< FormGroup > entityWizard.formArray.get([1]).get('devices'));
+      this.devices_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('devices'));
       this.key = _.find(this.wizardConfig[1].fieldConfig, { name: 'key' });
-      this.key_fg = (< FormGroup > entityWizard.formArray.get([1]).get('key'));
+      this.key_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('key'));
       this.passphrase = _.find(this.wizardConfig[1].fieldConfig, { name: 'passphrase' });
-      this.passphrase_fg = (< FormGroup > entityWizard.formArray.get([1]).get('passphrase'));
+      this.passphrase_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('passphrase'));
 
       this.ws.call('disk.get_encrypted', [{ unused: true }]).subscribe((res) => {
         for (let i = 0; i < res.length; i++) {
@@ -295,7 +295,7 @@ export class VolumeImportWizardComponent {
     }
 
     this.guid = _.find(this.wizardConfig[this.importIndex].fieldConfig, { name: 'guid' });
-    this.guid_subscription = (< FormGroup > entityWizard.formArray.get([this.importIndex]).get('guid'))
+    this.guid_subscription = (< UntypedFormGroup > entityWizard.formArray.get([this.importIndex]).get('guid'))
       .valueChanges.subscribe((res) => {
         const pool = _.find(this.guid.options, { value: res });
         this.summary[T('Pool to import')] = pool['label'];

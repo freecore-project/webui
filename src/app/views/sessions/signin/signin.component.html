@@ -6,7 +6,10 @@
         <div [hidden]="!(connected() && logo_ready)">
           <div class="text-center logo-wrapper" *ngIf="logo_ready">
             <img class="logo-bg" alt="Logo image background of stars and sky at night" src="assets/images/stars-sky-1200w.jpg" srcset="assets/images/stars-sky-400w.jpg, assets/images/stars-sky-800w.jpg 2x, assets/images/stars-sky-1200w.jpg 3x">
-            <mat-icon svgIcon="truenas_core_logo_full" *ngIf="product_type === 'CORE'; else isTruenas" class="logo" alt="TrueNAS CORE logo"></mat-icon>
+            <ng-container *ngIf="product_type === 'CORE'; else isTruenas">
+              <img [src]="'assets/images/' + themeLogo" class="logo" alt="FreeCORE logo">
+              <div class="signin-slogan" *ngIf="themeSlogan">Think <span>correctly</span>.</div>
+            </ng-container>
             <ng-template #isTruenas>
               <mat-icon *ngIf="product_type === 'ENTERPRISE'" class="logo" svgIcon="truenas_enterprise_logo_full" alt="TrueNAS ENTERPRISE logo"></mat-icon>
               <mat-icon *ngIf="product_type === 'SCALE'" class="logo" svgIcon="truenas_scale_logo_full" alt="TrueNAS SCALE logo"></mat-icon>
@@ -48,7 +51,7 @@
                   <input matInput name="otp"
                     [(ngModel)]="signinData.otp"
                     #otp="ngModel"
-                    required
+                    [required]="!isWebauthn"
                     autocomplete="off"
                     placeholder="{{'Two-Factor Authentication Code' | translate}}"
                     >
@@ -57,6 +60,11 @@
                     <span *ngIf="failed">{{"Please enter your 2FA code again" | translate}}</span>
                   </mat-error>
                 </mat-form-field>
+              </div>
+              <div *ngIf="isWebauthn" style="display: flex; align-items: center; margin-bottom: 8px;">
+                <mat-icon style="color:var(--fg1); margin-right: 8px;">vpn_key</mat-icon>
+                <span *ngIf="!isTwoFactor">{{"Insert your security key. Tap it when prompted after pressing Log in." | translate}}</span>
+                <span *ngIf="isTwoFactor">{{"Tap your security key when prompted after pressing Log in, or enter a 2FA code instead." | translate}}</span>
               </div>
               <button name="signin_button" mat-button class="fn-theme-primary full-width mb-1" id="signin_button" [disabled]="username.errors || password.errors">{{"Log in" | translate}}</button>
             </form>
@@ -84,9 +92,6 @@
                 <button name="signin_button2" mat-button class="mat-accent full-width mb-1" type="submit" [disabled]="!setPasswordForm.form.valid">{{"Sign in" | translate}}</button>
               </form>
             </span>
-            <div id="legacy-btn-wrapper" *ngIf='exposeLegacyUI'>
-              <button mat-button color="default" class="mb-1 full-width" style="text-transform:capitalize !important;" (click)="onGoToLegacy()">{{"LEGACY WEB INTERFACE" | translate}}</button>
-            </div>
           </span>
           <span *ngIf="product_type === 'ENTERPRISE' && failover_status != 'SINGLE'"><div class="ha-status">
             <div class="ha-status-txt">
@@ -103,14 +108,9 @@
             </div>
           </div></span>
 
-          <div class="truecommand" *ngIf="tc_ip" (click)="gotoTC()">
-              <img id="truecommand-logo" src="assets/images/truecommand/truecommand-logo-mark-full-color-rgb.svg">
-              <span class="truecommand-txt">TrueCommand IP: {{tc_ip}}</span>
-          </div>
 
           <div class="copyright-line">
-            <span  class="copyright-txt">TrueNAS {{product_type}} ® © {{copyrightYear}} </span>
-            <img id="full-logo" (click)="openIX()" src="assets/images/ix_logo_full.png">
+            <span class="copyright-txt"><a href="https://freecore.org" target="_blank" rel="noopener noreferrer" title="FreeCORE project website" class="project-home-link">freecore.org</a> · © {{copyrightYear}}</span>
           </div>
         </div>
         <div class="disconnected" [hidden]="connected() && logo_ready">

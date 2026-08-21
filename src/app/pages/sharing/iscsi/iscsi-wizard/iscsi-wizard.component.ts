@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Wizard } from '../../../common/entity/entity-form/models/wizard.interface';
-import { Validators, FormControl, ValidationErrors } from '@angular/forms';
+import { Validators, UntypedFormControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -20,7 +20,7 @@ import globalHelptext from 'app/helptext/global-helptext';
   selector: 'app-iscsi-wizard',
   template: '<entity-wizard [conf]="this"></entity-wizard>',
   providers: [IscsiService, CloudCredentialService, NetworkService, StorageService],
-})
+  })
 export class IscsiWizardComponent {
   route_success: string[] = ['sharing', 'iscsi'];
   isLinear = true;
@@ -107,7 +107,7 @@ export class IscsiWizardComponent {
           parent: this,
           value: 0,
           validation: [Validators.required,
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.wizardConfig[0].fieldConfig.find((c) => c.name === 'filesize');
               const size = this.storageService.convertHumanStringToNum(control.value, true);
 
@@ -621,7 +621,7 @@ export class IscsiWizardComponent {
     for (let step = 0; step < 3; step++) {
       Object.entries(this.entityWizard.formArray.controls[step].controls).forEach(([name, control]) => {
         if (name in this.summaryObj) {
-          (<FormControl>control).valueChanges.subscribe(((value) => {
+          (<UntypedFormControl>control).valueChanges.subscribe(((value) => {
             if (value == undefined) {
               this.summaryObj[name] = null;
             } else {
@@ -889,7 +889,7 @@ export class IscsiWizardComponent {
 
   IPValidator(name: string) {
     const self = this;
-    return function validIPs(control: FormControl) {
+    return function validIPs(control: UntypedFormControl) {
       const config = self.wizardConfig[2].fieldConfig.find((c) => c.name === name);
       let counter = 0;
       if (control.value) {

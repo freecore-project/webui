@@ -1,7 +1,7 @@
 import { ApplicationRef, Component, Injector } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ValidationErrors, FormControl } from '@angular/forms';
+import { ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -17,7 +17,7 @@ import { AppLoaderService } from '../../../../services/app-loader/app-loader.ser
   selector: 'smb-edit',
   template: ' <entity-form [conf]="this"></entity-form>',
   providers: [ServicesService, IdmapService],
-})
+  })
 
 export class ServiceSMBComponent {
   protected queryCall = 'smb.config';
@@ -84,7 +84,7 @@ export class ServiceSMBComponent {
           placeholder: helptext.cifs_srv_netbiosalias_placeholder,
           tooltip: helptext.cifs_srv_netbiosalias_tooltip,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'netbiosalias');
               const aliasArr = control.value ? control.value : [];
               let counter = 0;

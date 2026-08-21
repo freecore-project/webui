@@ -1,0 +1,38 @@
+<div class="terminal-wrapper">
+  <div class="terminal-surface" #terminalContainer (contextmenu)="onRightClick()"></div>
+
+  <div class="terminal-overlay" *ngIf="status.state !== 'connected'">
+    <div class="terminal-overlay-box">
+      <ng-container *ngIf="status.state === 'connecting'">
+        <mat-spinner diameter="28"></mat-spinner>
+        <span>{{ 'Connecting…' | translate }}</span>
+      </ng-container>
+
+      <ng-container *ngIf="status.state !== 'connecting'">
+        <span class="terminal-overlay-reason">
+          {{ (status.state === 'closed' ? 'The session has ended.' : status.reason) | translate }}
+        </span>
+        <button mat-button color="primary" (click)="reconnect()"
+          ix-auto ix-auto-type="button" ix-auto-identifier="RECONNECT">
+          {{ 'Reconnect' | translate }}
+        </button>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<div class="terminal-toolbar">
+  <span class="terminal-toolbar-label">{{ 'Font size' | translate }}</span>
+  <mat-slider class="terminal-font-slider" min="10" max="20" step="1" [ngModel]="fontSize"
+    (ngModelChange)="onFontSizeChange($event)"
+    ix-auto ix-auto-type="slider" ix-auto-identifier="Set font size"></mat-slider>
+  <button mat-button (click)="resetFontSize()" matTooltip="{{ 'Reset font size to default value' | translate }}"
+    ix-auto ix-auto-type="button" ix-auto-identifier="RESTORE DEFAULT">
+    {{ 'Restore default' | translate }}
+  </button>
+
+  <span class="terminal-toolbar-spacer"></span>
+
+  <tooltip [message]="tooltip"
+    ix-auto ix-auto-type="tooltip-icon" ix-auto-identifier="terminal-tooltip"></tooltip>
+</div>
