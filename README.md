@@ -1,82 +1,48 @@
-TrueNAS WebUI
-================
-![CI](https://github.com/truenas/webui/workflows/CI/badge.svg?branch=master)
+# webui
 
+[FreeCORE](https://freecore.org) carries the TrueNAS CORE 13.3 system forward as an
+independently maintained operating system on FreeBSD. TrueNAS CORE 13.3 systems
+upgrade straight to FreeCORE 15.0 in place, then continue on the project’s
+update train.
 
-This is the project for the Angular.io WebUI for TrueNAS CORE & TrueNAS SCALE.
+Not affiliated with or endorsed by iXsystems, Inc.
 
-# Development requirements
+## What this repository is
 
-  - yarn >= 1.12
-  - Node.js >= 8.9
-  - Running TrueNAS 12 Nightly Machine (VM is fine)
+`webui` forked from [`truenas/webui`](https://github.com/truenas/webui) at:
 
+| | |
+|---|---|
+| **Base commit** | `5b25fbff2c7e7cc62a5a6b75f4c5e605c5a6a805` |
+| **Base** | truenas/13.3-stable @ 2024-08-08 |
+| **Licence** | GPL-3.0 — unchanged from upstream |
 
-# Getting started
+## How to read the history
 
-Install the development requirements (FreeBSD 11 or later):
-
-```sh
-# pkg install yarn
-```
-
-Checkout TrueNAS git repository:
-
-```sh
-$ git clone https://github.com/truenas/webui.git
-$ cd webui
-```
-
-Install yarn packages:
+Upstream history is preserved verbatim below the base commit: original commits,
+original authors, original dates. Everything FreeCORE changed sits above it.
 
 ```sh
-$ yarn install
+git log --oneline 5b25fbff2c7e..HEAD      # the entire FreeCORE delta
+git diff 5b25fbff2c7e..HEAD               # ...as one diff
 ```
 
-Run the environment configuration script
-(if your ip address changes later you may repeat this step)
+The FreeCORE commits are a compact **release history**, generated from the
+reviewed source-state difference rather than copied from the development
+repositories. Private commit subjects, issue references, dates, and intermediate
+churn are not mirrored here. Only tagged release commits are states that were
+built and tested.
 
-```sh
-$ ./setup_env.js -i <ip address or FQDN of the server where TrueNAS is running>
-```
+## Releases
 
-To start run
-```yarn start```
+Tags mark states that were actually built, installed and validated.
 
-This runs a local webserver with the new WebUI, by default at http://localhost:4200.
-If this webserver is kept running, changes to the project will be rebuilt incrementally.
+## Contributing
 
-To test AOT in dev mode run
+See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports go to
+security@freecore.org, not to the issue tracker — see [SECURITY.md](SECURITY.md).
 
-```yarn run start:dev:aot```
+## Licence and attribution
 
-To run the production build, run
-
-```yarn run build:prod:aot```
-
-Getting errors about missing packages?
-
-```yarn install```
-
-Getting permission errors or Failed messages when trying to run `yarn start`?
-
-From the webui repo
-```
-rm -rf node_modules (may need root)
-rm yarn.lock 
-yarn cache clean --force
-yarn install
-```
-This should bring the yarn environment back to a useable state.
-
-# Translating Text to Other Languages
-
-To extract all of the strings from the project to be translated run:
-```yarn run extract```
-
-This will update all of the PO files located in the directory src/assets/i18n.
-These can be edited with any PO editor.
-
-
-Stock images used on the dashboard UI are courtesy of Pixabay.com and are subject to the Simplified Pixabay License. 
-Full license details can be found at https://pixabay.com/service/license/.
+See [NOTICE](NOTICE) and [TRADEMARKS.md](TRADEMARKS.md). Nothing here is
+relicensed; upstream copyright notices and licence texts are preserved.
