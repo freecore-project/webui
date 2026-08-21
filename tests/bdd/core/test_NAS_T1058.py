@@ -74,7 +74,7 @@ def on_the_advanced_page_click_on_save_debug(driver):
 @then(parsers.parse('on the "{title}" box, click PROCEED'))
 def on_the_generate_debug_file_box_click_proceed(driver, title):
     """on the "Generate Debug File" box, click PROCEED."""
-    assert wait_on_element(driver, 7, f'//h1[contains(.,"{title}")]')
+    assert wait_on_element(driver, 7, f'//h2[contains(.,"{title}")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__PROCEED"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__PROCEED"]').click()
 

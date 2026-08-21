@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DialogService, WebSocketService } from '../../../../services';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
@@ -7,11 +9,30 @@ import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.in
 import { EntityUtils } from '../../../common/entity/utils';
 import { helptext_system_acme as helptext } from 'app/helptext/system/acme';
 
+interface AuthenticatorAttributeSchema {
+  _name_: string;
+  _private_: boolean;
+  _required_: boolean;
+  default?: any;
+  description?: string;
+  enum?: string[];
+  title?: string;
+  type: string | string[];
+}
+
+interface AuthenticatorSchema {
+  key: string;
+  schema: AuthenticatorAttributeSchema[];
+}
+
 @Component({
+  standalone: false,
   selector: 'app-acmedns-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class AcmednsFormComponent {
+  settingsTitle = T('ACME DNS Authenticator');
   protected addCall = 'acme.dns.authenticator.create';
   protected queryCall = 'acme.dns.authenticator.query';
   protected editCall = 'acme.dns.authenticator.update';
@@ -22,13 +43,15 @@ export class AcmednsFormComponent {
   fieldSets: FieldSet[] = [
     {
       name: 'Add DNS Authenticator',
+      settingsLabel: helptext.select_auth_label,
       label: true,
       width: '50%',
       config: [
         {
           type: 'paragraph',
           name: 'select_auth',
-          paraText: '<i class="material-icons">looks_one</i>' + helptext.select_auth_label,
+          paraText: helptext.select_auth_label,
+          isHidden: true,
         },
         {
           type: 'input',
@@ -44,78 +67,112 @@ export class AcmednsFormComponent {
           name: helptext.authenticator_provider_name,
           placeholder: helptext.authenticator_provider_placeholder,
           tooltip: helptext.authenticator_provider_tooltip,
-          options: [
-            { label: 'Route53', value: 'route53' },
-          ],
-          value: 'route53',
+          options: [],
           parent: this,
         },
       ],
     },
     {
       name: helptext.auth_attributes_label,
+      settingsLabel: helptext.auth_attributes_label,
       width: '50%',
       label: false,
       config: [
-        // Route 53
         {
           type: 'paragraph',
           name: 'auth_attributes',
-          paraText: '<i class="material-icons">looks_two</i>' + helptext.auth_attributes_label,
+          paraText: helptext.auth_attributes_label,
+          isHidden: true,
         },
-        {
-          type: 'input',
-          name: helptext.auth_credentials_1_name,
-          placeholder: helptext.auth_credentials_1_placeholder,
-          tooltip: helptext.auth_credentials_1_tooltip,
-          required: true,
-          validation: helptext.auth_credentials_1_validation,
-          parent: this,
-          relation: [
-            {
-              action: 'SHOW',
-              when: [{
-                name: 'authenticator',
-                value: 'route53',
-              }],
-            },
-          ],
-        },
-        {
-          type: 'input',
-          name: helptext.auth_credentials_2_name,
-          placeholder: helptext.auth_credentials_2_placeholder,
-          tooltip: helptext.auth_credentials_2_tooltip,
-          required: true,
-          validation: helptext.auth_credentials_2_validation,
-          parent: this,
-          relation: [
-            {
-              action: 'SHOW',
-              when: [{
-                name: 'authenticator',
-                value: 'route53',
-              }],
-            },
-          ],
-        },
-        // Authentication attributes from other providers should go here. Each one needs a name
-        // that contains whatever the authenticator's API requires, followed by a dash  and then
-        // a unique identifier, probably the name of the service as seen in route53.
       ],
     }];
 
   protected entityForm: any;
   private pk: any;
+  private selectedAuthenticator: string;
   protected queryCallOption: any[] = [['id', '=']];
 
   constructor(protected router: Router, protected ws: WebSocketService, protected route: ActivatedRoute,
     protected loader: AppLoaderService, protected dialog: DialogService) {}
 
+  async prerequisite(): Promise<boolean> {
+    const schemas = await this.ws.call(
+      'acme.dns.authenticator.authenticator_schemas', [],
+    ).toPromise() as AuthenticatorSchema[];
+    const providerField = this.fieldSets[0].config.find((field) => field.name === 'authenticator');
+    const attributes = this.fieldSets[1].config;
+
+    providerField.options = schemas.map((schema) => ({
+      label: this.providerLabel(schema.key),
+      value: schema.key,
+    }));
+    providerField.value = schemas.some((schema) => schema.key === 'route53')
+      ? 'route53'
+      : schemas[0].key;
+
+    schemas.forEach((authenticator) => {
+      authenticator.schema.forEach((schema) => {
+        attributes.push(this.attributeField(authenticator.key, schema));
+      });
+    });
+    return true;
+  }
+
+  private providerLabel(provider: string): string {
+    return {
+      cloudflare: 'Cloudflare',
+      digitalocean: 'DigitalOcean',
+      OVH: 'OVHcloud',
+      route53: 'Amazon Route 53',
+      shell: 'Shell',
+    }[provider] || provider;
+  }
+
+  private attributeField(provider: string, schema: AuthenticatorAttributeSchema): FieldConfig {
+    const field: FieldConfig = {
+      type: schema.enum ? 'select' : 'input',
+      name: `${schema._name_}-${provider}`,
+      placeholder: schema.title || schema._name_,
+      tooltip: schema.description,
+      required: schema._required_,
+      validation: schema._required_ ? [Validators.required] : [],
+      parent: this,
+      relation: [{
+        action: 'SHOW',
+        when: [{
+          name: 'authenticator',
+          value: provider,
+        }],
+      }],
+    };
+
+    if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+      field.value = schema.default;
+    }
+    if (schema.enum) {
+      field.options = schema.enum.map((value) => ({ label: value, value }));
+    }
+    if (schema._private_) {
+      field.inputType = 'password';
+      field.togglePw = true;
+    } else if (schema.type === 'integer') {
+      field.inputType = 'number';
+    }
+
+    return field;
+  }
+
   preInit() {
     this.route.params.subscribe((params) => {
       if (params['pk']) {
-        this.queryCallOption[0].push(parseInt(params['pk']));
+        // Do NOT assign this.pk here. entity-form reads conf.pk while it builds the
+        // query filter and, when it is set, pushes the raw pk as the first positional
+        // argument -- acme.dns.authenticator.query then receives an integer where
+        // query-filters belongs and rejects the call with "[query-filters] Not a list",
+        // so the edit form loads unpopulated. Assign it in afterInit(), which runs
+        // after the filter is built and long before customSubmit() needs it.
+        this.queryCallOption[0].push(parseInt(params['pk'], 10));
+        this.fieldSets[0].config.find((field) => field.name === 'authenticator').disabled = true;
       }
     });
   }
@@ -124,28 +181,44 @@ export class AcmednsFormComponent {
     this.entityForm = entityEdit;
     this.route.params.subscribe((params) => {
       if (params['pk']) {
-        this.pk = parseInt(params['pk']);
-        this.ws.call(this.queryCall, [
-          [
-            ['id', '=', this.pk],
-          ],
-        ]).subscribe((res) => {
-          for (const item in res[0].attributes) {
-            this.entityForm.formGroup.controls[item + '-' + res[0].authenticator].setValue(res[0].attributes[item]);
-          }
-        });
+        this.pk = parseInt(params['pk'], 10);
+      }
+    });
+    const authenticatorControl = entityEdit.formGroup.controls['authenticator'];
+    this.selectedAuthenticator = authenticatorControl.value;
+    authenticatorControl.valueChanges.subscribe((authenticator) => {
+      if (authenticator) {
+        this.selectedAuthenticator = authenticator;
       }
     });
   }
 
+  dataAttributeHandler(entityForm: any) {
+    if (entityForm.wsResponseIdx !== entityForm.wsResponse.attributes) {
+      return;
+    }
+    const authenticator = entityForm.wsResponse.authenticator;
+    this.selectedAuthenticator = authenticator;
+    entityForm.formGroup.controls['authenticator'].setValue(authenticator);
+
+    for (const item in entityForm.wsResponseIdx) {
+      const control = entityForm.formGroup.controls[`${item}-${authenticator}`];
+      if (control) {
+        control.setValue(entityForm.wsResponseIdx[item]);
+      }
+    }
+  }
+
   customSubmit(value) {
     const attributes = {};
-    let attr_name: string;
+    const authenticator = value.authenticator
+      || this.selectedAuthenticator
+      || this.entityForm.formGroup.controls['authenticator'].value;
+    const suffix = `-${authenticator}`;
 
     for (const item in value) {
-      if (item != 'name' && item != 'authenticator') {
-        attr_name = item.split('-')[0];
-        attributes[attr_name] = value[item];
+      if (item.endsWith(suffix)) {
+        attributes[item.slice(0, -suffix.length)] = value[item];
       }
     }
 
@@ -159,7 +232,7 @@ export class AcmednsFormComponent {
       newCall = this.editCall;
       data = [this.pk, payload];
     } else {
-      payload['authenticator'] = value.authenticator;
+      payload['authenticator'] = authenticator;
       newCall = this.addCall;
       data = [payload];
     }
@@ -172,8 +245,39 @@ export class AcmednsFormComponent {
       },
       (res) => {
         this.loader.close();
-        new EntityUtils().handleWSError(this.entityForm, res);
+        this.handleSubmitError(res, authenticator);
       },
     );
+  }
+
+  private handleSubmitError(res: any, authenticator: string): void {
+    const extra = res && res.exc_info && Array.isArray(res.exc_info.extra)
+      ? res.exc_info.extra
+      : res && res.extra;
+
+    if (Array.isArray(extra)) {
+      const marker = '.attributes.';
+      const mappedExtra = extra.map((entry) => {
+        if (!Array.isArray(entry) || typeof entry[0] !== 'string') {
+          return entry;
+        }
+
+        const markerIndex = entry[0].indexOf(marker);
+        if (markerIndex === -1) {
+          return entry;
+        }
+
+        const namespace = entry[0].slice(0, markerIndex);
+        const attribute = entry[0].slice(markerIndex + marker.length);
+        return [`${namespace}.${attribute}-${authenticator}`, ...entry.slice(1)];
+      });
+
+      res = { ...res, extra: mappedExtra };
+      if (res.exc_info) {
+        res.exc_info = { ...res.exc_info, extra: mappedExtra };
+      }
+    }
+
+    new EntityUtils().handleWSError(this.entityForm, res);
   }
 }

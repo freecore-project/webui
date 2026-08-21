@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   animate, state, style, transition, trigger,
@@ -6,9 +6,11 @@ import {
 import { WebSocketService } from '../../../../services';
 
 @Component({
+  standalone: false,
   selector: 'app-directory-services-monitor',
   templateUrl: './directory-services-monitor.component.html',
   styleUrls: ['./directory-services-monitor.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   animations: [
     trigger('detailExpand', [
       state('collapsed, void', style({ height: '0px', minHeight: '0', display: 'none' })),

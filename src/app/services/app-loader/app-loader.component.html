@@ -1,9 +1,2 @@
-<div class="text-center pb-2">
-    <h6 class="m-0 pb-1">{{ title | translate }}</h6>
-    <div mat-dialog-content class="spinner-container">
-        <mat-spinner></mat-spinner>
-    </div>
-</div>
-<div *ngIf="isShowConsole" fxLayoutAlign="center center">
-    <button mat-button color="primary" (click)="onOpenConsole()">{{ 'Console' | translate }}</button>
-</div>
+<section class="fc-status-panel"><div class="fc-status-brand"><img src="assets/images/freecore-fork-mark.svg" width="24" height="24" alt=""><span>Free<strong>CORE</strong></span></div><h1 class="fc-status-title">{{ title | translate }}</h1><div class="fc-status-track indeterminate" role="progressbar" [attr.aria-label]="title | translate"><span></span></div>@if(message){<p class="fc-status-copy" role="status">{{ message | translate }}</p>}@if(detail){<p class="fc-status-copy muted">{{ detail | translate }}</p>}@if(isShowConsole){<div class="console-action-row fc-status-actions"><button type="button" (click)="onOpenConsole()">{{ 'Console' | translate }}</button></div>}</section>
+@if(fullscreen){<footer class="fc-status-footer"><a href="https://freecore.org" target="_blank" rel="noopener noreferrer">freecore.org</a>@if(copyrightYear){<span> · © {{copyrightYear}}</span>}</footer>}

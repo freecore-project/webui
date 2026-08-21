@@ -1,31 +1,26 @@
-<div *ngIf="rendered" class="widget stats-widget" ngClass.xs="double-height xs">
-  <div class="card-container  front">
-    <mat-card class="front" fxLayout="row" fxLayoutWrap fxLayoutAlign="space-between stretch">
-      <mat-card-content>
-        <mat-toolbar-row >
-          <h3 class="mat-card-title-text"><div class="card-title-text">{{title | translate}}</div></h3>
-        </mat-toolbar-row>
-
-        <div *ngIf="screenType == 'Mobile' || 'Desktop'" fxLayout="column" class="mobile" >
-          <div fxFlex="65" class="bottom">
-            <div class="list-subheader">  <span class="capitalize">Widgets ({{dashState.length}} items)</span></div>
-            <mat-list>
-              <ng-container *ngFor="let widget of dashState;">
-                <mat-list-item class="widget-launcher clickable" (click)="launchWidget(widget)" *ngIf="widget.rendered" >
-                  <span class="label">{{widget.name}}
-                    <span *ngIf="widget.identifier && nameFromIdentifier(widget.identifier).length > 0;">: </span>
-                  </span> 
-                  &nbsp;&nbsp;
-                  <span *ngIf="widget.identifier && nameFromIdentifier(widget.identifier).length > 0;">{{nameFromIdentifier(widget.identifier) }}</span>
-                  <mat-icon class="next-slide">chevron_right</mat-icon>
-                </mat-list-item>
-              </ng-container>
-            </mat-list>
+@if (rendered) {
+  <section class="widget stats-widget widget-launcher" [class.xs]="screenType === 'Mobile'">
+    <div class="card-container front">
+      <div class="fc-card front widget-launcher-card-layout">
+        <div class="fc-card-content">
+          <div class="fc-card-header">
+            <h2 class="card-title-text">{{ 'Widgets' | translate }}</h2>
+          </div>
+          <div class="widget-launcher-list-layout">
+            @for (widget of dashState; track widget) {
+              @if (widget.rendered) {
+                <button #launcherButton type="button" class="widget-launcher-button"
+                  [attr.data-widget-key]="widgetKey(widget)" (click)="launchWidget(widget)">
+                  <span>{{ widget.name | translate }}@if (widget.identifier && nameFromIdentifier(widget.identifier)) {
+                    <span>: {{ nameFromIdentifier(widget.identifier) }}</span>
+                  }</span>
+                  <mat-icon aria-hidden="true">chevron_right</mat-icon>
+                </button>
+              }
+            }
           </div>
         </div>
-
-      </mat-card-content>
-    </mat-card>
-
-  </div>
-</div>
+      </div>
+    </div>
+  </section>
+}

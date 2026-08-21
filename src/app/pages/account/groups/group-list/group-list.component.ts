@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from 'app/services';
@@ -11,7 +11,9 @@ import { T } from '../../../../translate-marker';
 import { EntityUtils } from 'app/pages/common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-group-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class GroupListComponent {

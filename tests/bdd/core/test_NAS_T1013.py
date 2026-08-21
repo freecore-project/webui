@@ -71,7 +71,7 @@ def when_the_windows_shares_page_appears_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"Samba")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then(parsers.parse('set Path to the LDAP dataset at {path}'))
@@ -105,7 +105,7 @@ def input_my_ldap_smb_test_share_as_the_description_click_summit(driver, descrip
     driver.find_element_by_xpath('//input[@ix-auto="input__Description"]').send_keys(description)
     rsc.click_The_Summit_Button(driver)
     assert wait_on_element_disappear(driver, 15, '//h6[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Configure ACL")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Configure ACL")]')
     ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 
 

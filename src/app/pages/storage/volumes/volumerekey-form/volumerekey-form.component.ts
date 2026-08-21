@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -11,10 +11,13 @@ import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/storage/volumes/volume-key';
 
 @Component({
+  standalone: false,
   selector: 'app-volumeunlock-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class VolumeRekeyFormComponent implements Formconfiguration {
+  readonly settingsTitle = T('Encryption Key'); // the internal development record: the object noun, as the create/change twins; the verb is on the button
   saveSubmitText = T('Reset Encryption');
 
   queryCall = 'pool.query';

@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TreeNode } from 'primeng/api';
-import { EntityTreeTable } from '../../../common/entity/entity-tree-table/entity-tree-table.model';
+import { EntityTreeNode, EntityTreeTable } from '../../../common/entity/entity-tree-table/entity-tree-table.model';
 
 import { RestService } from '../../../../services/rest.service';
 import { WebSocketService } from '../../../../services/ws.service';
@@ -21,8 +20,10 @@ interface PoolDiskInfo {
   path?: any;
 }
 @Component({
+  standalone: false,
   selector: 'app-bootstatus-list',
   templateUrl: './bootenv-status.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class BootStatusListComponent implements OnInit {
   title = 'Boot Pool Status';
@@ -114,7 +115,7 @@ export class BootStatusListComponent implements OnInit {
       read: stats.read_errors ? stats.read_errors : 0,
       write: stats.write_errors ? stats.write_errors : 0,
       checksum: stats.checksum_errors ? stats.checksum_errors : 0,
-      status: data.status,
+      status: data.status === 'ONLINE' ? T('Healthy') : data.status,
       path: data.path,
     };
 
@@ -167,8 +168,8 @@ export class BootStatusListComponent implements OnInit {
     return item;
   }
 
-  parseTopolgy(data: any, category: any, parent?: any): TreeNode {
-    const node: TreeNode = {};
+  parseTopolgy(data: any, category: any, parent?: any): EntityTreeNode {
+    const node: EntityTreeNode = {};
     node.data = this.parseData(data, category, parent);
     node.expanded = true;
     node.children = [];
@@ -184,7 +185,7 @@ export class BootStatusListComponent implements OnInit {
 
   dataHandler(pool: any) {
     this.treeTableConfig.tableData = [];
-    const node: TreeNode = {};
+    const node: EntityTreeNode = {};
     node.data = this.parseData(pool);
     node.expanded = true;
     node.children = [];

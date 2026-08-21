@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 
@@ -12,7 +12,9 @@ import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.int
 import { forbiddenValues } from '../../../common/entity/entity-form/validators/forbidden-values-validation';
 
 @Component({
+  standalone: false,
   selector: 'app-group-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class GroupFormComponent {
@@ -24,6 +26,7 @@ export class GroupFormComponent {
   protected editCall = 'group.update';
   protected queryKey = 'id';
 
+  readonly settingsTitle = T('Group'); // the internal development record: the page's h1
   protected fieldConfig: FieldConfig[] = [];
 
   fieldSetDisplay = 'default';
@@ -32,6 +35,7 @@ export class GroupFormComponent {
       name: helptext.fieldset_name,
       class: 'group-configuration-form',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'input',

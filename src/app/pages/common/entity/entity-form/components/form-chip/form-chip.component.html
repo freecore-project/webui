@@ -1,52 +1,80 @@
-<div id="{{config.name}}" class="dynamic-field form-input" [formGroup]="group" [ngClass]="fieldShow"
-    [class.has-pwtoggle]="config.togglePw" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']">
-    <mat-form-field class="full-width">
-        <mat-chip-list #chipList class="form-chip"
-            [required]="config.required"
-            [formControl]="group.controls[config.name]"
-            ix-auto
-            ix-auto-type="input"
-            ix-auto-identifier="{{config.placeholder}}">
-            <mat-chip *ngFor="let item of chipLists" [selectable]="selectable" [removable]="removable"
-                (removed)="remove(item)">
-                {{item}}
-                <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-            </mat-chip>
-            <input *ngIf="!config.autocomplete; else autoCompleteBlock" [placeholder]="config.placeholder | translate"
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                [matChipInputAddOnBlur]="addOnBlur"
-                (matChipInputTokenEnd)="add($event)"
-            >
-            <ng-template #autoCompleteBlock>
-              <input
-                [placeholder]="config.placeholder | translate"
-                #chipInput
-                [formControl]="chipCtrl"
-                [matChipInputFor]="chipList"
-                [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
-                (matChipInputTokenEnd)="add($event)"
-                (keyup)="updateSearchOptions($event.target.value)"
-                [matAutocomplete]="autoComplete"
-              >
-              <mat-autocomplete #autoComplete="matAutocomplete" (optionSelected)="selected($event)">
-              <mat-option *ngFor="let option of config.searchOptions" [value]="option.value"
-                ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
-                <span>{{ option.label }}</span>
-                </mat-option>
-              </mat-autocomplete>
-            </ng-template>
-        </mat-chip-list>
-    </mat-form-field>
-
-    <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-    <div class="margin-for-error">
+@if (!config['isHidden']) {
+  <!-- the internal development record: the chip field on spartan, composed by hand (spartan has no chips input):
+       the #351 box holds one badge per value and the token input; the box grows and wraps past a
+       row. The array control is written by the renderer (in place, as the quota forms rely on),
+       not by a value accessor. The two autocomplete configs sit the same box on brain's
+       autocomplete anchor, suggestions listed as the combobox does (#395). -->
+  <div id="{{config.name}}" class="dynamic-field form-input form-chip" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip">
+    <hlm-field class="full-width" [forceInvalid]="invalid">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      @if (!config.autocomplete) {
+        <hlm-input-group class="form-chip-box" [class.form-chip-disabled]="disabled"
+          ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}">
+          <ng-container *ngTemplateOutlet="chips"></ng-container>
+          <input hlmInputGroupInput class="form-chip-input" #chipInput type="text" autocomplete="off"
+            [id]="inputId"
+            [forceInvalid]="invalid"
+            [placeholder]="config | fieldPlaceholder | translate"
+            [disabled]="disabled"
+            [attr.aria-required]="config.required ? 'true' : null"
+            (blur)="commitTyped(); touch()">
+        </hlm-input-group>
+      } @else {
+        <hlm-autocomplete [autoHighlight]="false" [disabled]="disabled" [search]="chipText"
+          (searchChange)="onSearch($event)" (valueChange)="onPick($event)">
+          <hlm-input-group brnAutocompleteAnchor class="form-chip-box" [class.form-chip-disabled]="disabled"
+            ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}">
+            <ng-container *ngTemplateOutlet="chips"></ng-container>
+            <input brnAutocompleteInput hlmInputGroupInput class="form-chip-input" #chipInput
+              [id]="inputId"
+              [forceInvalid]="invalid"
+              [placeholder]="config | fieldPlaceholder | translate"
+              [attr.aria-required]="config.required ? 'true' : null"
+              (input)="updateSearchOptions($event.target.value)"
+              (blur)="touch()">
+          </hlm-input-group>
+          <hlm-autocomplete-content *hlmAutocompletePortal>
+            <div hlmAutocompleteList>
+              @for (option of config.searchOptions; track option.value) {
+                <hlm-autocomplete-item [value]="option.value" ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
+                  {{ option.label }}
+                </hlm-autocomplete-item>
+              }
+            </div>
+          </hlm-autocomplete-content>
+        </hlm-autocomplete>
+      }
+      <div class="field-subscript">
         <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-        <mat-error *ngIf="config['hasErrors']">
-            <div [innerHTML]="config['errors']"></div>
-        </mat-error>
-        <mat-error *ngIf="config.warnings">
-            <div [innerHTML]="config.warnings | translate"></div>
-        </mat-error>
-    </div>
-</div>
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+        }
+        @if (config.warnings) {
+          <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
+  </div>
+}
+
+<ng-template #chips>
+  <!-- tracked by identity, as the Material renderer did: the quota forms mark a rejected value's
+       node with .chip-warn from outside, and a view keyed by index would carry that mark onto the
+       next value after a removal. -->
+  @for (item of chipLists; track item) {
+    <span hlmBadge variant="chip" class="form-chip-row" tabindex="-1" (keydown)="onChipKeydown($event, item)">
+      <span class="form-chip-text">{{ item }}</span>
+      @if (!disabled) {
+        <button type="button" class="form-chip-remove" tabindex="-1" (click)="remove(item)"
+          [attr.aria-label]="('Remove' | translate) + ' ' + item">
+          <i class="material-icons" aria-hidden="true">close</i>
+        </button>
+      }
+    </span>
+  }
+</ng-template>

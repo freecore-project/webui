@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { ThemeService } from 'app/services/theme/theme.service';
 import { Subject } from 'rxjs';
@@ -15,8 +15,10 @@ export const ViewComponentMetadata = {
 };
 
 @Component({
+  standalone: false,
   selector: 'view',
   templateUrl: './view.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./view.component.css'],
 })
 export class ViewComponent extends View {

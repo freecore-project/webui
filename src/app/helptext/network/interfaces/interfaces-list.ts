@@ -19,8 +19,8 @@ export default {
 
   changes_saved_successfully: T('Network changes applied successfully.'),
 
-  commit_button: T('TEST CHANGES'),
-  keep_button: T('SAVE CHANGES'),
+  commit_button: T('Test Changes'),
+  keep_button: T('Save Changes'),
   rollback_button: T('Revert CHANGES'),
   rollback_changes_title: T('Revert Network Interface Changes'),
   rollback_changes_warning: T('Revert interface changes? All changes that are being tested will be lost.'),
@@ -30,7 +30,7 @@ export default {
   checkin_message: T('Save network interface changes?'),
   checkin_complete_title: T('Changes Saved'),
   checkin_complete_message: T('Network interface changes have been made permanent.'),
-  checkin_button: T('SAVE'),
+  checkin_button: T('Save'),
 
   pending_changes_title: T('Pending Network Changes'),
   pending_changes_message: T('There are pending network interface changes. Review them now?'),

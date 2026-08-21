@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 
 import { FieldConfig } from '../models/field-config.interface';
 import {
@@ -25,14 +25,14 @@ export class FieldRelationService {
   }
 
   getRelatedFormControls(model: FieldConfig,
-    controlGroup: FormGroup): FormControl[] {
-    const controls: FormControl[] = [];
+    controlGroup: UntypedFormGroup): UntypedFormControl[] {
+    const controls: UntypedFormControl[] = [];
 
     model.relation.forEach((relGroup) => relGroup.when.forEach((rel) => {
       if (model.name === rel.name) {
         throw new Error(`FormControl ${model.name} cannot depend on itself`);
       }
-      const control = <FormControl>controlGroup.get(rel.name);
+      const control = <UntypedFormControl>controlGroup.get(rel.name);
       if (control
           && !controls.some((controlElement) => controlElement === control)) {
         controls.push(control);
@@ -42,7 +42,7 @@ export class FieldRelationService {
   }
 
   isFormControlToBeDisabled(relGroup: RelationGroup,
-    formGroup: FormGroup): boolean {
+    formGroup: UntypedFormGroup): boolean {
     return relGroup.when.reduce(
       (toBeDisabled: boolean, rel: FieldRelation, index: number) => {
         const control = formGroup.get(rel.name);
@@ -78,7 +78,7 @@ export class FieldRelationService {
   }
 
   isFormControlToBeHide(relGroup: RelationGroup,
-    formGroup: FormGroup): boolean {
+    formGroup: UntypedFormGroup): boolean {
     return relGroup.when.reduce(
       (toBeHide: boolean, rel: FieldRelation, index: number) => {
         const control = formGroup.get(rel.name);

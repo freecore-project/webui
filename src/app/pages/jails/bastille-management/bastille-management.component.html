@@ -1,0 +1,21 @@
+@if (status || error) {
+  <section class="fc-page-notice fc-page-notice--warn"><!-- the internal development record: the one notice box -->
+    @if (status) { <p>{{ status | translate }}</p> }
+    @if (error) { <p role="alert">{{ error | translate }}</p> }
+  </section>
+}
+<entity-table [title]="title" [conf]="this"></entity-table>
+
+<ng-template #logDialog>
+  <h2 mat-dialog-title>{{ 'Console Log' | translate }}: {{ logName }}</h2>
+  <mat-dialog-content class="console-log-content">
+    @if (logsLoading) { <hlm-progress><hlm-progress-indicator /></hlm-progress> }
+    @if (logError) { <p role="alert">{{ logError | translate }}</p> }
+    @if (logTruncated) { <p>{{ 'Showing the last 64 KiB.' | translate }}</p> }
+    <pre class="fc-dialog-pre" tabindex="0">{{ logContent || (!logsLoading && !logError ? ('No console output.' | translate) : '') }}</pre>
+  </mat-dialog-content>
+  <mat-dialog-actions>
+    <button hlmBtn variant="outline" type="button" mat-dialog-close>{{ 'Close' | translate }}</button>
+    <button hlmBtn variant="outline" type="button" (click)="refreshLogs()" [disabled]="logsLoading">{{ 'Refresh' | translate }}</button>
+  </mat-dialog-actions>
+</ng-template>

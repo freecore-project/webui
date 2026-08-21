@@ -21,11 +21,6 @@ export const routes: Routes = [
     data: { title: 'Edit', breadcrumb: 'Edit' },
   },
   {
-    path: 'add',
-    component: VmFormComponent,
-    data: { title: 'Add', breadcrumb: 'Add' },
-  },
-  {
     path: 'wizard',
     component: VMWizardComponent,
     data: { title: 'Wizard', breadcrumb: 'Wizard' },
@@ -57,4 +52,4 @@ export const routes: Routes = [
     data: { title: 'Edit Device', breadcrumb: 'Edit Device' },
   },
 ];
-export const routing: ModuleWithProviders = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders<RouterModule> = RouterModule.forChild(routes);

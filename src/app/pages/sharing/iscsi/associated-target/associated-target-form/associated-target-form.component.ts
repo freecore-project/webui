@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -10,11 +11,15 @@ import { EntityUtils } from '../../../../common/entity/utils';
 import { helptext_sharing_iscsi } from 'app/helptext/sharing';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-associated-target-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class AssociatedTargetFormComponent {
+  readonly settingsTitle = T('Associated Target');
+
   protected addCall = 'iscsi.targetextent.create';
   protected queryCall = 'iscsi.targetextent.query';
   protected editCall = 'iscsi.targetextent.update';
