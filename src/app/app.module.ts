@@ -21,7 +21,6 @@ import { ConfirmDialog } from './pages/common/confirm-dialog/confirm-dialog.comp
 import { PasswordDialog } from './pages/common/password-dialog/password-dialog.component';
 import { AboutModalDialog } from './components/common/dialog/about/about-dialog.component';
 import { TaskManagerComponent } from './components/common/dialog/task-manager/task-manager.component';
-import { TruecommandComponent } from './components/common/dialog/truecommand/truecommand.component';
 import { DirectoryServicesMonitorComponent } from './components/common/dialog/directory-services-monitor/directory-services-monitor.component';
 import { ConsolePanelModalDialog } from './components/common/dialog/consolepanel/consolepanel-dialog.component';
 import { DownloadKeyModalDialog } from './components/common/dialog/downloadkey/downloadkey-dialog.component';
@@ -37,7 +36,6 @@ import { AppLoaderService } from './services/app-loader/app-loader.service';
 import { AppLoaderComponent } from './services/app-loader/app-loader.component';
 import { AppLoaderModule } from './services/app-loader/app-loader.module';
 import { NotificationsService } from 'app/services/notifications.service';
-import { MarkdownModule } from 'ngx-markdown';
 
 // Core Application Services and Service Injector
 import { CoreServices } from 'app/core/services/coreservices.module';
@@ -61,84 +59,61 @@ export function createTranslateLoader(http: HttpClient) {
 
 @NgModule({
   imports: [
-    BrowserModule,
-    BrowserAnimationsModule,
-    FlexLayoutModule,
-    AppLoaderModule,
-    HttpClientModule,
-    AppCommonModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: (createTranslateLoader),
-        deps: [HttpClient],
-      },
+  BrowserModule,
+  BrowserAnimationsModule,
+  FlexLayoutModule,
+  AppLoaderModule,
+  HttpClientModule,
+  AppCommonModule,
+  TranslateModule.forRoot({
+    loader: {
+    provide: TranslateLoader,
+    useFactory: (createTranslateLoader),
+    deps: [HttpClient],
+    },
     }),
-    MaterialModule,
-    RouterModule.forRoot(rootRouterConfig, { useHash: false }),
-    MarkdownModule.forRoot(),
-    CoreServices.forRoot(),
-    CoreComponents,
-    FormsModule,
-    ReactiveFormsModule,
-    EntityModule,
-    CommonDirectivesModule,
-    NgxWebstorageModule.forRoot(),
+  MaterialModule,
+  RouterModule.forRoot(rootRouterConfig, { useHash: false }),
+  CoreServices.forRoot(),
+  CoreComponents,
+  FormsModule,
+  ReactiveFormsModule,
+  EntityModule,
+  CommonDirectivesModule,
+  NgxWebstorageModule.forRoot(),
   ],
   declarations: [
-    AppComponent,
-    ConfirmDialog,
-    PasswordDialog,
-    ErrorDialog, InfoDialog,
-    GeneralDialogComponent,
-    AboutModalDialog,
-    TaskManagerComponent,
-    TruecommandComponent,
-    DirectoryServicesMonitorComponent,
-    ConsolePanelModalDialog,
-    DownloadKeyModalDialog,
-    ResilverProgressDialogComponent,
-    SelectDialogComponent,
+  AppComponent,
+  ConfirmDialog,
+  PasswordDialog,
+  ErrorDialog, InfoDialog,
+  GeneralDialogComponent,
+  AboutModalDialog,
+  TaskManagerComponent,
+  DirectoryServicesMonitorComponent,
+  ConsolePanelModalDialog,
+  DownloadKeyModalDialog,
+  ResilverProgressDialogComponent,
+  SelectDialogComponent,
   ],
   providers: [
-    RoutePartsService,
-    NavigationService,
-    AuthService,
-    WebSocketService,
-    RestService,
-    AppLoaderService,
-    NotificationsService,
-    ErdService,
-    {
-      provide: WINDOW,
-      useFactory: getWindow,
-    },
+  RoutePartsService,
+  NavigationService,
+  AuthService,
+  WebSocketService,
+  RestService,
+  AppLoaderService,
+  NotificationsService,
+  ErdService,
+  {
+  provide: WINDOW,
+  useFactory: getWindow,
+  },
   ],
   bootstrap: [
-    AppComponent,
+  AppComponent,
   ],
-  entryComponents: [
-    AppLoaderComponent,
-    ConfirmDialog,
-    PasswordDialog,
-    ErrorDialog,
-    InfoDialog,
-    GeneralDialogComponent,
-    AboutModalDialog,
-    TaskManagerComponent,
-    TruecommandComponent,
-    DirectoryServicesMonitorComponent,
-    ConsolePanelModalDialog,
-    DownloadKeyModalDialog,
-    ResilverProgressDialogComponent,
-    SelectDialogComponent,
-    EntityDialogComponent,
-    FormCheckboxComponent,
-    FormInputComponent,
-    FormSelectComponent,
-    FormParagraphComponent,
-  ],
-})
+  })
 export class AppModule {
   /**
    *      * Allows for retrieving singletons using `AppModule.injector.get(MyService)`

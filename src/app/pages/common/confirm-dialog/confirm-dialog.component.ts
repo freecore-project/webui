@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { Component, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../translate-marker';
@@ -7,7 +7,7 @@ import { T } from '../../../translate-marker';
   selector: 'confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
   styleUrls: ['./confirm-dialog.component.css'],
-})
+  })
 export class ConfirmDialog {
   title: string;
   message: string;

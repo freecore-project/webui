@@ -11,17 +11,17 @@ import { WidgetComponent } from 'app/core/components/widgets/widget/widget.compo
 import { environment } from 'app/../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'widget-sysinfo',
   templateUrl: './widgetsysinfo.component.html',
   styleUrls: ['./widgetsysinfo.component.css'],
-})
+  })
 export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, OnDestroy, AfterViewInit {
   // HA
   @Input('isHA') isHA = false;
   @Input('passive') isPassive = false;
-  @Input('enclosure') enclosureSupport = false;
 
   title: string = T('System Info');
   data: SystemInfo;
@@ -35,6 +35,8 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
   certified = false;
   failoverBtnLabel = 'FAILOVER TO STANDBY';
   updateAvailable = false;
+  train = '';
+  alertCount: number = null;
   private _updateBtnStatus: string = this.themeService.isDefaultTheme ? 'primary' : 'default';
   updateBtnLabel: string = T('Check for Updates');
   private _themeAccentColors: string[];
@@ -62,7 +64,10 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
       res === 'true' ? this.isUpdateRunning = true : this.isUpdateRunning = false;
     });
 
-    mediaObserver.media$.subscribe((evt) => {
+    mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
       const st = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
       this.screenType = st;
     });
@@ -78,6 +83,7 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
         this.core.register({ observerClass: this, eventName: 'UpdateChecked' }).subscribe((evt: CoreEvent) => {
           if (evt.data.status == 'AVAILABLE') {
             this.updateAvailable = true;
+            this.updateBtnLabel = T('Updates Available');
           }
         });
       }
@@ -107,6 +113,15 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
 
       this.core.emit({ name: 'UpdateCheck' });
       this.core.emit({ name: 'UserPreferencesRequest' });
+
+      // Card-spec facts (the internal development record): the release train and the live
+      // alert count. Both one-shot reads; the update chip stays event-driven.
+      this.ws.call('update.get_trains').subscribe((res) => {
+        this.train = res ? (res.selected || res.current || '') : '';
+      });
+      this.ws.call('alert.list').subscribe((res) => {
+        this.alertCount = res ? res.filter((a) => !a.dismissed).length : 0;
+      });
     }
 
     this.core.emit({ name: 'HAStatusRequest' });
@@ -141,6 +156,11 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
 
   ngOnDestroy() {
     this.core.unregister({ observerClass: this });
+  }
+
+  // Identity mark follows the active theme (FreeCORE Coretrident / FreeBSD Beastie).
+  get themeMascot(): string {
+    return this.themeService.currentTheme()?.mascot || 'FreeCORE_mascot.png';
   }
 
   get themeAccentColors() {
@@ -315,10 +335,6 @@ export class WidgetSysInfoComponent extends WidgetComponent implements OnInit, O
         this.product_image = '';
         break;
     }
-  }
-
-  goToEnclosure() {
-    if (this.enclosureSupport) this.router.navigate(['/system/viewenclosure']);
   }
 
   isRackmount(sys_product: string): boolean {

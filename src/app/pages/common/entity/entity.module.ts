@@ -16,7 +16,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { DocsService } from '../../../services/docs.service';
 import { RestService, WebSocketService, JobService } from '../../../services/index';
-import { Ng2DropdownModule } from 'ng2-material-dropdown';
 import { TranslateModule } from '@ngx-translate/core';
 import { TreeTableModule } from 'primeng/treetable';
 import { NgxFilesizeModule } from 'ngx-filesize';
@@ -88,7 +87,7 @@ import { EntityTableService } from './entity-table/entity-table.service';
   imports: [
     CommonModule, FormsModule, ReactiveFormsModule, DragDropModule,
     MaterialModule, ColorPickerModule, NgxDatatableModule, CdkTableModule, TreeModule.forRoot(),
-    Ng2DropdownModule, NgxUploaderModule, FlexLayoutModule, TranslateModule,
+    NgxUploaderModule, FlexLayoutModule, TranslateModule,
     OverlayModule, A11yModule, TreeTableModule, NgxFilesizeModule, CommonDirectivesModule,
   ],
   declarations: [
@@ -172,37 +171,6 @@ import { EntityTableService } from './entity-table/entity-table.service';
     ToolbarButtonComponent,
     ToolbarMenuComponent,
     ToolbarMultimenuComponent,
-  ],
-  entryComponents: [
-    FormButtonComponent,
-    FormInputComponent,
-    FormSelectComponent,
-    FormCheckboxComponent,
-    FormComboboxComponent,
-    FormTextareaComponent,
-    FormTextareaButtonComponent,
-    FormDatepickerComponent,
-    FormSchedulerComponent,
-    FormListComponent,
-    FormChipComponent,
-    FormErrorsComponent,
-    FormColorpickerComponent,
-    FormPermissionsComponent,
-    FormArrayComponent,
-    FormRadioComponent,
-    FormUploadComponent,
-    FormReadFileComponent,
-    FormExplorerComponent,
-    FormIpWithNetmaskComponent,
-    EntityJobComponent,
-    FormSliderComponent,
-    FormToggleButtonComponent,
-    FormTaskComponent,
-    FormParagraphComponent,
-    EntityToolbarComponent,
-    EntitySnackbarComponent,
-    EntityTableRowDetailsComponent,
-    TaskScheduleListComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [

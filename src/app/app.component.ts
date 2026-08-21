@@ -7,8 +7,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 
 import { ThemeService } from 'app/services/theme/theme.service';
 import { RoutePartsService } from './services/route-parts/route-parts.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import * as hopscotch from 'hopscotch';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { RestService } from './services/rest.service';
 import { ApiService } from 'app/core/services/api.service';
 import { AnimationService } from 'app/core/services/animation.service';
@@ -28,9 +27,9 @@ import productText from './helptext/product';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-})
+  })
 export class AppComponent {
-  appTitle = 'TrueNAS';
+  appTitle = 'FreeCORE';
   protected accountUserResource = 'account/users/1';
   protected user: any;
   product_type = '';
@@ -61,16 +60,7 @@ export class AppComponent {
 
     const product = productText.product.trim();
     this.title.setTitle(product + ' - ' + window.location.hostname);
-    if (window.localStorage.product_type) {
-      const cachedType = window.localStorage['product_type'].toLowerCase();
-      const path = 'assets/images/truenas_' + cachedType + '_favicon.png';
-      this.setFavicon(path);
-    } else {
-      ws.call('system.product_type').subscribe((res) => {
-        const path = 'assets/images/truenas_' + res.toLowerCase() + '_favicon.png';
-        this.setFavicon(path);
-      });
-    }
+    this.setFavicon('assets/images/FreeCORE_icon_32.png');
 
     if (this.detectBrowser('Safari')) {
       document.body.className += ' safari-platform';
@@ -104,7 +94,7 @@ export class AppComponent {
       const chunkFailedMessage = /Loading chunk [\d]+ failed/;
 
       if (chunkFailedMessage.test(err.message)) {
-        window.location.reload(true);
+        window.location.reload();
       }
       console.error(err);
     };

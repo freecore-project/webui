@@ -1,21 +1,22 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormGroup, AbstractControl } from '@angular/forms';
+import { UntypedFormGroup, AbstractControl } from '@angular/forms';
 
 import { EntityFormService } from '../../../../../common/entity/entity-form/services/entity-form.service';
+
 @Component({
   selector: 'app-dynamic-list',
   templateUrl: './dynamic-list.component.html',
   styleUrls: ['./dynamic-list.component.css'],
-})
+  })
 export class DynamicListComponent implements OnInit {
   @Input() config: any;
-  @Input() group: FormGroup;
+  @Input() group: UntypedFormGroup;
   @Input() source: any;
 
   listControl: AbstractControl;
   inputConfig: any;
   inputControl: AbstractControl;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   constructor(private entityFormService: EntityFormService) { }
 
   ngOnInit() {

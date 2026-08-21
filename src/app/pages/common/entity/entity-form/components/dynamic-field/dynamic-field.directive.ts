@@ -8,7 +8,7 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import {
   FormOauthLoginComponent,
 } from 'app/pages/common/entity/entity-form/components/form-oauth-login/form-oauth-login.component';
@@ -72,7 +72,7 @@ export class DynamicFieldDirective implements Field, OnChanges, OnInit {
   config: FieldConfig;
 
   @Input()
-  group: FormGroup;
+  group: UntypedFormGroup;
 
   @Input()
   fieldShow: string;

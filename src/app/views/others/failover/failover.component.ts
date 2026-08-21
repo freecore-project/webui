@@ -5,7 +5,7 @@ import { WebSocketService } from '../../../services/ws.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../services/dialog.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import globalHelptext from '../../../helptext/global-helptext';
 import { LocaleService } from 'app/services/locale.service';
 
@@ -13,7 +13,7 @@ import { LocaleService } from 'app/services/locale.service';
   selector: 'system-failover',
   templateUrl: './failover.component.html',
   styleUrls: ['./failover.component.css'],
-})
+  })
 export class FailoverComponent implements OnInit {
   product_type: string;
   copyrightYear = this.localeService.getCopyrightYearFromBuildTime();

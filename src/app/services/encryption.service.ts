@@ -5,7 +5,7 @@ import { WebSocketService } from 'app/services/';
 import { DialogService } from 'app/services/dialog.service';
 import { StorageService } from 'app/services/storage.service';
 
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { AppLoaderService } from 'app/services/app-loader/app-loader.service';
 import { T } from 'app/translate-marker';
 import { DownloadKeyModalDialog } from 'app/components/common/dialog/downloadkey/downloadkey-dialog.component';
@@ -13,7 +13,7 @@ import helptext from '../helptext/storage/volumes/volume-key';
 
 @Injectable({
   providedIn: 'root',
-})
+  })
 
 export class EncryptionService {
   constructor(protected ws: WebSocketService, protected dialogService: DialogService,

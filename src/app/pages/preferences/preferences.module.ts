@@ -32,8 +32,5 @@ import { TranslateModule } from '@ngx-translate/core';
     GeneralPreferencesFormComponent,
   ],
   providers: [EntityFormService],
-  entryComponents: [
-    // CardComponent
-  ],
 })
 export class PreferencesModule { }

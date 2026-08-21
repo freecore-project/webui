@@ -1,12 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MatProgressBar } from '@angular/material/progress-bar';
-import { MatButton } from '@angular/material/button';
+import { MatLegacyProgressBar as MatProgressBar } from '@angular/material/legacy-progress-bar';
+import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
 
 @Component({
   selector: 'app-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.css'],
-})
+  })
 export class SignupComponent implements OnInit {
   @ViewChild(MatProgressBar, { static: false }) progressBar: MatProgressBar;
   @ViewChild(MatButton, { static: false }) submitButton: MatButton;

@@ -63,7 +63,7 @@ body {
     font-size: .875rem;
     color: rgba(0,0,0,.87);
     line-height: 1.5;
-    font-family: "Roboto",Helvetica Neue,sans-serif;
+    font-family: "IBM Plex Sans","Roboto",Helvetica Neue,sans-serif;
 }
 div {
     box-sizing: border-box;
@@ -77,6 +77,34 @@ a, a:focus, a:hover {
 }
 a {
     color: inherit;
+}
+
+/* FreeCORE project-home links must remain identifiable inside muted utility
+   copy. The theme service chooses an AA-contrast blue for light/dark cards. */
+a.project-home-link,
+a.project-home-link:visited {
+    color: var(--project-link, #67b7ed);
+    cursor: pointer;
+}
+a.project-home-link:hover,
+a.project-home-link:focus-visible {
+    color: var(--project-link, #67b7ed);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+a.project-home-link:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* These transition screens use a fixed blue canvas, independent of the
+   selected theme. A dark ink link avoids blue-on-blue and clears AA contrast. */
+#shutdown-card a.project-home-link,
+#shutdown-card a.project-home-link:visited,
+#shutdown-card a.project-home-link:hover,
+#shutdown-card a.project-home-link:focus-visible {
+    color: #10151a;
 }
 .h1,
 .h2,
@@ -122,12 +150,12 @@ h6 {
 code {
     padding: 8px;
     background: rgba(0, 0, 0, .08);
-    font-family: 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
+    font-family: 'IBM Plex Mono', 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
 }
 samp {
     padding: 2px;
     background: rgba(180, 180, 180, .5);
-    font-family: 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
+    font-family: 'IBM Plex Mono', 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
 }
 /*---- Common -----*/
 .bg-none {
@@ -603,93 +631,6 @@ body .mat-select-trigger {
     margin-left: -10px;
 }
 
-/*-------- Hopscotch Tour ---------*/
-div.hopscotch-bubble,
-div.hopscotch-bubble .hopscotch-title,
-div.hopscotch-bubble .hopscotch-content,
-div.hopscotch-bubble .hopscotch-nav-button {
-    font-family: "Roboto",Helvetica Neue,sans-serif !important;
-}
-div.hopscotch-bubble {
-    border: 1px solid;
-    border-radius: 2px;
-}
-div.hopscotch-bubble .hopscotch-bubble-number {
-    border-radius: 50%;
-    box-sizing: border-box;
-    padding: 0;
-    font-weight: 500;
-    height: 32px;
-    width: 32px;
-    line-height: 32px;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.87);
-}
-div.hopscotch-bubble .hopscotch-title {
-    font-size: 17px;
-    font-weight: 400;
-    color: #ffffff;
-    letter-spacing: .1px;
-}
-div.hopscotch-bubble .hopscotch-content {
-    margin: -5px 0 16px;
-}
-div.hopscotch-bubble .hopscotch-bubble-close {
-    background: url('../images/cancel.png');
-    background-size: 8px;
-    background-position: 8px 8px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-div.hopscotch-bubble .hopscotch-bubble-close:active {
-    outline: 0;
-}
-/* up arrow  */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.up {
-    top: -17px;
-}
-/* right arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.right {
-    right: -34px;
-}
-/* bottom arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.down {
-    bottom: -34px;
-}
-/* Left Arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.left {
-    left: -17px;
-}
-
-div.hopscotch-bubble .hopscotch-nav-button {
-    border: 0;
-    border-radius: 2px;
-    font-weight: normal;
-    text-shadow: none !important;
-    padding: 0 18px;
-    height: 30px;
-    line-height: 30px;
-    font-size: 13px;
-    background-image: none !important;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-    transition: background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1);
-}
-
-body:not(.safari-platform) div.hopscotch-bubble .hopscotch-nav-button {
-    transform: translate3d(0,0,0);
-}
-
-div.hopscotch-bubble .hopscotch-nav-button:hover,
-div.hopscotch-bubble .hopscotch-nav-button:active,
-div.hopscotch-bubble .hopscotch-nav-button:focus {
-    box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);;
-    outline: none;
-}
-div.hopscotch-bubble .hopscotch-nav-button.prev,
-div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
-    background-color: #ffffff;
-    color: rgba(0, 0, 0, .87);
-}
 
 /*---- Top Bar -----*/
 .topbar.mat-toolbar {
@@ -1380,5 +1321,10 @@ body.safari-platform .mat-raised-button {
 /*---- Ascii art font ----*/
 .ascii-art-font {
     line-height: 1 !important;
-    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace !important;
+    font-family: 'IBM Plex Mono',Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace !important;
 }
+
+/* Dashboard grid shell: the widget-width override this sheet used to carry
+   lost on source order to egret_overrides.css and now lives there, next to
+   the legacy rule it overrides. See egret_overrides.css "Split Layout
+   Widgets". */

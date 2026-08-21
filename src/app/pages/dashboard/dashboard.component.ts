@@ -2,7 +2,6 @@ import {
   Component, OnInit, AfterViewInit, OnDestroy, ElementRef,
 } from '@angular/core';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
-import { SystemProfiler } from 'app/core/classes/system-profiler';
 
 import { Subject } from 'rxjs';
 import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component'; // POC
@@ -279,6 +278,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         if (evt.zfs && evt.zfs.arc_size != null) {
           memStats.arc_size = evt.zfs.arc_size;
         }
+        if (evt.zfs && evt.zfs.cache_hit_ratio != null) {
+          memStats.cache_hit_ratio = evt.zfs.cache_hit_ratio;
+        }
         this.statsDataEvents.next({ name: 'MemoryStats', data: memStats });
       }
 
@@ -368,12 +370,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     conf.push({ name: 'CPU', rendered: true });
     conf.push({ name: 'Memory', rendered: true });
 
+    // the internal development record: one aggregated Network card in place of one card per
+    // NIC -- a box with many bridges/VLANs otherwise renders 100+ cards. The
+    // per-interface widget (widget-nic) is kept for drilldown / legacy state.
+    if (this.nics && this.nics.length > 0) {
+      conf.push({ name: 'Network', rendered: true });
+    }
+
     this.pools.forEach((pool, index) => {
       conf.push({ name: 'Pool', identifier: 'name,' + pool.name, rendered: true });
-    });
-
-    this.nics.forEach((nic, index) => {
-      conf.push({ name: 'Interface', identifier: 'name,' + nic.name, rendered: true });
     });
 
     conf.push({ name: 'Help', rendered: true });
@@ -416,6 +421,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'interface':
         data = spl ? this.nics.filter((nic) => nic[key] == value) : console.warn('DashConfigItem has no identifier!');
         if (data) { data = data[0].state; }
+        break;
+      case 'network':
+        // the internal development record: the aggregated Network card consumes the whole
+        // (already VLAN-/LAGG-folded) interface list and derives its own view.
+        data = this.nics;
         break;
     }
 

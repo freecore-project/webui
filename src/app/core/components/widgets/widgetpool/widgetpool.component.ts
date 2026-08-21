@@ -3,6 +3,7 @@ import {
 } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { Router } from '@angular/router';
+import { MediaObserver } from '@angular/flex-layout';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { MaterialModule } from 'app/appMaterial.module';
 
@@ -36,6 +37,7 @@ import {
   // transformMap,
   // clamp
 } from 'popmotion';
+import { filter, map } from 'rxjs/operators';
 
 interface NetIfInfo {
   name: string;
@@ -100,7 +102,7 @@ export interface VolumeData {
   selector: 'widget-pool',
   templateUrl: './widgetpool.component.html',
   styleUrls: ['./widgetpool.component.css'],
-})
+  })
 export class WidgetPoolComponent extends WidgetComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() poolState;
   @Input() volumeData: any;// VolumeData;
@@ -113,7 +115,10 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
   @ViewChild('disk_details', { static: false }) disk_details: TemplateRef<any>;
   @ViewChild('empty', { static: false }) empty: TemplateRef<any>;
   templates: any;
-  tpl = this.overview;
+  // Was `tpl = this.overview`, which always read undefined: @ViewChild queries are
+  // resolved after view init, long after property initializers run. TypeScript 4.0
+  // now rejects the read (TS2729); dropping it keeps the identical starting value.
+  tpl: TemplateRef<any>;
 
   // NAVIGATION
   currentSlide = '0';
@@ -157,15 +162,20 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     if (this.poolState && this.poolState.topology) {
       const unhealthy = []; // Disks with errors
       this.poolState.topology.data.forEach((item) => {
+        // Error counters live under .stats on this platform; the old flat
+        // item.read_errors reads were undefined, so NaN > 0 never flagged
+        // a disk and the card always reported zero errors.
         if (item.type == 'DISK') {
-          const diskErrors = item.read_errors + item.write_errors + item.checksum_errors;
+          const stats = item.stats || {};
+          const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
           if (diskErrors > 0) {
             unhealthy.push(item.disk);
           }
         } else {
           item.children.forEach((device) => {
-            const diskErrors = device.read_errors + device.write_errors + device.checksum_errors;
+            const stats = device.stats || {};
+            const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
             if (diskErrors > 0) {
               unhealthy.push(device.disk);
@@ -176,6 +186,54 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
       return { totalErrors: unhealthy.length/* errors.toString() */, disks: unhealthy };
     }
     return { totalErrors: 'Unknown', disks: [] };
+  }
+
+  // Card-spec facts (the internal development record): vdev summary, per-role disk counts
+  // and the read/write/cksum error triple, all from the pool.query payload
+  // the widget already receives.
+  get vdevSummary(): string {
+    if (!this.poolState || !this.poolState.topology || !this.poolState.topology.data.length) { return ''; }
+    const data = this.poolState.topology.data;
+    const types = data.map((v) => v.type).filter((t, i, all) => all.indexOf(t) == i);
+    return data.length + ' ' + (data.length == 1 ? 'vdev' : 'vdevs') + ' · ' + types.join(' + ');
+  }
+
+  private countDisks(category): number {
+    if (!category || !category.length) { return 0; }
+    let count = 0;
+    category.forEach((item) => {
+      if (item.type == 'DISK') { count++; } else { count += item.children.length; }
+    });
+    return count;
+  }
+
+  get diskCounts() {
+    const topology = this.poolState && this.poolState.topology ? this.poolState.topology : null;
+    if (!topology) { return { data: 0, spare: 0, log: 0 }; }
+    return {
+      data: this.countDisks(topology.data),
+      spare: this.countDisks(topology.spare),
+      log: this.countDisks(topology.log),
+    };
+  }
+
+  get errorTriple() {
+    const totals = { read: 0, write: 0, cksum: 0 };
+    if (!this.poolState || !this.poolState.topology) { return totals; }
+    ['data', 'log', 'spare', 'cache', 'special', 'dedup'].forEach((categoryName) => {
+      const category = this.poolState.topology[categoryName];
+      if (!category) { return; }
+      category.forEach((item) => {
+        const devices = item.type == 'DISK' ? [item] : item.children;
+        devices.forEach((device) => {
+          if (!device.stats) { return; }
+          totals.read += device.stats.read_errors || 0;
+          totals.write += device.stats.write_errors || 0;
+          totals.cksum += device.stats.checksum_errors || 0;
+        });
+      });
+    });
+    return totals;
   }
 
   get allDiskNames(): string[] {
@@ -209,8 +267,13 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return allDiskNames;
   }
 
-  title: string = this.path.length > 0 && this.poolState && this.currentSlide !== '0' ? this.poolState.name : 'Pool';
+  // This initializer always produced 'Pool': `path` is initialized to [] earlier in
+  // the class, so `path.length > 0` short-circuits the ternary before `poolState`
+  // (an @Input, still unset at construction) is ever read. TypeScript 4.0 rejects
+  // the read of the uninitialized input (TS2729); the constant is what it evaluated to.
+  title = 'Pool';
   displayValue: any;
+  screenType = 'Desktop';
   diskSize: any;
   diskSizeLabel: string;
   poolHealth: PoolDiagnosis = {
@@ -227,8 +290,14 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return this.currentDiskDetails ? Object.keys(this.currentDiskDetails) : [];
   }
 
-  constructor(public router: Router, public translate: TranslateService, private cdr: ChangeDetectorRef) {
+  constructor(public router: Router, public translate: TranslateService, private cdr: ChangeDetectorRef, public mediaObserver: MediaObserver) {
     super(translate);
+    this.mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
+      this.screenType = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
+    });
     this.configurable = false;
   }
 

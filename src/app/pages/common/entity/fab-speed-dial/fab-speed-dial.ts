@@ -16,7 +16,7 @@ import {
   HostListener,
   CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatLegacyButton as MatButton } from '@angular/material/legacy-button';
 
 const Z_INDEX_ITEM = 23;
 
@@ -25,7 +25,7 @@ const Z_INDEX_ITEM = 23;
   template: `
         <ng-content select="[mat-fab], [mat-fab]"></ng-content>
     `,
-})
+  })
 export class SmdFabSpeedDialTrigger {
   /**
      * Whether this trigger should spin (360dg) while opening the speed dial
@@ -50,7 +50,7 @@ export class SmdFabSpeedDialTrigger {
   template: `
         <ng-content select="[md-mini-fab], [mat-mini-fab]"></ng-content>
     `,
-})
+  })
 export class SmdFabSpeedDialActions implements AfterContentInit {
   @ContentChildren(MatButton) _buttons: QueryList<MatButton>;
 
@@ -135,7 +135,7 @@ export class SmdFabSpeedDialActions implements AfterContentInit {
     `,
   styleUrls: ['fab-speed-dial.scss'],
   encapsulation: ViewEncapsulation.None,
-})
+  })
 export class SmdFabSpeedDialComponent implements AfterContentInit {
   private isInitialized = false;
   private _direction = 'up';

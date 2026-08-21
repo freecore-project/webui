@@ -16,7 +16,7 @@ import { DialogService, JailService } from '../../../services';
 import { regexValidator } from '../../common/entity/entity-form/validators/regex-validation';
 import { ipv4Validator, ipv6Validator } from '../../common/entity/entity-form/validators/ip-validation';
 import { EntityJobComponent } from '../../common/entity/entity-job';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import helptext from '../../../helptext/plugins/plugins';
 
 @Component({
@@ -24,7 +24,7 @@ import helptext from '../../../helptext/plugins/plugins';
   templateUrl: './plugin-add.component.html',
   styleUrls: ['../../common/entity/entity-form/entity-form.component.scss', './plugin-add.component.css'],
   providers: [EntityFormService, FieldRelationService, NetworkService, TranslateService, JailService],
-})
+  })
 export class PluginAddComponent implements OnInit {
   protected addCall = 'plugin.create';
   route_goback: string[] = ['plugins'];

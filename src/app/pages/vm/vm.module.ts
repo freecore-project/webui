@@ -21,23 +21,25 @@ import { routing } from './vm.routing';
 import { CoreComponents } from 'app/core/components/corecomponents.module';
 import { VMWizardComponent } from './vm-wizard';
 import { VMSerialShellComponent } from './vm-serial-shell';
+import { TerminalModule } from '../shell/terminal.module';
 import { DeviceAddComponent } from './devices/device-add2';
 
 @NgModule({
   imports: [
-    CoreComponents,
-    EntityModule, CommonModule, FormsModule, TranslateModule,
-    ReactiveFormsModule, routing, MaterialModule, FlexLayoutModule, // , BrowserModule
+  CoreComponents,
+  EntityModule, CommonModule, FormsModule, TranslateModule,
+  ReactiveFormsModule, routing, MaterialModule, FlexLayoutModule, // , BrowserModule
+  TerminalModule,
   ],
   declarations: [
-    VMListComponent,
-    VmFormComponent,
-    DeviceListComponent,
-    DeviceEditComponent,
-    VMWizardComponent,
-    VMSerialShellComponent,
-    DeviceAddComponent,
+  VMListComponent,
+  VmFormComponent,
+  DeviceListComponent,
+  DeviceEditComponent,
+  VMWizardComponent,
+  VMSerialShellComponent,
+  DeviceAddComponent,
   ],
   providers: [VmService, EntityFormService, NetworkService, SystemGeneralService, MessageService],
-})
+  })
 export class VmModule { }

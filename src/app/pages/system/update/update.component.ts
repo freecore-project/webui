@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
 import { WebSocketService, SystemGeneralService, StorageService } from '../../../services';
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { DialogService } from '../../../services/dialog.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -16,12 +16,36 @@ import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { DialogFormConfiguration } from '../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { helptext_system_update as helptext } from 'app/helptext/system/update';
 import { UpdateService } from 'app/services/update.service';
+import { ApiTimestamp } from 'app/interfaces/api-date.interface';
+import * as filesizeModule from 'filesize';
+
+const formatFilesize = (filesizeModule as unknown as { default?: typeof filesizeModule }).default || filesizeModule;
+
+interface RollbackWindow {
+  origin_be: string;
+  arrival_path: string;
+  captured_at: ApiTimestamp | string;
+  closed_reason: string | null;
+}
+
+interface RollbackAvailability {
+  available: boolean;
+  reason: string | null;
+}
+
+interface RollbackSpace {
+  snapshot_count: number;
+  snapshot_bytes_lower_bound: number;
+  origin_be_bytes_estimate: number | null;
+  origin_be_pinned: boolean;
+  cleanup_pending: boolean;
+}
 
 @Component({
   selector: 'app-update',
   styleUrls: ['update.component.css'],
   templateUrl: './update.component.html',
-})
+  })
 export class UpdateComponent implements OnInit, OnDestroy {
   packages: any[] = [];
   status: string;
@@ -68,6 +92,14 @@ export class UpdateComponent implements OnInit, OnDestroy {
                                   <i>APPLY PENDING UPDATE</i> to install \
                                   the downloaded update.');
   train_version = null;
+  rollbackWindow: RollbackWindow = null;
+  rollbackAvailability: RollbackAvailability = null;
+  rollbackCapturedAt: number | string = null;
+  rollbackError: string = null;
+  rollbackExecuting = false;
+  rollbackSpace: RollbackSpace = null;
+  rollbackSpaceError: string = null;
+  rollbackRemoving = false;
 
   protected saveConfigFieldConf: FieldConfig[] = [
     {
@@ -145,6 +177,8 @@ export class UpdateComponent implements OnInit, OnDestroy {
     });
     this.core.emit({ name: 'SysInfoRequest', sender: this });
 
+    this.loadRollbackWindow();
+
     this.busy = this.ws.call('update.get_auto_download').subscribe((res) => {
       this.autoCheck = res;
 
@@ -214,6 +248,203 @@ export class UpdateComponent implements OnInit, OnDestroy {
         console.error(err);
       },
     );
+  }
+
+  loadRollbackWindow() {
+    this.rollbackError = null;
+    this.rollbackSpaceError = null;
+    this.ws.call('system.rollback.config').subscribe(
+      (window: RollbackWindow) => {
+        this.rollbackWindow = window;
+        this.rollbackAvailability = null;
+        this.rollbackCapturedAt = null;
+        this.rollbackSpace = null;
+        if (!window) {
+          return;
+        }
+
+        this.rollbackCapturedAt = typeof window.captured_at === 'object'
+          ? window.captured_at.$date
+          : window.captured_at;
+        this.ws.call('system.rollback.available').subscribe(
+          (availability: RollbackAvailability) => {
+            this.rollbackAvailability = availability;
+          },
+          (err) => {
+            this.rollbackError = this.rollbackErrorMessage(err);
+          },
+        );
+        this.ws.call('system.rollback.space').subscribe(
+          (space: RollbackSpace) => {
+            this.rollbackSpace = space;
+          },
+          (err) => {
+            this.rollbackSpace = null;
+            this.rollbackSpaceError = this.rollbackErrorMessage(err);
+          },
+        );
+      },
+      (err) => {
+        // There is no record to render when config itself cannot be read. Keep
+        // the normal update page intact, but retain the error for component
+        // state/diagnostics rather than pretending the call succeeded.
+        this.rollbackWindow = null;
+        this.rollbackAvailability = null;
+        this.rollbackError = this.rollbackErrorMessage(err);
+      },
+    );
+  }
+
+  get canRollback(): boolean {
+    return !!this.rollbackWindow
+      && !!this.rollbackAvailability
+      && this.rollbackAvailability.available
+      && !this.rollbackExecuting
+      && !this.rollbackRemoving;
+  }
+
+  get canRemoveRollback(): boolean {
+    return !!this.rollbackWindow
+      && !this.rollbackExecuting
+      && !this.rollbackRemoving
+      && (this.rollbackWindow.closed_reason === null || !!this.rollbackSpace?.cleanup_pending);
+  }
+
+  rollbackSnapshotSpace(): string {
+    if (!this.rollbackSpace || this.rollbackSpace.snapshot_bytes_lower_bound == null) {
+      return null;
+    }
+    return formatFilesize(this.rollbackSpace.snapshot_bytes_lower_bound, { standard: 'iec' });
+  }
+
+  rollbackOriginSpace(): string {
+    if (!this.rollbackSpace || this.rollbackSpace.origin_be_bytes_estimate == null) {
+      return null;
+    }
+    return formatFilesize(this.rollbackSpace.origin_be_bytes_estimate, { standard: 'iec' });
+  }
+
+  rollbackRemoveLabel(): string {
+    return this.rollbackWindow?.closed_reason === null ? T('Remove Captured Return') : T('Retry Cleanup');
+  }
+
+  removeRollback() {
+    if (!this.canRemoveRollback) {
+      return;
+    }
+
+    const cleanupRetry = this.rollbackWindow.closed_reason !== null;
+    const snapshotSpace = this.rollbackSnapshotSpace();
+    const originSpace = this.rollbackOriginSpace();
+    let message = cleanupRetry
+      ? helptext.rollback.retry_cleanup_confirmation
+      : helptext.rollback.remove_confirmation;
+    if (snapshotSpace) {
+      message += `<p><b>${T('Captured snapshot space (minimum):')}</b> ${this.escapeHtml(snapshotSpace)}</p>`;
+    }
+    if (this.rollbackSpace?.origin_be_pinned) {
+      message += `<p><b>${T('Pinned origin boot environment (deletion estimate):')}</b> `
+        + `${originSpace ? this.escapeHtml(originSpace) : T('size unavailable')}</p>`;
+    }
+
+    this.dialogService.confirm({
+      title: cleanupRetry ? helptext.rollback.retry_cleanup_title : helptext.rollback.remove_title,
+      message,
+      buttonMsg: cleanupRetry ? helptext.rollback.retry_cleanup_action : helptext.rollback.remove_action,
+      disableClose: true,
+    }).subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.rollbackRemoving = true;
+      this.dialogRef = this.dialog.open(EntityJobComponent, {
+        data: { title: this.rollbackRemoveLabel() },
+        disableClose: true,
+      });
+      this.dialogRef.componentInstance.setCall('system.rollback.remove');
+      this.dialogRef.componentInstance.submit();
+      this.dialogRef.componentInstance.success.subscribe(() => {
+        this.rollbackRemoving = false;
+        this.loadRollbackWindow();
+      });
+      this.dialogRef.componentInstance.failure.subscribe((err) => {
+        this.rollbackRemoving = false;
+        this.loadRollbackWindow();
+        new EntityUtils().handleWSError(this, err, this.dialogService);
+      });
+    });
+  }
+
+  rollbackUnavailableMessage(): string {
+    const reason = this.rollbackAvailability && this.rollbackAvailability.reason;
+    const messages = {
+      no_window: T('The rollback window is no longer present.'),
+      expired: T('The captured return was closed by an earlier prerelease build.'),
+      removed: T('The rollback capture was removed.'),
+      iso_install: T('An installer ISO does not preserve an origin boot environment.'),
+      pool_upgraded: T('A pool was upgraded and can no longer be imported safely by the origin system.'),
+      origin_be_missing: T('The origin boot environment no longer exists.'),
+      origin_be_unpinned: T('The origin boot environment is no longer protected from automatic cleanup.'),
+      snapshots_missing: T('One or more rollback snapshots are missing.'),
+      system_dataset_changed: T('The system dataset has moved since capture.'),
+      iocage_changed: T('The active iocage dataset has changed since capture.'),
+    };
+    return messages[reason] || T('The rollback preconditions are no longer satisfied.');
+  }
+
+  rollbackToOrigin() {
+    if (!this.canRollback) {
+      return;
+    }
+
+    const origin = this.escapeHtml(this.rollbackWindow.origin_be);
+    const captured = this.escapeHtml(new Date(this.rollbackCapturedAt).toLocaleString());
+    const message = helptext.rollback.confirmation
+      + `<p><b>${T('Origin boot environment:')}</b> ${origin}<br>`
+      + `<b>${T('Captured:')}</b> ${captured}</p>`;
+
+    this.dialogService.confirm({
+      title: helptext.rollback.title,
+      message,
+      buttonMsg: helptext.rollback.action,
+      disableClose: true,
+    }).subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.rollbackExecuting = true;
+      this.dialogRef = this.dialog.open(EntityJobComponent, {
+        data: { title: helptext.rollback.action },
+        disableClose: true,
+      });
+      this.dialogRef.componentInstance.setCall('system.rollback.execute');
+      this.dialogRef.componentInstance.submit();
+      this.dialogRef.componentInstance.success.subscribe(() => {
+        this.router.navigate(['/others/reboot'], { skipLocationChange: true });
+      });
+      this.dialogRef.componentInstance.failure.subscribe((err) => {
+        this.rollbackExecuting = false;
+        new EntityUtils().handleWSError(this, err, this.dialogService);
+      });
+    });
+  }
+
+  private rollbackErrorMessage(err): string {
+    return err && (err.reason || err.error || err.message)
+      ? err.reason || err.error || err.message
+      : T('Unable to read rollback status from middleware.');
+  }
+
+  private escapeHtml(value: string): string {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    }[character]));
   }
 
   checkUpgradePending() {

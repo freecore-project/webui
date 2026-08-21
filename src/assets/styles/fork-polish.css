@@ -1,0 +1,117 @@
+/*
+ * fork-polish.css — TrueNAS 15 fork surface geometry (the internal development record, the internal development record).
+ * Loaded LAST in angular.json so equal-specificity rules win over Material 9
+ * defaults and fn-styles without !important. Delete this file + its
+ * angular.json line to revert the whole item.
+ *
+ * Scope: border-radius + elevation only. No density, colors, or typography.
+ */
+
+:root {
+  --fork-radius-lg: 12px; /* dialogs */
+  --fork-radius-md: 8px;  /* cards, menus, panels, snackbars */
+  --fork-radius-sm: 6px;  /* buttons, tooltips, search */
+  --fork-shadow-rest: 0 1px 2px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --fork-shadow-overlay: 0 4px 12px rgba(0, 0, 0, 0.16), 0 12px 32px rgba(0, 0, 0, 0.20);
+}
+
+/* Cards (dashboard widgets, entity tables and forms are all mat-card) */
+.mat-card:not([class*='mat-elevation-z']) {
+  border-radius: var(--fork-radius-md);
+  box-shadow: var(--fork-shadow-rest);
+}
+.mat-card.default > :first-child {
+  border-radius: var(--fork-radius-md) var(--fork-radius-md) 0 0;
+}
+
+/* Buttons */
+.mat-button,
+.mat-raised-button,
+.mat-stroked-button,
+.mat-flat-button {
+  border-radius: var(--fork-radius-sm);
+}
+
+/* Dialogs */
+.mat-dialog-container {
+  border-radius: var(--fork-radius-lg);
+  box-shadow: var(--fork-shadow-overlay);
+}
+
+/* Floating panels */
+.mat-menu-panel,
+.mat-select-panel,
+.mat-autocomplete-panel {
+  border-radius: var(--fork-radius-md);
+  box-shadow: var(--fork-shadow-overlay);
+}
+.mat-snack-bar-container {
+  border-radius: var(--fork-radius-md);
+}
+.mat-tooltip {
+  border-radius: var(--fork-radius-sm);
+}
+
+/* Datatable edges inside padded-zero entity cards */
+.datatable-header {
+  border-radius: var(--fork-radius-md) var(--fork-radius-md) 0 0;
+}
+.datatable-footer {
+  border-radius: 0 0 var(--fork-radius-md) var(--fork-radius-md);
+}
+
+/* fn-styles 2px stragglers */
+.search-bar .top-search-form {
+  border-radius: var(--fork-radius-sm);
+}
+div.hopscotch-bubble,
+div.hopscotch-bubble .hopscotch-nav-button {
+  border-radius: var(--fork-radius-md);
+}
+
+/* the internal development record: hide the "unsorted" sort caret in entity-table headers.
+
+   ngx-datatable renders a double-caret placeholder on every sortable column
+   whether or not that column is sorted, so each header carried a permanent
+   glyph riding ~5px above the text. Matching 13.3, which shows an indicator
+   only on the column actually being sorted.
+
+   Only the unset state is hidden. The active states are separate classes
+   (datatable-icon-up / datatable-icon-down), so ascending and descending
+   arrows still appear on the sorted column and continue to sit where they
+   always did -- sorting behaviour and its feedback are untouched.
+
+   Note this hides an indicator, not the control: the click target is the
+   header cell, so columns remain sortable.
+
+   The selector mirrors ngx-datatable's own
+       .ngx-datatable .datatable-header .datatable-header-cell .sort-btn
+   (0,4,0) and adds the state class to reach (0,5,0). Being loaded last is NOT
+   sufficient here -- the shorter `.datatable-header-cell .sort-btn.<state>`
+   is only (0,3,0) and loses on specificity regardless of order, which is the
+   same trap that left #23 silently dead. Measured, not assumed. */
+.ngx-datatable .datatable-header .datatable-header-cell .sort-btn.datatable-icon-sort-unset {
+  display: none;
+}
+
+/* the internal development record: hide the "unsorted" sort icon in the Pools disk tree table.
+
+   #59 above only covers entity-table's ngx-datatable. The Pools page's disk
+   picker (entity-tree-table.component.html) wraps PrimeNG's p-treeTable
+   instead -- a different table library with its own sort-icon component
+   (TTSortIcon / p-treeTableSortIcon), which always renders a neutral
+   pi-sort-alt glyph on every column that isn't the active sort. Same
+   permanent-placeholder bug as #59, under PrimeNG's own class names, so #59's
+   selector never matched it.
+
+   Only the neutral state is hidden. The active states are separate classes
+   (pi-sort-amount-up-alt / pi-sort-amount-down), so the sorted column still
+   shows its direction.
+
+   Scoped to .p-treetable (the TreeTable's own root class) so this cannot
+   reach a future, unrelated PrimeNG p-table (flat table) elsewhere in the
+   app. No specificity fight this time -- neither primeng.min.css nor
+   anything else in this repo defines a rule for these classes. */
+.p-treetable .p-sortable-column .p-sortable-column-icon.pi-sort-alt {
+  display: none;
+}

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { helptext_system_cloudcredentials as helptext } from 'app/helptext/system/cloudcredentials';
@@ -16,7 +16,7 @@ import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.int
   selector: 'app-cloudcredentials-form',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [CloudCredentialService, ReplicationService],
-})
+  })
 export class CloudCredentialsFormComponent {
   protected isEntity = true;
   protected addCall = 'cloudsync.credentials.create';
@@ -24,14 +24,13 @@ export class CloudCredentialsFormComponent {
   protected editCall = 'cloudsync.credentials.update';
   protected queryCallOption: any[] = [['id', '=']];
   protected route_success: string[] = ['system', 'cloudcredentials'];
-  protected formGroup: FormGroup;
+  protected formGroup: UntypedFormGroup;
   protected id: any;
   protected pk: any;
   protected keyID: number;
 
   protected selectedProvider = 'STORJ_IX';
   protected credentialsOauth = false;
-  protected oauthURL: any;
 
   fieldSets: FieldSet[] = [
     {
@@ -1221,6 +1220,15 @@ export class CloudCredentialsFormComponent {
           tooltip: helptext.client_secret.tooltip,
           isHidden: true,
         },
+        {
+          type: 'paragraph',
+          name: 'hosted_oauth_unavailable',
+          paraText: helptext.hosted_oauth_unavailable,
+          paragraphIcon: 'info',
+          paragraphIconSize: '24px',
+          isLargeText: true,
+          isHidden: true,
+        },
       ],
     },
   ];
@@ -1234,41 +1242,7 @@ export class CloudCredentialsFormComponent {
   custActions: any[] = [
     {
       id: 'authenticate',
-      name: T('LOGIN TO PROVIDER'),
-      function: () => {
-        window.open(this.oauthURL + '?origin=' + encodeURIComponent(window.location.toString()), '_blank', 'width=640,height=480');
-        const controls = this.entityForm.formGroup.controls;
-        const selectedProvider = this.selectedProvider;
-        const dialogService = this.dialog;
-        const getOnedriveList = this.getOnedriveList.bind(this);
-
-        window.addEventListener('message', doAuth, false);
-
-        function doAuth(message) {
-          if (message.origin !== 'https://www.truenas.com') {
-            return;
-          }
-          window.removeEventListener('message', doAuth);
-          if (message.data.oauth_portal) {
-            if (message.data.error) {
-              dialogService.errorReport(T('Error'), message.data.error);
-            } else {
-              for (const prop in message.data.result) {
-                let targetProp = prop;
-                if (prop != 'client_id' && prop != 'client_secret') {
-                  targetProp += '-' + selectedProvider;
-                }
-                if (controls[targetProp]) {
-                  controls[targetProp].setValue(message.data.result[prop]);
-                }
-              }
-            }
-            if (selectedProvider === 'ONEDRIVE') {
-              getOnedriveList(message.data);
-            }
-          }
-        }
-      },
+      name: T('LOGIN TO PROVIDER (UNAVAILABLE)'),
     },
     {
       id: 'validCredential',
@@ -1346,6 +1320,9 @@ export class CloudCredentialsFormComponent {
   }
 
   isCustActionDisabled(actionId: string) {
+    if (actionId === 'authenticate') {
+      return true;
+    }
     if (actionId === 'validCredential') {
       return this.entityForm.formGroup.invalid;
     }
@@ -1387,10 +1364,7 @@ export class CloudCredentialsFormComponent {
 
       this.selectedProvider = res;
 
-      this.oauthURL = _.find(this.providers, { name: res }).credentials_oauth;
-      this.credentialsOauth = this.oauthURL != null;
-      entityForm.setDisabled('client_id', !this.credentialsOauth, !this.credentialsOauth);
-      entityForm.setDisabled('client_secret', !this.credentialsOauth, !this.credentialsOauth);
+      this.setOauthProviderState(res, entityForm);
     });
     // preview service_account_credentials
     entityForm.formGroup.controls['service_account_credentials-GOOGLE_CLOUD_STORAGE'].valueChanges.subscribe((value) => {
@@ -1452,6 +1426,14 @@ export class CloudCredentialsFormComponent {
         }
       },
     );
+  }
+
+  setOauthProviderState(providerName: string, entityForm: any) {
+    const provider = _.find(this.providers, { name: providerName });
+    this.credentialsOauth = !!provider && provider.credentials_oauth != null;
+    entityForm.setDisabled('client_id', !this.credentialsOauth, !this.credentialsOauth);
+    entityForm.setDisabled('client_secret', !this.credentialsOauth, !this.credentialsOauth);
+    entityForm.setDisabled('hosted_oauth_unavailable', !this.credentialsOauth, !this.credentialsOauth);
   }
 
   verifyCredentials(value) {
@@ -1569,29 +1551,5 @@ export class CloudCredentialsFormComponent {
         entityForm.formGroup.controls[field_name].setValue(entityForm.wsResponseIdx[i]);
       }
     }
-  }
-
-  getOnedriveList(data) {
-    if (data.error) {
-      this.entityForm.setDisabled('drives-ONEDRIVE', true, true);
-      return;
-    }
-    data = data.result;
-    const drivesConfig = _.find(this.fieldConfig, { name: 'drives-ONEDRIVE' });
-    this.entityForm.setDisabled('drives-ONEDRIVE', false, false);
-    this.ws.call('cloudsync.onedrive_list_drives', [{
-      client_id: data.client_id,
-      client_secret: data.client_secret,
-      token: data.token,
-    }]).subscribe(
-      (drives) => {
-        for (let i = 0; i < drives.length; i++) {
-          drivesConfig.options.push({ label: drives[i].drive_type + ' - ' + drives[i].drive_id, value: drives[i] });
-        }
-      },
-      (err) => {
-        new EntityUtils().handleWSError(this, err, this.dialog);
-      },
-    );
   }
 }

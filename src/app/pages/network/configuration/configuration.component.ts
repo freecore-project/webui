@@ -15,7 +15,7 @@ import helptext from '../../../helptext/network/configuration/configuration';
   <entity-form [conf]="this"></entity-form>
   `,
   providers: [TooltipsService],
-})
+  })
 export class ConfigurationComponent {
   // protected resource_name: string = 'network/globalconfiguration/';
   protected queryCall = 'network.configuration.config';
@@ -204,8 +204,6 @@ export class ConfigurationComponent {
   resourceTransformIncomingRestData(data) {
     if (data.hosts && data.hosts !== '') {
       data['hosts'] = data.hosts.split('\n');
-    } else {
-      data.hosts === [];
     }
     data['netbios'] = data['service_announcement']['netbios'];
     data['mdns'] = data['service_announcement']['mdns'];

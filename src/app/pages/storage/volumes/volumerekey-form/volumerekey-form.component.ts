@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import * as _ from 'lodash';
 import { WebSocketService, AppLoaderService, DialogService } from '../../../../services';
@@ -13,7 +13,7 @@ import helptext from '../../../../helptext/storage/volumes/volume-key';
 @Component({
   selector: 'app-volumeunlock-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class VolumeRekeyFormComponent implements Formconfiguration {
   saveSubmitText = T('Reset Encryption');
 

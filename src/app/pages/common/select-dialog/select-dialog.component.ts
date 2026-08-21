@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { Component, Output, EventEmitter } from '@angular/core';
 
@@ -6,7 +6,7 @@ import { Component, Output, EventEmitter } from '@angular/core';
   selector: 'app-select-dialog',
   templateUrl: './select-dialog.component.html',
   styleUrls: ['./select-dialog.component.scss'],
-})
+  })
 export class SelectDialogComponent {
   title: string;
   options: { label: string; value: string }[];

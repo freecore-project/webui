@@ -85,7 +85,7 @@ app-breadcrumb{
 }
 
 .footer-console-bar .message {
-  font-family: monospace,Courier New,Courier;
+  font-family: 'IBM Plex Mono',monospace,Courier New,Courier;
   font-size: 9pt;
   color: #00FF00;
   padding: 3px 20px 0px;
@@ -274,6 +274,106 @@ body.collapsed-menu mat-sidenav-container.mat-drawer-opened mat-sidenav-content.
   text-align:center;
 }
 
+/* the internal development record: unified FreeCORE dashboard card treatment — one consistent
+   header strip (title left 15px/600, icon actions right, 1px divider under) and
+   a tighter rounded frame, per the freecore-brand card-system-spec. Applies to
+   the stat cards (System/CPU/Memory/Pool); the Network card ships its own
+   matching header. */
+.stats-widget .mat-card.front{
+  border-radius:10px;
+}
+.stats-widget mat-toolbar-row{
+  height:48px;
+  min-height:48px;
+  max-height:48px;
+  padding:0 6px 0 16px;
+  border-bottom:1px solid var(--lines);
+  background:transparent;
+  box-sizing:border-box;
+}
+.stats-widget mat-toolbar-row h3.mat-card-title-text{
+  margin:0;
+}
+.stats-widget mat-toolbar-row .card-title-text{
+  font-size:15px;
+  font-weight:600;
+  letter-spacing:0.02em;
+}
+
+/* the internal development record: card-system pass 2 — the shared laws the cards draw on.
+   One facts treatment (two-column label/value grid, tabular numerals), one
+   mono subtitle, one mono section label, one chip (mono, 1px border, 3px
+   radius — replaces the per-widget pill chips), per
+   freecore-brand/webui/mockups/card-system-spec.md laws 3, 9 and 10.
+   text-align:left on the dl carries the #58 lesson: .widget .mat-card-content
+   centers text globally and label/value rows must not inherit that. */
+.stats-widget dl.facts-dl{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:5px 16px;
+  margin:0;
+  font-size:12.5px;
+  line-height:1.5;
+  text-align:left;
+}
+.stats-widget dl.facts-dl dt{
+  color:var(--fg2);
+  font-weight:500;
+}
+.stats-widget dl.facts-dl dd{
+  margin:0;
+  color:var(--fg1);
+  font-variant-numeric:tabular-nums;
+}
+.stats-widget .card-subtitle-mono{
+  font-family:'Roboto Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11px;
+  color:var(--fg2);
+  text-align:left;
+}
+.stats-widget .section-label-sm{
+  font-family:'Roboto Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--fg2);
+  opacity:0.8;
+  text-align:left;
+}
+.stats-widget .widget-chip{
+  display:inline-block;
+  font-family:'Roboto Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:10.5px;
+  font-weight:500;
+  line-height:1.7;
+  letter-spacing:0.02em;
+  border:1px solid var(--lines);
+  border-radius:3px;
+  padding:0 7px;
+  color:var(--fg2);
+  white-space:nowrap;
+  background:transparent;
+}
+.stats-widget .widget-chip.chip-ok{ border-color:var(--green); color:var(--green); }
+.stats-widget .widget-chip.chip-bad{ border-color:var(--red); color:var(--red); }
+.stats-widget .widget-chip.chip-accent{ border-color:var(--primary); color:var(--primary); }
+
+/* the internal development record: de-chipped status — quiet right-aligned text replaces the
+   boxed chips on the System version row and the Pool name row. Healthy states
+   stay muted; the alarm is carried by color alone (.update = yellow,
+   .bad = red). The .widget-chip law above stays for its other consumers. */
+.stats-widget .status-text{
+  font-family:'Roboto Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:10.5px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  color:var(--fg2);
+  white-space:nowrap;
+}
+.stats-widget .status-text.update{ color:var(--yellow); }
+.stats-widget .status-text.bad{ color:var(--red); }
+
 .report .card-title-text{
   font-size:20px;
 }
@@ -308,7 +408,7 @@ body.collapsed-menu mat-sidenav-container.mat-drawer-opened mat-sidenav-content.
 
 /* Max Y axis*/
 .widget .c3 g.c3-axis-y g.tick tspan{
-  font-family:Roboto;
+  font-family:"IBM Plex Sans",Roboto,sans-serif;
   font-weight:500;
 }
 
@@ -320,6 +420,56 @@ body.collapsed-menu mat-sidenav-container.mat-drawer-opened mat-sidenav-content.
   margin: 8px;
   position: relative;
   left: calc(50% - 270px);
+}
+
+/* LOCAL (the internal development record, corrected): the rule above is the pre-grid centering
+   hack -- a hardcoded 540px plus a left offset that only lands correctly when
+   the parent is exactly one card wide. The dashboard is now CSS grid, so the
+   card must fill its track and the offset must go.
+   the internal development record put this override in fn-styles.css, but .widgets-wrapper
+   .widget is (0,2,0) and ties .widget.stats-widget / .widget.splith -- and
+   fn-styles.css loads FIRST, so the hack above kept winning on source order and
+   every stats widget rendered 540px, offset, inside an ~817px track. Keeping it
+   here, after the rule it overrides, makes source order work for us instead. */
+.widgets-wrapper .widget,
+.widgets-wrapper .widget.splitv,
+.widgets-wrapper .widget.splith,
+.widgets-wrapper .widget.stats-widget{
+  width: 100% !important;
+  margin: 0;
+  left: 0;
+}
+
+/* LOCAL (the internal development record): make the card fill its tile vertically.
+   #23 fixed the horizontal side; the vertical side was still ragged. Each
+   widget's own stylesheet sets .widget{min-height:400px} (from the B2-B5
+   reworks #24/#25/#26/#29), so every grid tile is 400px tall -- but the
+   mat-card inside kept its content height (sysinfo 208, memory 242, nic 303,
+   cpu 369). A short card sat at the top of a 400px slot, so the cards had
+   ragged bottoms and large dead gaps below them.
+
+   Flexbox, not height:100% -- the parent carries only min-height, and a
+   percentage height against a parent with no definite height resolves to auto,
+   which is why the obvious fix measures as a no-op.
+
+   This has to live in a global sheet: .card-container belongs to the widget
+   components, so dashboard.scss cannot reach it through Angular's emulated
+   encapsulation -- the same reason #23's override is here. Only a .front face
+   exists today (the flip-card .back is vestigial), so .card-container is
+   matched unqualified to cover both. */
+.widgets-wrapper .widget{
+  display: flex;
+  flex-direction: column;
+}
+
+.widgets-wrapper .widget > .card-container{
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.widgets-wrapper .widget > .card-container > mat-card{
+  flex: 1 1 auto;
 }
 
 /* New Rules */

@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ValidationErrors, FormControl } from '@angular/forms';
+import { ValidationErrors, UntypedFormControl } from '@angular/forms';
 import {
   WebSocketService, StorageService, DialogService, AppLoaderService,
 } from 'app/services';
@@ -16,7 +16,7 @@ import { EntityTableService } from 'app/pages/common/entity/entity-table/entity-
 @Component({
   selector: 'app-dataset-quotas-userlist',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
-})
+  })
 export class DatasetQuotasUserlistComponent implements OnDestroy {
   pk: string;
   title = helptext.users.table_title;
@@ -141,7 +141,7 @@ export class DatasetQuotasUserlistComponent implements OnDestroy {
                 blurEvent: self.blurEvent,
                 parent: self,
                 validation: [
-                  (control: FormControl): ValidationErrors => {
+                  (control: UntypedFormControl): ValidationErrors => {
                     const config = conf.fieldConfig.find((c) => c.name === 'data_quota');
                     self.quotaValue = control.value;
                     const size = self.storageService.convertHumanStringToNum(control.value);

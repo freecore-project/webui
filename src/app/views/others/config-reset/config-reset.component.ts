@@ -5,7 +5,7 @@ import { WebSocketService } from '../../../services/ws.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from '../../../services/dialog.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import globalHelptext from '../../../helptext/global-helptext';
 import { EntityJobComponent } from '../../../pages/common/entity/entity-job/entity-job.component';
 import { T } from '../../../translate-marker';
@@ -16,7 +16,7 @@ import { LocaleService } from 'app/services/locale.service';
   templateUrl: './config-reset.component.html',
   styleUrls: ['./config-reset.component.css'],
   providers: [],
-})
+  })
 export class ConfigResetComponent implements OnInit {
   product_type: string;
   copyrightYear = this.localeService.getCopyrightYearFromBuildTime();

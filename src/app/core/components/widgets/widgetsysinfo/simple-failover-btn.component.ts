@@ -1,7 +1,7 @@
 import {
   Component, Input, Inject, OnDestroy,
 } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { helptext_system_failover } from 'app/helptext/system/failover';
@@ -14,7 +14,7 @@ interface DialogData {
   selector: 'simple-failover-button',
   template: `<button mat-button [style.opacity]="1" [color]="color" [disabled]="disabled" (click)="openDialog()"
     ix-auto ix-auto-type="button" ix-auto-identifier="INITIATE FAILOVER">INITIATE FAILOVER</button>`,
-})
+  })
 
 export class SimpleFailoverBtnComponent implements OnDestroy {
   @Input() color = 'default';
@@ -57,7 +57,7 @@ export class SimpleFailoverBtnComponent implements OnDestroy {
       <button fxFlex="calc(45% - 40px)" fxFlex.xs="45" style="margin-bottom:16px;" mat-button color="primary" [disabled]="isDisabled" [mat-dialog-close]="data.agreed">{{action | translate}}</button>
     </div>
   `,
-})
+  })
 export class SimpleFailoverBtnDialog {
   private _confirmed: boolean;
   get confirmed() {

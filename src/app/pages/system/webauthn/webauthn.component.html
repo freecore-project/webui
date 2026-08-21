@@ -1,0 +1,50 @@
+<mat-card class="p-16">
+  <mat-card-content>
+    <h3>{{ helptext.formTitle | translate }}</h3>
+    <p>{{ helptext.intro | translate }}</p>
+    <p>{{ helptext.either_or_note | translate }}</p>
+    <p *ngIf="!browserOk" style="color: var(--red);">{{ helptext.banner_unavailable | translate }}</p>
+    <p *ngIf="!twoFactorEnabled && !config.enabled" style="color: var(--yellow);">{{ helptext.requires_totp | translate }}</p>
+
+    <div class="mb-1">
+      <strong>{{ helptext.status_label | translate }}</strong>
+      {{ (config.enabled ? helptext.enabled_label : helptext.disabled_label) | translate }}
+    </div>
+
+    <table class="full-width" *ngIf="credentials.length" style="border-collapse: collapse;">
+      <thead>
+        <tr>
+          <th style="text-align: left; padding: 4px 16px 4px 0;">{{ helptext.columns.name | translate }}</th>
+          <th style="text-align: left; padding: 4px 16px 4px 0;">{{ helptext.columns.created | translate }}</th>
+          <th style="text-align: left; padding: 4px 16px 4px 0;">{{ helptext.columns.last_used | translate }}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let credential of credentials">
+          <td style="padding: 4px 16px 4px 0;">{{ credential.name }}</td>
+          <td style="padding: 4px 16px 4px 0;">{{ credential.created_at?.$date ? (credential.created_at.$date | date: 'medium') : '-' }}</td>
+          <td style="padding: 4px 16px 4px 0;">{{ credential.last_used?.$date ? (credential.last_used.$date | date: 'medium') : ('Never' | translate) }}</td>
+          <td style="text-align: right;">
+            <button mat-icon-button (click)="deleteKey(credential)" matTooltip="{{ 'Delete' | translate }}">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="!loading && !credentials.length">{{ helptext.no_keys | translate }}</p>
+
+    <div class="mt-1">
+      <button mat-button class="fn-theme-primary" (click)="addKey()" [disabled]="!browserOk">
+        {{ helptext.add_button | translate }}
+      </button>
+      <button mat-button class="fn-theme-primary" (click)="toggleEnabled()"
+        [disabled]="!config.enabled && (!credentials.length || !twoFactorEnabled)">
+        {{ (config.enabled ? helptext.disable_button : helptext.enable_button) | translate }}
+      </button>
+    </div>
+
+    <p class="mt-1" style="font-size: 12px; opacity: 0.8;">{{ helptext.recovery_note | translate }}</p>
+  </mat-card-content>
+</mat-card>

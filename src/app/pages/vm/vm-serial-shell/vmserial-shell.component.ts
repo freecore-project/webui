@@ -1,112 +1,31 @@
-import {
-  Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChange, ViewChild,
-} from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { CopyPasteMessageComponent } from 'app/pages/shell/copy-paste-message.component';
 import helptext from '../../../helptext/vm/vm-cards/vm-cards';
-import { ShellService, WebSocketService } from '../../../services';
 
+/**
+ * VM serial console. Migrated onto the redesigned terminal endpoint
+ * (the internal development record phase 4); the terminal itself is now the shared
+ * widget rather than a third hand-rolled copy of the same xterm wiring.
+ */
 @Component({
   selector: 'app-vmserial-shell',
   templateUrl: './vmserial-shell.component.html',
   styleUrls: ['./vmserial-shell.component.css'],
-  providers: [ShellService],
-})
+  })
+export class VMSerialShellComponent implements OnInit {
+  pk: number = undefined;
+  tooltip = helptext.serial_shell_tooltip;
 
-export class VMSerialShellComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() prompt = '';
-  @ViewChild('terminal', { static: true }) container: ElementRef;
-  cols: string;
-  rows: string;
-  font_size: number;
-  token: any;
-  xterm: any;
-  private shellSubscription: any;
-  shell_tooltip = helptext.serial_shell_tooltip;
+  constructor(protected aroute: ActivatedRoute) {}
 
-  clearLine = '\u001b[2K\r';
-  protected pk: string;
-
-  constructor(private ws: WebSocketService,
-    public ss: ShellService,
-    protected aroute: ActivatedRoute,
-    public translate: TranslateService,
-    private dialog: MatDialog) {
-  }
-
-  ngOnInit() {
-    const self = this;
+  ngOnInit(): void {
     this.aroute.params.subscribe((params) => {
-      this.pk = params['pk'];
-      this.getAuthToken().subscribe((res) => {
-        this.initializeWebShell(res);
-        this.shellSubscription = this.ss.shellOutput.subscribe((value) => {
-          if (value !== undefined) {
-            this.xterm.write(value);
-          }
-        });
-        this.initializeTerminal();
-      });
+      const pk = Number(params['pk']);
+      // A junk :pk gives NaN, which JSON-serializes to null and reads on the
+      // far end as "no vm_id given" — i.e. an unusable URL would quietly hand
+      // back a root shell instead of a serial console. Don't ask at all
+      // unless we have a real id.
+      this.pk = Number.isFinite(pk) ? pk : undefined;
     });
-  }
-
-  ngOnDestroy() {
-    if (this.shellSubscription) {
-      this.shellSubscription.unsubscribe();
-    }
-    if (this.ss.connected) {
-      this.ss.socket.close();
-    }
-  }
-
-  resetDefault() {
-    this.font_size = 14;
-  }
-
-  ngOnChanges(changes: {
-    [propKey: string]: SimpleChange;
-  }) {
-    const log: string[] = [];
-    for (const propName in changes) {
-      const changedProp = changes[propName];
-    }
-  }
-
-  initializeTerminal() {
-    const domHeight = document.body.offsetHeight;
-    let rowNum = (domHeight * 0.75 - 104) / 21;
-    if (rowNum < 10) {
-      rowNum = 10;
-    }
-
-    this.xterm = new (<any>window).Terminal({
-      cursorBlink: true,
-      tabStopWidth: 8,
-      cols: 80,
-      rows: parseInt(rowNum.toFixed(), 10),
-      focus: true,
-    });
-
-    this.xterm.open(this.container.nativeElement);
-    this.xterm.attach(this.ss);
-    this.xterm._initialized = true;
-    // this.xterm.send('attachconsole.py /dev/nmdm'+this.pk+'B\n')
-  }
-
-  initializeWebShell(res: string) {
-    this.ss.vmId = Number(this.pk);
-    this.ss.token = res;
-    this.ss.connect();
-  }
-
-  getAuthToken() {
-    return this.ws.call('auth.generate_token');
-  }
-
-  onShellRightClick(): false {
-    this.dialog.open(CopyPasteMessageComponent);
-    return false;
   }
 }

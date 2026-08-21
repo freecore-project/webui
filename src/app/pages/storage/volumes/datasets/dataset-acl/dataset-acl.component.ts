@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import {
-  FormGroup,
+  UntypedFormGroup,
 } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -19,7 +19,7 @@ import { AppLoaderService } from '../../../../../services/app-loader/app-loader.
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { T } from '../../../../../translate-marker';
 import helptext from '../../../../../helptext/storage/volumes/datasets/dataset-acl';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { EntityJobComponent } from '../../../../common/entity/entity-job/entity-job.component';
 import { EntityUtils } from '../../../../common/entity/utils';
 import { DialogFormConfiguration } from 'app/pages/common/entity/entity-dialog/dialog-form-configuration.interface';
@@ -29,7 +29,7 @@ import { AccessControlList } from 'app/interfaces/access-control-list.interface'
 @Component({
   selector: 'app-dataset-acl',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class DatasetAclComponent implements OnDestroy {
   protected queryCall = 'filesystem.getacl';
   protected updateCall = 'filesystem.setacl';
@@ -50,7 +50,7 @@ export class DatasetAclComponent implements OnDestroy {
   private aces_subscription: any;
   private entityForm: any;
   sub: Subscription;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   data: Object = {};
   error: string;
   busy: Subscription;

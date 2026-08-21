@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
@@ -18,7 +18,7 @@ import helptext from '../../../helptext/jails/jails-list';
   selector: 'app-jail-list',
   template: '<entity-table [title]="title" [conf]="this" ></entity-table>',
   providers: [DialogService, StorageService],
-})
+  })
 export class JailListComponent implements InputTableConf {
   isPoolActivated: boolean;
   selectedPool;

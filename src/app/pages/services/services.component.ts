@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { MatButtonToggleGroup } from '@angular/material/button-toggle';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
+import { MatLegacySlideToggle as MatSlideToggle } from '@angular/material/legacy-slide-toggle';
 import { Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
@@ -18,7 +18,7 @@ import { T } from '../../translate-marker';
   styleUrls: ['./services.component.css'],
   templateUrl: './services.component.html',
   providers: [IscsiService],
-})
+  })
 export class Services implements OnInit {
   @ViewChild('filter', { static: true }) filter: ElementRef;
   @Input() searchTerm = '';
@@ -38,8 +38,7 @@ export class Services implements OnInit {
     iscsitarget: 'iSCSI',
     lldp: 'LLDP',
     nfs: 'NFS',
-    openvpn_client: 'OpenVPN Client',
-    openvpn_server: 'OpenVPN Server',
+    rar2fs: 'rar2fs',
     rsync: 'Rsync',
     smartd: 'S.M.A.R.T.',
     snmp: 'SNMP',
@@ -48,6 +47,8 @@ export class Services implements OnInit {
     tftp: 'TFTP',
     ups: 'UPS',
     webdav: 'WebDAV',
+    wireguard: 'WireGuard',
+    wireguard_client: 'WireGuard Client',
   };
 
   cache = [];
