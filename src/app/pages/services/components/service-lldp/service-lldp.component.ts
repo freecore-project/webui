@@ -1,27 +1,32 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import * as _ from 'lodash';
 
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import helptext from '../../../../helptext/services/components/service-lldp';
 import { RestService, WebSocketService, ServicesService } from '../../../../services';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'lldp-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ServiceLLDPComponent {
   protected queryCall = 'lldp.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('LLDP'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext.lldp_fieldset_general,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'checkbox',
@@ -33,6 +38,7 @@ export class ServiceLLDPComponent {
           type: 'combobox',
           name: 'country',
           label: helptext.lldp_country_label,
+          showLabel: true,
           placeholder: helptext.lldp_country_placeholder,
           tooltip: helptext.lldp_country_tooltip,
           options: [],
@@ -69,7 +75,7 @@ export class ServiceLLDPComponent {
 
   countryValidator(code: string) {
     const self = this;
-    return function validCode(control: FormControl) {
+    return function validCode(control: UntypedFormControl) {
       const config = self.fieldConfig.find((c) => c.name === code);
       if (control.value || control.value === '') {
         const errors = (!(control.value).match(/^[A-Z]{2}$/) && !(control.value === ''))

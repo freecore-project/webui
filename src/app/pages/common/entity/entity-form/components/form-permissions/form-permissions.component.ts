@@ -1,7 +1,8 @@
 import {
   Component, ViewContainerRef, OnInit, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -10,24 +11,26 @@ import { TooltipComponent } from '../tooltip/tooltip.component';
 import { Subject } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'form-permissions',
   styleUrls: ['../dynamic-field/dynamic-field.css', 'form-permissions.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './form-permissions.component.html',
 })
 export class FormPermissionsComponent implements Field, OnInit, OnDestroy {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
-  private ownerRead = false;
-  private ownerWrite = false;
-  private ownerExec = false;
-  private groupRead = false;
-  private groupWrite = false;
-  private groupExec = false;
-  private otherRead = false;
-  private otherWrite = false;
-  private otherExec = false;
+  ownerRead = false;
+  ownerWrite = false;
+  ownerExec = false;
+  groupRead = false;
+  groupWrite = false;
+  groupExec = false;
+  otherRead = false;
+  otherWrite = false;
+  otherExec = false;
 
   private owner = 0;
   private grp = 0;
@@ -180,6 +183,18 @@ export class FormPermissionsComponent implements Field, OnInit, OnDestroy {
     this.grp = grp;
     let other = parseInt(this.value[2]);
     this.other = other;
+
+    // the internal development record: derive every flag from its bit -- the chains below only ever set a flag,
+    // so a value with fewer bits than the last one (a reset, a reload) left stale checks.
+    this.ownerRead = false;
+    this.ownerWrite = false;
+    this.ownerExec = false;
+    this.groupRead = false;
+    this.groupWrite = false;
+    this.groupExec = false;
+    this.otherRead = false;
+    this.otherWrite = false;
+    this.otherExec = false;
 
     if (owner - 4 >= 0) {
       owner -= 4;

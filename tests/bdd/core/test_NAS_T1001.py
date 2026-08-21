@@ -95,7 +95,7 @@ def click_the_wipe_button(driver):
 @then('The Wipe Disk ada3 widget should appear')
 def the_wipe_disk_ada3_widget_should_appear(driver):
     """The Wipe Disk ada3 widget should appear."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Wipe Disk da3")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Wipe Disk da3")]')
 
 
 @then('select the Quick Method and click WIPE')
@@ -111,8 +111,8 @@ def select_the_quick_method_and_click_wipe(driver):
 @then('check to confirm, and click continue')
 def check_to_confirm_and_click_continue(driver):
     """check to confirm, and click continue."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Wipe Disk da3")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Wipe Disk da3")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
 
 

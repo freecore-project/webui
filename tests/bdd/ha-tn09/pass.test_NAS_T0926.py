@@ -103,7 +103,7 @@ def navigate_to_directory_services_then_active_directory(driver):
 @then('The Domain Credentials page should open')
 def the_domain_credentials_page_should_open(driver):
     """The Domain Credentials page should open."""
-    assert wait_on_element(driver, 1, 7, '//h4[contains(.,"Domain Credentials")]')
+    assert wait_on_element(driver, 1, 7, '//h2[contains(.,"Domain Credentials")]')
 
 
 @then(parsers.parse('Input Domain name "{ad_domain}", Account name "{ad_user}", Password "{ad_password}"'))
@@ -214,7 +214,7 @@ def press_initiate_failover_check_confirm_and_press_failover(driver):
     """Press INITIATE FAILOVER, check confirm and press FAILOVER"""
     assert wait_on_element(driver, 1, 5, '//button[@ix-auto="button__INITIATE FAILOVER"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__INITIATE FAILOVER"]').click()
-    assert wait_on_element(driver, 1, 5, '//h1[contains(.,"Initiate Failover")]')
+    assert wait_on_element(driver, 1, 5, '//h2[contains(.,"Initiate Failover")]')
     driver.find_element_by_xpath('//mat-checkbox').click()
     assert wait_on_element(driver, 1, 5, '//div[2]/button[2]/span')
     driver.find_element_by_xpath('//div[2]/button[2]/span').click()
@@ -262,8 +262,8 @@ def the_pools_page_should_open(driver):
 @then('Click on the dozer 3 dots button, select Add Dataset')
 def click_on_the_dozer_3_dots_button_select_add_dataset(driver):
     """Click on the dozer 3 dots button, select Add Dataset."""
-    assert wait_on_element(driver, 1, 5, '//mat-icon[@id="actions_menu_button__dozer"]')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__dozer"]').click()
+    assert wait_on_element(driver, 1, 5, '//*[@id="actions_menu_button__dozer"]')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__dozer"]').click()
     assert wait_on_element(driver, 1, 5, '//button[@ix-auto="action__dozer_Add Dataset"]')
     driver.find_element_by_xpath('//button[@ix-auto="action__dozer_Add Dataset"]').click()
 
@@ -271,7 +271,7 @@ def click_on_the_dozer_3_dots_button_select_add_dataset(driver):
 @then('The Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """The Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 0.5, 5, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('Input dataset name "{dataset_name}" and click save'))
@@ -293,8 +293,8 @@ def my_acl_dataset_should_be_created(driver, dataset_name):
 @then('Click on "my_acl_dataset" 3 dots button, select Edit Permissions')
 def click_on_my_acl_dataset_3_dots_button_select_edit_permissions(driver):
     """Click on "my_acl_dataset" 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 1, 5, '//mat-icon[@id="actions_menu_button__my_acl_dataset"]')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__my_acl_dataset"]').click()
+    assert wait_on_element(driver, 1, 5, '//*[@id="actions_menu_button__my_acl_dataset"]')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__my_acl_dataset"]').click()
     assert wait_on_element(driver, 1, 5, '//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]')
     driver.find_element_by_xpath('//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]').click()
 
@@ -302,7 +302,7 @@ def click_on_my_acl_dataset_3_dots_button_select_edit_permissions(driver):
 @then('The Edit Permissions page should open')
 def the_edit_permissions_page_should_open(driver):
     """The Edit Permissions page should open."""
-    assert wait_on_element(driver, 0.5, 5, '//h4[contains(.,"Dataset Path")]')
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Dataset Path")]')
 
 
 @then('Click on Use ACL Manager')

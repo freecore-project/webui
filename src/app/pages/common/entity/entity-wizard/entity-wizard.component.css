@@ -1,23 +1,89 @@
-.wizard-action {
-  padding: 20px 1px;
-  margin-bottom: 0px;
-  margin-left: 0px;
-  margin-right: 0px;
+/* the internal development record: the action row is the #396 button row (flex, wrap, 52px minimum, 8px inset
+ * inside the container's 16px = buttons at 24px like the form's) on a hairline with the 20px
+ * rhythm the settings forms and the iSCSI wizard already used; hlm buttons carry no margin, so
+ * the gap is the spacing. */
+div.wizard-action {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 52px;
+  padding: 20px 8px 8px;
+  margin: 12px 0 0;
+  border-top: 1px solid var(--sp-border, var(--line, #2a353d));
 }
 
-#goback_button, #noconfirm_button {
-  margin-right: 0px;
+/* the summary step: plain text at the control size (the form base is 12px), the nested list
+ * indented as before */
+.wizard-summary {
+  font-size: 13px;
+  line-height: 18px;
+  padding: 0 8px;
 }
-
+.wizard-summary-title {
+  color: var(--sp-foreground, var(--fg1, #dce3e6));
+  margin-bottom: 8px;
+}
 ul.wizard-ul {
   list-style-type: none;
 }
 ul.wizard-ul li{
   padding-inline-start: 20px;
 }
+
+/* the loading overlay is hlm-spinner, centred through `left` (the helm spins the host on
+ * transform), on the container's relative box */
 #entity-spinner {
   position: absolute;
-  top: 10px; left: 0; bottom: 0; right: 0;
+  top: 10px;
+  left: calc(50% - 20px);
   z-index: 10;
-  margin: 0 auto;
+  font-size: 40px;
+  color: var(--sp-muted-foreground, var(--fg2, #97a6ae));
+}
+
+.entity-wizard-fieldset-layout {
+  align-content: flex-start;
+  align-items: flex-start;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.entity-wizard-field-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+}
+
+.entity-wizard-field-layout.form-line,
+.entity-wizard-field-layout.form-inline {
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 600px) {
+  .entity-wizard-fieldset-layout {
+    max-width: none;
+  }
+
+  .entity-wizard-fieldset-layout-sized {
+    flex-basis: calc(var(--entity-wizard-fieldset-width) - 16px);
+    min-width: calc(var(--entity-wizard-fieldset-width) - 16px);
+  }
+
+  .entity-wizard-field-layout.form-inline {
+    max-width: 33.33%;
+  }
+
+  .entity-wizard-field-layout.entity-wizard-field-layout-sized {
+    flex-basis: calc(var(--entity-wizard-field-width) - 16px);
+    min-width: calc(var(--entity-wizard-field-width) - 16px);
+  }
 }

@@ -1,5 +1,6 @@
 import {
   Component, AfterViewInit, Input, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ViewChartComponent, ViewChartMetadata } from 'app/core/components/viewchart/viewchart.component';
 import { UUID } from 'angular2-uuid';
@@ -41,7 +42,9 @@ export interface GaugeConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'viewchartgauge',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './viewchartgauge.component.html',
 })
 export class ViewChartGaugeComponent /* extends DisplayObject */ implements AfterViewInit, OnChanges {

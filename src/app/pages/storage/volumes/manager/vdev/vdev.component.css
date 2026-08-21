@@ -12,9 +12,14 @@
     flex: 0 0 auto;
 }
 
-.vdev-action-btn {
-    border: none;
-    outline: none;
+/* the internal development record: hlmBtn sizes ng-icon only -- the arrows and the X are mat-icons inside the
+ * 32px ghost icon button, so the glyph is boxed at 20px here (the #404 list-toolbar glyph). */
+.vdev-actions .mat-icon,
+.vdev-close .mat-icon {
+    font-size: 20px;
+    height: 20px;
+    line-height: 20px;
+    width: 20px;
 }
 
 .vdev-type {
@@ -38,6 +43,13 @@
 
 .datainfo {
     margin-left: 16px;
+}
+
+/* the internal development record: the vdev type on the kit select -- the field box at the width of the pool
+ * form's algorithm select, the capacity line under it. */
+.vdev-type-select {
+    width: 200px;
+    margin: 0 0 8px;
 }
 
 @media screen and (max-width: 1399px) {

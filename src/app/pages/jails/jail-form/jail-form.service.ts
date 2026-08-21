@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 
 import { WebSocketService } from '../../../services';
 import { EntityFormService } from '../../common/entity/entity-form/services/entity-form.service';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import { FieldRelationService } from '../../common/entity/entity-form/services/field-relation.service';
 import * as _ from 'lodash';
-import { EntityUtils } from '../../common/entity/utils';
 
 @Injectable()
 export class JailFormService {
@@ -63,7 +61,6 @@ export class JailFormService {
     protected ws: WebSocketService,
     protected entityFormService: EntityFormService,
     protected fieldRelationService: FieldRelationService,
-    protected dialog: MatDialog,
   ) { }
 
   createForm(formFields) {
@@ -150,14 +147,6 @@ export class JailFormService {
       full_address += '/' + netmask;
     }
     return full_address;
-  }
-
-  getPluginDefaluts(plugin, pluginRepository) {
-    return this.ws.call('plugin.defaults', [{
-      plugin,
-      plugin_repository: pluginRepository,
-      refresh: false,
-    }]);
   }
 
   getInterface() {
@@ -259,33 +248,5 @@ export class JailFormService {
         formGroup.controls[propName].controls[i].controls[propName].setValue(value[i] == 'none' ? '' : value[i]);
       }
     }
-  }
-
-  getPluginDefaults(plugin, pluginRepository, formGroup, networkfieldConfig): Promise<boolean> {
-    return new Promise(async (resolve, reject) => {
-      await this.ws.call('plugin.defaults', [{
-        plugin,
-        plugin_repository: pluginRepository,
-        refresh: false,
-      }]).toPromise().then((defaults) => {
-        for (const i in defaults.properties) {
-          if (formGroup.controls[i]) {
-            if (i === 'nat_forwards') {
-              this.deparseNatForwards(defaults.properties[i], formGroup, networkfieldConfig);
-              continue;
-            }
-            this.handleTFfiledValues(defaults.properties, i);
-            formGroup.controls[i].setValue(defaults.properties[i]);
-          }
-        }
-        if (!defaults.properties.hasOwnProperty('dhcp') && !defaults.properties.hasOwnProperty('nat')) {
-          formGroup.controls['nat'].setValue(true);
-        }
-        resolve(true);
-      }, (err) => {
-        resolve(false);
-        new EntityUtils().handleWSError(this, err, this.dialog);
-      });
-    });
   }
 }

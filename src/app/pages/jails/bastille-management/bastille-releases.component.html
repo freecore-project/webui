@@ -1,0 +1,4 @@
+@if (error) {
+  <section class="fc-page-notice fc-page-notice--warn"><p role="alert">{{ error | translate }}</p></section>
+}
+<entity-table [title]="title" [conf]="this"></entity-table>

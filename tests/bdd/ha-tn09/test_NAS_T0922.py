@@ -67,7 +67,7 @@ def navigate_to_system_then_to_failover(driver):
 @then('the Failover Page should open')
 def the_failover_page_should_open(driver):
     """the Failover Page should open."""
-    assert wait_on_element(driver, 0.5, 7, '//h4[contains(.,"Failover Configuration")]')
+    assert wait_on_element(driver, 0.5, 7, '//h2[contains(.,"Failover Configuration")]')
 
 
 @then('check disable failover and click save Check confirm on the warning dialog and press OK')
@@ -80,8 +80,8 @@ def check_disable_failover_and_click_save_check_confirm_on_the_warning_dialog_an
     assert wait_on_element(driver, 0.5, 7, '//button[@ix-auto="button__SAVE"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
     if 'mat-checkbox-checked' not in class_attribute:
-        assert wait_on_element(driver, 0.5, 4, '//h1[contains(.,"Disable Failover")]')
-        driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+        assert wait_on_element(driver, 0.5, 4, '//h2[contains(.,"Disable Failover")]')
+        driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
         driver.find_element_by_xpath('//button[@ix-auto="button__OK"]').click()
 
 
@@ -89,7 +89,7 @@ def check_disable_failover_and_click_save_check_confirm_on_the_warning_dialog_an
 def a_dialog_should_appear_while_applying_settings(driver):
     """a dialog should appear while applying settings."""
     assert wait_on_element_disappear(driver, 1, 30, '//h6[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 0.5, 7, '//h1[contains(.,"Settings saved")]')
+    assert wait_on_element(driver, 0.5, 7, '//h2[contains(.,"Settings saved")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 
 
@@ -119,7 +119,7 @@ def click_on_lagg0_angle_bracket_then_click_edit(driver):
 @then('lagg0 Interface Settings should appear')
 def lagg0_interface_settings_should_appear(driver):
     """lagg0 Interface Settings should appear."""
-    assert wait_on_element(driver, 0.5, 7, '//h4[contains(.,"Interface Settings")]')
+    assert wait_on_element(driver, 0.5, 7, '//h2[contains(.,"Interface Settings")]')
 
 
 @then('set mtu to 9000 and Click Apply')
@@ -143,8 +143,8 @@ def click_test_changes_check_confirm_click_test_changes_again(driver):
     """click Test Changes, check Confirm, Click Test Changes again."""
     assert wait_on_element(driver, 0.5, 5, '//button[contains(.,"TEST CHANGES")]')
     driver.find_element_by_xpath('//button[contains(.,"TEST CHANGES")]').click()
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Test Changes")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Test Changes")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     driver.find_element_by_xpath('//button[@ix-auto="button__TEST CHANGES"]').click()
 
 
@@ -153,14 +153,14 @@ def click_save_changes_click_save(driver):
     """click Save Changes, Click Save."""
     assert wait_on_element(driver, 0.5, 5, '//button[contains(.,"SAVE CHANGES")]')
     driver.find_element_by_xpath('//button[contains(.,"SAVE CHANGES")]').click()
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Save Changes")]')
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Save Changes")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
 
 
 @then('a message indicating that network changes have been applied should appeared, and you should be able to close')
 def a_message_indicating_that_network_changes_have_been_applied_should_appeared_and_you_should_be_able_to_close(driver):
     """a message indicating that network changes have been applied should appeared, and you should be able to close."""
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Changes Saved")]')
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Changes Saved")]')
     assert wait_on_element(driver, 0.5, 5, '//button[@ix-auto="button__CLOSE"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 
@@ -177,7 +177,7 @@ def click_on_vlan1043_angle_bracket_then_click_edit(driver):
 @then('vlan1043 Interface Settings should appear')
 def vlan1043_interface_settings_should_appear(driver):
     """vlan1043 Interface Settings should appear."""
-    assert wait_on_element(driver, 0.5, 7, '//h4[contains(.,"Interface Settings")]')
+    assert wait_on_element(driver, 0.5, 7, '//h2[contains(.,"Interface Settings")]')
 
 
 @then('uncheck disable failover and click save Check confirm on the warning dialog and press OK')

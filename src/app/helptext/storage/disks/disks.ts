@@ -62,7 +62,7 @@ export default {
 
   disk_form_togglesmart_placeholder: T('Enable S.M.A.R.T.'),
   disk_form_togglesmart_tooltip: T('Enabling allows the system to conduct periodic\
- <a href="--docurl--/tasks.html#s-m-a-r-t-tests" target="_blank">S.M.A.R.T. tests</a>.'),
+ <a href="--docurl--tutorials/tasks/running-smart-tests/" target="_blank">S.M.A.R.T. tests</a>.'),
 
   disk_form_smartoptions_placeholder: T('S.M.A.R.T. extra options'),
   disk_form_smartoptions_tooltip: T('Additional <a\

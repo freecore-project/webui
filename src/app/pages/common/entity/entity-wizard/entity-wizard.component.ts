@@ -1,10 +1,11 @@
 import {
   Component, Input, OnInit, ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { RestService, WebSocketService } from '../../../../services';
 import {
-  AbstractControl, FormBuilder, FormGroup, FormArray, Validators,
+  AbstractControl, UntypedFormBuilder, UntypedFormGroup, FormArray, Validators,
 } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
@@ -17,21 +18,23 @@ import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
 
-import { MatStepper } from '@angular/material/stepper';
 import { DialogService } from '../../../../services';
 import { EntityUtils } from '../utils';
+import { FcStepperComponent } from './fc-stepper.component';
 
 @Component({
+  standalone: false,
   selector: 'entity-wizard',
   templateUrl: './entity-wizard.component.html',
   styleUrls: ['./entity-wizard.component.css', '../entity-form/entity-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [EntityFormService, FieldRelationService],
 })
 export class EntityWizardComponent implements OnInit {
   @Input('conf') conf: any;
-  @ViewChild('stepper', { static: true }) stepper: MatStepper;
+  @ViewChild('stepper', { static: true }) stepper: FcStepperComponent;
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   showSpinner = false;
   busy: Subscription;
 
@@ -41,7 +44,7 @@ export class EntityWizardComponent implements OnInit {
   get formArray(): AbstractControl | null { return this.formGroup.get('formArray'); }
 
   constructor(protected rest: RestService, protected ws: WebSocketService,
-    private formBuilder: FormBuilder, private entityFormService: EntityFormService,
+    private formBuilder: UntypedFormBuilder, private entityFormService: EntityFormService,
     protected loader: AppLoaderService, protected fieldRelationService: FieldRelationService,
     protected router: Router, protected aroute: ActivatedRoute,
     private dialog: DialogService, protected translate: TranslateService) {
@@ -132,11 +135,11 @@ export class EntityWizardComponent implements OnInit {
   setRelation(config: FieldConfig, stepIndex: any) {
     const activations = this.fieldRelationService.findActivationRelation(config.relation);
     if (activations) {
-      const tobeDisabled = this.fieldRelationService.isFormControlToBeDisabled(activations, < FormGroup > this.formArray.get(stepIndex));
-      const tobeHide = this.fieldRelationService.isFormControlToBeHide(activations, < FormGroup > this.formArray.get(stepIndex));
+      const tobeDisabled = this.fieldRelationService.isFormControlToBeDisabled(activations, < UntypedFormGroup > this.formArray.get(stepIndex));
+      const tobeHide = this.fieldRelationService.isFormControlToBeHide(activations, < UntypedFormGroup > this.formArray.get(stepIndex));
       this.setDisabled(config.name, tobeDisabled, stepIndex, tobeHide);
 
-      this.fieldRelationService.getRelatedFormControls(config, < FormGroup > this.formArray.get(stepIndex))
+      this.fieldRelationService.getRelatedFormControls(config, < UntypedFormGroup > this.formArray.get(stepIndex))
         .forEach((control) => {
           control.valueChanges.subscribe(
             () => { this.relationUpdate(config, activations, stepIndex); },
@@ -162,18 +165,18 @@ export class EntityWizardComponent implements OnInit {
       });
     }
 
-    if ((< FormGroup > this.formArray.get([stepIndex])).controls[name]) {
+    if ((< UntypedFormGroup > this.formArray.get([stepIndex])).controls[name]) {
       const method = disable ? 'disable' : 'enable';
-      (< FormGroup > this.formArray.get([stepIndex])).controls[name][method]();
+      (< UntypedFormGroup > this.formArray.get([stepIndex])).controls[name][method]();
     }
   }
 
   relationUpdate(config: FieldConfig, activations: any, stepIndex: any) {
     const tobeDisabled = this.fieldRelationService.isFormControlToBeDisabled(
-      activations, < FormGroup > this.formArray.get(stepIndex),
+      activations, < UntypedFormGroup > this.formArray.get(stepIndex),
     );
     const tobeHide = this.fieldRelationService.isFormControlToBeHide(
-      activations, < FormGroup > this.formArray.get(stepIndex),
+      activations, < UntypedFormGroup > this.formArray.get(stepIndex),
     );
     this.setDisabled(config.name, tobeDisabled, stepIndex, tobeHide);
   }

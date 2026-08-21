@@ -1,0 +1,9 @@
+<section id="application-shell-page" class="fc-page fc-console" aria-labelledby="application-shell-title">
+  <h1 id="application-shell-title" class="fc-page-title">{{ 'Shell' | translate }}: {{ name }}</h1>
+
+  @if (name) {
+    <div class="fc-console-surface">
+      <ix-terminal [target]="target" [tooltip]="tooltip" (ended)="onEnded()"></ix-terminal>
+    </div>
+  }
+</section>

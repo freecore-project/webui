@@ -1,14 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import {
   Router, NavigationEnd, NavigationCancel, ActivatedRoute, ActivatedRouteSnapshot,
 } from '@angular/router';
-import { FlexLayoutModule } from '@angular/flex-layout';
-
 import { ThemeService } from 'app/services/theme/theme.service';
 import { RoutePartsService } from './services/route-parts/route-parts.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import * as hopscotch from 'hopscotch';
 import { RestService } from './services/rest.service';
 import { ApiService } from 'app/core/services/api.service';
 import { AnimationService } from 'app/core/services/animation.service';
@@ -25,12 +21,14 @@ import { customSvgIcons } from 'app/core/classes/custom-icons';
 import productText from './helptext/product';
 
 @Component({
+  standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent {
-  appTitle = 'TrueNAS';
+  appTitle = 'FreeCORE';
   protected accountUserResource = 'account/users/1';
   protected user: any;
   product_type = '';
@@ -39,7 +37,6 @@ export class AppComponent {
     private router: Router,
     private activeRoute: ActivatedRoute,
     private routePartsService: RoutePartsService,
-    public snackBar: MatSnackBar,
     private ws: WebSocketService,
     private rest: RestService,
     private api: ApiService,
@@ -52,25 +49,13 @@ export class AppComponent {
     public domSanitizer: DomSanitizer,
     public matIconRegistry: MatIconRegistry,
     public chartDataUtils: ChartDataUtilsService) {
-    this.matIconRegistry.addSvgIconSetInNamespace('mdi',
-      this.domSanitizer.bypassSecurityTrustResourceUrl('assets/iconfont/mdi/mdi.svg'));
-
     for (const [name, path] of Object.entries(customSvgIcons)) {
       this.matIconRegistry.addSvgIcon(name, this.domSanitizer.bypassSecurityTrustResourceUrl(path));
     }
 
     const product = productText.product.trim();
     this.title.setTitle(product + ' - ' + window.location.hostname);
-    if (window.localStorage.product_type) {
-      const cachedType = window.localStorage['product_type'].toLowerCase();
-      const path = 'assets/images/truenas_' + cachedType + '_favicon.png';
-      this.setFavicon(path);
-    } else {
-      ws.call('system.product_type').subscribe((res) => {
-        const path = 'assets/images/truenas_' + res.toLowerCase() + '_favicon.png';
-        this.setFavicon(path);
-      });
-    }
+    this.setFavicon('assets/images/FreeCORE_icon_32.png');
 
     if (this.detectBrowser('Safari')) {
       document.body.className += ' safari-platform';
@@ -86,10 +71,6 @@ export class AppComponent {
         }
       }
 
-      if (this.themeservice.globalPreview) {
-        // Only for globally applied theme preview
-        this.globalPreviewControl();
-      }
       if (event instanceof NavigationCancel) {
         const params = new URLSearchParams(event.url.split('#')[1]);
         const isEmbedded = params.get('embedded');
@@ -100,14 +81,6 @@ export class AppComponent {
       }
     });
 
-    this.router.errorHandler = function (err: any) {
-      const chunkFailedMessage = /Loading chunk [\d]+ failed/;
-
-      if (chunkFailedMessage.test(err.message)) {
-        window.location.reload(true);
-      }
-      console.error(err);
-    };
   }
 
   private setFavicon(str) {
@@ -129,16 +102,5 @@ export class AppComponent {
 
     if (name == browserName) return true;
     return false;
-  }
-
-  private globalPreviewControl() {
-    const snackBarRef = this.snackBar.open('Custom theme Global Preview engaged', 'Back to form');
-    snackBarRef.onAction().subscribe(() => {
-      this.router.navigate(['ui-preferences', 'create-theme']);
-    });
-
-    if (this.router.url === '/ui-preferences/create-theme' || this.router.url === '/ui-preferences/edit-theme') {
-      snackBarRef.dismiss();
-    }
   }
 }

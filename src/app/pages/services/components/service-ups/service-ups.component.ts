@@ -1,12 +1,15 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/services/components/service-ups';
 import { RestService, WebSocketService } from '../../../../services';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'ups-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ServiceUPSComponent {
@@ -19,6 +22,7 @@ export class ServiceUPSComponent {
   protected queryCall = 'ups.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('UPS'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.ups_fieldset_general,
@@ -83,6 +87,7 @@ export class ServiceUPSComponent {
           type: 'combobox',
           name: 'driver',
           label: helptext.ups_driver_label,
+          showLabel: true,
           placeholder: helptext.ups_driver_placeholder,
           tooltip: helptext.ups_driver_tooltip,
           required: true,
@@ -103,6 +108,7 @@ export class ServiceUPSComponent {
           type: 'combobox',
           name: 'port',
           label: helptext.ups_port_label,
+          showLabel: true,
           placeholder: helptext.ups_port_placeholder,
           options: [],
           tooltip: helptext.ups_port_tooltip,

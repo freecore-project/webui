@@ -1,27 +1,25 @@
-<mat-card class="form-card">
-  <mat-card-title *ngIf="groupName">{{'Manage members of' | translate}} {{groupName}} {{'group' | translate}}</mat-card-title>
-    <mat-spinner 
-      [diameter]='40' 
-      id="group-member-spinner"
-      *ngIf="showSpinner">
-    </mat-spinner> 
-  <mat-card-content>
-    <div class="padding-16" *ngIf="members.length > 0">
-      <app-dual-listbox 
-        [items]="members" 
-        [(selectedItems)]="selectedMembers" 
-        minHeight="65vh"
-        maxHeight="65vh" 
-        title1="{{'All users' | translate}}"
-        title2="{{'Group members' | translate}}">
-        <ng-template #templateItem let-item="data">
-          <mat-list-item class="pointer">{{item.username}}</mat-list-item>
-        </ng-template>
-      </app-dual-listbox>
-    </div>
-  </mat-card-content>
-  <mat-card-actions class="button-container">
-    <button mat-button color="primary" (click)="updateUsers()">{{ 'Save' | translate }}</button>
-    <button mat-button color="accent" (click)="cancel()">{{ 'Cancel' | translate }}</button>
-  </mat-card-actions>
-</mat-card>
+<!-- the internal development record: the page shell (freecore-ui.css: .fc-page--capped 1120 anchored, .fc-page-title
+     the one title voice) around the listbox, the action row on the button tiers -- no card. -->
+<section id="group-members-page" class="fc-page fc-page--capped">
+  <h1 class="fc-page-title">{{ 'Members' | translate }}@if (groupName) {: {{ groupName }}}</h1>
+  @if (showSpinner) {
+    <hlm-spinner id="group-member-spinner" [aria-label]="'Loading' | translate" />
+  }
+  @if (members.length > 0) {
+    <app-dual-listbox
+      [items]="members"
+      [(selectedItems)]="selectedMembers"
+      minHeight="65vh"
+      maxHeight="65vh"
+      title1="{{'All users' | translate}}"
+      title2="{{'Group members' | translate}}">
+      <ng-template #templateItem let-item="data">
+        <span class="pointer">{{item.username}}</span>
+      </ng-template>
+    </app-dual-listbox>
+  }
+  <div class="buttons">
+    <button hlmBtn id="save_button" type="button" (click)="updateUsers()">{{ 'Save' | translate }}</button>
+    <button hlmBtn variant="outline" id="goback_button" type="button" (click)="cancel()">{{ 'Cancel' | translate }}</button>
+  </div>
+</section>

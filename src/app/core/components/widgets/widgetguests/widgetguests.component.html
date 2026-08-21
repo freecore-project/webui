@@ -1,0 +1,255 @@
+@if (rendered) {
+  <div class="widget stats-widget guests-widget" [class.xs]="screenType === 'Mobile'">
+    <div class="card-container front">
+      <div class="fc-card front">
+        <div class="fc-card-content">
+          <div class="guests-header">
+            @if (screenType === 'Mobile') {
+              <button data-dashboard-back (click)="goBack()" [attr.aria-label]="'Back to widgets' | translate" hlmTooltip="{{ 'Back to widgets' | translate }}" type="button" hlmBtn variant="ghost" size="icon" class="guests-back"
+                ix-auto ix-auto-type="button" ix-auto-identifier="goBack">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+            }
+            <h2 class="guests-title">{{ title | translate }}</h2>
+            <div class="controls">
+              <button type="button" hlmBtn variant="ghost" size="icon" (click)="goToVms()"
+                hlmTooltip="{{ 'Virtual Machines' | translate }}" [attr.aria-label]="'Virtual Machines' | translate"
+                ix-auto ix-auto-type="button" ix-auto-identifier="guestVirtualMachines">
+                <mat-icon role="img">desktop_windows</mat-icon>
+              </button>
+              <button type="button" hlmBtn variant="ghost" size="icon" (click)="goToJails()"
+                hlmTooltip="{{ 'Jails' | translate }}" [attr.aria-label]="'Jails' | translate"
+                ix-auto ix-auto-type="button" ix-auto-identifier="guestJails">
+                <mat-icon role="img">meeting_room</mat-icon>
+              </button>
+            </div>
+          </div>
+
+          <div class="guests-body">
+            @if (!loaded) {
+              <div class="guests-loading">
+                <hlm-spinner [aria-label]="'Loading' | translate" />
+              </div>
+            }
+
+            @if (loaded && statsUnavailable) {
+              <div class="guests-unavailable" role="status">
+                {{ 'Guest statistics unavailable' | translate }}
+              </div>
+            }
+
+            @if (loaded && !statsUnavailable) {
+              <dl #guestFacts class="guest-facts facts-dl">
+                <dt>{{ 'Guests' | translate }}</dt>
+                <dd class="fact-parts">
+                  <span class="fact-part">{{ vms.length }}&nbsp;{{ (vms.length === 1 ? 'VM' : 'VMs') | translate }}</span>
+                  <span class="fact-part">{{ jails.length }}&nbsp;{{ (jails.length === 1 ? 'jail' : 'jails') | translate }}</span>
+                  <span class="fact-part">{{ apps.length }}&nbsp;{{ (apps.length === 1 ? 'app' : 'apps') | translate }}</span>
+                  @if (bastille.length > 0) {
+                    <span class="fact-part">{{ bastille.length }}&nbsp;{{ 'Bastille' | translate }}</span>
+                  }
+                </dd>
+                <dt>{{ 'CPU' | translate }}</dt>
+                <dd>
+                  @if (cpuPct !== null) {
+                    {{ cpuLabel(cpuPct) }}&nbsp;{{ 'of host' | translate }}
+                  } @else {
+                    {{ 'Gathering data' | translate }}&hellip;
+                  }
+                </dd>
+                <dt>{{ 'Memory' | translate }}</dt>
+                <dd>&asymp;&nbsp;{{ formatGiB(attributedBytes) }} GiB</dd>
+              </dl>
+
+              @if (vms.length > 0) {
+                @if (vmsCollapsed) {
+                <button type="button" class="guest-row family-row" (click)="goToVms()"
+                  ix-auto ix-auto-type="button" ix-auto-identifier="guestVmsFamily">
+                  <span class="family-slot"></span>
+                  <span class="guest-name"><span class="family-label" [attr.title]="'Virtual Machines' | translate">{{ 'Virtual Machines' | translate }}</span><span class="widget-count family-count">{{ vms.length }}</span></span>
+                  <span class="guest-load">
+                    <span class="cpu-track" role="img"
+                      attr.aria-label="{{ 'Virtual Machines' | translate }} {{ cpuLabel(familyCpu(vms)) }} {{ 'CPU' | translate }}">
+                      <i [style.width.%]="cpuWidth(familyCpu(vms))"></i>
+                    </span>
+                    <span class="cpu-value">{{ cpuLabel(familyCpu(vms)) }}</span>
+                  </span>
+                  <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(vmBytes) }} GiB</span>
+                </button>
+                } @else {
+                  <div class="section-label-sm guest-section">{{ 'Virtual Machines' | translate }}</div>
+                  @for (vm of visibleVms; track trackByName($index, vm)) {
+                    <button type="button" class="guest-row" [class.stopped]="!isVmRunning(vm)"
+                      (click)="goToVms()"
+                      [hlmTooltip]="vm.name" [ix-auto]="vm.name" ix-auto-type="button" ix-auto-identifier="guestVm">
+                      <span class="state-dot" [class.running]="isVmRunning(vm)"></span>
+                      <span class="guest-name">{{ vm.name }}</span>
+                      @if (isVmRunning(vm)) {
+                        <span class="guest-load">
+                          <span class="cpu-track" role="img"
+                            attr.aria-label="{{ vm.name }} {{ cpuLabel(vm.cpu_pct) }} {{ 'CPU' | translate }}">
+                            <i [style.width.%]="cpuWidth(vm.cpu_pct)"></i>
+                          </span>
+                          <span class="cpu-value">{{ cpuLabel(vm.cpu_pct) }}</span>
+                        </span>
+                      } @else {
+                        <span class="guest-state">{{ 'stopped' | translate }}</span>
+                      }
+                      <span class="guest-memory">{{ vmMemory(vm) }}</span>
+                    </button>
+                  }
+                  @if (vmOverflow > 0) {
+                    <button type="button" class="guest-row more-row" (click)="goToVms()"
+                      ix-auto ix-auto-type="button" ix-auto-identifier="moreGuestVms">
+                      +&nbsp;{{ vmOverflow }}&nbsp;{{ 'more' | translate }} &rarr;&nbsp;{{ 'VMs' | translate }}
+                    </button>
+                  }
+                }
+              }
+
+              @if (jails.length > 0) {
+                @if (jailsCollapsed) {
+                <button type="button" class="guest-row family-row" (click)="goToJails()"
+                  ix-auto ix-auto-type="button" ix-auto-identifier="guestJailsFamily">
+                  <span class="family-slot"></span>
+                  <span class="guest-name"><span class="family-label" [attr.title]="'Jails' | translate">{{ 'Jails' | translate }}</span><span class="widget-count family-count">{{ jails.length }}</span></span>
+                  <span class="guest-load">
+                    <span class="cpu-track" role="img"
+                      attr.aria-label="{{ 'Jails' | translate }} {{ cpuLabel(familyCpu(jails)) }} {{ 'CPU' | translate }}">
+                      <i [style.width.%]="cpuWidth(familyCpu(jails))"></i>
+                    </span>
+                    <span class="cpu-value">{{ cpuLabel(familyCpu(jails)) }}</span>
+                  </span>
+                  <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(jailBytes) }} GiB</span>
+                </button>
+                } @else {
+                  <div class="section-label-sm guest-section">{{ 'Jails' | translate }}</div>
+                  @for (jail of visibleJails; track trackByName($index, jail)) {
+                    <button type="button" class="guest-row" (click)="goToJails()"
+                      [hlmTooltip]="jail.name" [ix-auto]="jail.name" ix-auto-type="button" ix-auto-identifier="guestJail">
+                      <span class="state-dot running"></span>
+                      <span class="guest-name">{{ jail.name }}</span>
+                      <span class="guest-load">
+                        <span class="cpu-track" role="img"
+                          attr.aria-label="{{ jail.name }} {{ cpuLabel(jail.cpu_pct) }} {{ 'CPU' | translate }}">
+                          <i [style.width.%]="cpuWidth(jail.cpu_pct)"></i>
+                        </span>
+                        <span class="cpu-value">{{ cpuLabel(jail.cpu_pct) }}</span>
+                      </span>
+                      <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(jail.rss) }} GiB</span>
+                    </button>
+                  }
+                  @if (jailOverflow > 0) {
+                    <button type="button" class="guest-row more-row" (click)="goToJails()"
+                      ix-auto ix-auto-type="button" ix-auto-identifier="moreGuestJails">
+                      +&nbsp;{{ jailOverflow }}&nbsp;{{ 'more' | translate }} &rarr;&nbsp;{{ 'Jails' | translate }}
+                    </button>
+                  }
+                }
+              }
+
+              @if (bastille.length > 0) {
+                @if (bastilleCollapsed) {
+                <button type="button" class="guest-row family-row" (click)="goToBastille()"
+                  ix-auto ix-auto-type="button" ix-auto-identifier="guestBastilleFamily">
+                  <span class="family-slot"></span>
+                  <span class="guest-name"><span class="family-label" [attr.title]="'Bastille Jails' | translate">{{ 'Bastille Jails' | translate }}</span><span class="widget-count family-count">{{ bastille.length }}</span></span>
+                  <span class="guest-load">
+                    <span class="cpu-track" role="img"
+                      attr.aria-label="{{ 'Bastille Jails' | translate }} {{ cpuLabel(familyCpu(bastille)) }} {{ 'CPU' | translate }}">
+                      <i [style.width.%]="cpuWidth(familyCpu(bastille))"></i>
+                    </span>
+                    <span class="cpu-value">{{ cpuLabel(familyCpu(bastille)) }}</span>
+                  </span>
+                  <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(bastilleBytes) }} GiB</span>
+                </button>
+                } @else {
+                  <div class="section-label-sm guest-section">{{ 'Bastille Jails' | translate }}</div>
+                  @for (jail of visibleBastille; track trackByName($index, jail)) {
+                    <button type="button" class="guest-row" (click)="goToBastille()"
+                      [hlmTooltip]="jail.name" [ix-auto]="jail.name" ix-auto-type="button" ix-auto-identifier="guestBastilleJail">
+                      <span class="state-dot running"></span>
+                      <span class="guest-name">{{ jail.name }}</span>
+                      <span class="guest-load">
+                        <span class="cpu-track" role="img"
+                          attr.aria-label="{{ jail.name }} {{ cpuLabel(jail.cpu_pct) }} {{ 'CPU' | translate }}">
+                          <i [style.width.%]="cpuWidth(jail.cpu_pct)"></i>
+                        </span>
+                        <span class="cpu-value">{{ cpuLabel(jail.cpu_pct) }}</span>
+                      </span>
+                      <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(jail.rss) }} GiB</span>
+                    </button>
+                  }
+                  @if (bastilleOverflow > 0) {
+                    <button type="button" class="guest-row more-row" (click)="goToBastille()"
+                      ix-auto ix-auto-type="button" ix-auto-identifier="moreGuestBastilleJails">
+                      +&nbsp;{{ bastilleOverflow }}&nbsp;{{ 'more' | translate }} &rarr;&nbsp;{{ 'Bastille Jails' | translate }}
+                    </button>
+                  }
+                }
+              }
+
+              @if (apps.length > 0) {
+                @if (appsCollapsed) {
+                <button type="button" class="guest-row family-row" (click)="goToApps()"
+                  ix-auto ix-auto-type="button" ix-auto-identifier="guestAppsFamily">
+                  <span class="family-slot"></span>
+                  <span class="guest-name"><span class="family-label" [attr.title]="'Applications' | translate">{{ 'Applications' | translate }}</span><span class="widget-count family-count">{{ apps.length }}</span></span>
+                  <span class="guest-load">
+                    <span class="cpu-track" role="img"
+                      attr.aria-label="{{ 'Applications' | translate }} {{ cpuLabel(familyCpu(apps)) }} {{ 'CPU' | translate }}">
+                      <i [style.width.%]="cpuWidth(familyCpu(apps))"></i>
+                    </span>
+                    <span class="cpu-value">{{ cpuLabel(familyCpu(apps)) }}</span>
+                  </span>
+                  <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(appBytes) }} GiB</span>
+                </button>
+                } @else {
+                  <div class="section-label-sm guest-section">{{ 'Applications' | translate }}</div>
+                  @for (app of visibleApps; track trackByName($index, app)) {
+                    <button type="button" class="guest-row" (click)="goToApps()"
+                      [hlmTooltip]="app.name" [ix-auto]="app.name" ix-auto-type="button" ix-auto-identifier="guestApp">
+                      <span class="state-dot running"></span>
+                      <span class="guest-name">{{ app.name }}</span>
+                      <span class="guest-load">
+                        <span class="cpu-track" role="img"
+                          attr.aria-label="{{ app.name }} {{ cpuLabel(app.cpu_pct) }} {{ 'CPU' | translate }}">
+                          <i [style.width.%]="cpuWidth(app.cpu_pct)"></i>
+                        </span>
+                        <span class="cpu-value">{{ cpuLabel(app.cpu_pct) }}</span>
+                      </span>
+                      <span class="guest-memory">&asymp;&nbsp;{{ formatGiB(app.rss) }} GiB</span>
+                    </button>
+                  }
+                  @if (appOverflow > 0) {
+                    <button type="button" class="guest-row more-row" (click)="goToApps()"
+                      ix-auto ix-auto-type="button" ix-auto-identifier="moreGuestApps">
+                      +&nbsp;{{ appOverflow }}&nbsp;{{ 'more' | translate }} &rarr;&nbsp;{{ 'Applications' | translate }}
+                    </button>
+                  }
+                }
+              }
+
+              @if (vms.length === 0 && jails.length === 0 && apps.length === 0 && bastille.length === 0) {
+                <div class="guests-empty">{{ 'No VMs, jails or applications' | translate }}</div>
+              }
+
+              <dl #servicesFooter class="services-footer facts-dl">
+                <dt>{{ 'Services' | translate }}</dt>
+                <dd class="fact-parts">
+                  <span class="fact-part">{{ 'VMs' | translate }} {{ formatGiB(vmBytes) }} GiB</span>
+                  <span class="fact-part">{{ 'jails' | translate }} {{ formatGiB(jailBytes) }} GiB</span>
+                  <span class="fact-part">{{ 'apps' | translate }} {{ formatGiB(appBytes) }} GiB</span>
+                  @if (bastille.length > 0) {
+                    <span class="fact-part">{{ 'Bastille' | translate }} {{ formatGiB(bastilleBytes) }} GiB</span>
+                  }
+                  <span class="fact-part">{{ 'base' | translate }} {{ formatGiB(baseBytes) }} GiB</span>
+                </dd>
+              </dl>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

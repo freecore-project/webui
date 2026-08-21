@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import { DialogService, WebSocketService, AppLoaderService } from '../../../../services';
@@ -7,10 +7,14 @@ import { shared, helptext_sharing_iscsi } from 'app/helptext/sharing';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-globalconfiguration',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class GlobalconfigurationComponent {
+  readonly settingsTitle = T('Target Global Configuration');
+
   protected queryCall = 'iscsi.global.config';
   protected editCall = 'iscsi.global.update';
 

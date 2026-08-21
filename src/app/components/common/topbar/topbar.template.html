@@ -1,179 +1,121 @@
-<mat-toolbar class="topbar lola">
-  <mat-toolbar-row>
+<!-- the internal development record: the topbar off mat-toolbar -- the same two boxes (the toolbar, its one row) on .fc-toolbar -->
+<div class="topbar lola fc-toolbar fc-toolbar-multiple-rows">
+  <div class="fc-toolbar-row">
     <!-- Sidenav toggle button -->
-    <button mat-icon-button id="sidenavToggle" (click)="toggleSidenav()" [matTooltip]="mat_tooltips.toggle_hide | translate" matTooltipPosition="right"
+    <button hlmBtn variant="ghost" size="icon-lg" type="button" id="sidenavToggle" (click)="toggleSidenav()" [hlmTooltip]="mat_tooltips.toggle_hide | translate" [attr.aria-label]="mat_tooltips.toggle_hide | translate" position="right"
       ix-auto ix-auto-type="button" ix-auto-identifier="sidenavToggle">
       <mat-icon>menu</mat-icon>
     </button>
     <!-- Sidenav toggle collapse -->
-    <button *ngIf="sidenav.opened" mat-icon-button id="collapseToggle" fxHide.lt-mat="true" (click)="toggleCollapse()" [matTooltip]="mat_tooltips.toggle_collapse | translate" class="toggle-collapsed"
-      ix-auto ix-auto-type="button" ix-auto-identifier="collapseToggle">
-      <mat-icon>chevron_left</mat-icon>
-    </button>
-    <!-- Search form
-      <div
-      fxFlex
-      fxHide.lt-sm="true"
-      class="search-bar">
-      <form class="top-search-form">
-      <mat-icon role="img">search</mat-icon>
-      <input autofocus="true" placeholder="Search" type="text">
-      </form>
-      </div -->
-      <span fxFlex></span>
-      <div>
-        <mat-icon (click)="openIX()"
-          [svgIcon]="screenSize == 'xs' ? 'ix_logomark' : 'ix_full_logo'"
-          alt="iXsystems logo"
-          class="ix-logo {{screenSize}}">
-        </mat-icon>
-      </div>
+    @if (sidenav.opened) {
+      <button hlmBtn variant="ghost" size="icon-lg" type="button" id="collapseToggle" (click)="toggleCollapse()" [hlmTooltip]="mat_tooltips.toggle_collapse | translate" [attr.aria-label]="mat_tooltips.toggle_collapse | translate" class="toggle-collapsed"
+        ix-auto ix-auto-type="button" ix-auto-identifier="collapseToggle">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+    }
+    @if (hostname) {
+      <span class="fc-hostname" [hlmTooltip]="hostname">{{hostname}}</span>
+    }
+    <span class="topbar-spacer"></span>
 
-      <!-- truecommand-->
-      <button mat-icon-button id="tc-connecting" [matTooltip]="mat_tooltips.tc_connect | translate" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="tcConnecting" *ngIf="tcStatus && tcStatus.status === 'CONNECTING'" (click)="stopTCConnecting()">
-        <mat-icon class="movement" svgIcon="truecommand_logo_white"></mat-icon>
-      </button>
-      <button mat-icon-button id="tc-status" [matTooltip]="mat_tooltips.tc_status | translate" class="topbar-button-right" (click)="showTCStatus()"
-        ix-auto ix-auto-type="button" ix-auto-identifier="tcStatus" *ngIf="tcStatus && tcStatus.status !== 'CONNECTING'">
-        <mat-icon svgIcon="truecommand_logo_mono" class="truecommand {{tcStatus.status.toLowerCase()}}"></mat-icon>
-      </button>
-      <!-- finish update -->
-      <button *ngIf="upgradeWaitingToFinish" mat-icon-button id="finish-update" [matTooltip]="mat_tooltips.upgrade_waiting | translate" (click)="upgradePendingDialog()" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="upgradeWaiting">
-        <mat-icon class="movement">update</mat-icon>
-      </button>
-      <!--loading icon-->
-      <button *ngIf="updateIsRunning" mat-icon-button id="update-running" [matTooltip]="mat_tooltips.update | translate" (click)="showUpdateDialog()" class="topbar-button-right"
+    <!-- identity mark (the internal development record): where 13.3 kept the iX logo; opens About -->
+    <button hlmBtn variant="ghost" size="icon-lg" type="button" id="fc-mark" [hlmTooltip]="mat_tooltips.about | translate" [attr.aria-label]="mat_tooltips.about | translate" (click)="onShowAbout()" class="topbar-button-right"
+      ix-auto ix-auto-type="button" ix-auto-identifier="fcMark">
+      <img class="fc-topbar-mark" [src]="mascot === 'FreeCORE_mascot.png' ? 'assets/images/freecore-fork-mark.svg' : 'assets/images/' + mascot" [class.fc-fork-mark]="mascot === 'FreeCORE_mascot.png'" alt="FreeCORE">
+    </button>
+    <!--loading icon-->
+    @if (updateIsRunning) {
+      <button hlmBtn variant="ghost" size="icon-lg" type="button" id="update-running" [hlmTooltip]="mat_tooltips.update | translate" [attr.aria-label]="mat_tooltips.update | translate" (click)="showUpdateDialog()" class="topbar-button-right"
         ix-auto ix-auto-type="button" ix-auto-identifier="updateRunning">
         <mat-icon class="movement">system_update_alt</mat-icon>
       </button>
-      <button *ngIf="pendingNetworkChanges" mat-icon-button id="network" [matTooltip]="mat_tooltips.pending_network_changes | translate" (click)="showNetworkChangesPending()" class="topbar-button-right"
+    }
+    @if (pendingNetworkChanges) {
+      <button hlmBtn variant="ghost" size="icon-lg" type="button" id="network" [hlmTooltip]="mat_tooltips.pending_network_changes | translate" [attr.aria-label]="mat_tooltips.pending_network_changes | translate" (click)="showNetworkChangesPending()" class="topbar-button-right"
         ix-auto ix-auto-type="button" ix-auto-identifier="networkPending">
         <mat-icon class="movement">device_hub</mat-icon>
       </button>
-      <button *ngIf="showResilvering" mat-icon-button id="resilver" [matTooltip]="mat_tooltips.resilvering | translate" (click)="showResilveringDetails()" class="topbar-button-right"
+    }
+    @if (showResilvering) {
+      <button hlmBtn variant="ghost" size="icon-lg" type="button" id="resilver" [hlmTooltip]="mat_tooltips.resilvering | translate" [attr.aria-label]="mat_tooltips.resilvering | translate" (click)="showResilveringDetails()" class="topbar-button-right"
         ix-auto ix-auto-type="button" ix-auto-identifier="resilvering">
         <mat-icon class="fa-spin">autorenew</mat-icon>
       </button>
-      <!-- HA Status -->
-      <span *ngIf="is_ha && ha_status_text">
-      <button
-        *ngIf="ha_disabled_reasons.length === 0 && ha_status_text === 'HA Enabled'"
-        mat-icon-button
-        id="ha"
-        [matTooltip]="ha_status_text | translate"
-        (click)="showHAStatus()"
-        ix-auto
-        ix-auto-type="button"
-        ix-auto-identifier="haStatus">
-          <mat-icon svgIcon="ha_enabled"></mat-icon>
-      </button>
-      <button
-        *ngIf="ha_disabled_reasons.length > 0 && ha_status_text === 'HA Disabled'"
-        mat-icon-button
-        id="ha"
-        [matTooltip]="ha_status_text | translate"
-        (click)="showHAStatus()"
-        ix-auto
-        ix-auto-type="button"
-        ix-auto-identifier="haStatus">
-          <mat-icon
-            [svgIcon]="ha_disabled_reasons[0] === 'NO_SYSTEM_READY' ? 'ha_reconnecting' : 'ha_disabled'"
-          ></mat-icon>
-      </button>
-      </span>
-      <!-- Directory Services Monitor -->
-      <button mat-icon-button *ngIf="showDirServicesIcon" id="dirservices-manager" [matTooltip]="mat_tooltips.directory_services_monitor | translate" (click)="onShowDirServicesMonitor()"
+    }
+    <!-- Directory Services Monitor -->
+    @if (showDirServicesIcon) {
+      <button hlmBtn variant="ghost" size="icon-lg" type="button" id="dirservices-manager" [hlmTooltip]="mat_tooltips.directory_services_monitor | translate" [attr.aria-label]="mat_tooltips.directory_services_monitor | translate" (click)="onShowDirServicesMonitor()"
         ix-auto ix-auto-type="button" ix-auto-identifier="dirServices">
         <mat-icon>info</mat-icon>
       </button>
-      <!-- Task Manager -->
-      <button mat-icon-button id="task-manager" [matTooltip]="mat_tooltips.task_manager | translate" (click)="onShowTaskManager()"
-        ix-auto ix-auto-type="button" ix-auto-identifier="taskManager">
-        <mat-icon>assignment</mat-icon>
-      </button>
-      <!-- Notification toggle button -->
-      <button mat-icon-button [matTooltip]="mat_tooltips.alerts | translate" (click)="toggleNotific()" [style.overflow]="'visible'" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="notifications">
-        <mat-icon>notifications</mat-icon>
-        <span *ngIf="notifications.length > 0" class="notification-number mat-bg-warn">{{notifications.length}}</span>
-      </button>
-      <!-- User and UI menu -->
-      <button name="Settings" mat-icon-button [matTooltip]="mat_tooltips.settings | translate" [matMenuTriggerFor]="accountMenu" class="topbar-button-right" (click)="checkLegacyUISetting()"
-        ix-auto ix-auto-type="button" ix-auto-identifier="settings">
-          <mat-icon>settings</mat-icon>
-      </button>
-      <mat-menu #accountMenu="matMenu">
-        <!--button mat-menu-item (click)="$event.stopPropagation()" [matMenuTriggerFor]="languageMenu">
-          <mat-icon>translate</mat-icon>
-          <ng-container *ngFor="let lang of language.availableLangs">
-            <span *ngIf="lang.code == language.currentLang">{{ lang.name }}</span>
-          </ng-container>
-        </button-->
-        <button class="hidden-button" mat-menu-item></button>
-        <button name="settings-change-password" mat-menu-item [routerLink]="['/account/users/change-password']"
+    }
+    <!-- Task Manager -->
+    <button hlmBtn variant="ghost" size="icon-lg" type="button" id="task-manager" [hlmTooltip]="mat_tooltips.task_manager | translate" [attr.aria-label]="mat_tooltips.task_manager | translate" (click)="onShowTaskManager()"
+      ix-auto ix-auto-type="button" ix-auto-identifier="taskManager">
+      <mat-icon>assignment</mat-icon>
+    </button>
+    <!-- Notification toggle button -->
+    <button hlmBtn variant="ghost" size="icon-lg" type="button" [hlmTooltip]="mat_tooltips.alerts | translate" [attr.aria-label]="mat_tooltips.alerts | translate" (click)="toggleNotific()" [style.overflow]="'visible'" class="topbar-button-right"
+      ix-auto ix-auto-type="button" ix-auto-identifier="notifications">
+      <mat-icon>notifications</mat-icon>
+      @if (notifications.length > 0) {
+        <span class="notification-number mat-bg-warn">{{notifications.length}}</span>
+      }
+    </button>
+    <!-- User and UI menu -->
+    <!-- the internal development record: the account and power menus on the helm dropdown-menu (M1), aligned to
+         the trigger's end; the triggers stay the shell's icon buttons. -->
+    <button name="Settings" hlmBtn variant="ghost" size="icon-lg" type="button" [hlmTooltip]="mat_tooltips.settings | translate" [attr.aria-label]="mat_tooltips.settings | translate" [hlmDropdownMenuTrigger]="accountMenu" align="end" class="topbar-button-right"
+      ix-auto ix-auto-type="button" ix-auto-identifier="settings">
+      <mat-icon>settings</mat-icon>
+    </button>
+    <ng-template #accountMenu>
+      <hlm-dropdown-menu class="topbar-menu">
+        <button name="settings-change-password" hlmDropdownMenuItem type="button" [routerLink]="['/account/users/change-password']"
           ix-auto ix-auto-type="option" ix-auto-identifier="Change Password">
-          <mat-icon>dialpad</mat-icon>
+          <mat-icon aria-hidden="true">dialpad</mat-icon>
           <span>{{'Change Password' | translate}}</span>
         </button>
-        <button name="settings-preferences" mat-menu-item [routerLink]="['/ui-preferences']"
+        <button name="settings-preferences" hlmDropdownMenuItem type="button" [routerLink]="['/ui-preferences']"
           ix-auto ix-auto-type="option" ix-auto-identifier="Preferences">
-          <mat-icon>settings_applications</mat-icon>
+          <mat-icon aria-hidden="true">settings_applications</mat-icon>
           <span>{{'Preferences' | translate}}</span>
         </button>
-        <!-- button name="settings-disable-alerts" mat-menu-item>
-          <mat-icon>notifications_off</mat-icon>
-          <span>Disable alerts</span>
-        </button -->
-        <button name="settings-api" mat-menu-item [routerLink]="['/apikeys']"
+        <button name="settings-api" hlmDropdownMenuItem type="button" [routerLink]="['/apikeys']"
           ix-auto ix-auto-type="option" ix-auto-identifier="API">
-          <mat-icon>laptop</mat-icon>
+          <mat-icon aria-hidden="true">laptop</mat-icon>
           <span>{{'API Keys' | translate}}</span>
         </button>
-        <button name="settings-about" mat-menu-item (click)="onShowAbout()"
+        <button name="settings-about" hlmDropdownMenuItem type="button" (triggered)="onShowAbout()"
           ix-auto ix-auto-type="option" ix-auto-identifier="About">
-          <mat-icon>info_outline</mat-icon>
+          <mat-icon aria-hidden="true">info</mat-icon>
           <span>{{'About' | translate}}</span>
         </button>
-        <button *ngIf="exposeLegacyUI" name="settings-legacy-ui" mat-menu-item (click)="onGoToLegacy()"
-          ix-auto ix-auto-type="option" ix-auto-identifier="Legacy Web Interface">
-          <mat-icon>keyboard_return</mat-icon>
-          <span>{{'Legacy Web Interface' | translate}}</span>
+      </hlm-dropdown-menu>
+    </ng-template>
+    <!-- Top right power menu -->
+    <button name="Power" hlmBtn variant="ghost" size="icon-lg" type="button" [hlmTooltip]="mat_tooltips.power | translate" [attr.aria-label]="mat_tooltips.power | translate" [hlmDropdownMenuTrigger]="runMenu" align="end" class="topbar-button-right"
+      ix-auto ix-auto-type="button" ix-auto-identifier="power">
+      <mat-icon>power_settings_new</mat-icon>
+    </button>
+    <ng-template #runMenu>
+      <hlm-dropdown-menu class="topbar-menu">
+        <button name="power-log-out" hlmDropdownMenuItem type="button" (triggered)="signOut()"
+          ix-auto ix-auto-type="option" ix-auto-identifier="Log Out">
+          <mat-icon aria-hidden="true">exit_to_app</mat-icon>
+          <span>{{'Log Out' | translate}}</span>
         </button>
-      </mat-menu>
-      <!-- Top right power menu -->
-      <button name="Power" mat-icon-button [matTooltip]="mat_tooltips.power | translate" [matMenuTriggerFor]="runMenu" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="power">
-          <mat-icon>power_settings_new</mat-icon>
+        <button name="power-restart" hlmDropdownMenuItem type="button" (triggered)="onReboot()"
+          ix-auto ix-auto-type="option" ix-auto-identifier="Restart">
+          <mat-icon aria-hidden="true">replay</mat-icon>
+          <span>{{'Restart' | translate}}</span>
         </button>
-        <mat-menu #runMenu="matMenu">
-            <button class="hidden-button" mat-menu-item></button>
-            <button name="power-log-out" mat-menu-item (click)="signOut()"
-              ix-auto ix-auto-type="option" ix-auto-identifier="Log Out">
-              <mat-icon>exit_to_app</mat-icon>
-              <span>{{'Log Out' | translate}}</span>
-            </button>
-            <button name="power-restart" mat-menu-item (click)="onReboot()"
-              ix-auto ix-auto-type="option" ix-auto-identifier="Restart">
-              <mat-icon>replay</mat-icon>
-              <span>{{'Restart' | translate}}</span>
-            </button>
-            <button name="power-shut-down" mat-menu-item (click)="onShutdown()"
-              ix-auto ix-auto-type="option" ix-auto-identifier="Shut Down">
-              <mat-icon>power_settings_new</mat-icon>
-              <span>{{'Shut Down' | translate}}</span>
-            </button>
-        </mat-menu>
-      <mat-menu #languageMenu="matMenu" [overlapTrigger]="false" xPosition="after">
-        <ng-container *ngFor="let lang of language.availableLangs">
-          <button mat-menu-item (click)="setLang(lang.code)">
-            <span>{{ lang.name }}</span>
-            <!--span class="flag-icon" [ngClass]="{'flag-icon-us': lang.code === 'en'}" *ngIf="lang.code == 'en'">{{ lang.name }}</span>
-              <span class="flag-icon" [ngClass]="{'flag-icon-es': lang.code === 'es'}" *ngIf="lang.code == 'es'">{{ lang.name }}</span>
-              <span class="flag-icon" [ngClass]="{'flag-icon-cn': lang.code === 'zh-hans'}" *ngIf="lang.code == 'zh-hans'">{{ lang.name }}</span-->
-          </button>
-        </ng-container>
-      </mat-menu>
-  </mat-toolbar-row>
-</mat-toolbar>
+        <button name="power-shut-down" hlmDropdownMenuItem type="button" (triggered)="onShutdown()"
+          ix-auto ix-auto-type="option" ix-auto-identifier="Shut Down">
+          <mat-icon aria-hidden="true">power_settings_new</mat-icon>
+          <span>{{'Shut Down' | translate}}</span>
+        </button>
+      </hlm-dropdown-menu>
+    </ng-template>
+  </div>
+</div>

@@ -1,0 +1,7 @@
+// the internal development record: only the console-log dialog has markup here
+// The console pane (.fc-dialog-pre) scrolls by itself; the body keeps Material's overflow:auto.
+// the internal development record: the pane itself is the shared `.fc-dialog-pre` (the dialog law).
+.console-log-content.mat-mdc-dialog-content {
+  min-height: 0;
+  max-width: none;
+}

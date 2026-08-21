@@ -24,10 +24,13 @@ export default {
  software compatibility. <i>VirtIO</i> uses\
  paravirtualized drivers and can provide better\
  performance, but requires the operating system\
- installed in the VM to support VirtIO disk devices.'),
+ installed in the VM to support VirtIO disk devices.\
+ <i>NVMe</i> emulates an NVM Express controller; every\
+ current operating system installer has a driver for it.'),
   mode_options: [
     { label: 'AHCI', value: 'AHCI' },
     { label: 'VirtIO', value: 'VIRTIO' },
+    { label: 'NVMe', value: 'NVME' },
   ],
 
   sectorsize_placeholder: T('Disk sector size'),
@@ -69,7 +72,21 @@ export default {
  software compatibility. <i>VirtIO</i> uses\
  paravirtualized drivers and can provide better\
  performance, but requires the operating system\
- installed in the VM to support VirtIO disk devices.'),
+ installed in the VM to support VirtIO disk devices.\
+ <i>NVMe</i> emulates an NVM Express controller; every\
+ current operating system installer has a driver for it.'),
+
+  // the internal development record: a host directory shared into the guest over virtio-9p
+  share_source_placeholder: T('Source Directory'),
+  share_source_tooltip: T('Directory on this system to share with the guest.'),
+  share_source_validation: [Validators.required],
+  share_tag_placeholder: T('Mount Tag'),
+  share_tag_tooltip: T('Name the guest uses to mount the share: <i>mount -t p9fs &lt;tag&gt; /mnt</i>\
+ on FreeBSD, <i>mount -t 9p -o trans=virtio &lt;tag&gt; /mnt</i> on Linux. Letters, digits,\
+ <i>_ . -</i>; unique within the VM.'),
+  share_tag_validation: [Validators.required, regexValidator(/^[A-Za-z0-9][A-Za-z0-9_.-]{0,31}$/)],
+  share_readonly_placeholder: T('Read-only'),
+  share_readonly_tooltip: T('The guest can read the directory but not write to it.'),
 
   raw_size_placeholder: T('Raw filesize'),
   raw_size_tooltip: T('Define the size of the raw file in GiB.'),
@@ -86,7 +103,7 @@ export default {
   boot_tooltip: '',
 
   vnc_port_placeholder: T('Port'),
-  vnc_port_tooltip: T('Can be set to <i>0</i>, left empty for TrueNAS to\
+  vnc_port_tooltip: T('Can be set to <i>0</i>, left empty for FreeCORE to\
  assign a port when the VM is started, or set to a\
  fixed, preferred port number.'),
 

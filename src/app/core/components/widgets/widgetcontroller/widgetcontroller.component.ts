@@ -1,25 +1,14 @@
 import {
-  Component, AfterViewInit, Input, ViewChild, OnChanges, SimpleChanges, OnDestroy, Output, EventEmitter,
+  AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, EventEmitter,
+  Input, Output, QueryList, ViewChildren,
 } from '@angular/core';
-import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
-import { CoreService, CoreEvent } from 'app/core/services/core.service';
-import { MaterialModule } from 'app/appMaterial.module';
-import { NgForm } from '@angular/forms';
-import { ChartData } from 'app/core/components/viewchart/viewchart.component';
-import { Subject } from 'rxjs';
-import { FlexLayoutModule, MediaObserver } from '@angular/flex-layout';
-
 import { Router } from '@angular/router';
-import { UUID } from 'angular2-uuid';
-import * as d3 from 'd3';
-
-import filesize from 'filesize';
-import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component';
-
-import { ViewChartGaugeComponent } from 'app/core/components/viewchartgauge/viewchartgauge.component';
-import { ViewChartBarComponent } from 'app/core/components/viewchartbar/viewchartbar.component';
 import { TranslateService } from '@ngx-translate/core';
-
+import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
+import { CoreEvent } from 'app/core/services/core.service';
+import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component';
+import { LayoutMediaObserver } from 'app/services/layout-media-observer.service';
 import { T } from '../../../../translate-marker';
 
 export interface DashConfigItem {
@@ -30,8 +19,10 @@ export interface DashConfigItem {
 }
 
 @Component({
+  standalone: false,
   selector: 'widget-controller',
   templateUrl: './widgetcontroller.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./widgetcontroller.component.css'],
 })
 export class WidgetControllerComponent extends WidgetComponent implements AfterViewInit {
@@ -40,6 +31,8 @@ export class WidgetControllerComponent extends WidgetComponent implements AfterV
   @Input()hiddenWidgets?: number[] = [];
 
   @Output() launcher = new EventEmitter();
+  @ViewChildren('launcherButton', { read: ElementRef }) private launcherButtons: QueryList<ElementRef<HTMLButtonElement>>;
+  private mediaSub: Subscription;
 
   title: string = T('Dashboard');
   subtitle: string = T('Navigation');
@@ -47,24 +40,20 @@ export class WidgetControllerComponent extends WidgetComponent implements AfterV
   configurable = false;
   screenType = 'Desktop'; // Desktop || Mobile
 
-  constructor(public router: Router, public translate: TranslateService, public mediaObserver: MediaObserver) {
+  constructor(public router: Router, public translate: TranslateService, public mediaObserver: LayoutMediaObserver) {
     super(translate);
 
-    mediaObserver.media$.subscribe((evt) => {
+    this.mediaSub = mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
       const st = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
       this.screenType = st;
     });
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes.renderedWidgets) {
-      console.log(changes.renderedWidgets);
-    } else if (changes.hiddenWidgets) {
-      console.log(changes.hiddenWidgets);
-    }
-  }
-
   ngOnDestroy() {
+    this.mediaSub.unsubscribe();
     this.core.unregister({ observerClass: this });
   }
 
@@ -86,5 +75,15 @@ export class WidgetControllerComponent extends WidgetComponent implements AfterV
 
   launchWidget(widget) {
     this.launcher.emit(widget);
+  }
+
+  widgetKey(widget: DashConfigItem): string {
+    return `${widget.name}:${widget.identifier || ''}`;
+  }
+
+  focusWidget(widget?: DashConfigItem): void {
+    const buttons = this.launcherButtons?.toArray() || [];
+    const target = widget && buttons.find((button) => button.nativeElement.dataset.widgetKey === this.widgetKey(widget));
+    (target || buttons[0])?.nativeElement.focus();
   }
 }

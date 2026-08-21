@@ -1,5 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,15 +17,19 @@ import { LocaleService } from 'app/services/locale.service';
 import { DialogFormConfiguration } from '../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import globalHelptext from '../../../helptext/global-helptext';
+import { T } from 'app/translate-marker';
 import { EntityUtils } from '../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-general',
   template: '<entity-form [conf]="this"></entity-form>',
   styleUrls: ['./general.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class GeneralComponent implements OnDestroy {
+  readonly settingsTitle = T('General');
   protected queryCall = 'system.general.config';
   protected updateCall = 'system.general.update';
   sortLanguagesByName = true;
@@ -110,6 +114,7 @@ export class GeneralComponent implements OnDestroy {
           type: 'combobox',
           name: 'language',
           label: helptext.stg_language.label,
+          showLabel: true,
           placeholder: helptext.stg_language.placeholder,
           tooltip: helptext.stg_language.tooltip,
           options: [],
@@ -146,6 +151,7 @@ export class GeneralComponent implements OnDestroy {
           type: 'combobox',
           name: 'timezone',
           label: helptext.stg_timezone.label,
+          showLabel: true,
           placeholder: helptext.stg_timezone.placeholder,
           tooltip: helptext.stg_timezone.tooltip,
           options: [{ label: '---', value: null }],
@@ -172,25 +178,11 @@ export class GeneralComponent implements OnDestroy {
         },
       ],
     },
-    { name: 'divider', divider: true },
-    {
-      name: helptext.stg_fieldset_other,
-      label: true,
-      config: [
-        {
-          type: 'checkbox',
-          name: 'crash_reporting',
-          placeholder: helptext.crash_reporting.placeholder,
-          tooltip: helptext.crash_reporting.tooltip,
-        },
-        {
-          type: 'checkbox',
-          name: 'usage_collection',
-          placeholder: helptext.usage_collection.placeholder,
-          tooltip: helptext.usage_collection.tooltip,
-        },
-      ],
-    },
+    // the internal development record: the "Other Options" fieldset held only the Crash
+    // reporting and Usage collection checkboxes. the internal development record removed both
+    // endpoints -- sentry.ixsystems.com and usage.freenas.org -- so the toggles
+    // controlled nothing and their tooltips described transmission that no
+    // longer happens. The whole fieldset goes with them.
     { name: 'divider', divider: true },
   ];
 
@@ -206,6 +198,12 @@ export class GeneralComponent implements OnDestroy {
       name: 'pool_keys',
       placeholder: helptext.poolkeys.placeholder,
       tooltip: helptext.poolkeys.tooltip,
+    },
+    {
+      type: 'checkbox',
+      name: 'truenas_scale',
+      placeholder: helptext.truenas_scale.placeholder,
+      tooltip: helptext.truenas_scale.tooltip,
     },
     {
       type: 'input',
@@ -316,7 +314,7 @@ export class GeneralComponent implements OnDestroy {
 
   IPValidator(name: string, wildcard: string) {
     const self = this;
-    return function validIPs(control: FormControl) {
+    return function validIPs(control: UntypedFormControl) {
       const config = self.fieldSets.find((set) => set.name === helptext.stg_fieldset_gui).config.find((c) => c.name === name);
 
       const errors = control.value && control.value.length > 1 && _.indexOf(control.value, wildcard) !== -1
@@ -542,11 +540,16 @@ export class GeneralComponent implements OnDestroy {
         entityDialog.ws.call('system.info', []).subscribe((res) => {
           let fileName = '';
           let mimetype;
+          // the internal development record: a bundle for TrueNAS SCALE's config upload, never a FreeCORE backup.
+          const forScale = Boolean(entityDialog.formValue['truenas_scale']);
           if (res) {
             const hostname = res.hostname.split('.')[0];
             const date = entityDialog.datePipe.transform(new Date(), 'yyyyMMddHHmmss');
             fileName = hostname + '-' + res.version + '-' + date;
-            if (entityDialog.formValue['secretseed'] || entityDialog.formValue['pool_keys']) {
+            if (forScale) {
+              mimetype = 'application/x-tar';
+              fileName += '-for-truenas-scale.tar';
+            } else if (entityDialog.formValue['secretseed'] || entityDialog.formValue['pool_keys']) {
               mimetype = 'application/x-tar';
               fileName += '.tar';
             } else {
@@ -555,11 +558,14 @@ export class GeneralComponent implements OnDestroy {
             }
           }
 
-          entityDialog.ws.call('core.download', ['config.save', [{
+          const saveOptions: { secretseed: boolean; pool_keys: boolean; target?: string } = {
             secretseed: entityDialog.formValue['secretseed'],
             pool_keys: entityDialog.formValue['pool_keys'],
-          }],
-          fileName])
+          };
+          if (forScale) {
+            saveOptions.target = 'truenas-scale';
+          }
+          entityDialog.ws.call('core.download', ['config.save', [saveOptions], fileName])
             .subscribe(
               (download) => {
                 const url = download[1];

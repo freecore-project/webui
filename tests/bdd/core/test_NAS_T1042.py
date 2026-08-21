@@ -70,13 +70,13 @@ def click_on_storage_on_the_side_menu_click_on_pools(driver):
 @then('click on the tank pool three dots button, select Add Dataset')
 def click_on_the_tank_pool_three_dots_button_select_add_dataset(driver):
     """click on the tank pool three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Dataset"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then('input guest for Name, select SMB as Share Type, and click Submit')
@@ -113,7 +113,7 @@ def on_the_windows_shares_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"Samba")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then('input guest_share for the Name, input the guest path for the SMB dataset')
@@ -155,8 +155,8 @@ def click_submit_the_new_share_should_be_created_without_error(driver):
 @then('click on the guest dataset 3 dots button, select Edit Permissions')
 def click_on_the_guest_dataset_3_dots_button_select_edit_permissions(driver):
     """click on the guest dataset 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__guest"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__guest"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__guest"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__guest"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__guest_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__guest_Edit Permissions"]').click()
 

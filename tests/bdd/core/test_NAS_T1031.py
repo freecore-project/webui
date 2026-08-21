@@ -66,7 +66,7 @@ def click_on_sharing_on_the_side_menu_and_click_block_shares(driver):
 def the_iscsi_page_appear_at_the_target_global_configuration_tab(driver):
     """the iSCSI page appear at the Target Global Configuration tab."""
     assert wait_on_element(driver, 7, '//a[contains(.,"iSCSI")]')
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Global Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Global Configuration")]')
 
 
 @then('click on Wizard, the Wizard should appear')
@@ -141,7 +141,7 @@ def click_next_twice_then_click_submit_enable_the_service_if_prompted(driver):
     driver.find_element_by_xpath('//button[@ix-auto="button__NEXT_Initiator"]').click()
     rsc.click_The_Summit_Button(driver)
     assert wait_on_element_disappear(driver, 10, '//h6[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Global Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Global Configuration")]')
 
 
 @then('ssh to <host> with <password> and enter iscsictl -A -t <basename>:<share> -p NAS IP')

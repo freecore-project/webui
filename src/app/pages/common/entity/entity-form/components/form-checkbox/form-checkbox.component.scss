@@ -1,18 +1,16 @@
-input {
-  display: block;
-  font-family: inherit;
-  font-size: 14px;
-  width: 100%;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  outline: none;
-  padding: 10px 15px;
-  color: rgba(0, 0, 0, 0.7);
-  &:focus {
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
-  }
-}
-
+/* the internal development record: a checkbox row is Material's 40px state layer plus the 8px
+ * of leading the 14px/20px type contract puts around it -- a 48px row.
+ *
+ * The 13px bottom margin this used to carry pushed that pitch to 61px. Beside a
+ * field, whose 44px filled box fills most of its 66px pitch, 61px holding a 16px
+ * tick and one line of label read as dead air -- worst in Accounts -> Users ->
+ * Edit, where four checkboxes sit in a row. The wrapper adds no gutter of its
+ * own: unlike a field it reserves no subscript, and the state layer already pads
+ * the label.
+ *
+ * An `input` rule also used to sit here. It was dead -- these styles are
+ * emulated-encapsulation scoped, and mat-checkbox renders its native input from
+ * its own template, so `input[_ngcontent-*]` never matched anything. */
 .form-checkbox {
-  margin-bottom: 13px;
+  margin-bottom: 0;
 }

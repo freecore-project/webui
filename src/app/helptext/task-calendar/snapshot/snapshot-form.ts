@@ -31,12 +31,12 @@ export default {
 
   naming_schema_placeholder: T('Naming Schema'),
   naming_schema_tooltip: T('Snapshot name format string. The default \
- is <code>auto-\%Y-\%m-\%d_\%H-\%M</code>. Must include the strings <i>\%Y</i>, \
- <i>\%m</i>, <i>\%d</i>, <i>\%H</i>, and <i>\%M</i>, which are replaced with \
+ is <code>auto-&#37;Y-&#37;m-&#37;d_&#37;H-&#37;M</code>. Must include the strings <i>&#37;Y</i>, \
+ <i>&#37;m</i>, <i>&#37;d</i>, <i>&#37;H</i>, and <i>&#37;M</i>, which are replaced with \
  the four-digit year, month, day of month, hour, and minute as defined \
  in <a href="https://www.freebsd.org/cgi/man.cgi?query=strftime" target="_blank">strftime(3)</a>.<br><br> \
  For example, snapshots of <i>pool1</i> with a Naming Schema of \
- <i>customsnap-\%Y\%m\%d.\%H\%M</i> have names like \
+ <i>customsnap-&#37;Y&#37;m&#37;d.&#37;H&#37;M</i> have names like \
  <i>pool1@customsnap-20190315.0527</i>.'),
 
   begin_placeholder: T('Begin'),
@@ -57,7 +57,7 @@ export default {
  have been no changes to the dataset from the last snapshot. Recommended \
  for creating long-term restore points, multiple snapshot tasks pointed \
  at the same datasets, or to be compatible with snapshot schedules or \
- replications created in TrueNAS 11.2 and earlier.<br><br> For example, \
+ replications created in FreeNAS 11.2 and earlier.<br><br> For example, \
  allowing empty snapshots for a monthly snapshot schedule allows that \
  monthly snapshot to be taken, even when a daily snapshot task has \
  already taken a snapshot of any changes to the dataset.'),

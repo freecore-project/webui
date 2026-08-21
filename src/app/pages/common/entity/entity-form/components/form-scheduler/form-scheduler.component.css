@@ -1,236 +1,222 @@
-.has-tooltip mat-form-field.full-width {
-	width: calc( 100% - 25px )
+/* the internal development record: the scheduler on spartan. The field is the #351 select (#393); the popup is
+ * a #354 surface -- bg2, the --line hairline, 6px -- fixed and centred as before (620px: a 300px
+ * preview column and a 320px cron column on one surface, split by a hairline). */
+.has-tooltip hlm-field.full-width {
+  width: calc(100% - 25px);
 }
 
-.advanced-date-picker.mat-card{
-  position:fixed;
-  top:10%;
-  left:calc(50% - 310px);
-  z-index:2;
-  padding:0 0 0 300px;
-  box-shadow: 0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);
-  display: block;
-  border-radius: 2px;
-  border-color:red;
+/* The option rows are flex rows with a 6px gap; the panel grows to its longest row instead of the
+ * trigger's width (a 50% field would wrap the crontab and the description inside the 32px row). */
+em.crontab {
+  font-style: normal;
+  color: var(--sp-muted-foreground, var(--fg2));
 }
-
-.advanced-date-picker.mat-card h4.preview-label{
-  /*border-bottom:solid 1px var(--bg1);*/
-  padding:16px 16px 13px;
-  text-align:left;
-}
-
-.advanced-date-picker.mat-card .cron-fields h4.preview-label{
-  padding:0;
-  display: inline-block;
-  float: left;
-}
-
-.mat-calendar-content{
-  width:300px; /* Width of calendar preview*/
-  position:absolute;
-  left:0;
-  top:0;
-}
-
-.mat-calendar-content code{
-  margin-left:24px;
-  width:252px;
-}
-
-ul.schedule-list{
-    margin-top: 16px;
-    list-style-type: none;
-    max-height: 231px;
-    
-    overflow-y: auto;
-}
-
-ul.schedule-list li{
-  margin-left:16px;
-  padding:4px 12px;
-}
-
-ul.schedule-list li:nth-child(odd){
-  background-color:rgba(0,0,0,0.1);
-}
-
-::ng-deep .mat-calendar-body-label,
-::ng-deep .mat-calendar-body-cell-content{
-  color:var(--fg2);
-}
-
-.cron-fields{
-  width:320px;
-  min-height:100%;
-  /*position:absolute;
-  top:0;
-  right:0;*/
-  background-color:var(--primary);
-  color:var(--primary-txt);
-  text-align:center;
-  padding:0;
-}
-
-::ng-deep mat-option .mat-option-text em.crontab{
-  opacity:0.5;
-}
-
-::ng-deep .cron-fields .mat-checkbox-frame{
-  border-color:var(--primary-txt);
-}
-
-::ng-deep .cron-fields .mat-form-field-label,
-/*::ng-deep .cron-fields .mat-focused .mat-form-field-label,*/
-::ng-deep .cron-fields label.mat-form-field-placeholder,
-::ng-deep .cron-fields .mat-input-infix,
-.cron-fields .mat-form-field-should-float.mat-focused label{
-  color:var(--primary-txt) !important;
-}
-
-::ng-deep .mat-form-field-underline,
-::ng-deep .mat-focused .mat-form-field-underline,
-::ng-deep .mat-form-field-underline .mat-form-field-ripple{
-  background-color:var(--primary-txt) !important;
-}
-
-.cron-fields section{
-  padding:16px;
-}
-
-.cron-fields section:first-child{
-  margin-bottom:0px;
-}
-.cron-fields section:last-child{
-  padding-bottom:24px;
-}
-
-.cron-fields mat-divider{
-  position:relative;
-}
-
-.cron-fields table.months,
-.cron-fields table.days-of-week{
-  margin:0 auto;
-}
-
-.cron-fields table td{
-  padding:4px 8px 0px;
-  min-width:24px;
-  width:40px;
-}
-
-.cron-fields table td .month,
-.cron-fields table td .weekday{
-  margin-top:4px;
-}
-
-.cron-fields .invalid{
-  color:var(--red) !important;
-}
-
-.cron-fields .mat-input-element {
-  caret-color: var(--primary-txt) !important; 
-}
-
-/*Button Toggle Group*/
-.cron-fields mat-button-toggle-group{
-  margin:16px 0;
-}
-.cron-fields mat-button-toggle{
-  font-size:12px;
-  padding:7px;
-}
-
-mat-form-field.cron-presets{
-  width:calc(240px + 24px );
-  margin-left:16px;
-  display:block;
-}
-
-.cron-fields section.m-h-d mat-form-field{
-  display:inline-block;
-  margin-left:16px;
-  width:100px;
-}
-
-/* Calendar View Settings*/
-.calendar-wrapper{
-  height:300px;
-}
-.mat-calendar-content .controls{
-    display: inline-block;
-    position: absolute;
-    right: 8px;
-    top: 5px;
-}
-
-::ng-deep .cron-fields .mat-button-toggle-label-content{
-  line-height:unset;
-  padding:unset;
-}
-
-::ng-deep .mat-calendar-table{
-  width:100%;
-  background-color: var(--bg2);
-}
-::ng-deep .mat-calendar-body-cell-content,
-::ng-deep .mat-calendar-body-label,
-::ng-deep .mat-calendar-table{
-  color: var(--fg2);
-}
-
-:host ::ng-deep thead.mat-calendar-table-header{
-  /*display:none;*/
-  color: var(--fg2);
-  opacity: 0.5;
-}
-
-::ng-deep .mat-calendar-table-header tr{
-  /*border-bottom:solid 1px var(--bg1);*/
-  padding:4px;
-}
-::ng-deep .mat-calendar-table-header th{
-  text-align: center;
-  padding: 8px 0;
-}
-::ng-deep .mat-calendar-body td.mat-calendar-body-cell.mat-calendar-body-active .mat-calendar-body-cell-content{
-  background: var(--bg1);
-  border-radius: 50%; 
-}
-::ng-deep .mat-calendar-body-today{
-  border-color:var(--green) !important;
-}
-#no-spaces {
-  position: relative;
-  top: -9px;
-  font-size: 75%;
-}
-@media screen and (max-height:700px){
-  .advanced-date-picker.mat-card{
-    top:-20px;
-  }
-}
-
-@-moz-document url-prefix() {
-  .mat-calendar-content {
-    width: 280px !important;
-    left: 10px !important;
-  }
-  .mat-calendar-body-cell-content {
-    height: 36px;
-    max-height: 36px;
-    width: 36px;
-  }
-  #spacer {
-    visibility: hidden;
-  }
-}
-
-.time-zone-label {
-  margin: 0 0 10px 20px;
-}
-
 .preset-description {
-  opacity: .6;
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 12px;
+}
+hlm-select-content {
+  width: max-content;
+  min-width: var(--brn-select-width);
+  max-width: calc(100vw - 32px);
+}
+
+.advanced-date-picker {
+  position: fixed;
+  top: 10%;
+  left: calc(50% - 310px);
+  width: 620px;
+  z-index: 2;
+  display: flex;
+  align-items: stretch;
+  box-sizing: border-box;
+  background: var(--sp-popover, var(--bg2));
+  color: var(--sp-popover-foreground, var(--fg1));
+  border: 1px solid var(--sp-border, var(--line));
+  border-radius: 6px;
+  font-size: 13px;
+  line-height: 18px;
+}
+/* no overflow clip: the help popovers inside open past the left edge */
+@media screen and (max-height: 700px) {
+  .advanced-date-picker {
+    top: 8px;
+  }
+}
+
+/* Section titles in the form's fieldset voice; notes in the label voice. */
+h4.preview-label {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 20px;
+  color: var(--sp-foreground, var(--fg1));
+}
+.section-head,
+.field-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+}
+.section-note {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-muted-foreground, var(--fg2));
+}
+
+/* Preview column */
+.schedule-preview {
+  flex: 0 0 300px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.preview-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 8px 0 16px;
+}
+.preview-head .controls {
+  display: flex;
+  gap: 4px;
+}
+.preview-head .controls mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+.calendar-wrapper {
+  padding: 8px 24px 12px;
+}
+.calendar-month {
+  height: 20px;
+  line-height: 20px;
+  font-size: 13px;
+  color: var(--sp-foreground, var(--fg1));
+  margin-bottom: 4px;
+}
+.schedule-calendar {
+  border-collapse: collapse;
+  width: 252px;
+  table-layout: fixed;
+}
+.schedule-calendar th {
+  height: 20px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 400;
+  text-align: center;
+  color: var(--sp-muted-foreground, var(--fg2));
+}
+.schedule-calendar td {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  text-align: center;
+  vertical-align: middle;
+}
+/* A day is a 28px disc: quiet by default, the #352 checked fill when scheduled, a hairline ring today. */
+.schedule-calendar .day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--sp-foreground, var(--fg1));
+}
+.schedule-calendar td.today .day {
+  border: 1px solid var(--sp-border, var(--line));
+}
+.schedule-calendar td.scheduled .day {
+  background: var(--sp-primary, var(--fg1));
+  color: var(--sp-primary-foreground, var(--bg0));
+  border: 0;
+}
+
+ul.schedule-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  max-height: 231px;
+  overflow-y: auto;
+}
+ul.schedule-list li {
+  padding: 3px 16px;
+}
+ul.schedule-list li.time-zone-label {
+  color: var(--sp-muted-foreground, var(--fg2));
+}
+ul.schedule-list li.time-zone-label strong {
+  font-weight: 500;
+  color: var(--sp-foreground, var(--fg1));
+}
+
+/* Cron column */
+.cron-fields {
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  border-left: 1px solid var(--sp-border, var(--line));
+  display: flex;
+  flex-direction: column;
+}
+.cron-fields section {
+  padding: 12px 16px;
+}
+.cron-fields hlm-field {
+  width: 100%;
+}
+.m-h-d-row {
+  display: flex;
+  gap: 8px;
+}
+.m-h-d-row .m-h-d-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Month and weekday grids: the label row in the label voice over the #352 cells, columns 44px. */
+table.check-grid {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+table.check-grid td {
+  padding: 0;
+  width: 44px;
+  height: 20px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-muted-foreground, var(--fg2));
+}
+table.check-grid.days-of-week td {
+  width: 40px;
+}
+table.check-grid td:has(> .checkbox-cell) {
+  height: 32px;
+}
+table.check-grid .checkbox-cell {
+  display: flex;
+  margin: 0 auto;
+}
+
+.popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 52px;
+  padding: 8px 16px;
+  margin-top: auto;
 }

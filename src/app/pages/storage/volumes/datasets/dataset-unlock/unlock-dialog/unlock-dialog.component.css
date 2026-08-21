@@ -1,15 +1,3 @@
-h1 {
-    margin-bottom: 1px;
-}
-
-#unlock-msg {
-    padding-top: 2px;
-}
-
-.section-title {
-    padding-top: 4px;
-}
-
 .red-icon {
     color: var(--red);
 }
@@ -19,8 +7,17 @@ h1 {
 }
 
 .row {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     padding-bottom: 2px;
     padding-top: 2px;
+}
+
+.dataset-row-spacer {
+    box-sizing: border-box;
+    flex: 1 1 0%;
 }
 
 div.message-content {
@@ -28,7 +25,12 @@ div.message-content {
     overflow: auto;
 }
 
-mat-divider {
-    padding-top: 4px;
-    padding-bottom: 4px;
+/* the internal development record: the section hairline in the old divider's box -- the line on top, then 4px + 4px of padding.
+   Block, not the kit's inline-flex (it would sit on a text line box here); the 1px content paints the line and the
+   padding under it stays clear (content-box sizing, background clipped to the content). */
+hlm-separator {
+    display: block;
+    box-sizing: content-box;
+    padding-bottom: 8px;
+    background-clip: content-box;
 }

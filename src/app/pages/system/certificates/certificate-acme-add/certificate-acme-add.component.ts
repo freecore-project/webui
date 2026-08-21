@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
 import { MatDialog } from '@angular/material/dialog';
-import { FormArray } from '@angular/forms';
+import { UntypedFormArray } from '@angular/forms';
 import { RestService, WebSocketService, DialogService } from '../../../../services';
 import { EntityFormService } from '../../../common/entity/entity-form/services/entity-form.service';
 import { EntityUtils } from '../../../common/entity/utils';
@@ -13,18 +14,21 @@ import { helptext_system_certificates } from 'app/helptext/system/certificates';
 import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job.component';
 
 @Component({
+  standalone: false,
   selector: 'app-certificate-acme-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [EntityFormService],
 })
 export class CertificateAcmeAddComponent {
+  settingsTitle = T('ACME Certificate');
   protected addCall = 'certificate.create';
   protected queryCall = 'certificate.query';
   protected route_success: string[] = ['system', 'certificates'];
   protected isEntity = true;
   protected isNew = true;
   private csrOrg: any;
-  formArray: FormArray;
+  formArray: UntypedFormArray;
   commonName: string;
   protected arrayControl: any;
   protected fieldConfig: FieldConfig[];
@@ -32,6 +36,7 @@ export class CertificateAcmeAddComponent {
     {
       name: helptext_system_certificates.acme.fieldset_acme,
       label: true,
+      settingsLabel: T('Certificate Options'),
       class: 'acme',
       width: '100%',
       config: [

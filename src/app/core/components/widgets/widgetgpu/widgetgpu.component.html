@@ -1,0 +1,145 @@
+@if (rendered) {
+  <div class="widget stats-widget gpu-widget" [class.xs]="screenType === 'Mobile'">
+    <div class="card-container front">
+      <div class="fc-card front">
+        <div class="fc-card-content">
+          <div class="gpu-header">
+            @if (screenType === 'Mobile') {
+              <button data-dashboard-back (click)="goBack()" [attr.aria-label]="'Back to widgets' | translate" hlmTooltip="{{ 'Back to widgets' | translate }}" type="button" hlmBtn variant="ghost" size="icon" class="gpu-back"
+                ix-auto ix-auto-type="button" ix-auto-identifier="goBack">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+            }
+            <h2 class="gpu-title">{{ title | translate }}</h2>
+            <mat-icon class="gpu-chart-icon" role="img" tabindex="0" aria-hidden="false"
+              hlmTooltip="{{ 'GPU telemetry' | translate }}"
+              attr.aria-label="{{ 'GPU telemetry' | translate }}">insert_chart</mat-icon>
+          </div>
+
+          <div class="gpu-body">
+            @if (!loaded) {
+              <div class="gpu-loading"><hlm-spinner [aria-label]="'Loading' | translate" /></div>
+            }
+
+            @if (loaded) {
+              <div class="gpu-name-row">
+                <span class="gpu-name" tabindex="0" [hlmTooltip]="gpu.name">{{ gpu.name }}</span>
+                @if (isPassthrough && gpu.passthrough_vm) {
+                  <button type="button" class="status-text gpu-status passthrough"
+                    (click)="goToPassthroughVm()"
+                    ix-auto ix-auto-type="button" ix-auto-identifier="gpuPassthroughVm">
+                    {{ 'passthrough' | translate }} &rarr; {{ gpu.passthrough_vm.name }}
+                  </button>
+                } @else {
+                  <span class="status-text gpu-status">{{ gpu.state | translate }}</span>
+                }
+              </div>
+
+              @if (isPassthrough) {
+                <button type="button" class="gpu-note passthrough-note" (click)="goToPassthroughVm()"
+                  ix-auto ix-auto-type="button" ix-auto-identifier="gpuPassthroughDetails">
+                  {{ 'Telemetry is reported by the guest' | translate }}
+                </button>
+                <dl class="gpu-facts facts-dl passthrough-facts">
+                  @if (gpu.passthrough_vm) {
+                    <dt>{{ 'Attached to' | translate }}</dt>
+                    <dd>{{ gpu.passthrough_vm.name }}</dd>
+                  }
+                  <dt>pptdev</dt>
+                  <dd>{{ pptdev }}</dd>
+                  <dt>PCI</dt>
+                  <dd>{{ gpu.id }}</dd>
+                  <dt>{{ 'Host Driver' | translate }}</dt>
+                  <dd>{{ 'detached' | translate }}</dd>
+                </dl>
+              } @else {
+                @if (hasUtilization) {
+                  <div class="util-zone">
+                    <div class="util-line">
+                      <span class="util-value">
+                        {{ rounded(gpu.util_pct) }}<span class="util-unit"> % gpu</span>
+                      </span>
+                      @if (hasEngineTelemetry) {
+                        <span class="engine-line">
+                          @if (isAvailable(gpu.enc_pct)) { enc {{ rounded(gpu.enc_pct) }}% }
+                          @if (isAvailable(gpu.enc_pct) && isAvailable(gpu.dec_pct)) { &middot; }
+                          @if (isAvailable(gpu.dec_pct)) { dec {{ rounded(gpu.dec_pct) }}% }
+                        </span>
+                      }
+                    </div>
+                    <div class="util-bar" role="progressbar"
+                      [attr.aria-valuenow]="rounded(gpu.util_pct)" aria-valuemin="0" aria-valuemax="100"
+                      attr.aria-label="{{ 'GPU utilization' | translate }}">
+                      <i [style.width.%]="utilizationWidth()"></i>
+                    </div>
+                  </div>
+                }
+
+                @if (hasVram) {
+                  <div class="section-label-sm gpu-section">{{ 'VRAM' | translate }}</div>
+                  <div class="vram-zone">
+                    <div class="vram-label">
+                      <span><b>{{ formatGiB(gpu.vram_used) }} GiB</b> {{ 'used' | translate }}</span>
+                      <span><b>{{ formatGiB(gpu.vram_total) }} GiB</b> {{ 'total' | translate }}</span>
+                    </div>
+                    <div class="vram-bar" role="progressbar"
+                      [attr.aria-valuenow]="vramWidth()" aria-valuemin="0" aria-valuemax="100"
+                      attr.aria-label="{{ 'VRAM utilization' | translate }}">
+                      <i [style.width.%]="vramWidth()"></i>
+                    </div>
+                  </div>
+                }
+
+                @if (isDegraded) {
+                  <div class="gpu-note degraded-note">
+                    {{ 'Driver reports no utilization counters' | translate }}
+                  </div>
+                }
+
+                <div class="section-label-sm gpu-section">{{ 'Used by' | translate }}</div>
+                @for (user of visibleUsers; track trackByUser($index, user)) {
+                  <button type="button" class="gpu-user-row" [disabled]="user.kind === 'host'"
+                    (click)="goToUser(user)"
+                    [hlmTooltip]="user.name" [tooltipDisabled]="user.kind === 'host'"
+                    [ix-auto]="user.name" ix-auto-type="button" ix-auto-identifier="gpuConsumer">
+                    <span class="state-dot running"></span>
+                    <span class="user-identity">
+                      <span class="user-name">{{ user.name }}</span>
+                      <span class="user-kind">{{ user.kind | translate }}</span>
+                    </span>
+                    <span class="user-tail">{{ userTail(user) }}</span>
+                  </button>
+                }
+                @if (userOverflow > 0) {
+                  <div class="gpu-more">+&nbsp;{{ userOverflow }}&nbsp;{{ 'more' | translate }}</div>
+                }
+                @if (visibleUsers.length === 0) {
+                  <div class="gpu-empty">{{ 'No GPU consumers' | translate }}</div>
+                }
+
+                <dl class="gpu-facts facts-dl">
+                  @if (gpu.driver) {
+                    <dt>{{ 'Driver' | translate }}</dt>
+                    <dd>{{ gpu.driver }}</dd>
+                  }
+                  @if (gpu.nodes.length > 0) {
+                    <dt>{{ 'Nodes' | translate }}</dt>
+                    <dd>{{ gpu.nodes.join(', ') }}</dd>
+                  }
+                  @if (gpu.id) {
+                    <dt>PCI</dt>
+                    <dd>{{ gpu.id }}</dd>
+                  }
+                  @if (isAvailable(gpu.temp_c)) {
+                    <dt>{{ 'Temp' | translate }}</dt>
+                    <dd>{{ rounded(gpu.temp_c) }}&deg;C</dd>
+                  }
+                </dl>
+              }
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

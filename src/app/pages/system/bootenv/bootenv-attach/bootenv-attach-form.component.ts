@@ -1,4 +1,5 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
@@ -8,11 +9,15 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job.component';
 
 @Component({
+  standalone: false,
   selector: 'bootenv-attach-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class BootEnvAttachFormComponent {
+  settingsTitle = T('Boot Device'); // the internal development record: the object noun; the verb is on the button
+  saveSubmitText = T('Attach');
   protected route_success: string[] = ['system', 'boot', 'status'];
   protected isEntity = true;
   protected addCall = 'boot.attach';

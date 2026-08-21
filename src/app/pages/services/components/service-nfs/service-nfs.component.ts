@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -7,9 +7,12 @@ import helptext from '../../../../helptext/services/components/service-nfs';
 import { RestService, WebSocketService, DialogService } from '../../../../services';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { rangeValidator } from 'app/pages/common/entity/entity-form/validators/range-validation';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'nfs-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ' <entity-form [conf]="this"></entity-form>',
 })
 
@@ -21,6 +24,7 @@ export class ServiceNFSComponent {
   private v4krbValue: boolean;
   private hasNfsStatus: boolean;
   private adHealth = '';
+  readonly settingsTitle = T('NFS'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {

@@ -10734,6 +10734,9 @@ msgstr ""
 msgid "Save Without Restarting"
 msgstr "Speichern ohne Neustart"
 
+msgid "Save and Failover"
+msgstr "SPEICHERN UND FAILOVER"
+
 msgid "Save and Restart SMB Now"
 msgstr "SMB jetzt speichern und neu starten"
 
@@ -11542,6 +11545,9 @@ msgstr "Senden von E-Mail-Statusaktualisierungen"
 
 msgid "Send Mail Method"
 msgstr ""
+
+msgid "Send Test Alert"
+msgstr "SENDEN VON TESTWARNUNGEN"
 
 msgid "Send Test Mail"
 msgstr "Test-E-Mail senden"
@@ -12917,6 +12923,9 @@ msgstr "Start"
 
 msgid "Start Automatically"
 msgstr "Automatisch starten"
+
+msgid "Start Replication"
+msgstr "REPLIKATION STARTEN"
 
 msgid "Start Scrub"
 msgstr ""

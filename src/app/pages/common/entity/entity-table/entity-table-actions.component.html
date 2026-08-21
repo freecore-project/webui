@@ -1,76 +1,91 @@
 <div class="panel_container action-length-{{actions.length}}">
-  <ng-container *ngIf="actions && isSingleAction && singleAction">
-    <button [color]="singleAction.color ? singleAction.color : 'warn' "
-      id="action_{{singleAction.name}}__{{singleAction.id}}" 
-      class="mat-raised-button"
-      mat-button *ngIf="!entity.conf.isActionVisible || entity.conf.isActionVisible.bind(entity.conf)(actions[0].actions[0].id, row)"
-      (click)="singleAction.onClick(this.row);"
-      [disabled]="singleAction.disabled"
-      [ix-auto]=""
-      ix-auto-type="button"
-      ix-auto-identifier="{{row.name}}_{{singleAction.id}}_{{singleAction.name}}"
-    >
-    {{actions[0].actions[0].label}}
-    </button>
-  </ng-container>
+  @if (actions && isSingleAction && singleAction) {
+    @if (!entity.conf.isActionVisible || entity.conf.isActionVisible.bind(entity.conf)(actions[0].actions[0].id, row)) {
+      <!-- the internal development record: the single action on the #353 tiers (warn = destructive). -->
+      <button hlmBtn [variant]="(singleAction.color || 'warn') === 'warn' ? 'destructive' : 'outline'" type="button" class="row-single-action"
+        [class.single-action-wrappable]="wrapSingleAction"
+        id="action_{{singleAction.name}}__{{singleAction.id}}"
+        (click)="singleAction.onClick(this.row);"
+        [disabled]="singleAction.disabled"
+        [ix-auto]=""
+        ix-auto-type="button"
+        ix-auto-identifier="{{row.name}}_{{singleAction.id}}_{{singleAction.name}}"
+        >
+        {{actions[0].actions[0].label}}
+      </button>
+    }
+  }
 
-  <ng-container *ngIf="!isSingleAction">
-    <mat-icon
+  @if (!isSingleAction) {
+    <!-- the internal development record: the kebab is a ghost icon button (the 20px glyph); the menu stays. -->
+    <button hlmBtn variant="ghost" size="icon" type="button" class="row-kebab"
       [ix-auto]=""
       ix-auto-type="options"
       ix-auto-identifier="{{row[key_prop]}}"
       id="{{row[entity?.conf?.rowIdentifier || 'name']}}_{{action}}_button"
-      [matMenuTriggerFor]="appMenu"
-      [style.cursor]="'pointer'"
-      [style.margin-right]="'24px'"
+      [hlmDropdownMenuTrigger]="appMenu"
+      [attr.aria-label]="'Actions' | translate"
       (click)="noPropogate($event)">
-      {{icon_name}}
-    </mat-icon>
-    <mat-menu #appMenu="matMenu">
-      <span *ngIf="!groups;else groupMenu">
-        <span *ngFor="let action of actions"
-          [matTooltip]="action.matTooltip" 
-          [matTooltipDisabled]="!action.disabled"
-          [matTooltipPosition]="action.ttposition ? action.ttposition : 'left'">
-          <button 
-            id="action_button_{{ action?.name }}__{{action.id}}" 
-            mat-menu-item *ngIf="!entity.conf.isActionVisible || 
-              entity.conf.isActionVisible.bind(entity.conf)(action.id, row)"
-            (click)="action.onClick(this.row);"
-            [disabled]="action.disabled"
-            [ix-auto]=""
-            ix-auto-type="action"
-            ix-auto-identifier="{{action.id}}_{{action.label}}"
-            >
-  				  <span>{{ action?.label | translate }}</span>
-          </button>
-        </span>
-      </span>
-      <ng-template #groupMenu>
-        <span *ngFor= "let group of actions">
-          <div class="group-menu-header" *ngIf="group.actions && group.actions.length > 0">
-            <mat-divider></mat-divider>
-            <div class="title"><strong>{{group?.title | translate}}</strong></div>
-          </div>
-          <span *ngFor="let action of group.actions"
-            [matTooltip]="action.matTooltip" 
-            [matTooltipDisabled]="!action.disabled"
-            [matTooltipPosition]="action.ttposition ? action.ttposition : 'left'">
-            <button 
-              id="action_button_{{ action?.name }}__{{action.id}}" 
-              mat-menu-item *ngIf="!entity.conf.isActionVisible || 
-                entity.conf.isActionVisible.bind(entity.conf)(action.id, row)"
-              (click)="action.onClick(this.row);"
-              [disabled]="action.disabled"
-              [ix-auto]=""
-              ix-auto-type="action"
-              ix-auto-identifier="{{action.id}}_{{action.label}}"
-              >
-  				    <span>{{ action?.label | translate }}</span>
-            </button>
-          </span>
-        </span>
-      </ng-template>
-    </mat-menu>
-  </ng-container>
+      <mat-icon>{{icon_name}}</mat-icon>
+    </button>
+    <!-- the internal development record: the kebab menu on the helm dropdown-menu (M1): group headings in the
+         table-header voice on a hairline, disabled rows at .4 keeping their tooltip wrappers. -->
+    <ng-template #appMenu>
+      <hlm-dropdown-menu class="row-menu">
+        @if (!groups) {
+          @for (action of actions; track action) {
+            <span class="row-menu-item"
+              [hlmTooltip]="action.matTooltip"
+              [tooltipDisabled]="!action.disabled"
+              [position]="action.ttposition ? action.ttposition : 'left'">
+              @if (!entity.conf.isActionVisible ||
+                entity.conf.isActionVisible.bind(entity.conf)(action.id, row)) {
+                <button
+                  id="action_button_{{ action?.name }}__{{action.id}}"
+                  hlmDropdownMenuItem type="button"
+                  (triggered)="action.onClick(this.row);"
+                  [disabled]="action.disabled"
+                  [ix-auto]=""
+                  ix-auto-type="action"
+                  ix-auto-identifier="{{action.id}}_{{action.label}}"
+                  >
+                  <span>{{ $safeNavigationMigration(action?.label) | translate }}</span>
+                </button>
+              }
+            </span>
+          }
+        } @else {
+          @for (group of actions; track group; let first = $first) {
+            @if (group.actions && group.actions.length > 0) {
+              @if (!first) {
+                <hlm-dropdown-menu-separator />
+              }
+              <hlm-dropdown-menu-label class="group-menu-header">{{$safeNavigationMigration(group?.title) | translate}}</hlm-dropdown-menu-label>
+            }
+            @for (action of group.actions; track action) {
+              <span class="row-menu-item"
+                [hlmTooltip]="action.matTooltip"
+                [tooltipDisabled]="!action.disabled"
+                [position]="action.ttposition ? action.ttposition : 'left'">
+                @if (!entity.conf.isActionVisible ||
+                  entity.conf.isActionVisible.bind(entity.conf)(action.id, row)) {
+                  <button
+                    id="action_button_{{ action?.name }}__{{action.id}}"
+                    hlmDropdownMenuItem type="button"
+                    (triggered)="action.onClick(this.row);"
+                    [disabled]="action.disabled"
+                    [ix-auto]=""
+                    ix-auto-type="action"
+                    ix-auto-identifier="{{action.id}}_{{action.label}}"
+                    >
+                    <span>{{ $safeNavigationMigration(action?.label) | translate }}</span>
+                  </button>
+                }
+              </span>
+            }
+          }
+        }
+      </hlm-dropdown-menu>
+    </ng-template>
+  }
 </div>

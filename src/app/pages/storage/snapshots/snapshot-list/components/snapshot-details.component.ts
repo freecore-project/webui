@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import helptext from 'app/helptext/storage/snapshots/snapshots';
 import {
@@ -12,7 +12,9 @@ import { SnapshotListComponent } from '../snapshot-list.component';
 import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'app-snapshot-details',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <app-entity-row-details [conf]="this"></app-entity-row-details>
   `,

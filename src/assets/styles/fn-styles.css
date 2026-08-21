@@ -19,9 +19,6 @@
 ## Collapsed Sidenav
 ## Pages
     Sign in
-    sign up
-    forgot
-    lockscreen
 ## Forms
 ## Inbox
 ## Calendar
@@ -63,12 +60,13 @@ body {
     font-size: .875rem;
     color: rgba(0,0,0,.87);
     line-height: 1.5;
-    font-family: "Roboto",Helvetica Neue,sans-serif;
+    font-family: "IBM Plex Sans","Helvetica Neue",sans-serif;
 }
 div {
     box-sizing: border-box;
 }
-.mat-card {
+.mat-card,
+.mat-mdc-card {
     font-size: .875rem;
 }
 
@@ -77,6 +75,34 @@ a, a:focus, a:hover {
 }
 a {
     color: inherit;
+}
+
+/* FreeCORE project-home links must remain identifiable inside muted utility
+   copy. The theme service chooses an AA-contrast blue for light/dark cards. */
+a.project-home-link,
+a.project-home-link:visited {
+    color: var(--project-link, #67b7ed);
+    cursor: pointer;
+}
+a.project-home-link:hover,
+a.project-home-link:focus-visible {
+    color: var(--project-link, #67b7ed);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+a.project-home-link:focus-visible {
+    border-radius: 2px;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+/* These transition screens use a fixed blue canvas, independent of the
+   selected theme. A dark ink link avoids blue-on-blue and clears AA contrast. */
+#shutdown-card a.project-home-link,
+#shutdown-card a.project-home-link:visited,
+#shutdown-card a.project-home-link:hover,
+#shutdown-card a.project-home-link:focus-visible {
+    color: #10151a;
 }
 .h1,
 .h2,
@@ -122,12 +148,12 @@ h6 {
 code {
     padding: 8px;
     background: rgba(0, 0, 0, .08);
-    font-family: 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
+    font-family: 'IBM Plex Mono', 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
 }
 samp {
     padding: 2px;
     background: rgba(180, 180, 180, .5);
-    font-family: 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
+    font-family: 'IBM Plex Mono', 'Droid Sans Mono', 'Courier New', Courier, monospace !important;
 }
 /*---- Common -----*/
 .bg-none {
@@ -251,73 +277,65 @@ samp {
     width: 13px;
 }
 
-.mat-card.default {
+.mat-mdc-card.default {
     padding: 0;
 }
-.mat-card.default .mat-card-title {
+.mat-mdc-card.default .mat-mdc-card-title {
     padding: 1rem;
     line-height: 1;
     font-weight: 600;
 }
-.mat-card.default>:first-child {
+.mat-mdc-card.default>:first-child {
     border-radius: 2px 2px 0 0;
 }
-.mat-card.default .mat-card-subtitle:first-child {
+.mat-mdc-card.default .mat-mdc-card-subtitle:first-child {
     padding-top: 1rem;
 }
-.mat-card.default .mat-card-subtitle {
+.mat-mdc-card.default .mat-mdc-card-subtitle {
     padding-left: 1rem;
     padding-right: 1rem;
     line-height: 1;
 }
-.mat-card.default .mat-card-content {
+.mat-mdc-card.default .mat-mdc-card-content {
     padding: 1rem;
     margin-bottom: 0;
     position: relative;
 }
-.mat-card.default .mat-card-actions,
-.mat-card.default .mat-card-actions:last-child {
+.mat-mdc-card.default .mat-mdc-card-actions,
+.mat-mdc-card.default .mat-mdc-card-actions:last-child {
     padding: .5rem;
     margin: 0;
 }
-.mat-card.default>:last-child {
+.mat-mdc-card.default>:last-child {
     border-radius: 0 0 2px 2px;
 }
 
-.mat-card {
+.mat-card,
+.mat-mdc-card {
     margin: .333333rem;
     /*overflow: hidden;*/ /* Removed by Daisuke */
 }
-.mat-card .mat-card-title .mat-divider, .mat-divider.full-width {
-    margin-left: -24px;
-    margin-right: -24px;
-}
 
-.mat-card.p-0 .mat-card-title .card-title-text {
+.mat-mdc-card.p-0 .mat-mdc-card-title .card-title-text {
     padding: 1rem 1.5rem;
 }
-.mat-card.p-0 .mat-card-title .card-title-text .card-control {
+.mat-mdc-card.p-0 .mat-mdc-card-title .card-title-text .card-control {
     height: 24px;
     width: 24px;
     line-height: 24px;
 }
-.mat-card.p-0 .mat-card-title .card-title-text .mat-card-subtitle {
+.mat-mdc-card.p-0 .mat-mdc-card-title .card-title-text .mat-mdc-card-subtitle {
     margin: 0;
 }
-.mat-card.p-0 .mat-card-title .mat-divider {
-    margin-left: 0;
-    margin-right: 0;
-    border-top-color: rgba(0, 0, 0, 0.04);
-}
-.mat-card.p-0 .mat-card-image {
+.mat-mdc-card.p-0 .mat-mdc-card-image {
     margin: 0 0 1rem !important;
 }
-.mat-card.p-0 .mat-card-content {
+.mat-mdc-card.p-0 .mat-mdc-card-content {
     padding:  0 1.5rem 1.5rem;
 }
 
-.mat-button,
-.mat-raised-button {
+.mat-mdc-button,
+.mat-mdc-raised-button {
     font-weight: 400 !important;
 }
 .toolbar-avatar {
@@ -361,7 +379,7 @@ samp {
     line-height: 1.6rem;
     border-radius: 50%;
 }
-.mat-sidenav .mat-list-item:hover {
+.fc-sidenav .fc-nav-item:hover {
     background: rgba(0, 0, 0, .035) !important;
 }
 
@@ -377,7 +395,7 @@ samp {
     vertical-align: sub;
     margin: 0 2px;
 }
-.mat-card-title {
+.mat-mdc-card-title {
     font-size: 1rem !important;
 }
 .icon-chip {
@@ -393,13 +411,6 @@ samp {
     height: 16px;
     width: 16px;
     margin-right: 4px;
-}
-.mat-chip:not(.mat-basic-chip) {
-    display: inline-block;
-    padding: 8px 12px 8px 12px;
-    border-radius: 24px;
-    font-size: 13px;
-    line-height: 16px;
 }
 .ql-container .ql-editor {
     min-height: 200px;
@@ -488,13 +499,8 @@ samp {
 }
 /*---- Third pirty adjust -----*/
 /*--------- Material ---------*/
-mat-list a[mat-list-item] .mat-list-item-content,
-mat-list mat-list-item .mat-list-item-content,
-mat-nav-list a[mat-list-item] .mat-list-item-content,
-mat-nav-list mat-list-item .mat-list-item-content,
-[mat-menu-item],
-.mat-option,
-body .mat-select-trigger {
+.fc-nav-list .fc-nav-item .fc-nav-item__content,
+[mat-menu-item] {
     font-size: .875rem !important;
 }
 
@@ -603,101 +609,10 @@ body .mat-select-trigger {
     margin-left: -10px;
 }
 
-/*-------- Hopscotch Tour ---------*/
-div.hopscotch-bubble,
-div.hopscotch-bubble .hopscotch-title,
-div.hopscotch-bubble .hopscotch-content,
-div.hopscotch-bubble .hopscotch-nav-button {
-    font-family: "Roboto",Helvetica Neue,sans-serif !important;
-}
-div.hopscotch-bubble {
-    border: 1px solid;
-    border-radius: 2px;
-}
-div.hopscotch-bubble .hopscotch-bubble-number {
-    border-radius: 50%;
-    box-sizing: border-box;
-    padding: 0;
-    font-weight: 500;
-    height: 32px;
-    width: 32px;
-    line-height: 32px;
-    background: transparent;
-    color: rgba(0, 0, 0, 0.87);
-}
-div.hopscotch-bubble .hopscotch-title {
-    font-size: 17px;
-    font-weight: 400;
-    color: #ffffff;
-    letter-spacing: .1px;
-}
-div.hopscotch-bubble .hopscotch-content {
-    margin: -5px 0 16px;
-}
-div.hopscotch-bubble .hopscotch-bubble-close {
-    background: url('../images/cancel.png');
-    background-size: 8px;
-    background-position: 8px 8px;
-    background-repeat: no-repeat;
-    cursor: pointer;
-}
-div.hopscotch-bubble .hopscotch-bubble-close:active {
-    outline: 0;
-}
-/* up arrow  */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.up {
-    top: -17px;
-}
-/* right arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.right {
-    right: -34px;
-}
-/* bottom arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.down {
-    bottom: -34px;
-}
-/* Left Arrow */
-div.hopscotch-bubble .hopscotch-bubble-arrow-container.left {
-    left: -17px;
-}
-
-div.hopscotch-bubble .hopscotch-nav-button {
-    border: 0;
-    border-radius: 2px;
-    font-weight: normal;
-    text-shadow: none !important;
-    padding: 0 18px;
-    height: 30px;
-    line-height: 30px;
-    font-size: 13px;
-    background-image: none !important;
-    box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-    transition: background .4s cubic-bezier(.25,.8,.25,1),box-shadow 280ms cubic-bezier(.4,0,.2,1);
-}
-
-body:not(.safari-platform) div.hopscotch-bubble .hopscotch-nav-button {
-    transform: translate3d(0,0,0);
-}
-
-div.hopscotch-bubble .hopscotch-nav-button:hover,
-div.hopscotch-bubble .hopscotch-nav-button:active,
-div.hopscotch-bubble .hopscotch-nav-button:focus {
-    box-shadow: 0 5px 5px -3px rgba(0,0,0,.2), 0 8px 10px 1px rgba(0,0,0,.14), 0 3px 14px 2px rgba(0,0,0,.12);;
-    outline: none;
-}
-div.hopscotch-bubble .hopscotch-nav-button.prev,
-div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
-    background-color: #ffffff;
-    color: rgba(0, 0, 0, .87);
-}
 
 /*---- Top Bar -----*/
-.topbar.mat-toolbar {
+.topbar.fc-toolbar { /* the internal development record */
     box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-}
-.topbar .mat-select-value {
-    font-weight: 400;
-    color: #ffffff;
 }
 .notification-number {
     position: absolute;
@@ -747,25 +662,6 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     width: 100%;
     outline: 0;
 }
-.theme-list .mat-menu-item {
-    width: 48px;
-    height: 48px;
-    padding: 5px;
-}
-.theme-list .mat-menu-item .egret-swatch {
-    height: 100%;
-    width: 100%;
-    border-radius: 50%;
-}
-.theme-list .mat-menu-item .active-icon {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin: auto;
-    color: #ffffff;
-}
 
 .topbar-button-right {
     margin-left: .5rem !important;
@@ -773,8 +669,28 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 .notification-list {
     min-width: 240px;
 }
-.notification-list .notific-item .mat-list-item-content {
+.notification-list .notific-item {
     padding: 12px 16px !important;
+}
+/* the internal development record: this row is a flex container holding a severity icon and a
+   four-block text column, but MDC lays single-line list items out with
+   `white-space: nowrap`. Under nowrap the text column measures its max-content
+   width -- 566.5px inside a 352px row -- and its default `min-width: auto` makes
+   that its automatic minimum size as well, so flex-shrink cannot reduce it. The
+   only child left that can yield is the icon, which collapsed from 29px to 5px
+   and was then cropped by mat-icon's own `overflow: hidden`. Measured against
+   stock TrueNAS CORE 13.3, which wraps the text and keeps the icon at 29px. */
+.notification-list .notific-item .notific-item-content { /* the internal development record: was mat-list-item's inner content span */
+    align-items: center;
+    display: flex;
+    white-space: normal;
+    width: 100%;
+}
+.notification-list .notific-item .mat-list-text {
+    min-width: 0;
+}
+.notification-list .notific-item .notific-icon {
+    flex: none;
 }
 .notification-list .notific-item a {
     outline: 0;
@@ -782,8 +698,17 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     display: flex;
     flex-direction: column;
 }
+/* Legacy mat-list sized the h3/h4 inside .mat-list-text itself, which is why
+   13.3 needs no rule here. MDC dropped that typography, so the severity label
+   fell through to the UA `h3` default of 1.5em = 24px, against a 14px body.
+   Same shape as the internal development record and the internal development record: restore the value rather than keep
+   relying on an inheritance Material no longer provides. */
+.notification-list .notific-item .notific-title,
 .notification-list .notific-item .message {
     font-size: .875rem !important;
+    font-weight: 400;
+    line-height: 1.1;
+    margin: 0;
 }
 .notification-list .notific-item .time {
     font-size: .75rem !important;
@@ -849,24 +774,17 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 .icon-menu .icon-menu-item {
     display: inline-block;
 }
-.icon-menu .icon-menu-item button {
-    min-width: auto;
-    margin: 4px;
-}
-.icon-menu > .mat-divider {
-    margin: 1rem 0;
-}
 .app-side-nav-container {
     height: 100vh;
     height: 100%;
 }
-.sidebar-panel.mat-sidenav {
+.sidebar-panel.fc-sidenav {
     width: 15rem;
     min-width: 15rem;
     box-shadow: 0 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
 }
 
-.sidebar-panel.mat-sidenav .navigation-hold {
+.sidebar-panel.fc-sidenav .navigation-hold {
     position: relative;
     padding-top: 64px;
     background: rgba(255, 255, 255, .95);
@@ -879,7 +797,7 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     display: block;
     font-size: 12px;
 }
-.sidebar-panel.mat-sidenav .mat-nav-list .sidebar-list-item .mat-list-item-content {
+.sidebar-panel.fc-sidenav .fc-nav-list .sidebar-list-item .fc-nav-item__content {
     font-size: .875rem !important;
     display: block;
     overflow: hidden;
@@ -889,13 +807,23 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     -webkit-transition: max-height .3s cubic-bezier(.35, 0, .25, 1);
     transition: max-height .3s cubic-bezier(.35, 0, .25, 1);
 }
-.mat-nav-list .mat-list-item-content.mat-list-item-focus, .mat-nav-list .mat-list-item-content:hover {
+.sidebar-panel.fc-sidenav .fc-nav-list .sidebar-list-item .fc-nav-item__text {
+    /* the internal development record: MDC's inner primary text otherwise resets the
+       inherited 14px sidebar labels to 16px with extra letter spacing. */
+    font-size: inherit;
+    line-height: 1.5;
+    letter-spacing: normal;
+    display: block;
+    width: 100%;
+}
+.fc-nav-list .fc-nav-item:focus::before,
+.fc-nav-list .fc-nav-item:hover::before {
     background: transparent;
 }
-.sidebar-list-item.open > .mat-list-item-content {
+.sidebar-list-item.open > .fc-nav-item__content {
     background: rgba(0, 0, 0, .03);
 }
-.sidebar-panel .mat-nav-list a {
+.sidebar-panel .fc-nav-list a {
     position: relative;
     display: -webkit-box;
     display: -ms-flexbox;
@@ -911,26 +839,26 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     padding: 0 16px 0 0;
     z-index: 99;
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item mat-icon:not(.menu-caret) {
+.sidebar-panel.fc-sidenav .sidebar-list-item mat-icon:not(.menu-caret) {
     text-align: center;
     margin-right: 8px;
     height: 48px;
     width: 48px;
     line-height: 48px;
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item mat-icon.menu-caret {
+.sidebar-panel.fc-sidenav .sidebar-list-item mat-icon.menu-caret {
     float: right;
     -webkit-transform: rotate(0deg);
     transform: rotate(0deg);
     -webkit-transition: all .3s cubic-bezier(.35,0,.25,1);
     transition: all .3s cubic-bezier(.35,0,.25,1);
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item.open mat-icon.menu-caret {
+.sidebar-panel.fc-sidenav .sidebar-list-item.open mat-icon.menu-caret {
     float: right;
     -webkit-transform: rotate(180deg);
     transform: rotate(180deg);
 }
-.sidebar-panel.mat-sidenav .mat-list-item-content > a {
+.sidebar-panel.fc-sidenav .fc-nav-item__content > .fc-nav-item__text > a {
     width: 100%;
     display: flex;
     box-sizing: border-box;
@@ -938,34 +866,38 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item {
+.sidebar-panel.fc-sidenav .sidebar-list-item {
     max-height: 48px;
     overflow: hidden;
+    padding: 0;
     -webkit-transition: all .3s cubic-bezier(.35,0,.25,1);
     transition: all .3s cubic-bezier(.35,0,.25,1);
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item.open {
+.sidebar-panel.fc-sidenav .sidebar-list-item.open {
     max-height: 1100px;
     overflow: visible;
     height: auto;
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item .sub-menu {
+.sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu {
     padding: 0;
     -webkit-transition: max-height .3s cubic-bezier(.35,0,.25,1);
     transition: max-height .3s cubic-bezier(.35,0,.25,1);
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item .sub-menu .mat-list-item {
+.sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu .fc-nav-item {
+    /* the internal development record: MDC adds a 16px host inset that stacks with the
+       inherited 54px submenu-anchor alignment and pushes labels off-canvas. */
+    padding: 0;
     -webkit-transition: height .3s cubic-bezier(.35,0,.25,1);
     transition: height .3s cubic-bezier(.35,0,.25,1);
 }
-.sidebar-panel.mat-sidenav .sidebar-list-item .sub-menu .mat-list-item.selected {
+.sidebar-panel.fc-sidenav .sidebar-list-item .sub-menu .fc-nav-item.selected {
     background: rgba(0, 0, 0, .05);
 }
 
-.sidebar-panel.mat-sidenav .sub-menu a {
+.sidebar-panel.fc-sidenav .sub-menu a {
     padding-left: 54px;
 }
-.app-side-nav-container .mat-sidenav-content {
+.app-side-nav-container .fc-sidenav-content {
     padding: 0;
 }
 
@@ -976,21 +908,17 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     overflow: visible !important;
 }
 .collapsed-menu .sidebar-panel .navigation-hold,
-.collapsed-menu .sidebar-panel .sidebar-list-item > .mat-list-item-content {
+.collapsed-menu .sidebar-panel .sidebar-list-item > .fc-nav-item__content {
     overflow: visible !important;
 }
 .collapsed-menu .sidebar-panel .icon-menu {
     padding: 0;
 }
-.collapsed-menu .icon-menu .icon-menu-item button {
-    margin: 0 0 4px 0;
-    padding: 0 12px;
-}
-.collapsed-menu .sidebar-panel .sidebar-list-item > .mat-list-item-content > a {
+.collapsed-menu .sidebar-panel .sidebar-list-item > .fc-nav-item__content > .fc-nav-item__text > a {
     position: relative;
     padding: 0;
 }
-.collapsed-menu .sidebar-panel .sidebar-list-item > .mat-list-item-content > a .menu-item-tooltip {
+.collapsed-menu .sidebar-panel .sidebar-list-item > .fc-nav-item__content > .fc-nav-item__text > a .menu-item-tooltip {
     position: absolute;
     display: block;
     top: 0;
@@ -1020,14 +948,14 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     overflow-y: auto;
     box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
 }
-.collapsed-menu .sidebar-panel .sidebar-list-item.open .sub-menu .mat-list-item a {
+.collapsed-menu .sidebar-panel .sidebar-list-item.open .sub-menu .fc-nav-item a {
     padding-left: 1rem;
 }
-.collapsed-menu .sidebar-panel .mat-nav-list > div > .sidebar-list-item a .mat-icon {
+.collapsed-menu .sidebar-panel .fc-nav-list > div > .sidebar-list-item a .mat-icon {
     margin: 0;
 }
-.collapsed-menu .sidebar-panel .mat-nav-list > div > .sidebar-list-item a span:not(.menu-item-tooltip),
-.collapsed-menu .sidebar-panel .mat-nav-list > div >  .sidebar-list-item a .menu-caret,
+.collapsed-menu .sidebar-panel .fc-nav-list > div > .sidebar-list-item a span:not(.menu-item-tooltip),
+.collapsed-menu .sidebar-panel .fc-nav-list > div >  .sidebar-list-item a .menu-caret,
 .collapsed-menu .sidebar-panel .nav-section-title,
 .collapsed-menu .sidebar-panel .icon-menu-separator,
 .collapsed-menu .sidebar-panel .app-user,
@@ -1035,40 +963,7 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     display: none;
 }
 
-/*---- Pages (Sign in, sign up, forgot, lockscreen) -----*/
-.page-wrap {
-    display: flex;
-    align-items: center;
-    padding: 40px 1rem;
-    height: 100%;
-}
-.session-progress {
-    position: relative;
-    bottom: -5px;
-    z-index: 9999;
-}
-.session-form-hold {
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
-}
-.session-form-hold > .mat-card {
-    margin: 0;
-}
-.session-lockscreen {
-    max-width: 320px;
-}
-.lockscreen-user {
-    margin-bottom: 1rem;
-    display: flow-root;
-    overflow: hidden;
-}
-.lockscreen-face {
-    max-width: 72px;
-    max-height: 72px;
-    float: left;
-    margin-right: 1rem;
-}
+/*---- Pages: the Sign in page draws its own layout (the internal development record: the sign up / forgot / lockscreen mocks went with their .page-wrap / .session-* rules) -----*/
 
 
 /*---- Forms -----*/
@@ -1096,38 +991,18 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     padding-right: .333rem;
     background: transparent !important;
 }
-.inbox-sidenav .inbox-nav-list .mat-list-item-content > a > span {
-    font-size: .875rem;
-}
 
 .inbox-sidenav .primary-imenu-item .mat-icon {
 
-}
-.inbox-sidenav .mat-list-item-content .mat-icon {
-    margin-right: 8px;
 }
 .inbox-toolbar {
     min-height: 56px !important;
     margin-bottom: .333rem;
 }
-.inbox-toolbar .mat-toolbar-row {
-    height: 56px !important;
-}
-.inbox-toolbar .mat-toolbar-row .inbox-toggle-all {
-    display: flex;
-    align-items: center;
-}
-.inbox-toolbar .mat-toolbar-row .mat-checkbox-frame {
-    border-color: #ffffff;
-}
 .messages-wrap {
     min-height: 800px;
 }
-.messages.mat-list,
-.messages .mat-list-item-content {
-    padding: 0 !important;
-    font-size: .875rem !important;
-}
+.messages.mat-mdc-list,
 .messages-wrap .inbox-hold {
     border: 1px solid rgba(0, 0, 0, .12);
     margin-right: 1px;
@@ -1147,16 +1022,6 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 }
 .message-item.open .message-head {
     background: rgb(250, 250, 250);
-}
-.message-item .mat-list-item-content {
-    display: block !important;
-    height: auto !important;
-}
-.message-item .mat-list-item-content .mail-check {
-    padding: 0 .5rem;
-}
-.message-item .mat-list-item-content p.accordion-handle {
-    margin: 0;
 }
 .inbox-face {
     height: 48px;
@@ -1190,9 +1055,7 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     border-right: 1px solid rgba(0, 0, 0, .12)
 }
 .chat-sidebar-toolbar,
-.chat-toolbar,
-.chat-sidebar-toolbar .mat-toolbar-row,
-.chat-toolbar .mat-toolbar-row {
+.chat-toolbar {
     min-height: 56px !important;
     height: 56px !important;
 }
@@ -1227,34 +1090,6 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 .chats-wrap .chat-input-actions {
     padding: .6rem;
 }
-.mat-grid-tile .mat-figure {
-    display: flex;
-    position: absolute;
-    align-items: left  !important;
-    justify-content: left !important;
-    height: 100%;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 0;
-    margin: 0;
-    line-height: 25px  !important;
-}
-.theme-list .mat-menu-item .active-icon {
-    top: 12px;
-    left: 7px;
-    font-size: .7rem;
-}
-.mat-menu-panel.mat-menu-after.mat-menu-below {
-    min-width: 400px !important;
-    }
-.theme-list .mat-menu-item {
-    width: 25px;
-    height: 25px;
-    padding: 4px;
-    font-size: .6rem;
-}
 /*---- Gallery -----*/
 .app-gallery .mat-figure .gallery-control-wrap {
     position: absolute;
@@ -1283,11 +1118,6 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 }
 
 /*---- Plans & Pricings -----*/
-.plan-pricing .mat-list-item .mat-list-item-content {
-    display: inline-flex !important;
-    text-align: center;
-    font-size: .875rem !important;
-}
 
 /*---- Users -----*/
 .user-card .card-title-text {
@@ -1304,10 +1134,6 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 
 /*---- Media queries -----*/
 @media (max-width: 767px) {
-    .mat-card-title .mat-divider {
-        margin-left: 0;
-        margin-right: 0;
-    }
     .cal-top-col {
         width: 100%;
     }
@@ -1323,25 +1149,17 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
 }
 
 /*---- Modal Dialog ----*/
+.dialog-action-spacer {
+    flex: 1 1 0%;
+    box-sizing: border-box;
+}
+
 .overflow-hide {
     overflow: hidden !important;
 }
 
-.system-info .mat-list .mat-list-item-content {
-    height: 40px !important;
-}
 
-@media (max-width: 415px) {
-    .system-info .mat-list .mat-list-item-content {
-        height: 50px !important;
-    }
-}
 
-.system-info .mat-list .mat-list-item-content label, .system-info .mat-list .mat-list-item-content p {
-    overflow: visible;
-    word-break: keep-all;
-    white-space: normal;
-}
 
 /*---- Embedded page ----*/
 .embedding-active .sidebar-panel, .embedding-active topbar, .embedding-active app-breadcrumb{
@@ -1361,24 +1179,24 @@ div.hopscotch-bubble .hopscotch-nav-button.prev:hover {
     text-decoration: none;
 }
 
-.has-tooltip mat-form-field.full-width,
-.has-tooltip mat-select.full-width {
-    width: calc( 100% - 25px );
-}
-
 .has-tooltip .tooltip .material-icons {
     vertical-align: middle;
 }
 
 /*---- Safari compatibility - to overwrite the current css style ----*/
-body.safari-platform .mat-fab,
-body.safari-platform .mat-mini-fab,
-body.safari-platform .mat-raised-button {
+body.safari-platform .mat-mdc-fab,
+body.safari-platform .mat-mdc-mini-fab,
+body.safari-platform .mat-mdc-raised-button {
     transform: none;
 }
 
 /*---- Ascii art font ----*/
 .ascii-art-font {
     line-height: 1 !important;
-    font-family: Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace !important;
+    font-family: 'IBM Plex Mono',Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace !important;
 }
+
+/* Dashboard grid shell: the widget-width override this sheet used to carry
+   lost on source order to egret_overrides.css and now lives there, next to
+   the legacy rule it overrides. See egret_overrides.css "Split Layout
+   Widgets". */

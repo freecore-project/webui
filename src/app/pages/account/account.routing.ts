@@ -12,6 +12,7 @@ export const routes: Routes = [{
   path: '',
   data: { title: 'Accounts' },
   children: [
+    { path: '', redirectTo: 'users', pathMatch: 'full' },
     {
       path: 'users',
       data: { title: 'Users', breadcrumb: 'Users', icon: 'group' },
@@ -58,4 +59,4 @@ export const routes: Routes = [{
       ],
     }],
 }];
-export const routing: ModuleWithProviders = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders<RouterModule> = RouterModule.forChild(routes);

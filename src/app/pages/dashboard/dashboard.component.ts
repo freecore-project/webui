@@ -1,28 +1,27 @@
 import {
   Component, OnInit, AfterViewInit, OnDestroy, ElementRef,
+  ChangeDetectionStrategy, HostListener, ViewChild,
 } from '@angular/core';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
-import { SystemProfiler } from 'app/core/classes/system-profiler';
 
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component'; // POC
 import { WidgetControllerComponent } from 'app/core/components/widgets/widgetcontroller/widgetcontroller.component'; // POC
 import { WidgetPoolComponent } from 'app/core/components/widgets/widgetpool/widgetpool.component';
-import { FlexLayoutModule, MediaObserver } from '@angular/flex-layout';
 
 import { RestService, WebSocketService } from '../../services';
 import { DashConfigItem } from 'app/core/components/widgets/widgetcontroller/widgetcontroller.component';
-import { tween, styler } from 'popmotion';
 
 @Component({
+  standalone: false,
   selector: 'dashboard',
   templateUrl: './dashboard.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./dashboard.scss'],
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   screenType = 'Desktop'; // Desktop || Mobile
-  optimalDesktopWidth = '100%';
-  widgetWidth = 540; // in pixels (Desktop only)
 
   dashState: DashConfigItem[]; // Saved State
   activeMobileWidget: DashConfigItem[] = [];
@@ -38,6 +37,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   statsDataEvents: Subject<CoreEvent>;
   private statsEvents: any;
+  private gpuConfigSub: Subscription;
+  private gpuInventorySub: Subscription;
   tcStats: any;
 
   // For widgetsysinfo
@@ -55,116 +56,81 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   volumeData: any; //= {};
 
   nics: any[]; // = [];
+  gpus: any[] = [];
+  gpuInventoryReady = false;
+  private gpuWidgetsSynced = false;
 
   animation = 'stop';
   shake = false;
 
   showSpinner = true;
 
-  constructor(protected core: CoreService, protected ws: WebSocketService,
-    public mediaObserver: MediaObserver, private el: ElementRef) {
+  @ViewChild(WidgetControllerComponent) private mobileLauncher: WidgetControllerComponent;
+  private lastMobileWidget: DashConfigItem;
+  private lastFocusedElement: HTMLElement;
+  private focusTimer: ReturnType<typeof setTimeout>;
+  private sidenavTimer: ReturnType<typeof setTimeout>;
+  private destroyed = false;
+
+  constructor(protected core: CoreService, protected ws: WebSocketService, private el: ElementRef) {
     core.register({ observerClass: this, eventName: 'SidenavStatus' }).subscribe((evt: CoreEvent) => {
-      setTimeout(() => {
-        this.checkScreenSize();
-      }, 100);
+      clearTimeout(this.sidenavTimer);
+      this.sidenavTimer = setTimeout(() => this.checkScreenSize(), 100);
     });
 
     this.statsDataEvents = new Subject<CoreEvent>();
 
     this.checkScreenSize();
-
-    window.onresize = () => {
-      this.checkScreenSize();
-    };
   }
 
   ngAfterViewInit() {
     this.checkScreenSize();
   }
 
-  checkScreenSize() {
-    const st = window.innerWidth < 600 ? 'Mobile' : 'Desktop';
+  @HostListener('focusin', ['$event'])
+  rememberFocus(event: FocusEvent): void {
+    this.lastFocusedElement = event.target as HTMLElement;
+  }
 
-    // If leaving .xs screen then reset mobile position
-    if (st == 'Desktop' && this.screenType == 'Mobile') {
-      this.onMobileBack();
+  @HostListener('window:resize')
+  checkScreenSize(): void {
+    const next = window.innerWidth < 600 ? 'Mobile' : 'Desktop';
+    if (next === this.screenType) { return; }
+    // The shared media observer may remove the mobile Back button just before
+    // this resize event. Keep focus ownership when that focused node vanished.
+    const restoreFocus = this.el.nativeElement.contains(document.activeElement) ||
+      (document.activeElement === document.body && this.lastFocusedElement && !this.lastFocusedElement.isConnected);
+    this.screenType = next;
+    this.activeMobileWidget = [];
+    if (restoreFocus) {
+      this.scheduleFocus(() => {
+        if (this.screenType === 'Mobile') {
+          this.mobileLauncher?.focusWidget(this.lastMobileWidget);
+        } else {
+          this.el.nativeElement.querySelector('.widgets-wrapper')?.focus();
+        }
+      });
     }
-
-    this.screenType = st;
-
-    // Eliminate top level scrolling
-    const wrapper = (<any>document).querySelector('.fn-maincontent');
-    wrapper.style.overflow = this.screenType == 'Mobile' ? 'hidden' : 'auto';
-    this.optimizeWidgetContainer();
   }
 
-  optimizeWidgetContainer() {
-    const wrapper = (<any>document).querySelector('.rightside-content-hold');
-
-    const withMargin = this.widgetWidth + 8;
-    const max = Math.floor(wrapper.offsetWidth / withMargin);
-    const odw = max * withMargin;
-    this.optimalDesktopWidth = odw.toString() + 'px';
-  }
-
-  onMobileLaunch(evt: DashConfigItem) {
-    this.activeMobileWidget = [evt];
-
-    // Transition
-    const vp = this.el.nativeElement.querySelector('.mobile-viewport');
-    const viewport = styler(vp);
-    const c = this.el.nativeElement.querySelector('.mobile-viewport .carousel');
-    const carousel = styler(c);
-    const vpw = viewport.get('width'); // 600;
-
-    const startX = 0;
-    const endX = vpw * -1;
-
-    tween({
-      from: { x: startX },
-      to: { x: endX },
-      duration: 250,
-    }).start(carousel.set);
-  }
-
-  onMobileBack() {
-    // Transition
-    const vp = this.el.nativeElement.querySelector('.mobile-viewport');
-    const viewport = styler(vp);
-    const c = this.el.nativeElement.querySelector('.mobile-viewport .carousel');
-    const carousel = styler(c);
-    const vpw = viewport.get('width'); // 600;
-
-    const startX = vpw * -1;
-    const endX = 0;
-
-    tween({
-      from: { x: startX },
-      to: { x: endX },
-      duration: 250,
-    }).start({
-      update: (v) => {
-        carousel.set(v);
-      },
-      complete: () => {
-        this.activeMobileWidget = [];
-      },
+  onMobileLaunch(widget: DashConfigItem): void {
+    this.lastMobileWidget = widget;
+    this.activeMobileWidget = [widget];
+    this.scheduleFocus(() => {
+      this.el.nativeElement.querySelector('.mobile-widget-container [data-dashboard-back]')?.focus();
     });
   }
 
-  onMobileResize(evt) {
-    if (this.screenType == 'Desktop') { return; }
-    const vp = this.el.nativeElement.querySelector('.mobile-viewport');
-    const viewport = styler(vp);
-    const c = this.el.nativeElement.querySelector('.mobile-viewport .carousel');
-    const carousel = styler(c);
+  onMobileBack(): void {
+    this.activeMobileWidget = [];
+    this.scheduleFocus(() => this.mobileLauncher?.focusWidget(this.lastMobileWidget));
+  }
 
-    const startX = viewport.get('x');
-    const endX = this.activeMobileWidget.length > 0 ? evt.target.innerWidth * -1 : 0;
-
-    if (startX !== endX) {
-      carousel.set('x', endX);
-    }
+  private scheduleFocus(focus: () => void): void {
+    clearTimeout(this.focusTimer);
+    this.focusTimer = setTimeout(() => {
+      if (!this.destroyed) { focus(); }
+    });
   }
 
   ngOnInit() {
@@ -186,9 +152,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.stopListeners();
     this.core.unregister({ observerClass: this });
 
-    // Restore top level scrolling
-    const wrapper = (<any>document).querySelector('.fn-maincontent');
-    wrapper.style.overflow = 'auto';
+    this.destroyed = true;
+    clearTimeout(this.focusTimer);
+    clearTimeout(this.sidenavTimer);
   }
 
   init() {
@@ -262,6 +228,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   startListeners() {
+    this.startGpuListeners();
+
     this.core.register({ observerClass: this, eventName: 'RealtimeStats' }).subscribe((e: CoreEvent) => {
       const evt = e.data;
       if (evt.cpu) {
@@ -279,6 +247,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         if (evt.zfs && evt.zfs.arc_size != null) {
           memStats.arc_size = evt.zfs.arc_size;
         }
+        if (evt.zfs && evt.zfs.cache_hit_ratio != null) {
+          memStats.cache_hit_ratio = evt.zfs.cache_hit_ratio;
+        }
         this.statsDataEvents.next({ name: 'MemoryStats', data: memStats });
       }
 
@@ -293,33 +264,67 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   stopListeners() {
-    if (!this.statsEvents) { return; }
+    if (this.gpuConfigSub) { this.gpuConfigSub.unsubscribe(); }
+    if (this.gpuInventorySub) { this.gpuInventorySub.unsubscribe(); }
 
     // unsubscribe from middleware
-    this.statsEvents.complete();
+    if (this.statsEvents) { this.statsEvents.complete(); }
+  }
+
+  setGpuInventory(payload) {
+    const gpus = payload && Array.isArray(payload.gpus) ? payload.gpus : [];
+    // the internal development record: a GPU with no driver attached earns no card. Middleware
+    // sets `no-driver` as the negation of has_driver, so this is its own
+    // determination rather than a guess: such a device reports no utilization,
+    // no VRAM and no temperature, leaving a frame holding only its PCI id.
+    // Card-spec law 4 forbids an empty row; an empty frame is worse. A
+    // passthrough GPU still shows -- it is assigned to a VM, which is the point
+    // -- and so does a degraded one, which still lists its consumers.
+    this.gpus = gpus.filter((gpu) => gpu && typeof gpu.id === 'string' && gpu.state !== 'no-driver');
+    this.gpuInventoryReady = true;
+    this.isDataReady();
+  }
+
+  private startGpuListeners() {
+    // the internal development record: GPU cards require an explicit enabled RC driver
+    // tunable. Hardware inventory alone must not opt the Dashboard in.
+    this.gpuConfigSub = this.ws.call('tunable.query', [[
+      ['var', '=', 'kld_list'], ['type', '=', 'RC'], ['enabled', '=', true],
+    ]]).pipe(take(1)).subscribe({
+      next: (tunables) => {
+        if (!this.hasGpuDriverTunable(tunables)) {
+          this.setGpuInventory({ gpus: [] });
+          return;
+        }
+
+        // Take one discovery payload; mounted GPU cards own continuing
+        // subscriptions. take(1) also performs the protocol unsubscribe.
+        this.gpuInventorySub = this.ws.sub('gpu.stats:{"interval":5}').pipe(take(1)).subscribe({
+          next: (payload) => this.setGpuInventory(payload),
+          error: () => this.setGpuInventory({ gpus: [] }),
+        });
+      },
+      error: () => this.setGpuInventory({ gpus: [] }),
+    });
+  }
+
+  private hasGpuDriverTunable(tunables: any): boolean {
+    const modules = ['drm', 'drm2', 'i915kms', 'amdgpu', 'radeonkms', 'nvidia', 'nvidia-modeset', 'nvidia-drm'];
+    return Array.isArray(tunables) && tunables.some((tunable) => tunable
+      && tunable.var === 'kld_list' && tunable.type === 'RC' && tunable.enabled === true
+      && typeof tunable.value === 'string' && tunable.value.split(/\s+/).some((token) => {
+      const module = token.split('/').pop().replace(/\.ko$/, '');
+      return modules.includes(module);
+    }));
   }
 
   setVolumeData(evt: CoreEvent) {
-    const vd = {};
-
-    for (const i in evt.data) {
-      if (typeof evt.data[i] == undefined || !evt.data[i]) { continue; }
-
-      let avail = null;
-      const used_pct = evt.data[i].used.parsed / (evt.data[i].used.parsed + evt.data[i].available.parsed);
-      avail = evt.data[i].available.parsed;
-
-      const zvol = {
-        avail,
-        id: evt.data[i].id,
-        name: evt.data[i].name,
-        used: evt.data[i].used.parsed,
-        used_pct: (used_pct * 100).toFixed(0) + '%',
-      };
-
-      vd[zvol.id] = zvol;
+    const volumes = {};
+    for (const dataset of evt.data || []) {
+      if (!dataset?.id) { continue; }
+      volumes[dataset.id] = { used: dataset.used?.parsed, avail: dataset.available?.parsed };
     }
-    this.volumeData = vd;
+    this.volumeData = volumes;
   }
 
   getDisksData() {
@@ -352,7 +357,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.availableWidgets = this.generateDefaultConfig();
       if (!this.dashState) {
         this.dashState = this.availableWidgets;
+        this.gpuWidgetsSynced = this.gpuInventoryReady;
+      } else if (this.gpuInventoryReady && !this.gpuWidgetsSynced) {
+        this.syncGpuWidgets();
       }
+      this.normalizePoolWidgets();
     }
   }
 
@@ -367,27 +376,48 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     conf.push({ name: 'CPU', rendered: true });
     conf.push({ name: 'Memory', rendered: true });
+    // the internal development record: guest.stats is self-contained and starts only while
+    // the card is visible, so Guests is always present without an entity query.
+    conf.push({ name: 'Guests', rendered: true });
 
-    this.pools.forEach((pool, index) => {
-      conf.push({ name: 'Pool', identifier: 'name,' + pool.name, rendered: true });
+    // One GPU card per PCI selector. This list is the first cached gpu.stats
+    // payload, not an additional dashboard query; GPU-less boxes add nothing.
+    (this.gpus || []).forEach((gpu) => {
+      conf.push({ name: 'GPU', identifier: 'id,' + gpu.id, rendered: true });
     });
 
-    this.nics.forEach((nic, index) => {
-      conf.push({ name: 'Interface', identifier: 'name,' + nic.name, rendered: true });
-    });
+    // the internal development record: one aggregated Network card in place of one card per
+    // NIC -- a box with many bridges/VLANs otherwise renders 100+ cards. The
+    // per-interface widget (widget-nic) went in the internal development record.
+    if (this.nics && this.nics.length > 0) {
+      conf.push({ name: 'Network', rendered: true });
+    }
 
-    conf.push({ name: 'Help', rendered: true });
+    // An empty installation still has one useful Pools entry and empty state.
+    conf.push({ name: 'Pools', rendered: true });
+
+    // the internal development record: the Resources strip is gone; the project footer on
+    // every page carries those links. A saved state naming 'Help' renders nothing.
 
     return conf;
   }
 
-  volumeDataFromConfig(item: DashConfigItem) {
-    const spl = item.identifier.split(',');
-    const key = spl[0];
-    const value = spl[1];
-
-    const pool = this.pools.filter((pool) => pool[key] == value);
-    return this.volumeData && this.volumeData[pool[0].name] ? this.volumeData[pool[0].name] : '';
+  private normalizePoolWidgets(): void {
+    // the internal development record: migrate per-pool state without keeping stale entity
+    // identifiers, duplicating the aggregate, or dropping newly imported pools.
+    const isPool = (item: DashConfigItem): boolean => ['pool', 'pools'].includes(item.name.toLowerCase());
+    const previous = this.dashState.filter(isPool);
+    if (previous.length === 1 && previous[0].name === 'Pools' && !previous[0].identifier) { return; }
+    const first = this.dashState.findIndex(isPool);
+    const aggregate = previous.find((item) => item.name.toLowerCase() === 'pools');
+    const poolWidget: DashConfigItem = {
+      name: 'Pools',
+      rendered: aggregate ? aggregate.rendered : previous.length ? previous.some((item) => item.rendered) : true,
+      ...(previous[0]?.position !== undefined ? { position: previous[0].position } : {}),
+    };
+    const next = this.dashState.filter((item) => !isPool(item));
+    next.splice(first < 0 ? next.length : first, 0, poolWidget);
+    this.dashState = next;
   }
 
   dataFromConfig(item: DashConfigItem) {
@@ -409,17 +439,41 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       case 'memory':
         data = this.statsDataEvents;
         break;
-      case 'pool':
-        data = spl ? this.pools.filter((pool) => pool[key] == value) : console.warn('DashConfigItem has no identifier!');
+      case 'pools':
+        data = this.pools;
+        break;
+      case 'gpu':
+        data = spl ? this.gpus.filter((gpu) => gpu[key] == value) : console.warn('DashConfigItem has no identifier!');
         if (data) { data = data[0]; }
         break;
-      case 'interface':
-        data = spl ? this.nics.filter((nic) => nic[key] == value) : console.warn('DashConfigItem has no identifier!');
-        if (data) { data = data[0].state; }
+      case 'network':
+        // the internal development record: the aggregated Network card consumes the whole
+        // (already VLAN-/LAGG-folded) interface list and derives its own view.
+        data = this.nics;
         break;
     }
 
     return data || console.warn('Data for this widget is not available!');
+  }
+
+  private syncGpuWidgets() {
+    const existing = new Map<string, DashConfigItem>();
+    this.dashState
+      .filter((item) => item.name.toLowerCase() === 'gpu')
+      .forEach((item) => {
+        if (item.identifier) { existing.set(item.identifier, item); }
+      });
+    const gpuWidgets = this.availableWidgets
+      .filter((item) => item.name.toLowerCase() === 'gpu')
+      .map((item) => {
+        const previous = item.identifier ? existing.get(item.identifier) : undefined;
+        return previous ? { ...item, rendered: previous.rendered, position: previous.position } : item;
+      });
+    const next = this.dashState.filter((item) => item.name.toLowerCase() !== 'gpu');
+    const guests = next.findIndex((item) => item.name.toLowerCase() === 'guests');
+    next.splice(guests < 0 ? next.length : guests + 1, 0, ...gpuWidgets);
+    this.dashState = next;
+    this.gpuWidgetsSynced = true;
   }
 
   toggleShake() {

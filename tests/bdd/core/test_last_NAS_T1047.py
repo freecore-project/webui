@@ -73,7 +73,7 @@ def on_the_general_page_click_on_the_save_config_button(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"General")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__SAVE CONFIG"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE CONFIG"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Save Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Save Configuration")]')
 
 
 @then('click the Export Secret Seed checkbox')
@@ -109,9 +109,9 @@ def click_on_the_reset_config_button_click_confirm_then_reset_config(driver):
     """click on the "Reset Config" button, click Confirm, then RESET CONFIG."""
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__RESET CONFIG"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__RESET CONFIG"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Reset Configuration")]')
-    assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Confirm"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Confirm"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Reset Configuration")]')
+    assert wait_on_element(driver, 7, '//hlm-checkbox[@ix-auto="checkbox__Confirm"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__Confirm"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '(//button[@ix-auto="button__RESET CONFIG"])[2]', 'clickable')
     driver.find_element_by_xpath('(//button[@ix-auto="button__RESET CONFIG"])[2]').click()
 
@@ -147,9 +147,9 @@ def reboot_the_system_and_try_to_login_using_the_previous_password_testing(drive
     assert wait_on_element(driver, 7, '//button[@ix-auto="option__Shut Down"]', 'clickable')
     assert wait_on_element(driver, 7, '//button[@ix-auto="option__Restart"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="option__Restart"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Restart")]')
-    assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Restart")]')
+    assert wait_on_element(driver, 7, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__RESTART"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__RESTART"]').click()
     assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
@@ -198,7 +198,7 @@ def on_the_general_page_click_the_upload_config_file(driver):
 @then('set the file click Upload')
 def set_the_file_click_upload(driver):
     """set the file click Upload."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Upload Config")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Upload Config")]')
     assert wait_on_element(driver, 7, '//input[@type="file"]', 'clickable')
     driver.find_element_by_xpath('//input[@type="file"]').send_keys(backup_file)
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__UPLOAD"]', 'clickable')

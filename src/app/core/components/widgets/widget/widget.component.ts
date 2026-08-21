@@ -1,5 +1,6 @@
 import {
   Component, AfterViewInit, Input, ViewChild, Output, EventEmitter,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
@@ -20,8 +21,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'widget',
   templateUrl: './widget.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./widget.component.scss'],
 })
 export class WidgetComponent extends iXObject implements AfterViewInit {
   protected core: CoreService;

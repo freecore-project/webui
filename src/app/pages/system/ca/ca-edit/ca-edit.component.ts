@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RestService, WebSocketService } from '../../../../services';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
@@ -8,10 +9,13 @@ import { EntityUtils } from '../../../common/entity/utils';
 import { helptext_system_ca } from 'app/helptext/system/ca';
 
 @Component({
+  standalone: false,
   selector: 'app-ca-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class CertificateAuthorityEditComponent {
+  settingsTitle = T('Certificate Authority');
   protected queryCall = 'certificateauthority.query';
   protected editCall = 'certificateauthority.update';
   protected route_success: string[] = ['system', 'ca'];
@@ -23,6 +27,7 @@ export class CertificateAuthorityEditComponent {
     {
       name: helptext_system_ca.edit.fieldset_certificate,
       label: true,
+      settingsLabel: T('Details'),
       class: 'certificate',
       width: '100%',
       config: [

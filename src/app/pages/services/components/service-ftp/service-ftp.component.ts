@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
@@ -12,8 +13,10 @@ import {
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'ftp-edit',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 export class ServiceFTPComponent implements OnInit {
@@ -28,6 +31,7 @@ export class ServiceFTPComponent implements OnInit {
   protected rootloginSubscription: any;
   protected warned = false;
   protected rootlogin: boolean;
+  readonly settingsTitle = T('FTP'); // the internal development record: the page's h1
   protected fieldConfig;
 
   protected bwFields = ['localuserbw', 'localuserdlbw', 'anonuserbw', 'anonuserdlbw'];

@@ -22,10 +22,7 @@ export default {
   autostart_tooltip: T('Set to start the VM automatically on boot.'),
 
   bootloader_placeholder: T('Boot Loader Type'),
-  bootloader_tooltip: T('Select <b>UEFI</b> for newer operating systems, or\
- <b>UEFI-CSM</b> (Compatibility Support Mode) for\
- older operating systems that only support BIOS\
- booting.'),
+  bootloader_tooltip: T('FreeCORE 15.1 supports <b>UEFI</b> booting.'),
   bootloader_validation: [Validators.required],
 
   vcpus_placeholder: T('Virtual CPUs'),

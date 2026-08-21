@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
 
@@ -18,12 +18,18 @@ import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'vm-list',
   template: `
-    <div class="vm-summary">
-        <p *ngIf="availMem"><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
-    </div>
-    <entity-table [title]='title' [conf]='this'></entity-table>`,
+    <entity-table [title]='title' [conf]='this'>
+      <!-- the internal development record: the one notice box, left-anchored; projected under the page title -->
+      @if (availMem) {
+        <div fcTableNotice class="vm-summary fc-page-notice">
+          <p><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
+        </div>
+      }
+    </entity-table>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./vm-list.component.css'],
 })
 export class VMListComponent implements OnDestroy, InputTableConf {
@@ -44,11 +50,12 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       name: T('State'), prop: 'state', always_display: true, toggle: true,
     },
     { name: T('Autostart'), prop: 'autostart', selectable: true },
+    { name: T('Architecture'), prop: 'arch', hidden: true }, // the internal development record: a detail, like the other non-identity facts
     { name: T('Virtual CPUs'), prop: 'vcpus', hidden: true },
     { name: T('Cores'), prop: 'cores', hidden: true },
     { name: T('Threads'), prop: 'threads', hidden: true },
     { name: T('Memory Size'), prop: 'memory', hidden: true },
-    { name: T('Boot Loader Type'), prop: 'bootloader', hidden: true },
+    { name: T('Boot Loader Type'), prop: 'bootloader_display', hidden: true },
     { name: T('System Clock'), prop: 'time', hidden: true },
     { name: T('VNC Port'), prop: 'port', hidden: true },
     { name: T('Com Port'), prop: 'com_port', hidden: true },
@@ -105,7 +112,17 @@ export class VMListComponent implements OnDestroy, InputTableConf {
 
   resourceTransformIncomingRestData(vms) {
     for (let vm_index = 0; vm_index < vms.length; vm_index++) {
-      vms[vm_index]['state'] = vms[vm_index]['status']['state'];
+      vms[vm_index]['unsupported_bootloader'] = this.isUnsupportedBootloader(vms[vm_index]);
+      const unsupportedLabel = this.unsupportedBootloaderLabel(vms[vm_index]);
+      vms[vm_index]['bootloader_display'] = vms[vm_index]['unsupported_bootloader']
+        ? `${unsupportedLabel} (${T('Unsupported in FreeCORE 15.1')})`
+        : vms[vm_index]['bootloader'];
+      vms[vm_index]['arch'] = vms[vm_index]['arch'] || 'amd64';
+      vms[vm_index]['state'] = vms[vm_index]['unsupported_bootloader']
+        ? `${T('UNSUPPORTED')} (${unsupportedLabel})`
+        : vms[vm_index]['status']['domain_state'] === 'UNAVAILABLE'
+          ? T('UNAVAILABLE')
+          : vms[vm_index]['status']['state'];
       vms[vm_index]['com_port'] = `/dev/nmdm${vms[vm_index]['id']}B`;
       vms[vm_index]['shutdown_timeout'] += T(' seconds');
       if (this.checkVnc(vms[vm_index])) {
@@ -126,7 +143,7 @@ export class VMListComponent implements OnDestroy, InputTableConf {
     if (!devices || devices.length === 0) {
       return false;
     }
-    if (vm.bootloader === 'GRUB' || vm.bootloader === 'UEFI_CSM') {
+    if (vm.bootloader !== 'UEFI') {
       return false;
     }
     for (let i = 0; i < devices.length; i++) {
@@ -141,7 +158,7 @@ export class VMListComponent implements OnDestroy, InputTableConf {
     if (!devices || devices.length === 0) {
       return false;
     }
-    if (vm.bootloader === 'GRUB' || vm.bootloader === 'UEFI_CSM') {
+    if (vm.bootloader !== 'UEFI') {
       return false;
     }
     for (let i = 0; i < devices.length; i++) {
@@ -152,6 +169,11 @@ export class VMListComponent implements OnDestroy, InputTableConf {
   }
 
   onSliderChange(row) {
+    if (this.isUnsupportedBootloader(row)) {
+      this.reportUnsupportedBootloader(row);
+      return;
+    }
+
     let method;
     if (row['status']['state'] === 'RUNNING') {
       method = this.wsMethods.stop;
@@ -282,6 +304,10 @@ export class VMListComponent implements OnDestroy, InputTableConf {
   }
 
   onCheckboxChange(row) {
+    if (this.isUnsupportedBootloader(row)) {
+      this.reportUnsupportedBootloader(row);
+      return;
+    }
     row.autostart = !row.autostart;
     this.doRowAction(row, this.wsMethods.update, [row.id, { autostart: row.autostart }]);
   }
@@ -296,11 +322,13 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       },
     },
     {
-      id: 'RESTART',
-      icon: 'replay',
-      label: T('Restart'),
-      onClick: (restart_row) => {
-        this.doRowAction(restart_row, this.wsMethods.restart);
+      // the internal development record: one order on every table -- run (Start · Stop · Power Off · Restart),
+      // change (Edit, Devices), look (VNC, Serial Shell), derive (Clone), destroy (Delete last).
+      id: 'STOP',
+      icon: 'stop',
+      label: T('Stop'),
+      onClick: (stop_row) => {
+        this.onSliderChange(stop_row);
       },
     },
     {
@@ -312,11 +340,11 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       },
     },
     {
-      id: 'STOP',
-      icon: 'stop',
-      label: T('Stop'),
-      onClick: (stop_row) => {
-        this.onSliderChange(stop_row);
+      id: 'RESTART',
+      icon: 'replay',
+      label: T('Restart'),
+      onClick: (restart_row) => {
+        this.doRowAction(restart_row, this.wsMethods.restart);
       },
     },
     {
@@ -325,6 +353,69 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       label: T('Edit'),
       onClick: (edit_row) => {
         this.router.navigate(new Array('').concat(['vm', 'edit', edit_row.id]));
+      },
+    },
+    {
+      id: 'DEVICES',
+      icon: 'device_hub',
+      label: T('Devices'),
+      onClick: (devices_row) => {
+        this.router.navigate(new Array('').concat(['vm', devices_row.id, 'devices', devices_row.name]));
+      },
+    },
+    {
+      id: 'VNC',
+      icon: 'settings_ethernet',
+      label: T('VNC'),
+      onClick: (vnc_vm) => {
+        const vnc = vnc_vm.devices.find((o) => o.dtype === 'VNC');
+        let bind = vnc.attributes.vnc_bind;
+        if (bind === '0.0.0.0' || bind === '::') {
+          bind = window.location.hostname;
+        }
+        this.ws.call('vm.get_vnc_web', [vnc_vm.id, bind]).subscribe((res) => {
+          for (const vnc_port in res) {
+            window.open(res[vnc_port]);
+          }
+        });
+      },
+    },
+    {
+      id: 'SERIAL',
+      icon: 'keyboard_arrow_right',
+      label: T('Serial Shell'),
+      onClick: (vm) => {
+        this.router.navigate(new Array('').concat(['vm', 'serial', vm.id]));
+      },
+    },
+    {
+      id: 'CLONE',
+      icon: 'filter_none',
+      label: T('Clone'),
+      onClick: (clone_row) => {
+        const parent = this;
+        const conf: DialogFormConfiguration = {
+          title: T('Name'),
+          fieldConfig: [
+            {
+              type: 'input',
+              inputType: 'text',
+              name: 'name',
+              placeholder: T('Name (optional)'),
+              required: false,
+            },
+          ],
+          saveButtonText: T('Clone'),
+          customSubmit(entityDialog) {
+            entityDialog.dialogRef.close(true);
+            const params = [clone_row.id];
+            if (entityDialog.formValue.name) {
+              params.push(entityDialog.formValue.name);
+            }
+            parent.doRowAction(clone_row, parent.wsMethods.clone, params, true);
+          },
+        };
+        this.dialogService.dialogForm(conf);
       },
     },
     {
@@ -379,73 +470,13 @@ export class VMListComponent implements OnDestroy, InputTableConf {
         };
         this.dialogService.dialogForm(conf);
       },
-    },
-    {
-      id: 'DEVICES',
-      icon: 'device_hub',
-      label: T('Devices'),
-      onClick: (devices_row) => {
-        this.router.navigate(new Array('').concat(['vm', devices_row.id, 'devices', devices_row.name]));
-      },
-    },
-    {
-      id: 'CLONE',
-      icon: 'filter_none',
-      label: T('Clone'),
-      onClick: (clone_row) => {
-        const parent = this;
-        const conf: DialogFormConfiguration = {
-          title: T('Name'),
-          fieldConfig: [
-            {
-              type: 'input',
-              inputType: 'text',
-              name: 'name',
-              placeholder: T('Enter a Name (optional)'),
-              required: false,
-            },
-          ],
-          saveButtonText: T('Clone'),
-          customSubmit(entityDialog) {
-            entityDialog.dialogRef.close(true);
-            const params = [clone_row.id];
-            if (entityDialog.formValue.name) {
-              params.push(entityDialog.formValue.name);
-            }
-            parent.doRowAction(clone_row, parent.wsMethods.clone, params, true);
-          },
-        };
-        this.dialogService.dialogForm(conf);
-      },
-    },
-    {
-      id: 'VNC',
-      icon: 'settings_ethernet',
-      label: T('VNC'),
-      onClick: (vnc_vm) => {
-        const vnc = vnc_vm.devices.find((o) => o.dtype === 'VNC');
-        let bind = vnc.attributes.vnc_bind;
-        if (bind === '0.0.0.0' || bind === '::') {
-          bind = window.location.hostname;
-        }
-        this.ws.call('vm.get_vnc_web', [vnc_vm.id, bind]).subscribe((res) => {
-          for (const vnc_port in res) {
-            window.open(res[vnc_port]);
-          }
-        });
-      },
-    },
-    {
-      id: 'SERIAL',
-      icon: 'keyboard_arrow_right',
-      label: T('Serial Shell'),
-      onClick: (vm) => {
-        this.router.navigate(new Array('').concat(['vm', 'serial', vm.id]));
-      },
     }] as EntityTableAction[];
   }
 
   isActionVisible(actionId: string, row: any) {
+    if (this.isUnsupportedBootloader(row)) {
+      return actionId === 'DELETE';
+    }
     if (actionId === 'VNC' && (row['status']['state'] !== 'RUNNING' || !this.checkVnc(row))) {
       return false;
     } if ((actionId === 'POWER_OFF' || actionId === 'STOP' || actionId === 'RESTART'
@@ -455,6 +486,30 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       return false;
     }
     return true;
+  }
+
+  private isUnsupportedBootloader(row: any): boolean {
+    return row['unsupported_bootloader'] || (
+      typeof row['bootloader'] === 'string'
+      && ['GRUB', 'UEFI_CSM'].includes(row['bootloader'].trim().toUpperCase())
+    );
+  }
+
+  private unsupportedBootloaderLabel(row: any): string {
+    return row['bootloader']?.trim().toUpperCase() === 'UEFI_CSM' ? 'UEFI-CSM' : 'GRUB';
+  }
+
+  private reportUnsupportedBootloader(row: any) {
+    const csm = row['bootloader']?.trim().toUpperCase() === 'UEFI_CSM';
+    this.dialogService.report(
+      csm ? T('UEFI-CSM VM unsupported') : T('GRUB VM unsupported'),
+      csm
+        ? T('UEFI-CSM virtual machines cannot run or be edited in FreeCORE 15.1 because the required '
+          + 'legacy firmware is not shipped. Boot FreeCORE 15.0 to verify the guest boot media and migrate '
+          + 'the VM record to ordinary UEFI, or delete the record. No automatic conversion was performed.')
+        : T('GRUB virtual machines cannot run or be edited in FreeCORE 15.1. '
+          + 'Boot FreeCORE 15.0 to migrate the VM to ordinary UEFI, delete the VM record, or remain on 15.0.'),
+    );
   }
 
   checkMemory() {

@@ -6,7 +6,7 @@ import {
 } from '@angular/router';
 import * as domHelper from '../../helpers/dom.helper';
 
-@Directive({ selector: '[appAccordion]' })
+@Directive({ standalone: false, selector: '[appAccordion]' })
 export class AppAccordionDirective implements OnInit {
   parentLi;
 

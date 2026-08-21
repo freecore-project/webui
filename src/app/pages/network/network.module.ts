@@ -1,9 +1,12 @@
 import { CommonModule } from '@angular/common';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxUploaderModule } from 'ngx-uploader';
 import { MaterialModule } from '../../appMaterial.module';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { EntityModule } from '../common/entity/entity.module';
@@ -23,7 +26,10 @@ import { routing } from './network.routing';
 @NgModule({
   imports: [
     EntityModule, CommonModule, FormsModule,
-    ReactiveFormsModule, NgxUploaderModule, routing, MaterialModule, FlexLayoutModule, TranslateModule,
+    ReactiveFormsModule, routing, MaterialModule, TranslateModule,
+    ...HlmButtonImports,
+    ...HlmFieldImports, ...HlmSelectImports, ...HlmSpinnerImports, // the internal development record: the IPMI scope pickers
+    ...HlmInputImports, // the internal development record: the interfaces check-in timeout
   ],
   declarations: [
     StaticRouteFormComponent,

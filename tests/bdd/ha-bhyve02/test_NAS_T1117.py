@@ -68,7 +68,7 @@ def you_see_the_dashboard_go_to_directory_services_and_select_nis(driver):
 def on_the_nis_page_input_the_nis_domian_nis_server_then_click_enable_checkbox(driver, nis_domian, nis_server):
     """on the NIS page input the <nis_domian>, <nis_server> then click Enable checkbox."""
     assert wait_on_element(driver, 5, '//li[span/a/text()="NIS"]')
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Network Information Service (NIS)")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Network Information Service (NIS)")]')
     assert wait_on_element(driver, 5, '//input[@placeholder="NIS Domain"]', 'inputable')
     driver.find_element_by_xpath('//input[@placeholder="NIS Domain"]').clear()
     driver.find_element_by_xpath('//input[@placeholder="NIS Domain"]').send_keys(nis_domian)
@@ -165,7 +165,7 @@ def click_on_Directory_Services_and_select_NIS_then_disable_NIS(driver):
     assert wait_on_element(driver, 7, xpaths.sideMenu.directory_services_nis)
     driver.find_element_by_xpath(xpaths.sideMenu.directory_services_nis).click()
     assert wait_on_element(driver, 5, '//li[span/a/text()="NIS"]')
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Network Information Service (NIS)")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Network Information Service (NIS)")]')
     # Clear settings
     assert wait_on_element(driver, 5, '//input[@placeholder="NIS Domain"]', 'inputable')
     driver.find_element_by_xpath('//input[@placeholder="NIS Domain"]').clear()

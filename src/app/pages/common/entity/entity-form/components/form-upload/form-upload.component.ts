@@ -1,5 +1,5 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 import { Subscription, Observer } from 'rxjs';
 import {
   HttpClient, HttpRequest, HttpEventType, HttpResponse,
@@ -12,14 +12,16 @@ import { DialogService } from '../../../../../../services';
 import { T } from '../../../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-form-upload',
   templateUrl: './form-upload.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../dynamic-field/dynamic-field.css', 'form-upload.component.css'],
 })
 export class FormUploadComponent {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef<HTMLInputElement>;
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   busy: Subscription[] = [];
   sub: Subscription;
@@ -27,6 +29,11 @@ export class FormUploadComponent {
   jobId: Number;
   fileBrowser = true;
   apiEndPoint = '/_upload?auth_token=' + this.ws.token;
+
+  /** the internal development record: the input's id, tied to the label's `for`. */
+  get inputId(): string {
+    return this.config.id || `${this.config.name}-input`;
+  }
 
   constructor(
     protected ws: WebSocketService, protected http: HttpClient, private loader: AppLoaderService,

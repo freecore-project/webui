@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { T } from '../../../../translate-marker';
@@ -15,16 +15,17 @@ import helptext from '../../../../helptext/vm/devices/device-add-edit';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { DialogService } from '../../../../services/dialog.service';
 @Component({
+  standalone: false,
   selector: 'app-device-edit',
   templateUrl: './device-edit.component.html',
-  styleUrls: ['./device-edit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['../../../common/entity/entity-form/entity-form.component.scss'],
 })
 export class DeviceEditComponent implements OnInit {
   protected updateCall = 'vm.device.update';
   protected route_success: string[];
   deviceid: any;
   vmname: any;
-  fieldSets: any;
   isCustActionVisible = false;
   protected ipAddress: any = [];
   selectedType = 'CDROM';
@@ -36,6 +37,7 @@ export class DeviceEditComponent implements OnInit {
   rawfileFormGroup: any;
   pciFormGroup: any;
   vncFormGroup: any;
+  filesystemFormGroup: any;
   rootpwd: any;
   vminfo: any;
   boot: any;
@@ -67,6 +69,9 @@ export class DeviceEditComponent implements OnInit {
         }, {
           label: 'VNC',
           value: 'VNC',
+        }, {
+          label: T('Shared Directory (virtio-9p)'),
+          value: 'FILESYSTEM',
         },
       ],
       value: helptext.dtype_value,
@@ -311,6 +316,43 @@ export class DeviceEditComponent implements OnInit {
     },
   ];
 
+  // shared directory (virtio-9p), the internal development record
+  filesystemFieldConfig: FieldConfig[] = [
+    {
+      type: 'explorer',
+      explorerType: 'directory',
+      initial: '/mnt',
+      name: 'source',
+      placeholder: helptext.share_source_placeholder,
+      tooltip: helptext.share_source_tooltip,
+      required: true,
+      validation: helptext.share_source_validation,
+    },
+    {
+      type: 'input',
+      name: 'tag',
+      placeholder: helptext.share_tag_placeholder,
+      tooltip: helptext.share_tag_tooltip,
+      required: true,
+      validation: helptext.share_tag_validation,
+    },
+    {
+      type: 'checkbox',
+      name: 'readonly',
+      placeholder: helptext.share_readonly_placeholder,
+      tooltip: helptext.share_readonly_tooltip,
+      value: false,
+    },
+    {
+      name: 'order',
+      placeholder: helptext.order_placeholder,
+      tooltip: helptext.order_tooltip,
+      type: 'input',
+      value: null,
+      inputType: 'number',
+    },
+  ];
+
   constructor(protected router: Router,
     protected aroute: ActivatedRoute,
     protected rest: RestService,
@@ -323,6 +365,15 @@ export class DeviceEditComponent implements OnInit {
     protected dialogService: DialogService,
     private core: CoreService,
     protected vmService: VmService) {}
+
+  /**
+   * the internal development record: the section heading is the selected type's label (the Type select's own
+   * options), tolerant of the 'CDROM' default before the device query resolves and of a value the
+   * options no longer carry (VNC is pulled for non-UEFI guests).
+   */
+  get selectedTypeLabel(): string {
+    return _.find(this.fieldConfig[0].options, { value: this.selectedType })?.label ?? this.selectedType;
+  }
 
   preInit() {
     // vnc
@@ -379,27 +430,6 @@ export class DeviceEditComponent implements OnInit {
 
     this.core.emit({ name: 'SysInfoRequest' });
 
-    this.fieldSets = [
-      {
-        name: 'FallBack',
-        class: 'fallback',
-        width: '100%',
-        divider: false,
-        fieldConfig: this.fieldConfig,
-        cdromFieldConfig: this.cdromFieldConfig,
-        diskFieldConfig: this.diskFieldConfig,
-        nicFieldConfig: this.nicFieldConfig,
-        rawfileFieldConfig: this.rawfileFieldConfig,
-        pciFieldConfig: this.pciFieldConfig,
-        vncFieldConfig: this.vncFieldConfig,
-      },
-      {
-        name: 'divider',
-        divider: true,
-        width: '100%',
-      },
-    ];
-
     this.formGroup = this.entityFormService.createFormGroup(this.fieldConfig);
     this.cdromFormGroup = this.entityFormService.createFormGroup(this.cdromFieldConfig);
     this.diskFormGroup = this.entityFormService.createFormGroup(this.diskFieldConfig);
@@ -407,6 +437,7 @@ export class DeviceEditComponent implements OnInit {
     this.rawfileFormGroup = this.entityFormService.createFormGroup(this.rawfileFieldConfig);
     this.pciFormGroup = this.entityFormService.createFormGroup(this.pciFieldConfig);
     this.vncFormGroup = this.entityFormService.createFormGroup(this.vncFieldConfig);
+    this.filesystemFormGroup = this.entityFormService.createFormGroup(this.filesystemFieldConfig);
 
     this.activeFormGroup = this.cdromFormGroup;
     await this.ws.call('vm.device.query', [[['id', '=', this.deviceid]]]).subscribe((res) => {
@@ -442,11 +473,17 @@ export class DeviceEditComponent implements OnInit {
       } else if (res === 'VNC') {
         this.activeFormGroup = this.vncFormGroup;
         this.isCustActionVisible = false;
+      } else if (res === 'FILESYSTEM') {
+        this.activeFormGroup = this.filesystemFormGroup;
+        this.isCustActionVisible = false;
       }
       this.setgetValues(this.activeFormGroup, deviceInformation);
     });
     this.aroute.params.subscribe((params) => {
       this.ws.call('vm.query', [[['id', '=', parseInt(params['vmid'], 10)]]]).subscribe((res) => {
+        if (this.vmService.isEmulated(res[0].arch)) {
+          this.applyEmulatedGuestPolicy();
+        }
         if (res[0].status.state === 'RUNNING') {
           this.activeFormGroup.setErrors({ invalid: true });
         }
@@ -480,6 +517,27 @@ export class DeviceEditComponent implements OnInit {
     ];
   }
 
+  /**
+   * the internal development record: an emulated (QEMU) guest keeps VirtIO disks and NICs and
+   * cannot wait for a VNC client; the options an edit can pick from say so.
+   */
+  applyEmulatedGuestPolicy() {
+    for (const config of [this.diskFieldConfig, this.rawfileFieldConfig]) {
+      const type = _.find(config, { name: 'type' });
+      if (type) {
+        type.options = helptext.mode_options.filter((option) => option.value === 'VIRTIO');
+      }
+    }
+    const nicType = _.find(this.nicFieldConfig, { name: 'type' });
+    if (nicType) {
+      nicType.options = nicType.options.filter((option) => option.value === 'VIRTIO');
+    }
+    const wait = _.find(this.vncFieldConfig, { name: 'wait' });
+    if (wait) {
+      wait.isHidden = true;
+    }
+  }
+
   goBack() {
     this.router.navigate(new Array('/').concat(this.route_success));
   }
@@ -489,9 +547,11 @@ export class DeviceEditComponent implements OnInit {
       const deviceValue = _.cloneDeep(this.activeFormGroup.value);
       const deviceOrder = deviceValue['order'];
       delete deviceValue.order;
-      deviceValue['physical_sectorsize'] = deviceValue['sectorsize'] === 0 ? null : deviceValue['sectorsize'];
-      deviceValue['logical_sectorsize'] = deviceValue['sectorsize'] === 0 ? null : deviceValue['sectorsize'];
-      delete deviceValue['sectorsize'];
+      if ('sectorsize' in deviceValue) {
+        deviceValue['physical_sectorsize'] = deviceValue['sectorsize'] === 0 ? null : deviceValue['sectorsize'];
+        deviceValue['logical_sectorsize'] = deviceValue['sectorsize'] === 0 ? null : deviceValue['sectorsize'];
+        delete deviceValue['sectorsize'];
+      }
       const payload = {
         dtype: this.vminfo.dtype,
         attributes: deviceValue,

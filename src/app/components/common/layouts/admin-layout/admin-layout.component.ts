@@ -1,11 +1,12 @@
 import {
-  AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild,
+  AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, OnDestroy, ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { MediaChange, MediaObserver } from '@angular/flex-layout';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSidenav } from '@angular/material/sidenav';
+import { FcDrawerComponent } from 'app/components/common/drawer/fc-drawer';
 import { NavigationEnd, Router } from '@angular/router';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
+import { LayoutMediaChange, LayoutMediaObserver } from 'app/services/layout-media-observer.service';
 import * as Ps from 'perfect-scrollbar';
 import { Subscription } from 'rxjs';
 import * as domHelper from '../../../../helpers/dom.helper';
@@ -13,13 +14,17 @@ import { RestService, WebSocketService } from '../../../../services';
 import { LanguageService } from '../../../../services/language.service';
 import { ThemeService } from '../../../../services/theme/theme.service';
 import { ConsolePanelModalDialog } from '../../dialog/consolepanel/consolepanel-dialog.component';
+import { filter, map } from 'rxjs/operators';
+import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'app-admin-layout',
   templateUrl: './admin-layout.template.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./admin-layout.component.css'],
 })
-export class AdminLayoutComponent implements OnInit, AfterViewChecked {
+export class AdminLayoutComponent implements OnInit, OnDestroy, AfterViewChecked {
   private isMobile;
   screenSizeWatcher: Subscription;
   isSidenavOpen: Boolean = true;
@@ -34,9 +39,15 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
   logoTextPath = 'assets/images/light-logo-text.svg';
   currentTheme = '';
   retroLogo = false;
+  get copyrightYear(): string { return this.localeService.getCopyrightYearFromBuildTime(); }
+
+  // Sidenav identity mark follows the active theme (FreeCORE Coretrident / FreeBSD Beastie).
+  get mascot(): string {
+    return this.themeService.currentTheme()?.mascot || 'FreeCORE_mascot.png';
+  }
   // we will just have to add to this list as more languages are added
 
-  @ViewChild(MatSidenav, { static: false }) private sideNave: MatSidenav;
+  @ViewChild(FcDrawerComponent, { static: false }) private sideNave: FcDrawerComponent; // the internal development record: the nav drawer (the first)
   @ViewChild('footerBarScroll', { static: true }) private footerBarScroll: ElementRef;
   freenasThemes;
 
@@ -48,11 +59,12 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
     public core: CoreService,
     public cd: ChangeDetectorRef,
     public themeService: ThemeService,
-    private media: MediaObserver,
+    public media: LayoutMediaObserver,
     protected rest: RestService,
     protected ws: WebSocketService,
     public language: LanguageService,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    private localeService: LocaleService) {
     // detect server type
     ws.call('system.product_type').subscribe((res) => {
       this.product_type = res;
@@ -65,7 +77,10 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
       }
     });
     // Watches screen size and open/close sidenav
-    this.screenSizeWatcher = media.media$.subscribe((change: MediaChange) => {
+    this.screenSizeWatcher = media.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((change: LayoutMediaChange) => {
       this.isMobile = window.innerWidth < 960;
       // this.isMobile = (change.mqAlias == 'xs') || (change.mqAlias == 'sm');
       this.updateSidenav();
@@ -116,6 +131,11 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
   }
 
   ngOnInit() {
+    // the internal development record: the 15.2 shell scope also covers the CDK overlay
+    // container -- dialogs, menus and select panels hang off <body>, not off
+    // this component -- so the body carries fc-ui while the shell is mounted.
+    // The login and the status screens render outside the shell and stay out.
+    domHelper.addClass(document.body, 'fc-ui');
     this.freenasThemes = this.themeService.allThemes;
     this.currentTheme = this.themeService.currentTheme().name;
     // Initialize Perfect scrollbar for sidenav
@@ -146,6 +166,10 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
     this.core.emit({ name: 'SysInfoRequest', sender: this });
   }
 
+  ngOnDestroy() {
+    domHelper.removeClass(document.body, 'fc-ui');
+  }
+
   ngAfterViewChecked() {
     this.scrollToBottomOnFooterBar();
   }
@@ -174,7 +198,7 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
     if (this.isSidenavOpen && iconified && this.sidenavMode == 'side') {
       return '48px';
     } if (this.isSidenavOpen && !iconified && this.sidenavMode == 'side') {
-      return '240px';
+      return '216px';
     }
     return '0px';
   }
@@ -235,7 +259,7 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
   }
 
   onShowConsolePanel() {
-    const dialogRef = this.dialog.open(ConsolePanelModalDialog, {});
+    const dialogRef = this.dialog.open(ConsolePanelModalDialog, { width: '80vw' });
     const sub = dialogRef.componentInstance.onEventEmitter.subscribe(() => {
       dialogRef.componentInstance.consoleMsg = this.accumulateConsoleMsg('', 500);
     });

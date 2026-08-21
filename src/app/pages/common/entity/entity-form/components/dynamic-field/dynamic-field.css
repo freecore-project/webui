@@ -49,6 +49,30 @@
   top: -12px;
 }
 
+/* the internal development record: the subscript under a spartan field. The row is reserved at 20px whether
+ * or not it holds a hint or an error -- that is what Material's subscript wrapper did, it is what
+ * gives stacked fields the 72px pitch (20 label + 32 box + 20), and it is why a form does not
+ * jump when an error appears. form-errors is a block; each line 12/16 in --red with the 2px lead
+ * the hint has (hlm-field-description). */
+.field-subscript {
+  min-height: 20px;
+}
+form-errors {
+  display: block;
+}
+.form-error-line {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-destructive, var(--red));
+}
+.form-error-line + .form-error-line {
+  margin-top: 0;
+}
+.mask-value {
+  margin-bottom: 4px;
+}
+
 .textarea-filereader {
   margin-bottom: 20px;
   margin-top: -5px;
@@ -58,4 +82,36 @@
   font-family: text-security-disc;
   /* Use -webkit-text-security if the browser supports it */
   -webkit-text-security: disc;
+}
+
+/* the internal development record: the #352 checkbox row -- 32px (the state-layer size), the box centred in a
+ * 32px cell, the label 13px fg1 with a 6px lead. hlm-checkbox is display:contents; the cell is
+ * the hit-area the Material state layer used to give it. */
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+}
+.checkbox-cell,
+.radio-cell {
+  display: inline-flex;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+}
+.checkbox-label,
+.radio-label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--sp-foreground, var(--fg1));
+  cursor: pointer;
+}
+.checkbox-label {
+  padding-left: 6px;
+}
+.radio-label {
+  padding-left: 4px;
 }

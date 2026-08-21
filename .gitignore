@@ -25,6 +25,7 @@
 !.vscode/extensions.json
 
 # misc
+/.angular/cache
 /.sass-cache
 /connect.lock
 /coverage
@@ -92,5 +93,3 @@ tests/bdd/screenshot/scale/*.png
 tests/screenshot/*.png
 .vs/slnx.sqlite
 
-# generated polyfills
-src/assets/scripts/ie-support/ie-polyfills.min.js

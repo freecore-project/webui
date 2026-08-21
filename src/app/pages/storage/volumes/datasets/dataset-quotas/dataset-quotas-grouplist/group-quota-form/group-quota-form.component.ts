@@ -1,4 +1,4 @@
-import { Component, IterableDiffers } from '@angular/core';
+import { Component, IterableDiffers, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
@@ -8,12 +8,16 @@ import {
   DialogService, StorageService, WebSocketService, AppLoaderService, UserService,
 } from 'app/services';
 import helptext from 'app/helptext/storage/volumes/datasets/dataset-quotas';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-group-quota-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class GroupQuotaFormComponent {
+  readonly settingsTitle = T('Group Quota'); // the internal development record: the page's h1
   isEntity = true;
   entityForm: any;
   pk: string;
@@ -34,6 +38,7 @@ export class GroupQuotaFormComponent {
     {
       name: helptext.groups.quota_title,
       label: true,
+      settingsLabel: T('Quota'), // the internal development record: the verb-phrase name is covered by the h1
       width: '48%',
       config: [
         {
@@ -62,6 +67,7 @@ export class GroupQuotaFormComponent {
     {
       name: helptext.groups.group_title,
       label: true,
+      settingsLabel: T('Groups'), // the internal development record: the verb-phrase name is covered by the h1
       width: '48%',
       config: [
         {
@@ -107,8 +113,8 @@ export class GroupQuotaFormComponent {
   async validateEntry(value) {
     const validEntry = await this.userService.getGroupObject(value);
     if (!validEntry) {
-      const chips = document.getElementsByTagName('mat-chip');
-      chips.item(chips.length - 1).classList.add('chip-warn');
+      const chips = document.querySelectorAll('.form-chip-row'); // the internal development record: the chip row is a badge now
+      chips[chips.length - 1].classList.add('chip-warn');
     }
     this.entryErrs = document.getElementsByClassName('chip-warn');
     this.entryErrBool = this.entryErrs.length !== 0;

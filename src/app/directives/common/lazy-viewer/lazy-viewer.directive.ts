@@ -8,6 +8,7 @@ import {
  * */
 
 @Directive({
+  standalone: false,
   selector: '[lazyViewer]',
 })
 export class LazyViewerDirective implements OnInit {

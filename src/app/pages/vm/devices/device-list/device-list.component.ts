@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,9 @@ import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/di
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-device-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
   <entity-table [title]="title" [conf]="this"></entity-table>
   `,
@@ -28,7 +30,7 @@ export class DeviceListComponent {
   vm: string;
   sub: Subscription;
   private entityList: any;
-  wsDelete = 'datastore.delete';
+  wsDelete = 'vm.device.delete';
   queryCall = 'vm.device.query';
   protected queryCallOption: any[] = [[['vm', '=']]];
   busy: Subscription;
@@ -77,15 +79,8 @@ export class DeviceListComponent {
         ));
       },
     });
-    actions.push({
-      id: row.id,
-      name: 'delete',
-      icon: 'delete',
-      label: T('Delete'),
-      onClick: (delete_row) => {
-        this.deviceDelete(delete_row);
-      },
-    });
+    // the internal development record: one order on every table -- change (Edit, Change Device Order), look (Details),
+    // destroy (Delete last).
     actions.push({
       id: row.id,
       name: 'reorder',
@@ -141,6 +136,15 @@ export class DeviceListComponent {
         });
       },
     });
+    actions.push({
+      id: row.id,
+      name: 'delete',
+      icon: 'delete',
+      label: T('Delete'),
+      onClick: (delete_row) => {
+        this.deviceDelete(delete_row);
+      },
+    });
     return actions;
   }
 
@@ -153,7 +157,7 @@ export class DeviceListComponent {
           this.loaderOpen = true;
           const data = {};
           if (this.wsDelete) {
-            this.busy = this.ws.call(this.wsDelete, ['vm.device', row.id]).subscribe(
+            this.busy = this.ws.call(this.wsDelete, [row.id]).subscribe(
               (resinner) => {
                 this.entityList.getData();
                 this.loader.close();

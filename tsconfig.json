@@ -2,20 +2,89 @@
   "compileOnSave": false,
   "compilerOptions": {
     "outDir": "./dist/out-tsc",
-    "baseUrl": "src",
     "sourceMap": true,
     "declaration": false,
-    "moduleResolution": "node",
+    "strict": false,
+    "paths": {
+      "app/*": [
+        "./src/app/*"
+      ],
+      "environments/*": [
+        "./src/environments/*"
+      ],
+      "@spartan-ng/helm/button": [
+        "./src/app/ui/button/src/index.ts"
+      ],
+      "@spartan-ng/helm/utils": [
+        "./src/app/ui/utils/src/index.ts"
+      ],
+      "@spartan-ng/helm/input": [
+        "./src/app/ui/input/src/index.ts"
+      ],
+      "@spartan-ng/helm/dropdown-menu": [
+        "./src/app/ui/dropdown-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/field": [
+        "./src/app/ui/field/src/index.ts"
+      ],
+      "@spartan-ng/helm/label": [
+        "./src/app/ui/label/src/index.ts"
+      ],
+      "@spartan-ng/helm/separator": [
+        "./src/app/ui/separator/src/index.ts"
+      ],
+      "@spartan-ng/helm/textarea": [
+        "./src/app/ui/textarea/src/index.ts"
+      ],
+      "@spartan-ng/helm/input-group": [
+        "./src/app/ui/input-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/spinner": [
+        "./src/app/ui/spinner/src/index.ts"
+      ],
+      "@spartan-ng/helm/progress": [
+        "./src/app/ui/progress/src/index.ts"
+      ],
+      "@spartan-ng/helm/slider": [
+        "./src/app/ui/slider/src/index.ts"
+      ],
+      "@spartan-ng/helm/select": [
+        "./src/app/ui/select/src/index.ts"
+      ],
+      "@spartan-ng/helm/checkbox": [
+        "./src/app/ui/checkbox/src/index.ts"
+      ],
+      "@spartan-ng/helm/radio-group": [
+        "./src/app/ui/radio-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/toggle-group": [
+        "./src/app/ui/toggle-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/switch": [
+        "./src/app/ui/switch/src/index.ts"
+      ],
+      "@spartan-ng/helm/toggle": [
+        "./src/app/ui/toggle/src/index.ts"
+      ],
+      "@spartan-ng/helm/autocomplete": [
+        "./src/app/ui/autocomplete/src/index.ts"
+      ],
+      "@spartan-ng/helm/popover": [
+        "./src/app/ui/popover/src/index.ts"
+      ],
+      "@spartan-ng/helm/badge": [
+        "./src/app/ui/badge/src/index.ts"
+      ],
+      "@spartan-ng/helm/tooltip": [
+        "./src/app/ui/tooltip/src/index.ts"
+      ]
+    },
+    "moduleResolution": "bundler",
     "experimentalDecorators": true,
-    "target": "es2016",
+    "target": "ES2022",
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "es2016",
-      "dom",
-      "es2017.object",
-      "es2016.array.include"
-    ],
-    "module": "es2015"
+    "module": "es2020",
+    "useDefineForClassFields": false
   },
   "angularCompilerOptions": {
     "enableIvy": true,

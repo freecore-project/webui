@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { RestService, WebSocketService, DialogService } from '../../../../services';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { Wizard } from '../../../common/entity/entity-form/models/wizard.interface';
 import { EntityWizardComponent } from '../../../common/entity/entity-wizard/entity-wizard.component';
 import * as _ from 'lodash';
@@ -14,18 +14,22 @@ import { AppLoaderService } from '../../../../services/app-loader/app-loader.ser
 import { MatDialog } from '@angular/material/dialog';
 import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/storage/volumes/volume-import-wizard';
+import { FcStepperComponent } from 'app/pages/common/entity/entity-wizard/fc-stepper.component';
 
 @Component({
+  standalone: false,
   selector: 'app-volumeimport-wizard',
   template: '<entity-wizard [conf]="this"></entity-wizard>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class VolumeImportWizardComponent {
+  readonly settingsTitle = T('Pool'); // the internal development record: the breadcrumb says Import Pool; the first step creates or imports one
   route_success: string[] = ['storage', 'pools'];
   route_create: string[] = ['storage', 'pools', 'manager'];
   summary = {};
   isLinear = true;
-  firstFormGroup: FormGroup;
+  firstFormGroup: UntypedFormGroup;
   protected dialogRef: any;
   objectKeys = Object.keys;
   summary_title = 'Pool Import Summary';
@@ -186,12 +190,14 @@ export class VolumeImportWizardComponent {
 
   }
 
-  customNext(stepper) {
+  // the internal development record: `stepper._selectedIndex` is a CDK signal (a function) -- the comparison
+  // below was never true, so the importable disks were never loaded nor decrypted.
+  customNext(stepper: FcStepperComponent) {
     if (this.isNew) {
       this.router.navigate(new Array('/').concat(
         this.route_create,
       ));
-    } else if (stepper._selectedIndex === (this.importIndex - 1)) {
+    } else if (stepper.selectedIndex === (this.importIndex - 1)) {
       if (this.encrypted && this.encrypted.value) {
         this.decryptDisks(stepper);
       } else {
@@ -203,13 +209,16 @@ export class VolumeImportWizardComponent {
     }
   }
 
-  decryptDisks(stepper) {
+  decryptDisks(stepper: FcStepperComponent) {
     if (this.devices_fg.status === 'INVALID') {
       this.dialogService.report(T('Disk Selection Required'), T('Select one or more disks to decrypt.'));
       return;
     }
     if (!this.subs) {
+      // the internal development record: this branch was unreachable before (see customNext); without the
+      // return it fell through to `this.subs.file`.
       this.dialogService.report(T('Encryption Key Required'), T('Select a key before decrypting the disks.'));
+      return;
     }
     const formData: FormData = new FormData();
     const params = [this.devices_fg.value];
@@ -268,7 +277,7 @@ export class VolumeImportWizardComponent {
     const createPoolText = T('Create Pool');
     this.entityWizard = entityWizard;
     this.entityWizard.customNextText = createPoolText;
-    this.is_new_subscription = (< FormGroup > entityWizard.formArray.get([0]).get('is_new'))
+    this.is_new_subscription = (< UntypedFormGroup > entityWizard.formArray.get([0]).get('is_new'))
       .valueChanges.subscribe((isNew) => {
         this.isNew = isNew;
         if (isNew) {
@@ -279,13 +288,13 @@ export class VolumeImportWizardComponent {
       });
 
     if (this.productType !== 'SCALE') {
-      this.encrypted = (< FormGroup > entityWizard.formArray.get([1]).get('encrypted'));
+      this.encrypted = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('encrypted'));
       this.devices = _.find(this.wizardConfig[1].fieldConfig, { name: 'devices' });
-      this.devices_fg = (< FormGroup > entityWizard.formArray.get([1]).get('devices'));
+      this.devices_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('devices'));
       this.key = _.find(this.wizardConfig[1].fieldConfig, { name: 'key' });
-      this.key_fg = (< FormGroup > entityWizard.formArray.get([1]).get('key'));
+      this.key_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('key'));
       this.passphrase = _.find(this.wizardConfig[1].fieldConfig, { name: 'passphrase' });
-      this.passphrase_fg = (< FormGroup > entityWizard.formArray.get([1]).get('passphrase'));
+      this.passphrase_fg = (< UntypedFormGroup > entityWizard.formArray.get([1]).get('passphrase'));
 
       this.ws.call('disk.get_encrypted', [{ unused: true }]).subscribe((res) => {
         for (let i = 0; i < res.length; i++) {
@@ -295,7 +304,7 @@ export class VolumeImportWizardComponent {
     }
 
     this.guid = _.find(this.wizardConfig[this.importIndex].fieldConfig, { name: 'guid' });
-    this.guid_subscription = (< FormGroup > entityWizard.formArray.get([this.importIndex]).get('guid'))
+    this.guid_subscription = (< UntypedFormGroup > entityWizard.formArray.get([this.importIndex]).get('guid'))
       .valueChanges.subscribe((res) => {
         const pool = _.find(this.guid.options, { value: res });
         this.summary[T('Pool to import')] = pool['label'];

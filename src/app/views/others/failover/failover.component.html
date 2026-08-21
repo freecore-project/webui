@@ -1,12 +1,1 @@
-<div id="wrapper">
-	<mat-card id="shutdown-card">
-		<mat-card-content id="message">{{ "System is failing over..." | translate }}</mat-card-content>
-		<img id="logo" *ngIf="product_type === 'CORE'; else isTruenas" src="assets/images/light-logo-full.svg" alt="TrueNAS CORE logo">
-		<ng-template #isTruenas>
-			<img id="logo" src="assets/images/TrueNAS_Logo_Full_White.svg" alt="TrueNAS ENTERPRISE logo">
-		</ng-template>
-		<div>
-			<span fxFlex class="copyright-txt">TrueNAS {{product_type}}® © {{copyrightYear}} - <a href="http://www.ixsystems.com" target="_blank" title="iXsystems, Inc."> iXsystems, Inc</a>.</span>
-		</div>
-	</mat-card>
-</div>
+<main class="fc-status-page"><div class="fc-status-body"><section class="fc-status-panel" aria-labelledby="transition-title"><div class="fc-status-brand"><img src="assets/images/freecore-fork-mark.svg" width="24" height="24" alt=""><span>Free<strong>CORE</strong></span></div><h1 class="fc-status-title" id="transition-title">{{ 'Switching controllers' | translate }}</h1><div class="fc-status-track indeterminate" role="progressbar" [attr.aria-label]="'Switching controllers' | translate"><span></span></div><div class="fc-status-copy" role="status"><p>{{ 'Waiting for the active controller.' | translate }}</p><p class="muted">{{ 'The login page will open when the controller is available.' | translate }}</p></div></section></div><footer class="fc-status-footer"><a href="https://freecore.org" target="_blank" rel="noopener noreferrer">freecore.org</a>@if(copyrightYear){<span> · © {{copyrightYear}}</span>}</footer></main>

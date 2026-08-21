@@ -1,0 +1,46 @@
+.ip-with-netmask-layout {
+  align-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+.ip-with-netmask-layout > :not(.ip-with-netmask-hidden-layout):not(:last-child) {
+  margin-inline-end: 8px;
+}
+
+.ip-with-netmask-address-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 100%;
+  min-width: auto;
+}
+
+.ip-with-netmask-divider-layout,
+.ip-with-netmask-select-layout,
+.ip-with-netmask-tooltip-layout {
+  box-sizing: border-box;
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+.ip-with-netmask-divider-layout {
+  flex-basis: 4px;
+  max-width: 4px;
+  min-width: 4px;
+}
+
+.ip-with-netmask-select-layout {
+  flex-basis: 72px;
+  max-width: 72px;
+  min-width: 72px;
+}
+
+.ip-with-netmask-tooltip-layout {
+  flex-basis: 48px;
+  max-width: 48px;
+  min-width: 48px;
+}

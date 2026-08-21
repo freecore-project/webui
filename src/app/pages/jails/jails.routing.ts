@@ -7,6 +7,8 @@ import { StorageListComponent } from './storages/storage-list';
 import { StorageFormComponent } from './storages/storage-form';
 import { JailWizardComponent } from './jail-wizard';
 import { JailShellComponent } from './jail-shell';
+import { BastilleManagementComponent } from './bastille-management/bastille-management.component';
+import { BastilleReleasesComponent } from './bastille-management/bastille-releases.component';
 
 export const routes: Routes = [
   {
@@ -18,12 +20,23 @@ export const routes: Routes = [
         component: JailListComponent,
       },
       {
+        path: 'bastille',
+        component: BastilleManagementComponent,
+        data: { title: 'Bastille', breadcrumb: 'Bastille' },
+      },
+      {
+        path: 'bastille/releases',
+        component: BastilleReleasesComponent,
+        data: { title: 'Releases', breadcrumb: 'Releases' },
+      },
+      {
         path: 'add',
         data: { title: 'Add', breadcrumb: 'Add' },
         children: [
           {
             path: '',
             redirectTo: 'wizard',
+            pathMatch: 'full',
           },
           {
             path: 'advanced',
@@ -65,4 +78,4 @@ export const routes: Routes = [
     ],
   },
 ];
-export const routing: ModuleWithProviders = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders<RouterModule> = RouterModule.forChild(routes);

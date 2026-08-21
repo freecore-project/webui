@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -22,11 +22,14 @@ interface MountPoint {
   index?: string;
 }
 @Component({
+  standalone: false,
   selector: 'app-storage-add',
-  template: '<entity-form *ngIf="isReady" [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  template: '@if (isReady) {<entity-form [conf]="this"></entity-form>}',
 })
 export class StorageFormComponent implements OnInit {
   protected queryCall = 'jail.fstab';
+  readonly settingsTitle = T('Mount Point'); // the internal development record: the page's h1
   protected route_success: string[] = ['jails', 'storage'];
   protected isEntity = true;
   protected pk: string;

@@ -26,6 +26,15 @@ export default {
       tooltip: T('Select an unused disk to add to this vdev. <br>WARNING: any data stored\
  on the unused disk will be erased!'),
     },
+    expand_mode: {
+      placeholder: T('Expansion Mode'),
+      raidz_label: T('Add disk to RAID-Z vdev'),
+      tooltip: T('RAID-Z expansion adds one disk to the selected RAID-Z vdev.'),
+    },
+    raidz_expand_warning: {
+      paraText: T('RAID-Z expansion requires the raidz_expansion pool feature. The operation cannot be reversed\
+ by removing the disk and reflow/resilver can run for a long time. Confirm backups before continuing.'),
+    },
   },
 
   actions_label: {
@@ -71,6 +80,7 @@ export default {
   },
   extend_disk: {
     form_title: T('Extend Vdev'),
+    raidz_form_title: T('Extend RAID-Z Vdev'),
     saveButtonText: T('Extend'),
     title: T('Extending Vdev'),
     description: T('Extending vdev...'),

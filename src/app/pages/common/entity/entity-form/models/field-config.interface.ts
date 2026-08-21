@@ -15,6 +15,7 @@ export interface InputUnitConfig {
 export interface FieldConfig {
   disabled?: boolean;
   label?: string;
+  showLabel?: boolean;
   inlineLabel?: string;
   name: string;
   options?: any[];

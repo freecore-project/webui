@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -9,10 +9,13 @@ import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.in
 import { TaskService, UserService } from '../../../../services';
 import { EntityFormService } from '../../../common/entity/entity-form/services/entity-form.service';
 import helptext from '../../../../helptext/task-calendar/resync/resync-form';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'rsync-task-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService, UserService, EntityFormService],
 })
 export class RsyncFormComponent implements OnDestroy {
@@ -27,6 +30,7 @@ export class RsyncFormComponent implements OnDestroy {
   protected isEntity = true;
 
   protected preTaskName = 'rsync';
+  readonly settingsTitle = T('Rsync Task'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -49,6 +53,7 @@ export class RsyncFormComponent implements OnDestroy {
           type: 'combobox',
           name: 'user',
           label: helptext.rsync_user_label,
+          showLabel: true,
           placeholder: helptext.rsync_user_placeholder,
           tooltip: helptext.rsync_user_tooltip,
           options: [],

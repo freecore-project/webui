@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -6,18 +6,21 @@ import { TranslateService } from '@ngx-translate/core';
 // import {Field} from '../../models/field.interface';
 import { Control } from '../../models/control.interface';
 import { ControlConfig } from '../../models/control-config.interface';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'toolbar-button',
   styleUrls: ['toolbar-button.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div
       class="toolbar-button">
+      <!-- the internal development record: the ghost tier (the Reporting bar is the text tier) -->
       <button
+        hlmBtn variant="ghost" type="button"
         (click)="onClick(true)"
-        color="default"
-        mat-button
+        id="toolbar-button__{{config.name}}"
         [disabled]="config.disabled">
         {{ config.label | translate }}
       </button>

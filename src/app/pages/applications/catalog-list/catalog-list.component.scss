@@ -1,0 +1,46 @@
+:host { display: block; min-width: 0; }
+
+/* the internal development record: the list frame -- one hairline box that scrolls inside itself, so the detail panel
+   beside it stays in view; the hover / selected / focus voice is the #425 tile's, on a row. */
+.catalog-list {
+  border: 1px solid var(--fc-line, var(--lines));
+  border-radius: 6px;
+  max-height: max(320px, calc(100vh - 340px));
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  scrollbar-width: thin;
+  outline: none;
+}
+
+.catalog-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; box-sizing: border-box;
+  padding: 8px 14px; margin: 0; border: 0; border-bottom: 1px solid var(--fc-line, var(--lines));
+  background: transparent; color: var(--fg1); cursor: pointer; font: inherit; font-size: 14px; line-height: 20px;
+  text-align: left; -webkit-appearance: none; appearance: none;
+}
+.catalog-row:last-child { border-bottom: 0; }
+.catalog-row:hover { background: var(--fc-hover, color-mix(in srgb, var(--fg1) 5%, transparent)); }
+.catalog-row[aria-selected="true"] { background: var(--bg2); box-shadow: inset 2px 0 0 var(--fg1); }
+.catalog-row:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--accent); }
+.catalog-row[aria-disabled="true"] { cursor: default; opacity: .4; }
+
+.row-icon { display: flex; align-items: center; justify-content: center; flex: 0 0 28px; width: 28px; height: 28px; color: var(--fg2); }
+.row-icon img { width: 28px; height: 28px; object-fit: contain; }
+/* the internal development record: provider logos drawn for light backgrounds sink into a dark canvas -- a 1px
+   half-foreground outline traced from the image's alpha lifts them. Dark themes only, provider images only. */
+:host-context(html.dark) .row-icon img {
+  --row-icon-edge: color-mix(in srgb, var(--fg1) 50%, transparent);
+  filter: drop-shadow(1px 0 0 var(--row-icon-edge)) drop-shadow(-1px 0 0 var(--row-icon-edge))
+    drop-shadow(0 1px 0 var(--row-icon-edge)) drop-shadow(0 -1px 0 var(--row-icon-edge));
+}
+.row-icon .mat-icon { font-size: 24px; width: 24px; height: 24px; line-height: 24px; }
+
+.row-title { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-tag { flex: 0 1 auto; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 16px; color: var(--fg2); }
+.row-tag--warn { color: var(--yellow, var(--fg2)); }
+.row-tag--installed { color: var(--green, var(--fg2)); }
+
+/* loading / no match: the list's own height so nothing jumps; the helm spinner is sized by font-size */
+.list-state { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 160px; color: var(--fg2); font-size: 13px; }
+#catalog-list-spinner { font-size: 32px; color: var(--sp-muted-foreground, var(--fg2)); }
+.list-empty .mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }

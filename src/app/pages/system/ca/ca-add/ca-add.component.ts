@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Validators } from '@angular/forms';
 
@@ -9,12 +10,15 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 
 @Component({
+  standalone: false,
   selector: 'system-ca-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 
 export class CertificateAuthorityAddComponent {
+  settingsTitle = T('Certificate Authority'); // the internal development record: the object noun, as the edit form
   protected addCall = 'certificateauthority.create';
   protected route_success: string[] = ['system', 'ca'];
   protected isEntity = true;

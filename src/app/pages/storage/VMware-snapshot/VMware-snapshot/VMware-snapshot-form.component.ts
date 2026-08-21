@@ -2,8 +2,9 @@ import {
   ApplicationRef,
   Component,
   Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -19,17 +20,20 @@ import { first } from 'rxjs/operators';
 import { EntityUtils } from '../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-vmware-snapshot-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class VMwareSnapshotFormComponent {
+  readonly settingsTitle = T('VMware Snapshot');
   protected route_success: string[] = ['storage', 'vmware-Snapshots'];
   protected isEntity = true;
   queryCall = 'vmware.query';
   addCall = 'vmware.create';
   protected pk: any;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   protected entityForm: any;
   private datastore: any;
@@ -41,6 +45,7 @@ export class VMwareSnapshotFormComponent {
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_vmsnapshot,
+      settingsLabel: T('Connection'),
       label: true,
       class: 'general',
       width: '49%',
@@ -74,6 +79,12 @@ export class VMwareSnapshotFormComponent {
           blurEvent: this.blurEvent,
           togglePw: true,
         },
+      ],
+    },
+    {
+      name: T('Storage'),
+      label: true,
+      config: [
         {
           type: 'select',
           name: 'filesystem',

@@ -7,16 +7,16 @@ export default {
   col_created_at: T('Created Date'),
   deleteMsg_title: T('API Key'),
 
-  action_add: T('ADD'),
-  action_docs: T('DOCS'),
-  action_edit: T('EDIT'),
-  action_delete: T('DELETE'),
+  action_add: T('Add'),
+  action_docs: T('Docs'),
+  action_edit: T('Edit'),
+  action_delete: T('Delete'),
 
   formDialog: {
     add_title: T('Add API Key'),
     edit_title: T('Edit API Key'),
-    add_button: T('ADD'),
-    edit_button: T('SAVE'),
+    add_button: T('Add'),
+    edit_button: T('Save'),
   },
 
   name: {
@@ -33,8 +33,8 @@ export default {
 
   apikeyCopyDialog: {
     title: T('API Key'),
-    save_button: T('COPY TO CLIPBOARD'),
-    close_button: T('CLOSE'),
+    save_button: T('Copy to clipboard'),
+    close_button: T('Close'),
     api_key_warning: T('<b>Success!</b> The API key has been created or reset. <b>This is the only time the key is shown.</b>'),
     api_key: T('API Key'),
   },

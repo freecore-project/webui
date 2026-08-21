@@ -33,6 +33,11 @@ export class UpdateService {
           return;
         }
 
+        try {
+          this.window.sessionStorage.setItem('freecore.uiReloadPending', '1');
+        } catch {
+          // Storage may be disabled; refreshing must still succeed.
+        }
         this.window.location.reload();
       }),
     );

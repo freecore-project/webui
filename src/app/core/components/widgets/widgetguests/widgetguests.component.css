@@ -1,0 +1,225 @@
+.widget.guests-widget {
+  min-height: 400px;
+}
+
+.guests-widget .fc-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+
+.guests-header {
+  align-items: center;
+  border-bottom: 1px solid var(--lines);
+  display: flex;
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 8px 0 16px;
+}
+
+.guests-header .guests-back {
+  margin-left: -8px;
+}
+
+.guests-header .controls {
+  color: var(--fg2);
+  margin-left: auto;
+}
+
+/* the internal development record: the body gets exactly what the 400px frame leaves --
+   400 - 2 (borders) - 32 (mat-card-content padding) - 48 (header). The
+   component's FRAME constants mirror these heights and plan the rows to fit;
+   overflow-y stays only as a safety net. */
+.guests-body {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 318px;
+  max-height: 318px;
+  overflow-y: auto;
+  padding: 0 0 8px;
+  text-align: left;
+}
+
+/* the internal development record: use spare frame space above Services, without moving it
+   out of the measured body or letting flex shrink the planner's guest rows. */
+.guests-body > * {
+  flex-shrink: 0;
+}
+
+.guests-widget .guests-body dl.services-footer {
+  margin-top: auto;
+}
+
+.guests-loading {
+  display: flex;
+  justify-content: center;
+  padding-top: 64px;
+}
+
+.guest-facts {
+  border-bottom: 1px solid var(--lines);
+  padding: 0 16px 10px;
+}
+
+.guest-section {
+  padding: 10px 16px 4px;
+}
+
+.guest-row {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--lines);
+  color: var(--fg1);
+  column-gap: 8px;
+  cursor: pointer;
+  display: grid;
+  font: inherit;
+  font-size: 13px;
+  grid-template-columns: 8px minmax(0, 1fr) minmax(36px, 0.7fr) max-content;
+  margin: 0;
+  min-height: 34px;
+  padding: 6px 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.guest-row:hover {
+  background: var(--lines);
+}
+
+/* A family the frame cannot show as a section: one row on the same grid,
+   the family name and its plain count where a guest's name would be. */
+.guest-row.family-row {
+  grid-template-columns: 8px minmax(0, 1fr) minmax(36px, 0.7fr) max-content;
+}
+
+.family-row .guest-name {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.family-row .family-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.family-row .family-count { flex: 0 0 auto; }
+
+.guest-row:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.guest-row.stopped {
+  opacity: 0.56;
+}
+
+/* State dots are the shared .state-dot law (the internal development record): grey at
+   rest, green when running. This copy painted running with the theme accent. */
+
+.guest-name {
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guest-load {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  min-width: 0;
+}
+
+.cpu-track {
+  background: var(--lines);
+  border-radius: 2px;
+  display: block;
+  height: 6px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cpu-track i {
+  background: var(--primary);
+  display: block;
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.cpu-value,
+.guest-memory,
+.services-footer {
+  font-variant-numeric: tabular-nums;
+}
+
+.cpu-value {
+  color: var(--fg2);
+  text-align: right;
+}
+
+.guest-state {
+  color: var(--fg2);
+  font-style: italic;
+}
+
+.guest-memory {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.more-row {
+  color: var(--primary);
+  display: flex;
+  font-weight: 500;
+  justify-content: center;
+}
+
+.more-row:hover {
+  text-decoration: underline;
+}
+
+.guests-empty,
+.guests-unavailable {
+  color: var(--fg2);
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.services-footer {
+  color: var(--fg2);
+  font-size: 11px;
+  padding: 10px 16px 2px;
+}
+
+.xs.widget.guests-widget {
+  height: calc(100vh - 96px);
+  min-height: 500px;
+  position: absolute;
+  width: 100%;
+}
+
+.xs .guest-row {
+  grid-template-columns: 8px minmax(0, 1fr) minmax(36px, 0.7fr) max-content;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+.xs .guests-body {
+  min-height: 0;
+  max-height: calc(100vh - 144px);
+}
+
+/* Mobile details use ordinary page flow, with no reserved desktop spacer. */
+.xs.guests-widget .guests-body dl.services-footer {
+  margin-top: 0;
+}
