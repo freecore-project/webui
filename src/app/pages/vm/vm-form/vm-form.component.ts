@@ -1,6 +1,6 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 import * as _ from 'lodash';
 import {
   FieldConfig,
@@ -15,8 +15,10 @@ import {
 import { Validators } from '@angular/forms';
 
 @Component({
+  standalone: false,
   selector: 'app-vm',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [StorageService],
 
 })
@@ -26,12 +28,13 @@ export class VmFormComponent {
   protected isEntity = true;
   protected route_success: string[] = ['vm'];
   protected entityForm: any;
-  protected save_button_enabled: boolean;
+  protected save_button_enabled = true;
   vcpus: number;
   cores: number;
   threads: number;
   protected queryCallOption: any[] = [];
 
+  readonly settingsTitle = T('Virtual Machine'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -65,6 +68,16 @@ export class VmFormComponent {
           placeholder: helptext.bootloader_placeholder,
           tooltip: helptext.bootloader_tooltip,
           options: [],
+        },
+        {
+          // the internal development record: shown, never editable. Disk images and firmware
+          // variables are architecture-specific; the middleware refuses a change too.
+          type: 'select',
+          name: 'arch',
+          placeholder: helptext.arch_placeholder,
+          tooltip: helptext.arch_tooltip,
+          options: [],
+          disabled: true,
         },
         {
           type: 'input',
@@ -133,12 +146,60 @@ export class VmFormComponent {
     },
   ];
   private bootloader: any;
+  private currentBootloader: string;
   bootloader_type: any[];
 
   constructor(protected router: Router,
     protected ws: WebSocketService, protected storageService: StorageService,
     protected _injector: Injector, protected _appRef: ApplicationRef,
     protected vmService: VmService, protected route: ActivatedRoute) {}
+
+  private setArchitectureOptions() {
+    const arch = _.find(this.fieldConfig, { name: 'arch' });
+    if (arch) {
+      arch.options = this.vmService.getArchitectureLabels().map((item) => ({ label: item[1], value: item[0] }));
+      arch.disabled = true;
+    }
+    const control = this.entityForm?.formGroup?.controls?.['arch'];
+    if (control) {
+      control.disable({ emitEvent: false });
+    }
+  }
+
+  private setBootloaderOptions() {
+    this.bootloader = this.bootloader || _.find(this.fieldConfig, { name: 'bootloader' });
+    this.bootloader.options = this.vmService.getBootloaderOptions().map((item) => ({
+      label: item[1],
+      value: item[0],
+    }));
+  }
+
+  private applyBootloaderPolicy() {
+    const normalized = typeof this.currentBootloader === 'string'
+      ? this.currentBootloader.trim().toUpperCase()
+      : '';
+    const unsupported = normalized === 'GRUB' || normalized === 'UEFI_CSM';
+    this.bootloader.disabled = unsupported;
+    this.bootloader.hasErrors = unsupported;
+    this.bootloader.warnings = normalized === 'GRUB'
+      ? T('This VM uses GRUB, which is unsupported in FreeCORE 15.1. It cannot be edited or started. '
+        + 'Boot FreeCORE 15.0 to migrate it to ordinary UEFI, delete the VM record, or remain on 15.0.')
+      : normalized === 'UEFI_CSM'
+        ? T('This VM uses UEFI-CSM, which is unsupported in FreeCORE 15.1 because the required legacy '
+          + 'firmware is not shipped. Boot FreeCORE 15.0 to verify its boot media and migrate the record '
+          + 'to ordinary UEFI, or delete the VM record. No automatic conversion was performed.')
+        : null;
+    this.save_button_enabled = !unsupported;
+
+    const control = this.entityForm?.formGroup?.controls?.['bootloader'];
+    if (control) {
+      if (unsupported) {
+        control.disable({ emitEvent: false });
+      } else {
+        control.enable({ emitEvent: false });
+      }
+    }
+  }
 
   preInit(entityForm: any) {
     this.entityForm = entityForm;
@@ -151,10 +212,10 @@ export class VmFormComponent {
   }
 
   afterInit(entityForm: any) {
-    this.bootloader = _.find(this.fieldConfig, { name: 'bootloader' });
-    this.vmService.getBootloaderOptions().forEach((item) => {
-      this.bootloader.options.push({ label: item[1], value: item[0] });
-    });
+    this.entityForm = entityForm;
+    this.setBootloaderOptions();
+    this.applyBootloaderPolicy();
+    this.setArchitectureOptions();
 
     entityForm.formGroup.controls['memory'].valueChanges.subscribe((value) => {
       const mem = _.find(this.fieldConfig, { name: 'memory' });
@@ -196,7 +257,7 @@ export class VmFormComponent {
 
   cpuValidator(name: string) {
     const self = this;
-    return function validCPU(control: FormControl) {
+    return function validCPU(control: UntypedFormControl) {
       const config = self.fieldConfig.find((c) => c.name === name);
       setTimeout(() => {
         const errors = self.vcpus * self.cores * self.threads > 16
@@ -216,6 +277,11 @@ export class VmFormComponent {
   }
 
   resourceTransformIncomingRestData(wsResponse) {
+    this.currentBootloader = wsResponse['bootloader'];
+    this.setBootloaderOptions();
+    this.applyBootloaderPolicy();
+    this.setArchitectureOptions();
+    wsResponse['arch'] = wsResponse['arch'] || VmService.nativeArchitecture;
     wsResponse['memory'] = this.storageService.convertBytestoHumanReadable(wsResponse['memory'] * 1048576, 0);
     return wsResponse;
   }

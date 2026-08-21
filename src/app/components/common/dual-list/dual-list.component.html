@@ -6,39 +6,47 @@
     [cdkDropListConnectedTo]="[memberList]"
     (cdkDropListDropped)="drop($event)"
     >
-   <div class="list-title" *ngIf="title1">{{title1}}</div>
-   <div *ngFor="let item of availableItems.totalItems" cdkDrag 
-      class="draggable"
-      (cdkDragStarted)="onDragStart($event)"
-      [ngClass]="{ chosen: availableItems.isSelected(item,1) }" 
-      (mousedown)="availableItems.mouseDown(item, $event)"
-      (mouseup)="availableItems.mouseUp(item, $event)">
-      <mat-list *ngIf="templateItem;else noTemplateItem" >
-        <ng-container [ngTemplateOutlet]="templateItem" [ngTemplateOutletContext]="{ data: item}"></ng-container>
-      </mat-list>
-      <ng-template #noTemplateItem>
-        {{item.name}}
-      </ng-template>
-    </div>
+    @if (title1) {
+      <div class="list-title">{{title1}}</div>
+    }
+    @for (item of availableItems.totalItems; track item) {
+      <div cdkDrag
+        class="draggable"
+        (cdkDragStarted)="onDragStart($event)"
+        [ngClass]="{ chosen: availableItems.isSelected(item,1) }"
+        (mousedown)="availableItems.mouseDown(item, $event)"
+        (mouseup)="availableItems.mouseUp(item, $event)">
+        @if (templateItem) {
+          <!-- the internal development record: the row mat-list + mat-list-item drew around a template item, as a plain row -->
+          <div class="dual-list-row">
+            <ng-container [ngTemplateOutlet]="templateItem" [ngTemplateOutletContext]="{ data: item}"></ng-container>
+          </div>
+        } @else {
+          {{item.name}}
+        }
+      </div>
+    }
   </div>
   <div class="container-buttons">
     <div class="" (click)="select()" [style.margin-bottom.px]="5">
-      <div *ngIf="templateArrowRight;else arrowRight">
-        <ng-container [ngTemplateOutlet]="templateArrowRight">
-        </ng-container>
-      </div>
-      <ng-template #arrowRight>
-        <button mat-flat-button class="dual-list-action-btn"> <mat-icon class="arrow">arrow_forward</mat-icon> </button>
-      </ng-template>
+      @if (templateArrowRight) {
+        <div>
+          <ng-container [ngTemplateOutlet]="templateArrowRight">
+          </ng-container>
+        </div>
+      } @else {
+        <button hlmBtn variant="outline" size="icon" type="button" class="dual-list-action-btn"> <mat-icon class="arrow">arrow_forward</mat-icon> </button>
+      }
     </div>
     <div class="" (click)="return()">
-      <div *ngIf="templateArrowLeft;else arrowLeft">
-        <ng-container [ngTemplateOutlet]="templateArrowLeft">
-        </ng-container>
-      </div>
-      <ng-template #arrowLeft>
-        <button mat-flat-button class="dual-list-action-btn"> <mat-icon class="arrow">arrow_back</mat-icon> </button>
-      </ng-template>
+      @if (templateArrowLeft) {
+        <div>
+          <ng-container [ngTemplateOutlet]="templateArrowLeft">
+          </ng-container>
+        </div>
+      } @else {
+        <button hlmBtn variant="outline" size="icon" type="button" class="dual-list-action-btn"> <mat-icon class="arrow">arrow_back</mat-icon> </button>
+      }
     </div>
   </div>
   <div class="container-items" [style.minHeight]="minHeight" [style.maxHeight]="maxHeight"
@@ -47,19 +55,24 @@
     [cdkDropListData]="selectedItems.totalItems"
     [cdkDropListConnectedTo]="[userList]"
     (cdkDropListDropped)="drop($event)">
-    <div class="list-title" *ngIf="title2">{{title2}}</div>
-    <div *ngFor="let item of selectedItems.totalItems" cdkDrag 
-      class="draggable"
-      (cdkDragStarted)="onDragStart($event)"
-      [ngClass]="{ chosen: selectedItems.isSelected(item,2) }"
-      (mousedown)="selectedItems.mouseDown(item, $event)"
-      (mouseup)="selectedItems.mouseUp(item, $event)">
-      <mat-list *ngIf="templateItem;else noTemplateItem">
-        <ng-container [ngTemplateOutlet]="templateItem" [ngTemplateOutletContext]="{ data: item }"> </ng-container>
-      </mat-list>
-      <ng-template #noTemplateItem>
-        {{item.name}}
-      </ng-template>
-    </div>
+    @if (title2) {
+      <div class="list-title">{{title2}}</div>
+    }
+    @for (item of selectedItems.totalItems; track item) {
+      <div cdkDrag
+        class="draggable"
+        (cdkDragStarted)="onDragStart($event)"
+        [ngClass]="{ chosen: selectedItems.isSelected(item,2) }"
+        (mousedown)="selectedItems.mouseDown(item, $event)"
+        (mouseup)="selectedItems.mouseUp(item, $event)">
+        @if (templateItem) {
+          <div class="dual-list-row">
+            <ng-container [ngTemplateOutlet]="templateItem" [ngTemplateOutletContext]="{ data: item }"> </ng-container>
+          </div>
+        } @else {
+          {{item.name}}
+        }
+      </div>
+    }
   </div>
 </div>

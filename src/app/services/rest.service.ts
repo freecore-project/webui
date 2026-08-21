@@ -1,7 +1,6 @@
 import { throwError as observableThrowError, Observable } from 'rxjs';
 
 import { catchError, map } from 'rxjs/operators';
-import 'rxjs/Rx';
 
 import { Injectable } from '@angular/core';
 

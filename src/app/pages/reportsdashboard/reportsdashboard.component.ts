@@ -1,22 +1,21 @@
 import {
   Component, ElementRef, OnInit, OnDestroy, AfterViewInit, EventEmitter, Output, ViewChild,
+  ChangeDetectionStrategy, ChangeDetectorRef, NgZone,
 } from '@angular/core';
 import {
   Router, NavigationEnd, NavigationCancel, ActivatedRoute, ActivatedRouteSnapshot,
 } from '@angular/router';
-import { MatButtonToggleGroup } from '@angular/material/button-toggle';
 import * as _ from 'lodash';
-import { Subject, BehaviorSubject } from 'rxjs';
+import { Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { FormConfig } from 'app/pages/common/entity/entity-form/entity-form-embedded.component';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
 import { CommonDirectivesModule } from 'app/directives/common/common-directives.module';
-import { ReportComponent, Report } from './components/report/report.component';
+import { Report, ReportLayout, REPORT_SLOT_HEIGHTS } from './components/report/report.component';
 import { ReportsService } from './reports.service';
 import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
-import { ErdService } from 'app/services/erd.service';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../translate-marker';
 import {
@@ -25,20 +24,51 @@ import {
   WebSocketService,
 } from '../../services';
 
+interface PageScrollSnapshot {
+  width: number;
+  height: number;
+  extent: number;
+  origin: number;
+  offset: number;
+  itemSize: number;
+  reports: Report[];
+  visible: number[];
+  identities: string;
+}
+
 interface Tab {
   label: string;
   value: string;
 }
 
 @Component({
+  standalone: false,
   selector: 'reportsdashboard',
   styleUrls: ['./reportsdashboard.scss'],
   templateUrl: './reportsdashboard.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleChartConfigDataFunc, */ AfterViewInit {
   @ViewChild(CdkVirtualScrollViewport, { static: false }) viewport: CdkVirtualScrollViewport;
-  @ViewChild('container', { static: true }) container: ElementRef;
+  @ViewChild('page', { static: true }) page: ElementRef<HTMLElement>;
+  @ViewChild('toolbar', { static: true }) toolbar: ElementRef<HTMLElement>;
+  @ViewChild('master', { static: true }) master: ElementRef<HTMLElement>;
+  reportLayout: ReportLayout = 'wide';
+  get reportItemSize(): number { return REPORT_SLOT_HEIGHTS[this.reportLayout]; }
+  private resizeObserver: ResizeObserver;
+  private shellObserver: MutationObserver;
+  private resizeFrame: number;
+  private scrollSnapshot: PageScrollSnapshot;
+  private scrollSubscription: Subscription;
+  private destroyed = false;
+  private scheduleLayout = () => {
+    if (this.destroyed || this.resizeFrame !== undefined) { return; }
+    this.resizeFrame = requestAnimationFrame(() => {
+      this.resizeFrame = undefined;
+      this.updateViewportLayout();
+    });
+  };
   scrollContainer: HTMLElement;
   scrolledIndex = 0;
   isFooterConsoleOpen;
@@ -80,7 +110,8 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
   diskReportConfigReady = false;
 
   constructor(
-    private erdService: ErdService,
+    private changeDetector: ChangeDetectorRef,
+    private zone: NgZone,
     public translate: TranslateService,
     private router: Router,
     private core: CoreService,
@@ -93,8 +124,7 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
   }
 
   ngOnInit() {
-    this.scrollContainer = document.querySelector('.rightside-content-hold ');// this.container.nativeElement;
-    this.scrollContainer.style.overflow = 'hidden';
+    this.scrollContainer = this.page.nativeElement.closest('.rightside-content-hold');
 
     this.ws.call('system.advanced.config').subscribe((res) => {
       if (res) {
@@ -184,14 +214,109 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
   }
 
   ngOnDestroy() {
-    this.scrollContainer.style.overflow = 'auto';
+    this.destroyed = true;
+    this.resizeObserver?.disconnect();
+    this.shellObserver?.disconnect();
+    this.scrollSubscription?.unsubscribe();
+    window.removeEventListener('resize', this.scheduleLayout);
+    if (this.resizeFrame !== undefined) { cancelAnimationFrame(this.resizeFrame); }
     this.core.unregister({ observerClass: this });
   }
 
   ngAfterViewInit(): void {
-    this.erdService.attachResizeEventToElement('dashboardcontainerdiv');
-
     this.setupSubscriptions();
+    this.zone.runOutsideAngular(() => {
+      this.scrollSubscription = this.viewport.scrollable.elementScrolled().subscribe(() => {
+        const current = this.measurePageScroll();
+        if (!this.scrollSnapshot || !this.sameReportCollection(this.scrollSnapshot, current)) {
+          // A replacement collection owns its own current native position.
+          this.scrollSnapshot = undefined;
+          this.scheduleLayout();
+        } else if (this.sameScrollGeometry(this.scrollSnapshot, current)) {
+          this.scrollSnapshot = current;
+        } else {
+          // Responsive reflow can clamp scrollTop before ResizeObserver runs.
+          // Its queued scroll event must not replace the last settled anchor.
+          this.scheduleLayout();
+        }
+      });
+      this.resizeObserver = new ResizeObserver(this.scheduleLayout);
+      this.resizeObserver.observe(this.page.nativeElement);
+      this.resizeObserver.observe(this.toolbar.nativeElement);
+      if (this.scrollContainer) {
+        this.resizeObserver.observe(this.scrollContainer);
+        const footer = this.scrollContainer.querySelector('.fc-project-footer');
+        if (footer) { this.resizeObserver.observe(footer); }
+        // The optional console is a shell sibling. Observe insertion/removal, not chart DOM changes.
+        if (this.scrollContainer.parentElement) {
+          this.shellObserver = new MutationObserver(this.scheduleLayout);
+          this.shellObserver.observe(this.scrollContainer.parentElement, { childList: true });
+        }
+      }
+      window.addEventListener('resize', this.scheduleLayout, { passive: true });
+      this.scheduleLayout();
+    });
+  }
+
+  private measurePageScroll(): PageScrollSnapshot {
+    return {
+      width: this.master.nativeElement.clientWidth,
+      height: this.scrollContainer.clientHeight,
+      extent: this.scrollContainer.scrollHeight,
+      origin: this.viewport.measureViewportOffset(),
+      offset: this.scrollContainer.scrollTop,
+      itemSize: this.reportItemSize,
+      reports: this.activeReports,
+      visible: this.visibleReports,
+      identities: JSON.stringify(this.visibleReports.map((key, index) => this.trackReport(index, key))),
+    };
+  }
+
+  private sameReportCollection(previous: PageScrollSnapshot, current: PageScrollSnapshot): boolean {
+    return previous.reports === current.reports && previous.visible === current.visible
+      && previous.identities === current.identities && previous.itemSize === current.itemSize;
+  }
+
+  private sameScrollGeometry(previous: PageScrollSnapshot, current: PageScrollSnapshot): boolean {
+    return previous.width === current.width && previous.height === current.height
+      && previous.extent === current.extent && previous.origin === current.origin;
+  }
+
+  private updateViewportLayout(): void {
+    const master = this.master.nativeElement;
+    const width = master.clientWidth;
+    if (!width || !this.viewport) { return; }
+    const layout: ReportLayout = width < 480 ? 'compact' : width < 900 ? 'stacked' : 'wide';
+    const previousSize = this.reportItemSize;
+    const current = this.measurePageScroll();
+    const previous = this.scrollSnapshot && this.sameReportCollection(this.scrollSnapshot, current)
+      && !this.sameScrollGeometry(this.scrollSnapshot, current) ? this.scrollSnapshot : current;
+    const currentOrigin = current.origin;
+    const previousOrigin = previous.origin;
+    const shellOffset = previous.offset;
+    // Layout origins can be fractional while native scrollTop rounds to a CSS
+    // pixel. A visually aligned first report is not partly visible toolbar.
+    const beforeList = shellOffset === 0 || shellOffset + 0.5 < previousOrigin;
+    const logicalOffset = Math.max(0, shellOffset - previousOrigin) / previousSize;
+    this.zone.run(() => {
+      const nextSize = REPORT_SLOT_HEIGHTS[layout];
+      if (previousSize !== nextSize || previousOrigin !== currentOrigin || shellOffset !== current.offset) {
+        // Apply the new scroll extent before moving: the old spacer would clamp
+        // a larger offset near the last report. Then move before CDK consumes
+        // the new itemSize, so it never interprets old pixels as another report
+        // and destroys the visible view (including its range/data channel).
+        this.viewport.setTotalContentSize(this.visibleReports.length * nextSize);
+        this.changeDetector.detectChanges();
+        // CDK measures relative to the list, but its public scrollToOffset writes
+        // raw pixels into the external shell. Keep page top/partly visible controls
+        // in place; report anchors require the current list origin as well.
+        this.viewport.scrollToOffset(beforeList ? shellOffset : currentOrigin + logicalOffset * nextSize);
+      }
+      this.reportLayout = layout;
+      this.changeDetector.detectChanges();
+      this.viewport.checkViewportSize();
+      this.scrollSnapshot = this.measurePageScroll();
+    });
   }
 
   getVisibility(key) {
@@ -207,9 +332,16 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
     this.scrolledIndex = evt;
   }
 
-  trackByIndex(i) {
-    return i;
-  }
+  // A ReportComponent owns chart/data/error state and an async response channel.
+  // Keep a view only for the same logical report; numeric list positions can
+  // select another Disk device. The template also disables CDK's detached-view
+  // cache so a different report can never inherit an old chartId or response.
+  trackReport = (_index: number, reportIndex: number): string => {
+    const report = this.activeReports[reportIndex];
+    return report
+      ? JSON.stringify([report.name, report.identifiers?.[0] ?? null])
+      : JSON.stringify([null, reportIndex]);
+  };
 
   generateTabs() {
     const labels = [T('CPU'), T('Disk'), T('Memory'), T('Network'), T('NFS'), T('Partition'), T('System'), T('Target'), T('ZFS')];
@@ -389,7 +521,7 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
             type: 'select',
             name: 'devices',
             width: 'calc(50% - 16px)',
-            placeholder: T('Choose a Device'),
+            placeholder: T('Devices'),
             options: this.diskDevices, // eg. [{label:'ada0',value:'ada0'},{label:'ada1', value:'ada1'}],
             required: true,
             multiple: true,
@@ -400,7 +532,7 @@ export class ReportsDashboardComponent implements OnInit, OnDestroy, /* HandleCh
             type: 'select',
             name: 'metrics',
             width: 'calc(50% - 16px)',
-            placeholder: T('Choose a metric'),
+            placeholder: T('Metrics'),
             options: this.diskMetrics ? this.diskMetrics : [{ label: 'None available', value: 'negative' }], // eg. [{label:'temperature',value:'temperature'},{label:'operations', value:'disk_ops'}],
             required: true,
             multiple: true,

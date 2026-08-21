@@ -1,0 +1,325 @@
+.widget.gpu-widget {
+  min-height: 400px;
+}
+
+.gpu-widget .fc-card-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0;
+  width: 100%;
+}
+
+.gpu-header {
+  align-items: center;
+  border-bottom: 1px solid var(--lines);
+  display: flex;
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 16px;
+}
+
+.gpu-header .gpu-back {
+  margin-left: -8px;
+}
+
+.gpu-chart-icon {
+  color: var(--fg2);
+  margin-left: auto;
+}
+
+.gpu-body {
+  flex: 1 1 auto;
+  max-height: 352px;
+  overflow-y: auto;
+  padding: 0 0 10px;
+  text-align: left;
+}
+
+.gpu-loading {
+  display: flex;
+  justify-content: center;
+  padding-top: 64px;
+}
+
+.gpu-name-row {
+  align-items: center;
+  display: flex;
+  gap: 6px 10px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+}
+
+.gpu-name {
+  color: var(--fg1);
+  font-size: 16px;
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gpu-name:focus-visible {
+  outline: 2px solid var(--fg2);
+  outline-offset: -2px;
+}
+
+.gpu-status {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+  text-transform: lowercase;
+}
+
+button.gpu-status {
+  /* The shared status-text law is nowrap; a passthrough target is a full
+     user-supplied name and must wrap inside a compact Dashboard card. */
+  white-space: normal;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+}
+
+.gpu-status.passthrough {
+  color: var(--blue);
+}
+
+button.gpu-status:hover,
+button.gpu-status:focus-visible {
+  text-decoration: underline;
+}
+
+.util-zone,
+.vram-zone {
+  padding: 0 16px;
+}
+
+.util-line {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+}
+
+.util-value {
+  color: var(--fg1);
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.util-unit {
+  color: var(--fg2);
+  font-size: 15px;
+  font-weight: 400;
+}
+
+.engine-line,
+.user-tail {
+  color: var(--fg2);
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.engine-line {
+  font-size: 11px;
+}
+
+.util-bar,
+.vram-bar {
+  background: var(--alt-bg1);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.util-bar {
+  height: 5px;
+  margin-top: 7px;
+}
+
+.util-bar i,
+.vram-bar i {
+  background: var(--primary);
+  display: block;
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.vram-zone {
+  margin-top: 12px;
+}
+
+/* Same two-part caption the Pool card uses under its meter. */
+.vram-label {
+  color: var(--fg2);
+  display: flex;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  gap: 14px;
+}
+
+.vram-label b {
+  color: var(--fg1);
+  font-weight: 500;
+}
+
+.vram-bar {
+  height: 8px;
+  margin-top: 6px;
+}
+
+.vram-bar i {
+  background: var(--blue);
+}
+
+/* the internal development record: a note is prose, so it is set in the UI face. Law 9
+   keeps the mono face for identifiers and section labels; a monospace
+   sentence is what made these cards read like console output. */
+.gpu-note {
+  color: var(--fg2);
+  font-size: 11px;
+  line-height: 1.45;
+  text-align: left;
+}
+
+.degraded-note {
+  padding: 5px 16px 0;
+}
+
+.passthrough-note {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  display: block;
+  padding: 3px 16px 12px;
+  width: 100%;
+}
+
+.passthrough-note:hover,
+.passthrough-note:focus-visible {
+  color: var(--blue);
+}
+
+.gpu-section {
+  padding: 12px 16px 4px;
+}
+
+.gpu-user-row {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--lines);
+  color: var(--fg1);
+  column-gap: 10px;
+  display: grid;
+  font: inherit;
+  font-size: 13px;
+  grid-template-columns: 8px minmax(0, 1fr) max-content;
+  min-height: 34px;
+  padding: 6px 16px;
+  text-align: left;
+  width: 100%;
+}
+
+.gpu-user-row:not(:disabled) {
+  cursor: pointer;
+}
+
+.gpu-user-row:not(:disabled):hover {
+  background: var(--lines);
+}
+
+.gpu-user-row:disabled {
+  opacity: 1;
+}
+
+/* Consumer dots are the shared .state-dot law (the internal development record). The kind
+   is already named in text beside them, so it is not carried in colour too. */
+
+.user-identity {
+  align-items: baseline;
+  display: flex;
+  gap: 7px;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 500;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Host processes have no navigation action. Their disabled row cannot receive
+   keyboard focus, so disclose the whole identifier as visible wrapping text. */
+.gpu-user-row:disabled .user-name {
+  overflow: visible;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.user-kind {
+  color: var(--fg2);
+  flex: 0 0 auto;
+  font-size: 11px;
+}
+
+.user-tail {
+  font-size: 10.5px;
+  justify-self: end;
+  white-space: nowrap;
+}
+
+.gpu-more,
+.gpu-empty {
+  color: var(--fg2);
+  font-size: 12px;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.gpu-more {
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.gpu-facts {
+  border-top: 1px solid var(--lines);
+  margin-top: 8px !important;
+  padding: 9px 16px 0;
+}
+
+.passthrough-facts {
+  margin-top: 0 !important;
+}
+
+.gpu-facts dd {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.xs.widget.gpu-widget {
+  height: calc(100vh - 96px);
+  min-height: 500px;
+  position: absolute;
+  width: 100%;
+}
+
+.xs .gpu-body {
+  max-height: calc(100vh - 144px);
+}
+
+.xs .gpu-name-row,
+.xs .util-zone,
+.xs .vram-zone,
+.xs .gpu-user-row,
+.xs .gpu-facts {
+  padding-left: 12px;
+  padding-right: 12px;
+}

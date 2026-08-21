@@ -1,30 +1,44 @@
-mat-icon.service-power-btn-on{
- color:#41bd45 !important;
-}
-
-mat-icon.service-power-btn-off{
-  color: #900 !important;
-}
-
-.checkbox {
-  position: relative !important;
-  left: 43px;
-  top: 1px;
-}
-
-.mat-slide-toggle {
-  position: relative;
-  top: 2px;
-}
-
+/* the internal development record: the checkbox and the switch sit where the cell's flex
+   centring puts them; the overlay covers exactly the switch it stands in for. */
 .service-toggle {
-  width: 48px;
+  display: inline-flex;
+  position: relative;
+  vertical-align: top; /* the internal development record: the line baseline rode the switch 1px high */
 }
 
 .clickable {
-  height: 28px;
-  width: 40px;
   position: absolute;
+  inset: 0;
   background: rgba(0,0,0, .0);
+  cursor: pointer;
   z-index: 10;
+}
+
+/* the internal development record: the checkbox law's hover tell, from the wrapper the pointer reaches */
+.service-toggle:hover button[role="switch"][data-state="unchecked"] {
+  border-color: var(--sp-muted-foreground, var(--fg2));
+}
+
+/* the internal development record: the #352 cell for Start Automatically, the ghost icon actions with 20px
+   glyphs, the in-flight spinner 20px. */
+.checkbox-cell {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.service-action .mat-icon {
+  font-size: 20px;
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+}
+
+.service-spinner {
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 20px;
+  vertical-align: middle;
 }

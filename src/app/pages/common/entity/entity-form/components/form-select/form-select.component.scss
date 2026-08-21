@@ -1,4 +1,4 @@
-.has-tooltip mat-form-field.full-width {
+.has-tooltip hlm-field.full-width {
 	width: calc( 100% - 25px )
 }
 
@@ -7,24 +7,44 @@
   max-width:none !important;
 }
 
-.inline-label div.label.half-width,
-.inline-label .mat-form-field {
-  display:inline-block;
+/* the internal development record: `inlineLabel` names a select from the left instead of
+ * floating a label above it. Alert Settings is its only consumer -- 138 of
+ * them. The label and the field were inline-blocks sharing a baseline, and an
+ * MDC select is 81.5px tall with its baseline at the very bottom, so each
+ * alert's name rendered *below* its own select, level with the field's
+ * always-empty subscript and adrift between two rows. A flex row aligns the two
+ * to each other rather than to a baseline.
+ *
+ * Both widths stay a fixed share of the row, so every select in a column lines
+ * up with the one above it however long its alert's name is -- sizing the label
+ * to its content instead makes each row start its select somewhere different.
+ * The select takes the slack the old 40% left unused, which is what stopped
+ * "IMMEDIATELY (Default)" ellipsing. */
+.inline-label {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
 }
 
-.inline-label div.label.half-width{
-  width:calc(50% - 16px);
+.inline-label div.label.half-width {
+  flex: 0 0 calc(50% - 16px);
+  width: calc(50% - 16px);
 }
 
-.inline-label .mat-form-field {
-  width:calc(40% - 16px);
+.inline-label hlm-field {
+  flex: 0 0 calc(48% - 16px);
+  padding: 0 0 0 8px;
+  width: calc(48% - 16px);
 }
 
-.inline-label .mat-form-field {
-  padding:8px;
+/* The errors belong to the row, not to the field. */
+.inline-label .margin-for-error {
+  flex-basis: 100%;
 }
 
-mat-selection-list {
-  max-height: 400px;
-  overflow: auto;
+/* the internal development record: the trigger is the box; its loading spinner sits before the chevron. */
+.form-select-spinner {
+  margin-inline-end: 6px;
 }
+
+

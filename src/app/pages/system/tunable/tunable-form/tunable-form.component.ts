@@ -1,12 +1,15 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_tunable as helptext } from 'app/helptext/system/tunable';
 import { WebSocketService } from '../../../../services';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'system-tunable-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class TunableFormComponent {
@@ -19,12 +22,14 @@ export class TunableFormComponent {
   protected route_success: string[] = ['system', 'tunable'];
   protected isEntity = true;
 
+  readonly settingsTitle = T('Tunable'); // the internal development record: the page's h1
   protected fieldConfig: FieldConfig[] = [];
   protected fieldSets: FieldSet[] = [
     {
       name: helptext.metadata.fieldsets[0],
       class: 'add-cron',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       width: '300px',
       config: [
         {

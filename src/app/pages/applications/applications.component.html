@@ -1,0 +1,1072 @@
+<!-- the internal development record: the page shape the lists have (no card box): the page title with its one
+     header action, the shell's tab bar, the rows at the content edge. -->
+<div class="applications-page fc-page">
+  <div class="applications-shell">
+    <header class="applications-toolbar fc-page-header">
+      <h1 class="fc-page-title">{{ 'Applications' | translate }}</h1>
+      <div class="toolbar-actions">
+        @if (retirementNotice) {
+          <a hlmBtn variant="outline" routerLink="/jails">
+            {{ 'Legacy Plugins' | translate }}
+          </a>
+        }
+        <button hlmBtn variant="ghost" size="icon" type="button" (click)="openSettings()"
+          [disabled]="store.coreLoading || !store.config || !!store.activeJob"
+          [hlmTooltip]="'Applications Settings' | translate"
+          [attr.aria-label]="'Applications Settings' | translate">
+          <mat-icon>settings</mat-icon>
+        </button>
+      </div>
+    </header>
+
+    @if (store.coreError || store.operationError || store.detailError) {
+      <div class="notice error fc-page-notice fc-page-notice--warn">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ store.operationError || store.coreError || store.detailError }}</span>
+      </div>
+    }
+
+    <!-- the internal development record: the tabs on spartan's brain tabs, the bar in the shell's tab vocabulary (#479: stretched
+         halves, the fg2 underline). Arrow keys move focus and Enter/Space switch (manual, as mat-tab-group did);
+         Installed renders on its first visit and both panes keep their state across switches. The panes are no
+         Tab stop of their own (the brain panel's tabindex is dropped), as the Material bodies were not. -->
+    <div class="applications-tabs" [brnTabs]="tabKeys[selectedTab]" (brnTabsChange)="selectedTab = tabKeys.indexOf($event)"
+      activationMode="manual">
+      <div brnTabsList class="fc-tab-bar fc-tab-bar--stretch fc-tab-bar--underline">
+        <button brnTabsTrigger="applications-catalog" class="fc-tab">{{ 'Catalog' | translate }}</button>
+        <button brnTabsTrigger="applications-installed" class="fc-tab">{{ 'Installed' | translate }} ({{ store.installed.length }})</button>
+      </div>
+      <div brnTabsContent="applications-catalog" [attr.tabindex]="null">
+        <section class="tab-content">
+          <!-- the internal development record: the Catalog tab on the 13.3 Plugins shape. ROW ONE is the Catalog slot
+               (13.3 "Browse a Collection": one catalog at a time, no All -- a fact while there is one
+               provider, a select the day the middleware returns two) and the three actions on the outline
+               tier; ROW TWO narrows the strip (the #404 filter box + Category); then the strip itself and
+               ONE panel slot right under it where the review, the import and the convert panels open in
+               view -- nothing renders after the catalog any more, nothing scrolls. -->
+          <div class="catalog-toolbar catalog-toolbar--picker">
+            <div class="catalog-provider">
+              @if (catalogProviders.length > 1) {
+                <hlm-field orientation="horizontal" class="catalog-provider-select">
+                  <label hlmFieldLabel for="applications-catalog-provider">{{ 'Catalog' | translate }}</label>
+                  <hlm-select [ngModel]="selectedProvider?.id" (ngModelChange)="catalogProvider = $event" [itemToString]="providerLabel">
+                    <hlm-select-trigger buttonId="applications-catalog-provider"><hlm-select-value /></hlm-select-trigger>
+                    <hlm-select-content *hlmSelectPortal>
+                      @for (provider of catalogProviders; track provider.id) {
+                        <hlm-select-item [value]="provider.id">{{ provider.name }}</hlm-select-item>
+                      }
+                    </hlm-select-content>
+                  </hlm-select>
+                </hlm-field>
+              } @else if (selectedProvider; as provider) {
+                <span class="catalog-provider-label">{{ 'Catalog' | translate }}</span>
+                <span class="catalog-provider-name">{{ provider.name }}</span>
+                @if (provider.source_url) {
+                  <a hlmBtn variant="ghost" size="icon" class="catalog-provider-source" [href]="provider.source_url" target="_blank" rel="noopener noreferrer"
+                    [hlmTooltip]="'Source' | translate" [attr.aria-label]="'Source' | translate"><mat-icon aria-hidden="true">open_in_new</mat-icon></a>
+                }
+              }
+            </div>
+            <div class="toolbar-actions">
+              <button hlmBtn variant="outline" type="button" class="catalog-action" (click)="updateCatalog()" [disabled]="store.catalogLoading || !!store.activeJob">
+                <mat-icon aria-hidden="true">refresh</mat-icon>{{ 'Update Catalog' | translate }}
+              </button>
+              <button hlmBtn variant="outline" type="button" class="catalog-action import-button" data-applications-action="import" (click)="openImport()" [disabled]="!!store.activeJob">
+                <mat-icon aria-hidden="true">input</mat-icon>{{ 'Import image…' | translate }}
+              </button>
+              <button hlmBtn variant="outline" type="button" class="catalog-action convert-button" data-applications-action="convert" (click)="openConvert()" [disabled]="!!store.activeJob">
+                <mat-icon aria-hidden="true">move_to_inbox</mat-icon>{{ 'Convert jail…' | translate }}
+              </button>
+            </div>
+          </div>
+          <div class="catalog-toolbar catalog-toolbar--narrow">
+            <div id="catalog-filter" class="fc-table-search">
+              <hlm-input-group>
+                <hlm-input-group-addon (click)="catalogFilter.focus()"><mat-icon aria-hidden="true">search</mat-icon></hlm-input-group-addon>
+                <input hlmInputGroupInput #catalogFilter id="applications-catalog-filter" type="text" [(ngModel)]="search"
+                  [placeholder]="'Filter applications' | translate" [attr.aria-label]="'Filter applications' | translate" autocomplete="off">
+              </hlm-input-group>
+            </div>
+            <hlm-field orientation="horizontal" class="catalog-category">
+              <label hlmFieldLabel for="applications-catalog-category">{{ 'Category' | translate }}</label>
+              <hlm-select [(ngModel)]="category" [itemToString]="categoryLabel">
+                <hlm-select-trigger buttonId="applications-catalog-category"><hlm-select-value /></hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item value="ALL">{{ 'All' | translate }}</hlm-select-item>
+                  @for (item of categories; track item) {
+                    <hlm-select-item [value]="item">{{ item }}</hlm-select-item>
+                  }
+                </hlm-select-content>
+              </hlm-select>
+            </hlm-field>
+          </div>
+
+          @if (store.providerError) {
+            <div class="notice warning in-tab fc-page-notice fc-page-notice--warn">
+              <mat-icon>cloud_off</mat-icon>
+              <span>{{ store.providerError }}</span>
+            </div>
+          }
+
+          <app-catalog-strip [entries]="filteredCatalog" [selectedId]="store.selectedDetail?.id ?? null"
+            [disabled]="store.detailLoading || !!store.activeJob" [loading]="store.catalogLoading"
+            [emptyText]="(store.catalog.length ? 'No matching applications' : 'No applications available. Use Update Catalog to check for applications.') | translate"
+            [label]="'Applications catalog' | translate" (selected)="review($event)" />
+
+          <div class="catalog-panel-slot">
+            @if (importDraft) {
+              <section class="catalog-panel form-card fc-settings-form import-panel" data-applications-panel="import" aria-labelledby="import-panel-title">
+                <header class="catalog-panel-header">
+                  <div class="catalog-panel-heading">
+                    <h2 id="import-panel-title" class="catalog-panel-title">{{ 'Import image' | translate }}</h2>
+                    <p class="catalog-panel-description">{{ 'Install any OCI image by reference. Nothing about it was reviewed by FreeCORE; the record is marked as unreviewed.' | translate }}</p>
+                  </div>
+                  <button hlmBtn variant="outline" type="button" class="catalog-panel-cancel" (click)="cancelImport()">{{ 'Cancel' | translate }}</button>
+                </header>
+                <form #importForm="ngForm" (ngSubmit)="importForm.valid && submitImport()">
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-compose">
+                    <h3 class="fieldset-label" id="applications-panel-compose">{{ 'Compose file' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <div class="entity-form-field-layout form-line fc-settings-wide compose-read">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-compose">{{ 'Compose file (optional): a raw.githubusercontent.com URL, or paste the YAML' | translate }}</label>
+                          <textarea hlmTextarea id="app-import-compose" name="importCompose" rows="2" [(ngModel)]="importDraft.compose" autocomplete="off" spellcheck="false"></textarea>
+                          <div class="field-subscript">
+                            @if (importDraft.composeError) {
+                              <p class="form-error-line" role="alert">{{ importDraft.composeError }}</p>
+                            }
+                          </div>
+                        </hlm-field>
+                        <button hlmBtn variant="outline" type="button" class="compose-read-button" (click)="readCompose()" [disabled]="importDraft.composeReading || !importDraft.compose.trim()">
+                          {{ 'Read compose file' | translate }}
+                        </button>
+                      </div>
+                      @if (importDraft.composeSummary) {
+                        <p class="compose-summary fc-settings-wide">
+                          {{ 'Read service' | translate }} <strong>{{ importDraft.composeSummary.service }}</strong>:
+                          {{ importDraft.prefill.ports.length }} {{ 'ports' | translate }},
+                          {{ importDraft.prefill.environment.length }} {{ 'environment settings' | translate }},
+                          {{ importDraft.prefill.volumes.length }} {{ 'volumes' | translate }}.
+                          @if (importDraft.composeSummary.catalog_app) {
+                            {{ 'The catalog has a native' | translate }} <strong>{{ importDraft.composeSummary.catalog_app }}</strong>.
+                          }
+                          @if (importDraft.composeSummary.ignored.length) {
+                            <span class="hint">{{ 'Ignored' | translate }}: {{ importDraft.composeSummary.ignored.join('; ') }}</span>
+                          }
+                        </p>
+                      }
+                    </div>
+                  </section>
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-import-image">
+                    <h3 class="fieldset-label" id="applications-panel-import-image">{{ 'Image' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-image">{{ 'Image reference' | translate }}</label>
+                          <input hlmInput id="app-import-image" name="importImage" [(ngModel)]="importDraft.image" required placeholder="registry/namespace/name:tag" autocomplete="off" autocapitalize="off" spellcheck="false">
+                          <div class="field-subscript"><hlm-field-error validator="required">{{ 'This field is required.' | translate }}</hlm-field-error></div>
+                        </hlm-field>
+                      </div>
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-os">{{ 'Operating system' | translate }}</label>
+                          <hlm-select name="importOs" [(ngModel)]="importDraft.image_os" [itemToString]="imageOsLabel">
+                            <hlm-select-trigger buttonId="app-import-os"><hlm-select-value /></hlm-select-trigger>
+                            <hlm-select-content *hlmSelectPortal>
+                              <hlm-select-item value="freebsd">{{ 'FreeBSD native' | translate }}</hlm-select-item>
+                              <hlm-select-item value="linux">{{ 'Linux (experimental, requires the Linux setting)' | translate }}</hlm-select-item>
+                            </hlm-select-content>
+                          </hlm-select>
+                          <div class="field-subscript"></div>
+                        </hlm-field>
+                      </div>
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-name">{{ 'Application name' | translate }}</label>
+                          <input hlmInput id="app-import-name" name="importName" [(ngModel)]="importDraft.name" required pattern="[a-z0-9][a-z0-9_.\-]{0,62}" autocomplete="off" autocapitalize="off" spellcheck="false">
+                          <div class="field-subscript"><hlm-field-error>{{ 'Use 1–63 lowercase letters, digits, periods, underscores, or hyphens. Begin with a letter or digit.' | translate }}</hlm-field-error></div>
+                        </hlm-field>
+                      </div>
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-restart">{{ 'Restart policy' | translate }}</label>
+                          <hlm-select name="importRestart" [(ngModel)]="importDraft.restart_policy" [itemToString]="restartPolicyLabel">
+                            <hlm-select-trigger buttonId="app-import-restart"><hlm-select-value /></hlm-select-trigger>
+                            <hlm-select-content *hlmSelectPortal>
+                              <hlm-select-item value="always">{{ 'Always' | translate }}</hlm-select-item>
+                              <hlm-select-item value="on-failure">{{ 'On failure' | translate }}</hlm-select-item>
+                              <hlm-select-item value="no">{{ 'Do not restart automatically' | translate }}</hlm-select-item>
+                            </hlm-select-content>
+                          </hlm-select>
+                          <div class="field-subscript"></div>
+                        </hlm-field>
+                      </div>
+                    </div>
+                  </section>
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-import-port">
+                    <h3 class="fieldset-label" id="applications-panel-import-port">{{ 'Published port' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-host-port">{{ 'Host port (optional)' | translate }}</label>
+                          <input hlmInput id="app-import-host-port" name="importHostPort" type="number" min="1" max="65535" step="1" [(ngModel)]="importDraft.host_port">
+                          <div class="field-subscript"><hlm-field-error>{{ 'Enter a port number between 1 and 65535.' | translate }}</hlm-field-error></div>
+                        </hlm-field>
+                      </div>
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-import-container-port">{{ 'Container port (tcp)' | translate }}</label>
+                          <input hlmInput id="app-import-container-port" name="importContainerPort" type="number" min="1" max="65535" step="1" [(ngModel)]="importDraft.container_port">
+                          <div class="field-subscript"><hlm-field-error>{{ 'Enter a port number between 1 and 65535.' | translate }}</hlm-field-error></div>
+                        </hlm-field>
+                      </div>
+                      @if (importLinuxBlocked) {
+                        <p class="reason import-linux-blocked fc-settings-wide">{{ 'Linux binary compatibility is off. Enable it in Applications Settings before importing a Linux image; it loads the Linux ABI for the whole host.' | translate }}</p>
+                      }
+                    </div>
+                  </section>
+                  <div class="checkbox-row catalog-panel-confirm">
+                    <span class="checkbox-cell"><hlm-checkbox inputId="app-import-ack" name="importAcknowledged" [(ngModel)]="importDraft.acknowledged" /></span>
+                    <label hlmLabel class="checkbox-label" for="app-import-ack">{{ 'This image is not reviewed by FreeCORE. I own its supply chain from now on.' | translate }}</label>
+                  </div>
+                  <div class="buttons">
+                    <button hlmBtn type="submit" class="import-submit" [disabled]="!canImport() || importForm.invalid">{{ 'Import' | translate }}</button>
+                    <button hlmBtn variant="outline" type="button" (click)="cancelImport()">{{ 'Cancel' | translate }}</button>
+                  </div>
+                </form>
+              </section>
+            } @else if (convertDraft) {
+              <section class="catalog-panel form-card fc-settings-form convert-panel" data-applications-panel="convert" aria-labelledby="convert-panel-title">
+                <header class="catalog-panel-header">
+                  <div class="catalog-panel-heading">
+                    <h2 id="convert-panel-title" class="catalog-panel-title">{{ 'Convert jail' | translate }}</h2>
+                    <p class="catalog-panel-description">{{ 'A jail becomes an application. Its software is lifted into an image as it is and its state moves to datasets of its own; the jail itself is read through a snapshot and never changed.' | translate }}</p>
+                  </div>
+                  <button hlmBtn variant="outline" type="button" class="catalog-panel-cancel" (click)="cancelConvert()">{{ 'Cancel' | translate }}</button>
+                </header>
+                @if (store.config && !convertEnabled) {
+                  <p class="reason">{{ 'Convert & Import is off. Enable it in Applications Settings first.' | translate }}</p>
+                }
+                @if (convertDraft.error) {
+                  <div class="notice error in-tab fc-page-notice fc-page-notice--warn">
+                    <mat-icon>error_outline</mat-icon>
+                    <span>{{ convertDraft.error }}</span>
+                  </div>
+                }
+                <section class="fc-settings-section" aria-labelledby="applications-panel-jail">
+                  <h3 class="fieldset-label" id="applications-panel-jail">{{ 'Jail' | translate }}</h3>
+                  <div class="fc-settings-fields">
+                    <div class="entity-form-field-layout form-line">
+                      <hlm-field>
+                        <label hlmFieldLabel for="app-convert-source">{{ 'Jail' | translate }}</label>
+                        <hlm-select name="convertSource" [ngModel]="convertDraft.source" (ngModelChange)="selectConvertSource($event)" [disabled]="convertDraft.loading || convertDraft.planning" [itemToString]="convertSourceLabel">
+                          <hlm-select-trigger buttonId="app-convert-source"><hlm-select-value /></hlm-select-trigger>
+                          <hlm-select-content *hlmSelectPortal>
+                            @for (source of convertDraft.sources; track source.engine + ':' + source.name) {
+                              <hlm-select-item [value]="source" [disabled]="!source.lift">
+                                {{ source.name }} · {{ source.engine }} · {{ source.state }}@if (source.release) { · {{ source.release }}}
+                              </hlm-select-item>
+                            }
+                          </hlm-select-content>
+                        </hlm-select>
+                        <div class="field-subscript"></div>
+                      </hlm-field>
+                    </div>
+                    <div class="entity-form-field-layout form-line">
+                      <hlm-field>
+                        <label hlmFieldLabel for="app-convert-name">{{ 'Application name' | translate }}</label>
+                        <input hlmInput id="app-convert-name" name="convertName" [(ngModel)]="convertDraft.name" required pattern="[a-z0-9][a-z0-9_.\-]{0,62}" [disabled]="!convertDraft.source || convertDraft.planning" autocomplete="off" autocapitalize="off" spellcheck="false">
+                        <div class="field-subscript"><hlm-field-error>{{ 'Use 1–63 lowercase letters, digits, periods, underscores, or hyphens. Begin with a letter or digit.' | translate }}</hlm-field-error></div>
+                      </hlm-field>
+                    </div>
+                    @if (convertDraft.loading) {
+                      <div class="loading catalog-panel-loading fc-settings-wide"><hlm-spinner [aria-label]="'Loading' | translate" /></div>
+                    }
+                  </div>
+                </section>
+
+                @if (convertDraft.detection) {
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-source">
+                    <h3 class="fieldset-label" id="applications-panel-source">{{ 'Source' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <dl class="identity-list fc-settings-wide">
+                        <div><dt>{{ 'Release' | translate }}</dt><dd>{{ convertDraft.detection.userland || convertDraft.detection.release || '—' }}</dd></div>
+                        <div><dt>{{ 'Root' | translate }}</dt><dd>{{ convertDraft.detection.root_kind || '—' }}@if (convertDraft.detection.state) { · {{ convertDraft.detection.state }}}</dd></div>
+                        <div><dt>{{ 'Packages' | translate }}</dt><dd>{{ convertPackages() || '—' }}</dd></div>
+                        <div><dt>{{ 'Recipe' | translate }}</dt><dd>{{ convertDraft.detection.recipe || ('none' | translate) }}</dd></div>
+                      </dl>
+                    </div>
+                  </section>
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-target">
+                    <h3 class="fieldset-label" id="applications-panel-target">{{ 'Target' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <hlm-radio-group name="convertMode" [(ngModel)]="convertDraft.mode" class="convert-modes fc-settings-wide" [disabled]="convertDraft.planning">
+                        <div class="radio-option-row">
+                          <span class="radio-cell"><hlm-radio value="lift" inputId="app-convert-mode-lift"><hlm-radio-indicator indicator /></hlm-radio></span>
+                          <div class="radio-copy">
+                            <label hlmLabel class="radio-label" for="app-convert-mode-lift">{{ 'As it is' | translate }}</label>
+                            <span class="hint">{{ 'The jail\'s own software and rc(8) services, frozen at this release, state on datasets.' | translate }}</span>
+                          </div>
+                        </div>
+                        <div class="radio-option-row">
+                          <span class="radio-cell"><hlm-radio value="native" inputId="app-convert-mode-native" [disabled]="!convertMigrationAvailable"><hlm-radio-indicator indicator /></hlm-radio></span>
+                          <div class="radio-copy">
+                            <label hlmLabel class="radio-label" for="app-convert-mode-native">{{ 'Migrate to the native catalog image' | translate }}@if (convertDraft.detection.app) { ({{ convertDraft.detection.app }})}</label>
+                            <span class="hint">{{ convertMigrationAvailable ? ('The recipe carries the application\'s state into the Daemonless image; updates follow the catalog.' | translate) : ('No recipe recognises this jail; only the as-is conversion is available.' | translate) }}@if (convertMigrationAvailable && convertDraft.detection.recipe_status === 'draft') { {{ 'This recipe is a draft: its paths were reviewed, the migration has not been verified by FreeCORE.' | translate }}}</span>
+                          </div>
+                        </div>
+                      </hlm-radio-group>
+                      @for (reason of convertRefusals(); track reason) {
+                        <p class="reason fc-settings-wide">{{ reason }}</p>
+                      }
+                    </div>
+                  </section>
+                  @if (convertDraft.mode === 'lift') {
+                    <section class="fc-settings-section" aria-labelledby="applications-panel-convert-ports">
+                      <h3 class="fieldset-label" id="applications-panel-convert-ports">{{ 'Published ports' | translate }}
+                        @if (convertDraft.detection.ports_detected_from) {
+                          <span class="hint">({{ convertDraft.detection.ports_detected_from === 'listening' ? ('what the running jail listens on' | translate) : ('from the catalog entry' | translate) }})</span>
+                        }
+                      </h3>
+                      <div class="fc-settings-fields">
+                        @if (!convertDraft.ports.length) {
+                          <p hlmFieldDescription class="fc-settings-wide">{{ 'No ports were detected; the application publishes none. Start the jail and select it again to read what it listens on.' | translate }}</p>
+                        }
+                        @for (port of convertDraft.ports; track port.container_port + '/' + port.protocol) {
+                          <div class="entity-form-field-layout form-line fc-settings-wide generated-row">
+                            <span class="port-label">{{ port.container_port }}/{{ port.protocol }}@if (port.command) { · {{ port.command }}}</span>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-convert-port-' + port.container_port + port.protocol">{{ 'Host port (empty: not published)' | translate }}</label>
+                              <input hlmInput [id]="'app-convert-port-' + port.container_port + port.protocol" type="number" min="1" max="65535" step="1" [name]="'convertPort' + port.container_port + port.protocol" [attr.name]="'convertPort' + port.container_port + port.protocol" [(ngModel)]="port.host_port" [disabled]="convertDraft.planning">
+                              <div class="field-subscript"></div>
+                            </hlm-field>
+                          </div>
+                        }
+                        <div class="entity-form-field-layout form-line fc-settings-wide generated-row add-port">
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-convert-new-container">{{ 'Container port' | translate }}</label>
+                            <input hlmInput id="app-convert-new-container" type="number" min="1" max="65535" step="1" name="convertNewContainerPort" [(ngModel)]="convertDraft.newPort.container_port" [disabled]="convertDraft.planning">
+                            <div class="field-subscript"></div>
+                          </hlm-field>
+                          <hlm-field class="protocol-field">
+                            <label hlmFieldLabel for="app-convert-new-protocol">{{ 'Protocol' | translate }}</label>
+                            <hlm-select name="convertNewProtocol" [(ngModel)]="convertDraft.newPort.protocol" [disabled]="convertDraft.planning" [itemToString]="identityLabel">
+                              <hlm-select-trigger buttonId="app-convert-new-protocol"><hlm-select-value /></hlm-select-trigger>
+                              <hlm-select-content *hlmSelectPortal>
+                                <hlm-select-item value="tcp">tcp</hlm-select-item>
+                                <hlm-select-item value="udp">udp</hlm-select-item>
+                              </hlm-select-content>
+                            </hlm-select>
+                            <div class="field-subscript"></div>
+                          </hlm-field>
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-convert-new-host">{{ 'Host port' | translate }}</label>
+                            <input hlmInput id="app-convert-new-host" type="number" min="1" max="65535" step="1" name="convertNewHostPort" [(ngModel)]="convertDraft.newPort.host_port" [disabled]="convertDraft.planning">
+                            <div class="field-subscript"></div>
+                          </hlm-field>
+                          <button hlmBtn variant="outline" type="button" class="add-port-button" (click)="addConvertPort()" [disabled]="convertDraft.planning || !convertDraft.newPort.container_port">{{ 'Add port' | translate }}</button>
+                        </div>
+                      </div>
+                    </section>
+                  }
+                  @if (!convertDraft.plan) {
+                    <div class="buttons">
+                      <button hlmBtn type="button" (click)="prepareConvertPlan()" [disabled]="!convertEnabled || convertDraft.planning || convertDraft.loading || !convertDraft.source">
+                        {{ convertDraft.planning ? ('Preparing plan…' | translate) : ('Prepare plan' | translate) }}
+                      </button>
+                      <button hlmBtn variant="outline" type="button" (click)="cancelConvert()">{{ 'Cancel' | translate }}</button>
+                    </div>
+                  }
+                }
+
+                @if (convertDraft.plan) {
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-plan">
+                    <h3 class="fieldset-label" id="applications-panel-plan">{{ 'Plan' | translate }}
+                      <span class="hint">{{ convertDraft.plan.mode === 'lift' ? ('as it is' | translate) : ('migration' | translate) }}@if (convertDraft.plan.lift?.base?.release) { · {{ 'base' | translate }} {{ convertDraft.plan.lift.base.release }}}@if (convertDraft.plan.lift?.size_bytes) { · {{ convertSizeLabel(convertDraft.plan.lift.size_bytes) }}}</span>
+                    </h3>
+                    <div class="fc-settings-fields">
+                      <div class="contract-group convert-plan fc-settings-wide">
+                        @for (group of [['refuse', 'Refused'], ['carry', 'Carried'], ['rewrite', 'Rewritten'], ['hop', 'Migration step'], ['note', 'Notes'], ['drop', 'Not carried']]; track group[0]) {
+                          @if (planEntries(group[0]).length) {
+                            <h5 [class]="'plan-group ' + group[0]">{{ group[1] | translate }}</h5>
+                            <ul class="plan-entries">
+                              @for (entry of planEntries(group[0]); track entry.human) {
+                                <li>{{ entry.human }}</li>
+                              }
+                            </ul>
+                          }
+                        }
+                      </div>
+                    </div>
+                  </section>
+                  <div class="checkbox-row catalog-panel-confirm">
+                    <span class="checkbox-cell"><hlm-checkbox inputId="app-convert-reviewed" name="convertReviewed" [(ngModel)]="convertDraft.reviewed" [disabled]="planEntries('refuse').length > 0" /></span>
+                    <label hlmLabel class="checkbox-label" for="app-convert-reviewed">{{ 'I reviewed this plan. The jail is not changed; the application is new.' | translate }}</label>
+                  </div>
+                  <div class="buttons">
+                    <button hlmBtn type="button" class="convert-submit" (click)="applyConvert()" [disabled]="!canApplyConvert()">{{ 'Convert' | translate }}</button>
+                    <button hlmBtn variant="outline" type="button" (click)="prepareConvertPlan()" [disabled]="convertDraft.planning">{{ 'Plan again' | translate }}</button>
+                    <button hlmBtn variant="outline" type="button" (click)="cancelConvert()">{{ 'Cancel' | translate }}</button>
+                  </div>
+                }
+              </section>
+            } @else if (exportDraft) {
+              <!-- the internal development record: an installed application written out for a Linux host. -->
+              <section class="catalog-panel form-card fc-settings-form export-panel" data-applications-panel="export" aria-labelledby="export-panel-title">
+                <header class="catalog-panel-header">
+                  <div class="catalog-panel-heading">
+                    <h2 id="export-panel-title" class="catalog-panel-title">{{ 'Export for Linux' | translate }}: {{ exportDraft.application.name }}</h2>
+                    <p class="catalog-panel-description">{{ 'The application\'s state is copied into a folder with a Docker Compose file for a Linux host, such as TrueNAS SCALE. The application is stopped only for the moment a snapshot is taken; its data is read, never changed.' | translate }}</p>
+                  </div>
+                  <button hlmBtn variant="outline" type="button" class="catalog-panel-cancel" (click)="cancelExport()">{{ 'Cancel' | translate }}</button>
+                </header>
+                @if (exportDraft.error) {
+                  <div class="notice error in-tab fc-page-notice fc-page-notice--warn">
+                    <mat-icon>error_outline</mat-icon>
+                    <span>{{ exportDraft.error }}</span>
+                  </div>
+                }
+                @if (exportDraft.loading) {
+                  <div class="loading catalog-panel-loading"><hlm-spinner [aria-label]="'Loading' | translate" /></div>
+                }
+                @if (exportDraft.plan; as plan) {
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-export-plan">
+                    <h3 class="fieldset-label" id="applications-panel-export-plan">{{ 'Plan' | translate }}
+                      <span class="hint">{{ exportKindLabel(plan.kind) }} · {{ plan.target.image }}@if (plan.target.version) { · {{ plan.target.version }}}</span>
+                    </h3>
+                    <div class="fc-settings-fields">
+                      <div class="contract-group convert-plan fc-settings-wide">
+                        @for (group of [['refuse', 'Refused'], ['carry', 'Carried'], ['rewrite', 'Rewritten'], ['note', 'Notes'], ['drop', 'Not carried']]; track group[0]) {
+                          @if (exportPlanEntries(group[0]).length) {
+                            <h5 [class]="'plan-group ' + group[0]">{{ group[1] | translate }}</h5>
+                            <ul class="plan-entries">
+                              @for (entry of exportPlanEntries(group[0]); track entry.human) {
+                                <li>{{ entry.human }}</li>
+                              }
+                            </ul>
+                          }
+                        }
+                      </div>
+                    </div>
+                  </section>
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-export-destination">
+                    <h3 class="fieldset-label" id="applications-panel-export-destination">{{ 'Destination' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-export-destination">{{ 'Folder' | translate }}</label>
+                          <input hlmInput id="app-export-destination" name="exportDestination" [(ngModel)]="exportDraft.destination" required placeholder="/mnt/pool/exports" autocomplete="off" autocapitalize="off" spellcheck="false">
+                          <div class="field-subscript">
+                            @if (exportDraft.destination && !exportDestinationValid) {
+                              <span class="reason">{{ 'Enter an existing folder inside a dataset, such as /mnt/pool/exports.' | translate }}</span>
+                            } @else {
+                              <span class="hint">{{ 'A folder named after the application is created inside it; nothing is overwritten.' | translate }}</span>
+                            }
+                          </div>
+                        </hlm-field>
+                      </div>
+                      <div class="entity-form-field-layout form-line">
+                        <hlm-field>
+                          <label hlmFieldLabel for="app-export-mode">{{ 'Mode' | translate }}</label>
+                          <hlm-select name="exportMode" [(ngModel)]="exportDraft.mode" [itemToString]="exportModeLabel">
+                            <hlm-select-trigger buttonId="app-export-mode"><hlm-select-value /></hlm-select-trigger>
+                            <hlm-select-content *hlmSelectPortal>
+                              <hlm-select-item value="bundle">{{ exportModeLabel('bundle') }}</hlm-select-item>
+                              <hlm-select-item value="in-place">{{ exportModeLabel('in-place') }}</hlm-select-item>
+                            </hlm-select-content>
+                          </hlm-select>
+                          <div class="field-subscript"></div>
+                        </hlm-field>
+                      </div>
+                      @if (exportDraft.mode === 'bundle') {
+                        <div class="entity-form-field-layout form-line">
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-export-host-root">{{ 'Folder on the Linux host (optional)' | translate }}</label>
+                            <input hlmInput id="app-export-host-root" name="exportHostRoot" [(ngModel)]="exportDraft.hostRoot" placeholder="/mnt/apps/bundles" autocomplete="off" autocapitalize="off" spellcheck="false">
+                            <div class="field-subscript">
+                              @if (!exportHostRootValid) {
+                                <span class="reason">{{ 'Enter an absolute path without spaces or colons.' | translate }}</span>
+                              } @else {
+                                <span class="hint">{{ 'Where this folder will live on the Linux host. The Compose file then uses full paths, which TrueNAS SCALE\'s Install via YAML needs.' | translate }}</span>
+                              }
+                            </div>
+                          </hlm-field>
+                        </div>
+                      }
+                      <div class="checkbox-row fc-settings-wide">
+                        <span class="checkbox-cell"><hlm-checkbox inputId="app-export-live" name="exportLive" [(ngModel)]="exportDraft.live" /></span>
+                        <label hlmLabel class="checkbox-label" for="app-export-live">{{ 'Copy while the application keeps running (no stop; a crash-consistent copy)' | translate }}</label>
+                      </div>
+                    </div>
+                  </section>
+                  <div class="checkbox-row catalog-panel-confirm">
+                    <span class="checkbox-cell"><hlm-checkbox inputId="app-export-reviewed" name="exportReviewed" [(ngModel)]="exportDraft.reviewed" [disabled]="exportPlanEntries('refuse').length > 0" /></span>
+                    <label hlmLabel class="checkbox-label" for="app-export-reviewed">{{ 'I reviewed this plan. The application and its data are only read.' | translate }}</label>
+                  </div>
+                  <div class="buttons">
+                    <button hlmBtn type="button" class="export-submit" (click)="runExport()" [disabled]="!canRunExport()">{{ 'Export' | translate }}</button>
+                    <button hlmBtn variant="outline" type="button" (click)="replanExport()" [disabled]="exportDraft.loading">{{ 'Plan again' | translate }}</button>
+                    <button hlmBtn variant="outline" type="button" (click)="cancelExport()">{{ 'Cancel' | translate }}</button>
+                  </div>
+                }
+              </section>
+            } @else if (store.selectedDetail; as detail) {
+              <section class="catalog-panel form-card fc-settings-form review-panel" data-applications-panel="review" aria-labelledby="review-panel-title">
+                <header class="catalog-panel-header">
+                  <div class="catalog-panel-heading">
+                    <h2 id="review-panel-title" class="catalog-panel-title">@if (editing) { {{ 'Edit' | translate }}: {{ editing.name }} } @else { {{ detail.title }} }</h2>
+                    <p class="catalog-panel-description">{{ detail.description }}</p>
+                  </div>
+                  @if (detail.attribution?.source_url) {
+                    <a hlmBtn variant="ghost" size="icon" class="catalog-panel-source" [href]="detail.attribution.source_url" target="_blank" rel="noopener noreferrer"
+                      [hlmTooltip]="'Source' | translate" [attr.aria-label]="'Source' | translate"><mat-icon aria-hidden="true">open_in_new</mat-icon></a>
+                  }
+                  <button hlmBtn variant="outline" type="button" class="catalog-panel-cancel" (click)="closeReview()">{{ 'Cancel' | translate }}</button>
+                </header>
+                @if (!detail.available) {
+                  <!-- the internal development record: the reason is the provider-level fact (a compose field, a missing tag); lead
+                       with what it means for the reader. -->
+                  <div class="notice error in-tab fc-page-notice fc-page-notice--warn not-offered-notice">
+                    <mat-icon>block</mat-icon>
+                    <span><strong class="not-offered-lead">{{ "This application can't be installed on FreeCORE." | translate }}</strong>@if (detail.reason) {&ngsp;<span class="not-offered-reason">{{ detail.reason }}</span>}</span>
+                  </div>
+                }
+                <section class="fc-settings-section" aria-labelledby="applications-panel-image">
+                  <h3 class="fieldset-label" id="applications-panel-image">{{ 'Image' | translate }}</h3>
+                  <div class="fc-settings-fields">
+                    <dl class="identity-list fc-settings-wide">
+                      <div><dt>{{ 'Source' | translate }}</dt><dd>{{ detail.attribution?.provider || '—' }}</dd></div>
+                      <div><dt>{{ 'Support' | translate }}</dt><dd>{{ detail.attribution?.support_owner || '—' }}</dd></div>
+                      <!-- the internal development record: a version is shown when there is one; an entry that is not offered may have none. -->
+                      @if (detail.available || detail.catalog?.version) {
+                        <div>
+                          <dt>{{ 'Version' | translate }}</dt>
+                          <dd>
+                            {{ detail.catalog?.version || '—' }}
+                            @if (detail.catalog?.version && detail.catalog?.version_source === 'index') {
+                              <!-- the internal development record: the registry did not answer; this is the provider's index, not the image. -->
+                              <small class="version-source">{{ '(from the catalog index; the registry did not answer)' | translate }}</small>
+                            }
+                          </dd>
+                        </div>
+                      }
+                      @if (detail.provenance?.upstream_url) {
+                        <div>
+                          <dt>{{ 'Upstream' | translate }}</dt>
+                          <dd><a [href]="detail.provenance.upstream_url" target="_blank" rel="noopener noreferrer">{{ detail.provenance.upstream_url }}</a></dd>
+                        </div>
+                      }
+                      @if (detail.provenance?.sbom_url) {
+                        <div>
+                          <dt>{{ 'SBOM' | translate }}</dt>
+                          <dd><a [href]="detail.provenance.sbom_url" target="_blank" rel="noopener noreferrer">{{ 'Provider software bill of materials' | translate }}</a></dd>
+                        </div>
+                      }
+                      @if (detail.catalog?.source && detail.catalog.source !== 'live') {
+                        <div><dt>{{ 'Catalog copy' | translate }}</dt><dd>{{ catalogSourceLabel(detail.catalog.source) | translate }}</dd></div>
+                      }
+                      <!-- the internal development record: an entry that is not offered has no image to describe; its rows read "—". -->
+                      @if (detail.available) {
+                        <div><dt>{{ 'Architecture' | translate }}</dt><dd>{{ detail.image?.architecture || detail.host_architecture }}</dd></div>
+                        <div><dt>{{ 'Operating system' | translate }}</dt><dd>{{ detail.image?.os || 'FreeBSD' }}</dd></div>
+                        <div><dt>{{ 'Tag' | translate }}</dt><dd>{{ detail.image?.reference || '—' }}</dd></div>
+                        <div><dt>{{ 'Immutable image' | translate }}</dt><dd>{{ detail.image?.immutable_reference || '—' }}</dd></div>
+                        <div><dt>{{ 'Digest' | translate }}</dt><dd>{{ detail.image?.digest || '—' }}</dd></div>
+                      }
+                    </dl>
+                  </div>
+                </section>
+                <!-- the internal development record: the contract of an entry that is not offered is empty; no page of "—". -->
+                @if (detail.available) {
+                  <section class="fc-settings-section" aria-labelledby="applications-panel-configuration">
+                    <h3 class="fieldset-label" id="applications-panel-configuration">{{ 'Configuration' | translate }}</h3>
+                    <div class="fc-settings-fields">
+                      <div class="contract-groups fc-settings-wide">
+                        <div class="contract-group">
+                          <strong>{{ 'Ports' | translate }}</strong>
+                          @if (!detail.ports.length) {
+                            <p>—</p>
+                          }
+                          @for (port of detail.ports; track port) {
+                            <p>{{ port.host_port }} → {{ port.container_port }}/{{ port.protocol }}@if (port.description) {
+                              <span> · {{ port.description }}</span>
+                            }</p>
+                          }
+                        </div>
+                        <div class="contract-group">
+                          <strong>{{ 'Volumes' | translate }}</strong>
+                          @if (!detail.volumes.length) {
+                            <p>—</p>
+                          }
+                          @for (volume of detail.volumes; track volume) {
+                            <p>{{ volume.target }} · {{ volume.read_only ? ('read-only' | translate) : ('read-write' | translate) }}@if (volume.description) {
+                              <span> · {{ volume.description }}</span>
+                            }</p>
+                          }
+                        </div>
+                        <div class="contract-group">
+                          <strong>{{ 'Environment' | translate }}</strong>
+                          @if (!detail.environment.length) {
+                            <p>—</p>
+                          }
+                          @for (item of detail.environment; track item) {
+                            <p>{{ item.name }}@if (item.required) {
+                              <span> · {{ 'required' | translate }}</span>
+                              }@if (item.description) {
+                              <span> · {{ item.description }}</span>
+                            }</p>
+                          }
+                        </div>
+                        <div class="contract-group privileges">
+                          <strong>{{ 'Jail properties' | translate }}</strong>
+                          @if (!detail.annotations.length) {
+                            <p>—</p>
+                          }
+                          @for (annotation of detail.annotations; track annotation) {
+                            <code>{{ annotation.name }}={{ annotation.value }}</code>
+                          }
+                        </div>
+                        <div class="contract-group">
+                          <strong>{{ 'Labels' | translate }}</strong>
+                          @if (!(detail.labels || []).length) {
+                            <p>—</p>
+                          }
+                          @for (label of (detail.labels || []); track label) {
+                            <code>{{ label.name }}={{ label.value }}</code>
+                          }
+                        </div>
+                        <div class="contract-group">
+                          <strong>{{ 'Startup check / Portal' | translate }}</strong>
+                          @if (detail.health) {
+                            <p>{{ detail.health.scheme }} · {{ detail.health.host_port ?? detail.health.container_port }} · {{ detail.health.path }}</p>
+                            <p>{{ 'Checked while the application starts. It does not become a recurring probe, and the installed application reports its runtime health separately.' | translate }}</p>
+                          }
+                          @if (!detail.health) {
+                            <p>—</p>
+                          }
+                          @if (detail.portal) {
+                            <p>{{ 'Portal' | translate }}: {{ detail.portal.scheme }} · {{ detail.portal.port }} · {{ detail.portal.path }}</p>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                }
+                @if (detail.available && installDraft) {
+                  <form id="applications-install-form" #installForm="ngForm" (ngSubmit)="installForm.valid && install()">
+                    <section class="fc-settings-section" aria-labelledby="applications-panel-general">
+                      <h3 class="fieldset-label" id="applications-panel-general">{{ 'General' | translate }}</h3>
+                      <div class="fc-settings-fields">
+                        @if (editing) {
+                          <p class="edit-note fc-settings-wide">{{ 'The container is replaced with these settings and the image it already has. Environment values are not shown; leave one empty to keep it.' | translate }}</p>
+                        }
+                        <div class="entity-form-field-layout form-line">
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-install-name">{{ 'Application name' | translate }}</label>
+                            <input hlmInput id="app-install-name" type="text" name="applicationName" [(ngModel)]="installDraft.name" (ngModelChange)="nameChanged()" required pattern="[a-z0-9][a-z0-9_.\-]{0,62}" [readonly]="!!editing" autocomplete="off" autocapitalize="off" spellcheck="false">
+                            <div class="field-subscript"><hlm-field-error>{{ 'Use 1–63 lowercase letters, digits, periods, underscores, or hyphens. Begin with a letter or digit.' | translate }}</hlm-field-error></div>
+                          </hlm-field>
+                        </div>
+                        <div class="entity-form-field-layout form-line">
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-install-restart">{{ 'Restart policy' | translate }}</label>
+                            <hlm-select name="restartPolicy" [(ngModel)]="installDraft.restart_policy" [itemToString]="restartPolicyLabel">
+                              <hlm-select-trigger buttonId="app-install-restart"><hlm-select-value /></hlm-select-trigger>
+                              <hlm-select-content *hlmSelectPortal>
+                                <hlm-select-item value="always">{{ 'Always' | translate }}</hlm-select-item>
+                                <hlm-select-item value="on-failure">{{ 'On failure' | translate }}</hlm-select-item>
+                                <hlm-select-item value="no">{{ 'Do not restart automatically' | translate }}</hlm-select-item>
+                              </hlm-select-content>
+                            </hlm-select>
+                            <div class="field-subscript"></div>
+                          </hlm-field>
+                        </div>
+                      </div>
+                    </section>
+                    <section class="fc-settings-section" aria-labelledby="applications-panel-network">
+                      <h3 class="fieldset-label" id="applications-panel-network">{{ 'Network' | translate }}</h3>
+                      <div class="fc-settings-fields">
+                        <div class="entity-form-field-layout form-line">
+                          <hlm-field>
+                            <label hlmFieldLabel for="app-install-network-mode">{{ 'Mode' | translate }}</label>
+                            <hlm-select name="networkMode" [(ngModel)]="installDraft.network.mode" [itemToString]="networkModeLabel" (ngModelChange)="networkModeChanged()">
+                              <hlm-select-trigger buttonId="app-install-network-mode"><hlm-select-value /></hlm-select-trigger>
+                              <hlm-select-content *hlmSelectPortal>
+                                <hlm-select-item value="managed">{{ 'Applications bridge' | translate }}</hlm-select-item>
+                                <hlm-select-item value="lan">{{ 'Attach to LAN' | translate }}</hlm-select-item>
+                              </hlm-select-content>
+                            </hlm-select>
+                            <div class="field-subscript">
+                              <p hlmFieldDescription>{{ (installDraft.network.mode === 'lan'
+                                ? 'The application gets its own IPv4 address on the chosen interface. Every listener is reachable from that network; nothing is published through the host.'
+                                : 'The application joins the managed bridge and is reached through its published host ports.') | translate }}</p>
+                            </div>
+                          </hlm-field>
+                        </div>
+                        @if (installDraft.network.mode === 'lan') {
+                          <div class="entity-form-field-layout form-line">
+                            <hlm-field>
+                              <label hlmFieldLabel for="app-install-network-interface">{{ 'Interface' | translate }}</label>
+                              <hlm-select name="networkInterface" [(ngModel)]="installDraft.network.interface" [itemToString]="lanInterfaceLabel" required>
+                                <hlm-select-trigger buttonId="app-install-network-interface"><hlm-select-value /></hlm-select-trigger>
+                                <hlm-select-content *hlmSelectPortal>
+                                  @for (choice of lanInterfaceChoices; track choice.value) {
+                                    <hlm-select-item [value]="choice.value">{{ choice.label }}</hlm-select-item>
+                                  }
+                                </hlm-select-content>
+                              </hlm-select>
+                              <div class="field-subscript"><p hlmFieldDescription>{{ 'The bridge on this interface is shared with VMs and jails attached to it.' | translate }}</p></div>
+                            </hlm-field>
+                          </div>
+                          <div class="entity-form-field-layout form-line">
+                            <hlm-field>
+                              <label hlmFieldLabel for="app-install-network-address">{{ 'IPv4 address' | translate }}</label>
+                              <input hlmInput id="app-install-network-address" name="networkAddress" [(ngModel)]="installDraft.network.address" required pattern="\d{1,3}(\.\d{1,3}){3}/\d{1,2}" placeholder="192.168.1.201/24" autocomplete="off" spellcheck="false">
+                              <div class="field-subscript">
+                                <p hlmFieldDescription>{{ 'A static address with its prefix, outside the DHCP pool of that network.' | translate }}</p>
+                                <hlm-field-error>{{ 'Enter an IPv4 address with its prefix (address/nn).' | translate }}</hlm-field-error>
+                              </div>
+                            </hlm-field>
+                          </div>
+                          <div class="entity-form-field-layout form-line">
+                            <hlm-field>
+                              <label hlmFieldLabel for="app-install-network-gateway">{{ 'Gateway' | translate }}</label>
+                              <input hlmInput id="app-install-network-gateway" name="networkGateway" [(ngModel)]="installDraft.network.gateway" required pattern="\d{1,3}(\.\d{1,3}){3}" placeholder="192.168.1.1" autocomplete="off" spellcheck="false">
+                              <div class="field-subscript"><hlm-field-error>{{ 'Enter the IPv4 gateway of the attached network.' | translate }}</hlm-field-error></div>
+                            </hlm-field>
+                          </div>
+                          <div class="checkbox-row network-managed-access" data-applications-managed-access>
+                            <span class="checkbox-cell"><hlm-checkbox inputId="app-install-network-managed" name="networkManagedAccess" [(ngModel)]="installDraft.network.managed_access" /></span>
+                            <label hlmLabel class="checkbox-label" for="app-install-network-managed">{{ 'Also reach the Applications bridge. An address on the bridge is assigned automatically.' | translate }}</label>
+                          </div>
+                        }
+                      </div>
+                    </section>
+                    @if (installDraft.environment.length) {
+                      <section class="fc-settings-section" aria-labelledby="applications-panel-environment">
+                        <h3 class="fieldset-label" id="applications-panel-environment">{{ 'Environment' | translate }}</h3>
+                        <div class="fc-settings-fields">
+                          @for (item of installDraft.environment; track item; let index = $index) {
+                            <div class="entity-form-field-layout form-line">
+                              <hlm-field>
+                                <label hlmFieldLabel [for]="'app-env-' + index">{{ item.name }}</label>
+                                <input hlmInput [id]="'app-env-' + index" [name]="'environment-' + index" [attr.name]="'environment-' + index" [(ngModel)]="item.value" [type]="environmentDefinition(item.name)?.sensitive ? 'password' : 'text'" [required]="!editing && $safeNavigationMigration(environmentDefinition(item.name)?.required)" [placeholder]="editing ? ('Unchanged' | translate) : ''" autocomplete="off">
+                                <div class="field-subscript">
+                                  @if (environmentDefinition(item.name)?.description; as description) {
+                                    <p hlmFieldDescription>{{ description }}</p>
+                                  }
+                                  <hlm-field-error validator="required">{{ 'This field is required.' | translate }}</hlm-field-error>
+                                </div>
+                              </hlm-field>
+                            </div>
+                          }
+                        </div>
+                      </section>
+                    }
+                    <!-- the internal development record (the internal development record): user-defined container labels. Built like the
+                         Environment list; rows are the operator's, prefilled from the catalog contract. -->
+                    <section class="fc-settings-section" aria-labelledby="applications-panel-labels">
+                      <h3 class="fieldset-label" id="applications-panel-labels">{{ 'Labels' | translate }}</h3>
+                      <div class="fc-settings-fields">
+                        @if (!(installDraft.labels || []).length) {
+                          <p class="fc-settings-wide edit-note" data-applications-labels-empty>{{ 'No labels are set on this container.' | translate }}</p>
+                        }
+                        @for (label of (installDraft.labels || []); track label; let index = $index) {
+                          <div class="entity-form-field-layout form-line fc-settings-wide generated-row" data-applications-label-row>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-label-name-' + index">{{ 'Name' | translate }}</label>
+                              <input hlmInput [id]="'app-label-name-' + index" [name]="'labelName-' + index" [attr.name]="'labelName-' + index" [(ngModel)]="label.name" type="text" autocomplete="off" autocapitalize="off" spellcheck="false">
+                              <div class="field-subscript">
+                                @if (labelError(index); as message) {
+                                  <p hlmFieldDescription class="reason">{{ message }}</p>
+                                }
+                              </div>
+                            </hlm-field>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-label-value-' + index">{{ 'Value' | translate }}</label>
+                              <input hlmInput [id]="'app-label-value-' + index" [name]="'labelValue-' + index" [attr.name]="'labelValue-' + index" [(ngModel)]="label.value" type="text" autocomplete="off">
+                              <div class="field-subscript"></div>
+                            </hlm-field>
+                            <button hlmBtn variant="outline" type="button" class="add-port-button" (click)="removeLabel(index)" ix-auto ix-auto-type="button" ix-auto-identifier="REMOVE LABEL">{{ 'Remove' | translate }}</button>
+                          </div>
+                        }
+                        <div class="entity-form-field-layout form-line fc-settings-wide generated-row">
+                          <button hlmBtn variant="outline" type="button" (click)="addLabel()" ix-auto ix-auto-type="button" ix-auto-identifier="ADD LABEL">{{ 'Add label' | translate }}</button>
+                        </div>
+                      </div>
+                    </section>
+                    <!-- the internal development record (the internal development record): system certificates mounted into the
+                         application. Built like the Labels list; the certificate is chosen from the
+                         store, never typed, and the entry carries its name and fingerprint. -->
+                    <section class="fc-settings-section" aria-labelledby="applications-panel-certificates">
+                      <h3 class="fieldset-label" id="applications-panel-certificates">{{ 'Certificates' | translate }}</h3>
+                      <div class="fc-settings-fields">
+                        @if (certificateChoicesError) {
+                          <p class="fc-settings-wide reason" data-applications-certificates-error>{{ certificateChoicesError }}</p>
+                        }
+                        @if (!(installDraft.certificates || []).length) {
+                          <p class="fc-settings-wide edit-note" data-applications-certificates-empty>{{ 'No certificate is mounted into this container.' | translate }}</p>
+                        }
+                        @for (certificate of (installDraft.certificates || []); track certificate; let index = $index) {
+                          <div class="entity-form-field-layout form-line fc-settings-wide generated-row certificate-row" data-applications-certificate-row>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-certificate-id-' + index">{{ 'Certificate' | translate }}</label>
+                              <hlm-select [name]="'certificateId-' + index" [(ngModel)]="certificate.id" (ngModelChange)="certificateSelected(index)" [itemToString]="certificateLabel">
+                                <hlm-select-trigger [buttonId]="'app-certificate-id-' + index"><hlm-select-value /></hlm-select-trigger>
+                                <hlm-select-content *hlmSelectPortal>
+                                  @for (choice of certificateChoices; track choice.id) {
+                                    <hlm-select-item [value]="choice.id">{{ certificateChoiceText(choice) }}</hlm-select-item>
+                                  }
+                                </hlm-select-content>
+                              </hlm-select>
+                              <div class="field-subscript">
+                                @if (certificateError(index); as message) {
+                                  <p hlmFieldDescription class="reason">{{ message }}</p>
+                                } @else if (certificateNote(index); as note) {
+                                  <p hlmFieldDescription data-applications-certificate-note>{{ note }}</p>
+                                }
+                              </div>
+                            </hlm-field>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-certificate-target-' + index">{{ 'Directory in the container' | translate }}</label>
+                              <input hlmInput [id]="'app-certificate-target-' + index" [name]="'certificateTarget-' + index" [attr.name]="'certificateTarget-' + index" [(ngModel)]="certificate.target" type="text" placeholder="/certs" autocomplete="off" autocapitalize="off" spellcheck="false">
+                              <div class="field-subscript">
+                                @if (certificateFiles(index); as files) {
+                                  <p hlmFieldDescription data-applications-certificate-files>{{ files }}</p>
+                                } @else {
+                                  <p hlmFieldDescription>{{ 'The application reads cert.pem, chain.pem, fullchain.pem and privkey.pem here, read-only.' | translate }}</p>
+                                }
+                              </div>
+                            </hlm-field>
+                            <button hlmBtn variant="outline" type="button" class="add-port-button" (click)="removeCertificate(index)" ix-auto ix-auto-type="button" ix-auto-identifier="REMOVE CERTIFICATE">{{ 'Remove' | translate }}</button>
+                            <div class="checkbox-row fc-settings-wide">
+                              <span class="checkbox-cell"><hlm-checkbox [inputId]="'app-certificate-restart-' + index" [name]="'certificateRestart-' + index" [(ngModel)]="certificate.restart_on_change" /></span>
+                              <label hlmLabel class="checkbox-label" [for]="'app-certificate-restart-' + index">{{ 'Restart the application when this certificate changes' | translate }}</label>
+                            </div>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-certificate-uid-' + index">{{ 'Owner user id (optional)' | translate }}</label>
+                              <input hlmInput [id]="'app-certificate-uid-' + index" [name]="'certificateUid-' + index" [attr.name]="'certificateUid-' + index" [(ngModel)]="certificate.uid" type="number" min="0" autocomplete="off">
+                              <div class="field-subscript"><p hlmFieldDescription>{{ 'Empty: the user the image runs as (PUID), or root.' | translate }}</p></div>
+                            </hlm-field>
+                            <hlm-field>
+                              <label hlmFieldLabel [for]="'app-certificate-gid-' + index">{{ 'Owner group id (optional)' | translate }}</label>
+                              <input hlmInput [id]="'app-certificate-gid-' + index" [name]="'certificateGid-' + index" [attr.name]="'certificateGid-' + index" [(ngModel)]="certificate.gid" type="number" min="0" autocomplete="off">
+                              <div class="field-subscript"><p hlmFieldDescription>{{ 'Empty: the group the image runs as (PGID), or wheel.' | translate }}</p></div>
+                            </hlm-field>
+                          </div>
+                        }
+                        <div class="entity-form-field-layout form-line fc-settings-wide generated-row">
+                          <button hlmBtn variant="outline" type="button" (click)="addCertificate()" ix-auto ix-auto-type="button" ix-auto-identifier="ADD CERTIFICATE">{{ 'Add certificate' | translate }}</button>
+                        </div>
+                      </div>
+                    </section>
+                    @if (installDraft.ports.length) {
+                      <section class="fc-settings-section" aria-labelledby="applications-panel-ports">
+                        <h3 class="fieldset-label" id="applications-panel-ports">{{ 'Ports' | translate }}</h3>
+                        <div class="fc-settings-fields">
+                          @if (installDraft.network.mode === 'lan') {
+                            <p class="fc-settings-wide lan-ports-note" data-applications-lan-ports>
+                              {{ 'The application answers on its LAN address; nothing is published through the host.' | translate }}
+                              @for (port of installDraft.ports; track port) {
+                                <code>{{ port.container_port }}/{{ port.protocol }}</code>
+                              }
+                            </p>
+                          }
+                          @for (port of (installDraft.network.mode === 'lan' ? [] : installDraft.ports); track port; let index = $index) {
+                            <div class="entity-form-field-layout form-line generated-row">
+                              @if (isBridgeOnly(port)) {
+                                <span class="port-label bridge-port" data-applications-bridge-port>{{ port.container_port }}/{{ port.protocol }} · {{ 'Applications bridge only' | translate }}</span>
+                              } @else {
+                                <hlm-field>
+                                  <label hlmFieldLabel [for]="'app-port-' + index">{{ 'Host port' | translate }}</label>
+                                  <input hlmInput [id]="'app-port-' + index" [name]="'host-port-' + index" [attr.name]="'host-port-' + index" type="number" min="1" max="65535" step="1" pattern="[0-9]+" [(ngModel)]="port.host_port" required>
+                                  <div class="field-subscript"><hlm-field-error>{{ 'Enter a port number between 1 and 65535.' | translate }}</hlm-field-error></div>
+                                </hlm-field>
+                                <span class="port-arrow">→ {{ port.container_port }}/{{ port.protocol }}</span>
+                              }
+                              <div class="checkbox-row port-publish" [title]="isPortalPort(port) ? ('This port opens the web page, so it stays published.' | translate) : ''">
+                                <span class="checkbox-cell"><hlm-checkbox [inputId]="'app-port-publish-' + index" [name]="'port-publish-' + index" [ngModel]="!isBridgeOnly(port)" (ngModelChange)="setPortPublished(port, $event)" [disabled]="isPortalPort(port)" /></span>
+                                <label hlmLabel class="checkbox-label" [for]="'app-port-publish-' + index">{{ 'Publish on the host' | translate }}</label>
+                              </div>
+                            </div>
+                          }
+                          @if (installDraft.network.mode !== 'lan') {
+                            <p hlmFieldDescription class="fc-settings-wide" data-applications-bridge-note>{{ 'A port that is not published stays on the Applications bridge: other applications reach it at this application\'s bridge address.' | translate }}</p>
+                          }
+                        </div>
+                      </section>
+                    }
+                    @if (installDraft.volumes.length) {
+                      <section class="fc-settings-section" aria-labelledby="applications-panel-storage">
+                        <h3 class="fieldset-label" id="applications-panel-storage">{{ 'Persistent storage' | translate }}</h3>
+                        <div class="fc-settings-fields">
+                          @for (volume of installDraft.volumes; track volume; let index = $index) {
+                            <div class="entity-form-field-layout form-line fc-settings-wide volume-field">
+                              <div><strong>{{ volume.target }}</strong><small>{{ volume.read_only ? ('Read-Only' | translate) : ('Read-Write' | translate) }}</small></div>
+                              <hlm-field>
+                                <label hlmFieldLabel [for]="'app-dataset-' + index">{{ 'External dataset (optional)' | translate }}</label>
+                                <input hlmInput [id]="'app-dataset-' + index" [name]="'dataset-' + index" [attr.name]="'dataset-' + index" [(ngModel)]="volume.dataset" placeholder="pool/dataset" autocomplete="off">
+                                <div class="field-subscript"><p hlmFieldDescription>{{ 'Leave blank to create app-owned persistent storage.' | translate }}</p></div>
+                              </hlm-field>
+                              @if (volumeNote(volume); as note) {
+                                <p class="volume-note" data-applications-volume-note>{{ note }}</p>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </section>
+                    }
+                    @if (!editing && reattachDatasets.length) {
+                      <div class="notice in-tab fc-page-notice" data-applications-reattach>
+                        <mat-icon>history</mat-icon>
+                        <span>{{ 'App-owned data from an earlier installation under this name will be reattached:' | translate }}
+                          @for (item of reattachDatasets; track item.dataset) {
+                            <code>{{ item.dataset }}</code> ({{ convertSizeLabel(item.used) || '0 B' }})
+                          }
+                        </span>
+                      </div>
+                    }
+                    @if (store.config && !store.config.configured) {
+                      <section class="fc-settings-section" aria-labelledby="applications-panel-setup">
+                        <h3 class="fieldset-label" id="applications-panel-setup">{{ 'Applications Setup' | translate }}</h3>
+                        <div class="fc-settings-fields">
+                          <div class="entity-form-field-layout form-line">
+                            <hlm-field>
+                              <label hlmFieldLabel for="app-setup-pool">{{ 'Data pool' | translate }}</label>
+                              <hlm-select name="applicationsPool" [(ngModel)]="selectedPool" required [itemToString]="identityLabel">
+                                <hlm-select-trigger buttonId="app-setup-pool"><hlm-select-value /></hlm-select-trigger>
+                                <hlm-select-content *hlmSelectPortal>
+                                  @for (pool of store.pools; track pool) {
+                                    <hlm-select-item [value]="pool.name">{{ pool.name }}</hlm-select-item>
+                                  }
+                                </hlm-select-content>
+                              </hlm-select>
+                              <div class="field-subscript"></div>
+                            </hlm-field>
+                          </div>
+                          <div class="entity-form-field-layout form-line">
+                            <hlm-field>
+                              <label hlmFieldLabel for="app-setup-subnet">{{ 'Managed container subnet' | translate }}</label>
+                              <input hlmInput id="app-setup-subnet" name="applicationsSubnet" [(ngModel)]="selectedSubnet" required autocomplete="off">
+                              <div class="field-subscript"></div>
+                            </hlm-field>
+                          </div>
+                          @if (!store.pools.length) {
+                            <p class="reason fc-settings-wide">{{ 'A healthy, online, unlocked data pool is required.' | translate }}</p>
+                          }
+                          <p hlmFieldDescription class="fc-settings-wide"><code>{{ selectedPool || '&lt;pool&gt;' }}/applications</code> · {{ selectedSubnet || '—' }}</p>
+                        </div>
+                      </section>
+                    }
+                    <div class="checkbox-row catalog-panel-confirm">
+                      <span class="checkbox-cell"><hlm-checkbox inputId="app-install-confirm" name="effectsReviewed" [(ngModel)]="effectsReviewed" /></span>
+                      <label hlmLabel class="checkbox-label" for="app-install-confirm">{{ 'Confirm settings' | translate }}</label>
+                    </div>
+                    <div class="buttons">
+                      <button hlmBtn type="submit" [disabled]="!canInstall() || installForm.invalid">{{ (editing ? 'Apply' : 'Install') | translate }}</button>
+                      <button hlmBtn variant="outline" type="button" (click)="closeReview()">{{ 'Cancel' | translate }}</button>
+                    </div>
+                  </form>
+                }
+              </section>
+            }
+          </div>
+        </section>
+      </div>
+
+      <div brnTabsContent="applications-installed" [attr.tabindex]="null">
+        <ng-template brnTabsContentLazy>
+          <section class="tab-content fc-tabbed installed-content">
+            <app-installed-applications [page]="this" [active]="selectedTab === 1"></app-installed-applications>
+            @if (!store.coreLoading && !store.coreError && !store.installed.length) {
+              <div class="installed-empty">
+                <span>{{ 'No applications installed' | translate }}</span>
+                <button hlmBtn variant="outline" type="button" (click)="selectedTab = 0">{{ 'Browse Catalog' | translate }}</button>
+              </div>
+            }
+
+            @if (store.orphans?.length) {
+              <!-- the internal development record: app-owned data nothing maps any more -- a removed
+                   application's, or a volume that moved to an external dataset. -->
+              <section class="orphaned-data" data-applications-orphans aria-labelledby="orphaned-data-title">
+                <div class="orphaned-data-header">
+                  <h3 id="orphaned-data-title">{{ 'Orphaned app data' | translate }}</h3>
+                  <button hlmBtn variant="outline" type="button" data-applications-action="prune-data" (click)="requestPrune()" [disabled]="!!store.activeJob">
+                    {{ 'Delete orphaned data' | translate }}@if (orphanTotal()) { ({{ convertSizeLabel(orphanTotal()) }}) }
+                  </button>
+                </div>
+                <table aria-labelledby="orphaned-data-title" aria-describedby="orphaned-data-note">
+                  <thead>
+                    <tr><th scope="col">{{ 'Dataset' | translate }}</th><th scope="col" class="orphaned-data-used">{{ 'Used' | translate }}</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (item of store.orphans; track item.dataset) {
+                      @if (!item.parent) {
+                        <tr><td><code>{{ item.dataset }}</code></td><td class="orphaned-data-used">{{ convertSizeLabel(item.used) || '0 B' }}</td></tr>
+                      }
+                    }
+                  </tbody>
+                </table>
+                <p id="orphaned-data-note">{{ 'Retained until deleted. Installing an application with the same name reuses its data.' | translate }}</p>
+              </section>
+            }
+          </section>
+        </ng-template>
+      </div>
+    </div>
+
+    @if (pendingRemoval) {
+      <section class="overlay-panel">
+        <h2>{{ 'Delete application' | translate }}: {{ pendingRemoval.name }}</h2><!-- the internal development record: Delete, the 13.3 word, through the whole flow -->
+        <p>{{ 'External datasets are preserved.' | translate }}</p>
+        <div class="checkbox-row">
+          <span class="checkbox-cell"><hlm-checkbox inputId="remove-owned-data" [(ngModel)]="removeOwnedData" /></span>
+          <label class="checkbox-label" for="remove-owned-data">{{ 'Delete app-owned datasets' | translate }}</label>
+        </div>
+        @if (removalDatasets.length) {
+          <!-- the internal development record: the datasets the box decides about. -->
+          <div class="removal-datasets" data-applications-removal-datasets>
+            <p>{{ (removeOwnedData ? 'These app-owned datasets will be deleted:' : 'These app-owned datasets are kept, and an application installed under the same name reattaches them:') | translate }}</p>
+            <ul>
+              @for (item of removalDatasets; track item.dataset) {
+                <li><code>{{ item.dataset }}</code> · {{ convertSizeLabel(item.used) || '0 B' }}</li>
+              }
+            </ul>
+          </div>
+        }
+        <div class="panel-actions">
+          <button hlmBtn variant="outline" type="button" (click)="cancelRemoval()">{{ 'Cancel' | translate }}</button>
+          <button hlmBtn variant="destructive" type="button" (click)="confirmRemoval()">{{ 'Delete' | translate }}</button>
+        </div>
+      </section>
+    }
+
+    @if (pendingPrune) {
+      <section class="overlay-panel" data-applications-prune-confirm>
+        <h2>{{ 'Delete orphaned app-owned data' | translate }}</h2>
+        <p>{{ 'These datasets are not mapped by any installed application and will be destroyed. This cannot be undone.' | translate }}</p>
+        <ul>
+          @for (item of store.orphans; track item.dataset) {
+            @if (!item.parent) {
+              <li><code>{{ item.dataset }}</code> · {{ convertSizeLabel(item.used) || '0 B' }}</li>
+            }
+          }
+        </ul>
+        <div class="panel-actions">
+          <button hlmBtn variant="outline" type="button" (click)="cancelPrune()">{{ 'Cancel' | translate }}</button>
+          <button hlmBtn variant="destructive" type="button" (click)="confirmPrune()">{{ 'Delete' | translate }}</button>
+        </div>
+      </section>
+    }
+
+    @if (store.logsApplication) {
+      <section class="logs-panel">
+        <div class="panel-header">
+          <h2>{{ store.logsApplication }} {{ 'Logs' | translate }}</h2>
+          <button hlmBtn variant="outline" type="button" (click)="store.clearLogs()" [attr.aria-label]="'Close logs' | translate">{{ 'Close' | translate }}</button>
+        </div>
+        <pre class="fc-dialog-pre" tabindex="0">{{ store.logs || ('No log output.' | translate) }}</pre>
+      </section>
+    }
+  </div>
+</div>

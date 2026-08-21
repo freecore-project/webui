@@ -1,7 +1,8 @@
 import {
   AfterViewInit, ApplicationRef, Component, Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormControl, ValidatorFn } from '@angular/forms';
+import { UntypedFormControl, ValidatorFn } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { T } from 'app/translate-marker';
 import { map } from 'rxjs/operators';
@@ -11,23 +12,32 @@ import { EntityFormComponent, Formconfiguration } from '../../../common/entity/e
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import { EntityUtils } from '../../../common/entity/utils';
-import * as moment from 'moment';
+import moment from 'moment';
 
 @Component({
+  standalone: false,
   selector: 'app-snapshot-add',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-  <div *ngIf="initialized">
-    <entity-form [conf]="this"></entity-form>
-  </div>`,
+  @if (initialized) {
+    <div>
+      <entity-form [conf]="this"></entity-form>
+    </div>
+  }`,
 })
 
 export class SnapshotAddComponent implements AfterViewInit, Formconfiguration {
+  readonly settingsTitle = T('Snapshot'); // the internal development record: the page's h1
   route_success = ['storage', 'snapshots'];
   isEntity = true;
   isNew = true;
   initialized = true;
   addCall = 'zfs.snapshot.create';
   private entityForm: EntityFormComponent;
+  // Assigned in afterViewInit and applied via nameControl.setValidators(), which is
+  // the path that actually takes effect. The fieldSets initializer used to also read
+  // this as `validation:`, which could only ever be undefined — that dead entry was
+  // removed in the internal development record, so nothing reads it at construction any more.
   private nameValidator: ValidatorFn;
 
   fieldConfig: FieldConfig[] = [];
@@ -35,6 +45,7 @@ export class SnapshotAddComponent implements AfterViewInit, Formconfiguration {
     {
       name: helptext.fieldset_snapshot,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       class: 'snapshot',
       width: '49%',
       config: [{
@@ -53,7 +64,6 @@ export class SnapshotAddComponent implements AfterViewInit, Formconfiguration {
         tooltip: helptext.snapshot_add_name_tooltip,
         options: [],
         value: 'manual-' + moment().format('YYYY-MM-DD_HH-mm'),
-        validation: this.nameValidator,
         errors: T('Name or Naming Schema is required. Only one field can be used at a time.'),
         blurStatus: true,
         blurEvent: this.updateNameValidity.bind(this),
@@ -119,7 +129,7 @@ export class SnapshotAddComponent implements AfterViewInit, Formconfiguration {
     const nameConfig = this.fieldConfig.find((config) => config.name === 'name');
     const namingSchemaControl = this.entityForm.formGroup.get('naming_schema');
 
-    this.nameValidator = (nc: FormControl): { [error_key: string]: string } | null => {
+    this.nameValidator = (nc: UntypedFormControl): { [error_key: string]: string } | null => {
       if (!!nc.value && !!namingSchemaControl.value) {
         nameConfig.hasErrors = nc.touched;
         return {

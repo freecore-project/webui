@@ -1,10 +1,12 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'vmware-snapshot-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class VMwareSnapshotListComponent {

@@ -1,5 +1,5 @@
-import { Component, ViewContainerRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, ViewContainerRef, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { EntityFormService } from '../../services/entity-form.service';
@@ -8,18 +8,25 @@ import { Field } from '../../models/field.interface';
 import { TooltipComponent } from '../tooltip/tooltip.component';
 
 @Component({
+  standalone: false,
   selector: 'form-readfile',
   templateUrl: './form-readfile.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['../dynamic-field/dynamic-field.css'],
 })
 export class FormReadFileComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   fileString;
 
   constructor(private entityFormService: EntityFormService,
     public translate: TranslateService) {}
+
+  /** the internal development record: the input's id, tied to the label's `for`. */
+  get inputId(): string {
+    return this.config.id || `${this.config.name}-input`;
+  }
 
   changeListener($event): void {
     this.readFile($event.target);
@@ -28,7 +35,6 @@ export class FormReadFileComponent implements Field {
   readFile(inputValue: any): any {
     const file: File = inputValue.files[0];
     const fReader: FileReader = new FileReader();
-    const fileType = inputValue.parentElement.id;
     fReader.onloadend = (e) => {
       this.fileString = fReader.result;
       this.contents(fReader.result);

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Validators, ValidationErrors, FormControl } from '@angular/forms';
+import { Validators, ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { Subscription, combineLatest } from 'rxjs';
 import * as _ from 'lodash';
@@ -34,10 +34,13 @@ interface ZvolFormData {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-zvol-add',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ZvolFormComponent implements Formconfiguration {
+  readonly settingsTitle = T('Zvol'); // the internal development record: the page's h1
   pk: any;
   protected path: string;
   sub: Subscription;
@@ -105,6 +108,7 @@ export class ZvolFormComponent implements Formconfiguration {
       name: 'general',
       class: 'general',
       label: false,
+      settingsLabel: T('General'), // the internal development record: the section heading (the set was headless)
       config: [
         {
           type: 'input',
@@ -131,7 +135,7 @@ export class ZvolFormComponent implements Formconfiguration {
           blurStatus: true,
           parent: this,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'volsize');
 
               const size = control.value ? this.storageService.convertHumanStringToNum(control.value, true) : null;
@@ -584,6 +588,12 @@ export class ZvolFormComponent implements Formconfiguration {
             this.compression_inherit = [{ label: `${inheritTr} (${pk_dataset[0].compression.rawvalue})`, value: 'INHERIT' }];
             this.deduplication_inherit = [{ label: `${inheritTr} (${pk_dataset[0].deduplication.rawvalue})`, value: 'INHERIT' }];
             this.volblocksize_inherit = [{ label: `${inheritTr}`, value: 'INHERIT' }];
+            // These entries exist only once this query has answered, which is after afterInit() ran, so they are
+            // added here (as readonly's are above); otherwise the selects show the bare INHERIT value.
+            this.prependOptions('sync', this.sync_inherit);
+            this.prependOptions('compression', this.compression_inherit);
+            this.prependOptions('deduplication', this.deduplication_inherit);
+            this.prependOptions('volblocksize', this.volblocksize_inherit);
 
             entityForm.formGroup.controls['sync'].setValue('INHERIT');
             entityForm.formGroup.controls['compression'].setValue('INHERIT');
@@ -672,6 +682,15 @@ export class ZvolFormComponent implements Formconfiguration {
     );
   }
 
+  /** Put `extra` ahead of a field's options, skipping any value it already offers, so calling it twice is harmless. */
+  private prependOptions(name: string, extra: { label: string; value: any }[]): void {
+    const field = _.find(this.fieldConfig, { name });
+    if (field && extra) {
+      field.options = extra.filter((option) => !field.options.some((existing) => existing.value === option.value))
+        .concat(field.options);
+    }
+  }
+
   afterInit(entityForm: EntityFormComponent) {
     this.entityForm = entityForm;
     if (!entityForm.isNew) {
@@ -685,41 +704,19 @@ export class ZvolFormComponent implements Formconfiguration {
 
     const name = _.find(this.fieldConfig, { name: 'name' });
     const sparse = _.find(this.fieldConfig, { name: 'sparse' });
-    const sync = _.find(this.fieldConfig, { name: 'sync' });
-    const compression = _.find(this.fieldConfig, { name: 'compression' });
-    const deduplication = _.find(this.fieldConfig, { name: 'deduplication' });
     const volblocksize = _.find(this.fieldConfig, { name: 'volblocksize' });
 
-    if (this.sync_inherit) {
-      sync.options = this.sync_inherit.concat(sync.options);
-    }
-
-    if (this.compression_inherit) {
-      compression.options = this.compression_inherit.concat(compression.options);
-    }
-
-    if (this.deduplication_inherit) {
-      deduplication.options = this.deduplication_inherit.concat(deduplication.options);
-    }
-
-    if (this.volblocksize_inherit) {
-      volblocksize.options = this.volblocksize_inherit.concat(volblocksize.options);
-    }
+    this.prependOptions('sync', this.sync_inherit);
+    this.prependOptions('compression', this.compression_inherit);
+    this.prependOptions('deduplication', this.deduplication_inherit);
+    this.prependOptions('volblocksize', this.volblocksize_inherit);
 
     sparse['isHidden'] = this.sparseHidden;
     volblocksize['isHidden'] = this.volblocksizeHidden;
 
-    if (this.sync_collection) {
-      sync.options = this.sync_collection.concat(sync.options);
-    }
-
-    if (this.compression_collection) {
-      compression.options = this.compression_collection.concat(compression.options);
-    }
-
-    if (this.deduplication_collection) {
-      deduplication.options = this.deduplication_collection.concat(deduplication.options);
-    }
+    this.prependOptions('sync', this.sync_collection);
+    this.prependOptions('compression', this.compression_collection);
+    this.prependOptions('deduplication', this.deduplication_collection);
 
     const productType = window.localStorage.getItem('product_type');
 

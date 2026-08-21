@@ -1,21 +1,39 @@
-<mat-card>
-    <div dir="rtl" >
-      <button mat-button color="primary" id="iscsi_wizard_action_button" (click)="gotoWizard()">Wizard</button>
-    </div>
-  <nav mat-tab-nav-bar>
-    <a mat-tab-link *ngFor="let link of navLinks" [routerLink]="link.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"
-      ix-auto ix-auto-type="tab" ix-auto-identifier="{{link.label}}">
-    {{link.label | translate}}
-  </a>
+<section class="fc-iscsi fc-page fc-tabbed" aria-labelledby="iscsi-title">
+  <header class="fc-page-header">
+    <h1 id="iscsi-title" class="fc-page-title">iSCSI</h1>
+    <button hlmBtn variant="outline" type="button" id="iscsi_wizard_action_button" (click)="gotoWizard()">{{ 'Wizard' | translate }}</button>
+  </header>
+  <!-- the internal development record: the shell's tab bar, content-width tabs controlling the pane below. No underline: the
+       theme's `opacity: 0` never let mat-tab-nav-bar show it here (a separate visual decision, see the internal development record). -->
+  <nav fcTabNav [panel]="tabPanel" [underline]="false" [attr.aria-label]="'iSCSI' | translate">
+    @for (link of navLinks; track link) {
+      <a fcTabLink [routerLink]="link.path" routerLinkActive #rla="routerLinkActive" [active]="rla.isActive"
+        ix-auto ix-auto-type="tab" ix-auto-identifier="{{link.label}}">
+        {{link.label | translate}}
+      </a>
+    }
   </nav>
-  <router-outlet>
-    <app-iscsi-globalconfiguration *ngIf="activedTab == 'configuration'"></app-iscsi-globalconfiguration>
-    <app-iscsi-portal-list *ngIf="activedTab == 'portals'"></app-iscsi-portal-list>
-    <app-iscsi-initiator-list *ngIf="activedTab == 'initiator'"></app-iscsi-initiator-list>
-    <app-iscsi-authorizedaccess-list *ngIf="activedTab == 'auth'"></app-iscsi-authorizedaccess-list>
-    <app-iscsi-target-list *ngIf="activedTab == 'target'" [fcEnabled]="fcEnabled"></app-iscsi-target-list>
-    <app-iscsi-extent-list *ngIf="activedTab == 'extent'"></app-iscsi-extent-list>
-    <app-iscsi-associated-target-list *ngIf="activedTab == 'associatedtarget'"></app-iscsi-associated-target-list>
-    <app-iscsi-fibre-channel-ports *ngIf="activedTab == 'fibrechannel' && fcEnabled"></app-iscsi-fibre-channel-ports>
-  </router-outlet>
-</mat-card>
+  <div fcTabNavPanel #tabPanel="fcTabNavPanel">
+    @if (activedTab == 'configuration') {
+      <app-iscsi-globalconfiguration></app-iscsi-globalconfiguration>
+    }
+    @if (activedTab == 'portals') {
+      <app-iscsi-portal-list></app-iscsi-portal-list>
+    }
+    @if (activedTab == 'initiator') {
+      <app-iscsi-initiator-list></app-iscsi-initiator-list>
+    }
+    @if (activedTab == 'auth') {
+      <app-iscsi-authorizedaccess-list></app-iscsi-authorizedaccess-list>
+    }
+    @if (activedTab == 'target') {
+      <app-iscsi-target-list [fcEnabled]="fcEnabled"></app-iscsi-target-list>
+    }
+    @if (activedTab == 'extent') {
+      <app-iscsi-extent-list></app-iscsi-extent-list>
+    }
+    @if (activedTab == 'associatedtarget') {
+      <app-iscsi-associated-target-list></app-iscsi-associated-target-list>
+    }
+  </div>
+</section>

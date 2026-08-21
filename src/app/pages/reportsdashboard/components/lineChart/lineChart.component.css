@@ -1,3 +1,10 @@
-.dygraph-legend{
-  display:none !important;
+:host { display: block; min-width: 0; width: 100%; }
+.dygraph-legend { display: none !important; }
+
+/* Dygraph reserves a zero-width Y-label box at the plot's left edge. Its label
+   is rotated around its center by charts.css, leaving half the line box outside
+   the viewport. Move that half-height inward in the label's own coordinates;
+   the -90deg rotation turns it into an X offset without guessing a font size. */
+:host ::ng-deep .dygraph-ylabel {
+  transform: rotate(-90deg) translateY(50%);
 }

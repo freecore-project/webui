@@ -1,18 +1,11 @@
-<mat-card id="eula-card">
-  <div id="eula">
-      <h2>{{ "End User License Agreement - TrueNAS" | translate }}</h2>
-      <div [innerHTML]="eula"></div>
-  </div>
-  <div *ngIf="eula">
-    <mat-divider></mat-divider>
-    <mat-card-actions id="button-row">
-      <button 
-        id="back-to-support-button" 
-        mat-flat-button 
-        class="mat-button mat-primary"
-        (click)="goToSupport()">
+<section id="eula-page" class="fc-page fc-page--capped" aria-labelledby="eula-title">
+  <h1 id="eula-title" class="fc-page-title">{{ "EULA" | translate }}</h1>
+  <div id="eula" [innerHTML]="eula"></div>
+  @if (eula) {
+    <div class="buttons" id="button-row">
+      <button hlmBtn variant="outline" type="button" id="back-to-support-button" (click)="goToSupport()">
         {{ "Back to Support" | translate }}
       </button>
-    </mat-card-actions>
-  </div>
-</mat-card>
+    </div>
+  }
+</section>

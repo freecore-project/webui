@@ -1,90 +1,80 @@
 <div id="{{config.name}}" class="dynamic-field form-select {{config.inlineLabel ? 'inline-label' : 'not'}}" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" [hidden]="config.isHidden">
-  <ng-container *ngIf="config.inlineLabel">
+  @if (config.inlineLabel) {
     <div class="label half-width">{{config.inlineLabel}}</div>
-  </ng-container>
-  <mat-form-field [ngClass]="{'full-width': !config.inlineLabel,'half-width': config.inlineLabel}" value="fromFormField" #field>
-      <mat-spinner
-        diameter='40'
-        class="form-select-spinner"
-        id="{{config.name}}_form-select-spinner"
-        *ngIf="config.isLoading">
-      </mat-spinner>
-    <mat-select 
-      #selectTrigger
-      [value]="formValue"
-      [formControlName]="config.name" 
-      [multiple]="config.multiple" 
-      [required]="config.required" 
-      [placeholder]="config.placeholder | translate" 
-      (selectionChange)="onChangeOption($event)"
-      ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}">
-
-     
-      <mat-select-trigger *ngIf="config.multiple">
-        <span *ngFor="let value of customTriggerValue ; last as isLast">
-            {{ value }}{{ isLast ? '' : ', ' }}
-        </span>
-      </mat-select-trigger>
-     
-      <!--
-        <div class="mat-option" (click)="onToggleSelectAll()">
-          <span *ngIf="config.multiple">
-            <mat-icon *ngIf="allSelected" class="fn-checked">check_circle</mat-icon>
-            <mat-icon *ngIf="!allSelected" class="fn-unchecked">remove</mat-icon>
-          </span>
-        Select All
-      </div>
-      -->
-
-      <div *ngIf="formReady">
-        <mat-selection-list>
-        <ng-container *ngFor="let option of config.options; let i=index">
-          <!-- if disabled -->
-          <mat-option *ngIf="option.disable && !option.hiddenFromDisplay" [value]="option.value" disabled style="opacity:0.5"
-            ix-auto
-            ix-auto-type="option"
-            ix-auto-identifier="{{config.placeholder}}_{{option.label}}">
-              <span *ngIf="config.multiple">
-                <mat-icon *ngIf="selectStates[i]" class="fn-checked">check_circle</mat-icon>
-                <mat-icon *ngIf="!selectStates[i]" class="fn-unchecked">remove</mat-icon>
-              </span>
-              {{ option.label | translate }}
-          </mat-option>
-
-          <!-- else -->
-          <mat-option *ngIf="!option?.disable" [value]="option.value" (click)="onToggleSelect(option, i)"
-            ix-auto
-            ix-auto-type="option"
-            ix-auto-identifier="{{config.placeholder}}_{{option.label}}">
-              <span *ngIf="config.multiple">
-                <mat-icon *ngIf="selectStates[i]" class="fn-checked">check_circle</mat-icon>
-                <mat-icon *ngIf="!selectStates[i]" class="fn-unchecked">remove</mat-icon>
-              </span>
-              {{ option.label | translate }}
-              </mat-option>
-
-        </ng-container>
-        </mat-selection-list>
-      </div>
-
-      <div *ngIf="!formReady || config.options.length == 0">
-        <ng-container>
-          <mat-option disabled style="opacity:0.5"
-            ix-auto
-            ix-auto-type="option"
-            ix-auto-identifier="{{config.placeholder}}_zeroState">
-            {{config.zeroStateMessage ? config.zeroStateMessage : '--'}}
-          </mat-option>
-        </ng-container>
-      </div>
-    </mat-select>
-
-
-  </mat-form-field>
-  <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-  <div class="margin-for-error">
-    <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-    <mat-error *ngIf="config['hasErrors']"><div [innerHTML]="config['errors']"></div></mat-error>
-    <mat-error *ngIf="config.warnings"><div [innerHTML]="config.warnings | translate"></div></mat-error>    
-  </div>
+  }
+  <!-- the internal development record: the #351 field on spartan -- label row, the select trigger as the box,
+       the #354 panel in a CDK overlay, the reserved subscript. The option loop is written out in
+       both branches on purpose: the select finds its items through a content query, which does not
+       see views rendered through an ngTemplateOutlet. -->
+  <hlm-field [class.full-width]="!config.inlineLabel" [class.half-width]="config.inlineLabel" [forceInvalid]="!!config['hasErrors']">
+    @if (config | fieldLabel) {
+      <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+    }
+    @if (!config.multiple) {
+      <hlm-select [formControlName]="config.name" [required]="config.required" [itemToString]="labelOf" (valueChange)="onChangeOption($event)"
+        ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}">
+        <hlm-select-trigger [buttonId]="inputId" [forceInvalid]="!!config['hasErrors']">
+          <hlm-select-value [placeholder]="config | fieldPlaceholder | translate" />
+          @if (config.isLoading) {
+            <hlm-spinner class="form-select-spinner" id="{{config.name}}_form-select-spinner" />
+          }
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (option of config.options; track option.value) {
+            @if (!option.hiddenFromDisplay) {
+              <hlm-select-item [value]="option.value" [disabled]="!!option.disable"
+                ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_{{option.label}}">
+                {{ option.label | translate }}
+              </hlm-select-item>
+            }
+          }
+          @if (!config.options?.length) {
+            <hlm-select-item [value]="null" disabled ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_zeroState">
+              {{ config.zeroStateMessage ? config.zeroStateMessage : '--' }}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select>
+    } @else {
+      <hlm-select-multiple [formControlName]="config.name" [required]="config.required" [itemToString]="labelOf" (valueChange)="onChangeOption($event)"
+        ix-auto ix-auto-type="select" ix-auto-identifier="{{config.placeholder}}">
+        <hlm-select-trigger [buttonId]="inputId" [forceInvalid]="!!config['hasErrors']">
+          <hlm-select-placeholder>{{ config | fieldPlaceholder | translate }}</hlm-select-placeholder>
+          <ng-template hlmSelectValues let-values>
+            <hlm-select-values-content>{{ labelsOf(values) }}</hlm-select-values-content>
+          </ng-template>
+          @if (config.isLoading) {
+            <hlm-spinner class="form-select-spinner" id="{{config.name}}_form-select-spinner" />
+          }
+        </hlm-select-trigger>
+        <hlm-select-content *hlmSelectPortal>
+          @for (option of config.options; track option.value) {
+            @if (!option.hiddenFromDisplay) {
+              <hlm-select-item [value]="option.value" [disabled]="!!option.disable"
+                ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_{{option.label}}">
+                {{ option.label | translate }}
+              </hlm-select-item>
+            }
+          }
+          @if (!config.options?.length) {
+            <hlm-select-item [value]="null" disabled ix-auto ix-auto-type="option" ix-auto-identifier="{{config.placeholder}}_zeroState">
+              {{ config.zeroStateMessage ? config.zeroStateMessage : '--' }}
+            </hlm-select-item>
+          }
+        </hlm-select-content>
+      </hlm-select-multiple>
+    }
+    <div class="field-subscript">
+      <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
+      @if (config['hasErrors']) {
+        <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+      }
+      @if (config.warnings) {
+        <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+      }
+    </div>
+  </hlm-field>
+  @if (config.tooltip) {
+    <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+  }
 </div>

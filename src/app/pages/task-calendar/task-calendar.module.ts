@@ -3,7 +3,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MaterialModule } from '../../appMaterial.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { TaskCalendarRoutes } from './task-calendar.routing';
@@ -33,7 +32,6 @@ import { ResilverComponent } from './resilver/resilver.component';
   imports: [
     CommonModule,
     MaterialModule,
-    FlexLayoutModule,
     CalendarModule.forRoot({
       provide: DateAdapter,
       useFactory: adapterFactory,
