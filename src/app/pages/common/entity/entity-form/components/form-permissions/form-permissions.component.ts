@@ -1,7 +1,7 @@
 import {
   Component, ViewContainerRef, OnInit, OnDestroy,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -13,10 +13,10 @@ import { Subject } from 'rxjs';
   selector: 'form-permissions',
   styleUrls: ['../dynamic-field/dynamic-field.css', 'form-permissions.css'],
   templateUrl: './form-permissions.component.html',
-})
+  })
 export class FormPermissionsComponent implements Field, OnInit, OnDestroy {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
   private ownerRead = false;

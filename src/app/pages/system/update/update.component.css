@@ -65,6 +65,37 @@
     /* float: right; */
 }
 
+#rollback-card mat-card-title {
+    margin-bottom: 12px;
+}
+
+.rollback-details {
+    display: grid;
+    grid-template-columns: minmax(150px, max-content) 1fr;
+    margin: 0;
+    row-gap: 8px;
+}
+
+.rollback-details dt {
+    font-weight: 600;
+}
+
+.rollback-details dd {
+    margin: 0 0 0 16px;
+}
+
+.rollback-unavailable {
+    color: var(--red);
+}
+
+.rollback-reason {
+    font-family: monospace;
+}
+
+.rollback-button {
+    color: var(--red);
+}
+
 #update-info {
     position: relative;
     top: 3px;
@@ -137,6 +168,5 @@ mat-card {
         max-width: 65%;
     }
 }
-
 
 

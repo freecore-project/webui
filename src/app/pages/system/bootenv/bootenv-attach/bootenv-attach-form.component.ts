@@ -1,5 +1,5 @@
 import { ApplicationRef, Component, Injector } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
 import * as _ from 'lodash';
@@ -10,7 +10,7 @@ import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job
 @Component({
   selector: 'bootenv-attach-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 
 export class BootEnvAttachFormComponent {
   protected route_success: string[] = ['system', 'boot', 'status'];

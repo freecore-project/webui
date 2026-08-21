@@ -3,13 +3,13 @@ import * as _ from 'lodash';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
 import { WebSocketService, DialogService, AppLoaderService } from 'app/services/';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { helptext } from 'app/helptext/system/2FA';
 
 @Component({
   selector: 'app-two-factor',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class TwoFactorComponent {
   protected queryCall = 'auth.twofactor.config';
   private entityEdit: any;
@@ -87,6 +87,12 @@ export class TwoFactorComponent {
           name: 'ssh',
           placeholder: helptext.two_factor.services.placeholder,
           tooltip: helptext.two_factor.services.tooltip,
+        },
+        {
+          type: 'checkbox',
+          name: 'console',
+          placeholder: helptext.two_factor.services_console.placeholder,
+          tooltip: helptext.two_factor.services_console.tooltip,
         },
       ],
     },
@@ -186,6 +192,7 @@ export class TwoFactorComponent {
 
   resourceTransformIncomingRestData(data) {
     data.ssh = data.services.ssh;
+    data.console = data.services.console;
     this.secret = data.secret;
     this.TwoFactorEnabled = data.enabled;
     this.digitsOnLoad = data.otp_digits;
@@ -261,8 +268,8 @@ export class TwoFactorComponent {
 
   doSubmit(data, openQR = false) {
     data.enabled = this.TwoFactorEnabled;
-    data.services = { ssh: data.ssh };
-    const extras = ['instructions', 'enabled_status', 'secret', 'uri', 'ssh'];
+    data.services = { ssh: data.ssh, console: data.console };
+    const extras = ['instructions', 'enabled_status', 'secret', 'uri', 'ssh', 'console'];
     extras.map((extra) => {
       delete data[extra];
     });
@@ -321,7 +328,7 @@ export class TwoFactorComponent {
 @Component({
   selector: 'qr-dialog',
   templateUrl: 'qr-dialog.html',
-})
+  })
 export class QRDialog {
   constructor(
     public dialogRef: MatDialogRef<QRDialog>,

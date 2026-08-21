@@ -1,5 +1,16 @@
-@import '~@angular/material/theming';
-@include mat-core();
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
+$app-typography: mat.define-legacy-typography-config($font-family: '"IBM Plex Sans", "Roboto", "Helvetica Neue", sans-serif');
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy($app-typography);`
+@include mat.all-legacy-component-typographies($app-typography);
+@include mat.legacy-core();
 
 // Solarized Color Palette - don't forget to add accents to theme.service!
 $base03:    #002b36; // Dark BG tone
@@ -131,20 +142,20 @@ $mat-warn: (
 );
 
 // mandatory stuff for theming
-$freenas-primary: mat-palette($mat-primary);
-$freenas-accent:  mat-palette($mat-accent);
-$freenas-warn: mat-palette($mat-warn);
+$freenas-primary: mat.define-palette($mat-primary);
+$freenas-accent:  mat.define-palette($mat-accent);
+$freenas-warn: mat.define-palette($mat-warn);
 
 
 // include the custom theme components into a theme object
-$freenas-theme: mat-dark-theme($freenas-primary, $freenas-accent/*, $freenas-warn*/);
+$freenas-theme: mat.define-dark-theme($freenas-primary, $freenas-accent/*, $freenas-warn*/);
 
 $primary-dark: darken( map-get($mat-primary, 700), 8% );
 
 
 // include the custom theme object into the angular material theme
 .solarized-dark {
-    @include angular-material-theme($freenas-theme);
+    @include mat.all-legacy-component-themes($freenas-theme);
     
     // Background
     body, .mat-sidenav-content{

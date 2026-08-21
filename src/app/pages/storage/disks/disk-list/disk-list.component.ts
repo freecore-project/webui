@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import { T } from '../../../../translate-marker';
 import * as _ from 'lodash';
@@ -15,7 +15,7 @@ import { EntityUtils } from '../../../common/entity/utils';
 @Component({
   selector: 'disk-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
-})
+  })
 export class DiskListComponent {
   title = T('Disks');
   protected queryCall = 'disk.query';

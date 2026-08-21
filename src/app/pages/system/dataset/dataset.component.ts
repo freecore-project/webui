@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 import * as _ from 'lodash';
 import { WebSocketService, DialogService } from '../../../services';
@@ -14,13 +14,13 @@ import { T } from '../../../translate-marker';
   selector: 'app-system-dataset',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [],
-})
+  })
 export class DatasetComponent {
   protected queryCall = 'systemdataset.config';
   protected updateCall = 'systemdataset.update';
   isEntity = false;
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   entityForm: any;
 
   protected syslog_subscription: any;

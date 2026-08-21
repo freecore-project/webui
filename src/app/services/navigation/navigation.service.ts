@@ -21,14 +21,12 @@ interface IChildItem {
 
 @Injectable()
 export class NavigationService {
-  // all menu for truenas enterprise features
-  enterpriseFeatures = [
-    { menu: 'system', sub: 'kmip' },
-  ];
+  // all menu for truenas enterprise features.  KMIP was the only entry and its page
+  // was removed with the backend (the internal development record); the mechanism is kept for future use.
+  enterpriseFeatures: { menu: string; sub: string }[] = [];
 
   // all menu for iXsystems hardware features
   hardwareFeatures = [
-    { menu: 'system', sub: 'viewenclosure' },
   ];
 
   defaultMenu: IMenuItem[] = [{
@@ -61,7 +59,6 @@ export class NavigationService {
       { name: T('NTP Servers'), state: 'ntpservers' },
       { name: T('Boot'), state: 'boot' },
       { name: T('Advanced'), state: 'advanced' },
-      { name: T('View Enclosure'), state: 'viewenclosure', disabled: true },
       { name: T('Email'), state: 'email' },
       { name: T('System Dataset'), state: 'dataset' },
       { name: T('Reporting'), state: 'reporting' },
@@ -74,11 +71,10 @@ export class NavigationService {
       { name: T('Update'), state: 'update' },
       { name: T('CAs'), state: 'ca' },
       { name: T('Certificates'), state: 'certificates' },
-      { name: T('KMIP'), state: 'kmip', disabled: true },
       { name: T('ACME DNS'), state: 'acmedns' },
-      { name: T('Failover'), state: 'failover', disabled: true },
       { name: T('Support'), state: 'support' },
       { name: T('2FA'), state: 'two-factor' },
+      { name: T('Security Keys'), state: 'webauthn' },
     ],
   },
   {
@@ -220,6 +216,13 @@ export class NavigationService {
     tooltip: T('System Processes'),
     icon: 'perm_data_setting',
     state: 'systemprocesses',
+  },
+  {
+    name: T('Shell'),
+    type: 'link',
+    tooltip: T('Shell'),
+    icon: 'console-line',
+    state: 'shell',
   },
   {
     name: T('Guide'),

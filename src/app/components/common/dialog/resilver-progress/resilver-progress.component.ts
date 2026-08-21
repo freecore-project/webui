@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {
   Component, Output, EventEmitter, OnInit,
 } from '@angular/core';
@@ -10,7 +10,7 @@ import { WebSocketService } from '../../../../services/ws.service';
   selector: 'app-resilver-progress-dialog',
   templateUrl: './resilver-progress.component.html',
   styleUrls: ['./resilver-progress.component.css'],
-})
+  })
 export class ResilverProgressDialogComponent implements OnInit {
   tooltip: string;
   hideCancel = false;

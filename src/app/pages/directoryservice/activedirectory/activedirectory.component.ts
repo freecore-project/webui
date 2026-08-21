@@ -1,5 +1,5 @@
 import { ApplicationRef, Component, Injector } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityJobComponent } from 'app/pages/common/entity/entity-job';
 import { T } from 'app/translate-marker';
@@ -16,7 +16,7 @@ import global_helptext from '../../../helptext/global-helptext';
 @Component({
   selector: 'app-activedirectory',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 
 export class ActiveDirectoryComponent {
   protected queryCall = 'activedirectory.config';

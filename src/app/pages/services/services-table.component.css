@@ -6,10 +6,22 @@ mat-icon.service-power-btn-off{
   color: #900 !important;
 }
 
-.checkbox {
-  position: relative !important;
-  left: 43px;
-  top: 1px;
+:host ::ng-deep .service-enable-cell {
+  position: relative;
+}
+
+.service-enable {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  position: absolute;
+}
+
+.service-enable .checkbox {
+  display: flex;
+  margin: 0;
+  position: static;
 }
 
 .mat-slide-toggle {

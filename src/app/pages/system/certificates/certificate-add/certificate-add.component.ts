@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import * as _ from 'lodash';
 import { RestService, SystemGeneralService, WebSocketService } from '../../../../services';
@@ -16,7 +16,7 @@ import { helptext_system_ca } from 'app/helptext/system/ca';
   selector: 'system-certificate-add',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [SystemGeneralService],
-})
+  })
 
 export class CertificateAddComponent {
   protected addCall = 'certificate.create';

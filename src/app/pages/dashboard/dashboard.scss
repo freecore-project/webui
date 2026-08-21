@@ -36,10 +36,24 @@
   margin:0 auto;
 }
 
+// Every card fills its track and every track is the same width, so the columns
+// line up. Capping the card (max-width) and centring it (justify-items) left
+// cards floating mid-track whenever auto-fill produced tracks wider than the
+// cap -- uneven gutters, which is what "cards everywhere" looked like.
+// The card's own width override lives in egret_overrides.css; it has to beat
+// the legacy .widget.stats-widget rule there.
 .widgets-wrapper{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(540px, 1fr));
+  gap: 14px;
   margin: 0 auto;
 }
 
-.widgets-wrapper > *{
-  margin: 0 4px;
+.widgets-wrapper > * {
+  width: 100%;
+  min-width: 0;
+}
+
+.widgets-wrapper > widget-help {
+  grid-column: 1 / -1;
 }

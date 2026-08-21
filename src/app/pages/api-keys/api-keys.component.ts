@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 
 import { DialogFormConfiguration } from '../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { DialogService, WebSocketService } from '../../services';
@@ -13,7 +13,7 @@ import { EntityUtils } from '../common/entity/utils';
   selector: 'app-api-keys',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
   providers: [Clipboard],
-})
+  })
 export class ApiKeysComponent {
   title = helptext.title;
   queryCall = 'api_key.query';

@@ -39,15 +39,12 @@ export class AvailablePluginsComponent implements OnInit {
         if (this.availableRepo.length === 0) {
           this.dialogService.report(T('No Repositories'), T('No repositories is found.'), '500px', 'info', true);
         } else {
+          const freecoreRepo = this.availableRepo.filter((repo) => repo.name === 'FreeCORE');
           const officialRepo = this.availableRepo.filter((repo) => repo.name === 'iXsystems');
-          this.selectedRepo = officialRepo.length > 0 ? officialRepo[0]['git_repository'] : this.availableRepo[0]['git_repository'];
-
-          this.ws.job(this.queryCall, [{ plugin_repository: this.availableRepo[0]['git_repository'] }]).subscribe((community) => {
-            this.ws.job(this.queryCall, [{ plugin_repository: this.availableRepo[1]['git_repository'] }]).subscribe((official) => {
-              this.completeList = community.result.concat(official.result);
-              this.parent.conf.allPlugins = this.completeList;
-            });
-          });
+          const defaultRepo = freecoreRepo[0] || officialRepo[0] || this.availableRepo[0];
+          this.selectedRepo = defaultRepo['git_repository'];
+          this.getPlugin();
+          this.getCompletePluginList();
         }
       },
       (err) => {
@@ -71,10 +68,12 @@ export class AvailablePluginsComponent implements OnInit {
 
   ngOnInit() {
     this.getInstances();
-    this.getPlugin();
   }
 
   getPlugin(cache = true) {
+    if (!this.selectedRepo) {
+      return;
+    }
     this.parent.cardHeaderReady = false;
     this.queryCallOption['plugin_repository'] = this.selectedRepo;
     this.queryCallOption['cache'] = cache;
@@ -112,6 +111,29 @@ export class AvailablePluginsComponent implements OnInit {
     );
   }
 
+  getCompletePluginList(index = 0, plugins = []) {
+    if (index >= this.availableRepo.length) {
+      this.completeList = plugins;
+      this.parent.conf.allPlugins = this.completeList;
+      return;
+    }
+
+    this.ws.job(this.queryCall, [{ plugin_repository: this.availableRepo[index]['git_repository'] }]).subscribe(
+      (res) => {
+        if (res.result) {
+          plugins = plugins.concat(res.result);
+        }
+      },
+      (err) => {
+        new EntityUtils().handleWSError(this.parent, err, this.parent.dialogService);
+        this.getCompletePluginList(index + 1, plugins);
+      },
+      () => {
+        this.getCompletePluginList(index + 1, plugins);
+      },
+    );
+  }
+
   switchRepo(event) {
     this.parent.loader.open();
     this.parent.loaderOpen = true;
@@ -123,9 +145,9 @@ export class AvailablePluginsComponent implements OnInit {
     if (!plugin.official) {
       this.parent.dialogService.confirm(
         T('Warning'),
-        T('This is an unofficial plugin not produced or supported by iXsystems. iXsystems does\
- not provide support in configuration, diagnosis, or use of this unofficial plugin regardless of the current\
- support level. Thorough research is strongly recommended before installing or using an unofficial plugin.'),
+        T('This plugin is not part of the official FreeCORE plugin collection. The FreeCORE project does\
+ not provide support in configuration, diagnosis, or use of this unofficial plugin. Thorough research\
+ is strongly recommended before installing or using an unofficial plugin.'),
         true, T('Continue'),
       ).subscribe(
         (res) => {

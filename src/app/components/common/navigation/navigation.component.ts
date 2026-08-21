@@ -48,7 +48,6 @@ export class NavigationComponent extends ViewControllerComponent implements OnIn
 
       // Temporarily hide some things in SCALE
       if (this.productType === 'SCALE') {
-        _.find(_.find(menuItem, { state: 'system' }).sub, { state: 'kmip' }).disabled = true;
         _.find(menuItem, { state: 'vm' }).disabled = true;
         _.find(_.find(menuItem, { state: 'directoryservice' }).sub, { state: 'nis' }).disabled = true;
         _.find(_.find(menuItem, { state: 'network' }).sub, { state: 'staticroutes' }).disabled = true;
@@ -65,14 +64,6 @@ export class NavigationComponent extends ViewControllerComponent implements OnIn
       // ====================
 
       if (window.localStorage.getItem('product_type') === 'ENTERPRISE') {
-        this.ws.call('failover.licensed').subscribe((is_ha) => {
-          if (is_ha) {
-            _.find(_.find(menuItem,
-              { name: 'System' }).sub,
-            { name: 'Failover' }).disabled = false;
-          }
-        });
-
         this.ws
           .call('system.feature_enabled', ['VM'])
           .pipe(filter((vmsEnabled) => !vmsEnabled))

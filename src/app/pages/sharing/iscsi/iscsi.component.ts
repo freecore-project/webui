@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
-import { WebSocketService, IscsiService } from 'app/services';
+import { IscsiService } from 'app/services';
 import { T } from 'app/translate-marker';
 
 @Component({
@@ -44,21 +44,13 @@ export class ISCSI implements OnInit {
   },
   ];
   protected route_wizard = ['sharing', 'iscsi', 'wizard'];
+  // Fibre Channel is licence-gated and its pages were removed with the backend stub
+  // (the internal development record); it can never be enabled here.  Kept because <app-iscsi-target-list>
+  // takes it as an @Input to decide whether to show the Mode column.
   fcEnabled = false;
-  constructor(protected router: Router, protected aroute: ActivatedRoute, protected ws: WebSocketService) {}
+  constructor(protected router: Router, protected aroute: ActivatedRoute) {}
 
   ngOnInit() {
-    this.ws.call('system.info').subscribe(
-      (res) => {
-        if (res.license && res.license.features.indexOf('FIBRECHANNEL') > -1) {
-          this.fcEnabled = true;
-          this.navLinks.push({
-            label: T('Fibre Channel Ports'),
-            path: '/sharing/iscsi/fibrechannel',
-          });
-        }
-      },
-    );
     this.aroute.params.subscribe((params) => {
       this.activedTab = params['pk'];
     });

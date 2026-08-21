@@ -1,4 +1,4 @@
-import { MatDialogRef, MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Component } from '@angular/core';
 import {
   WebSocketService,
@@ -15,7 +15,7 @@ import { T } from '../../../../translate-marker';
   selector: 'downloadkey-dialog',
   styleUrls: ['./downloadkey-dialog.component.scss'],
   templateUrl: './downloadkey-dialog.component.html',
-})
+  })
 export class DownloadKeyModalDialog {
   new = false;
   volumeId: any;

@@ -44,11 +44,14 @@ import { ViewChartComponent, ViewChartMetadata } from 'app/core/components/viewc
 })
 export class ViewChartDonutComponent extends ViewChartComponent implements OnInit {
   title = '';
-  chartType = 'donut';
   legendPosition = 'right'; // Valid positions are top or right
 
   constructor() {
     super();
+    // ViewChartComponent declares chartType as an accessor, so this cannot be a
+    // property initializer under TypeScript 4.0 (TS2610). Assigning here keeps the
+    // original ordering: the base constructor sets 'pie', then this overrides it.
+    this.chartType = 'donut';
   }
 
   ngOnInit() {

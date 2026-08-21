@@ -12,7 +12,10 @@ export class LocaleService {
   timeZone: string;
   dateFormat = 'YYYY-MM-DD';
   timeFormat = 'HH:mm:ss';
-  dateTimeFormatChange$ = new Subject();
+  // Signal-only: consumers subscribe with no value. Explicitly Subject<void> because
+  // rxjs 7 made Subject.next(value) required, so a bare new Subject() (inferred
+  // Subject<unknown>) rejects the no-arg .next() calls below.
+  dateTimeFormatChange$ = new Subject<void>();
   target: Subject<CoreEvent> = new Subject();
 
   constructor(public prefService: PreferencesService, public ws: WebSocketService, private core: CoreService) {
