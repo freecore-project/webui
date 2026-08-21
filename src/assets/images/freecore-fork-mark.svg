@@ -1,0 +1,13 @@
+<!-- FreeCORE FORK mark from https://freecore.org/brand/fork-favicon.svg.
+     The background plate is omitted so the mark inherits the page background. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 112 112">
+  <g transform="translate(10,10) scale(0.82)">
+    <line x1="8" y1="36" x2="56" y2="36" stroke="#c3cdd9" stroke-width="9"></line>
+    <circle cx="16" cy="36" r="8" fill="#c3cdd9"></circle>
+    <circle cx="56" cy="36" r="8" fill="#c3cdd9"></circle>
+    <line x1="66" y1="36" x2="90" y2="36" stroke="#5a6675" stroke-width="9" stroke-dasharray="5 8"></line>
+    <circle cx="99" cy="36" r="7" fill="none" stroke="#5a6675" stroke-width="4.5"></circle>
+    <path d="M56,36 L56,76 L84,76" fill="none" stroke="#dd9e47" stroke-width="9"></path>
+    <circle cx="95" cy="76" r="11" fill="#dd9e47"></circle>
+  </g>
+</svg>

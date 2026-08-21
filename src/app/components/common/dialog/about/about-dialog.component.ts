@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DialogService } from '../../../../services/dialog.service';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -16,8 +16,10 @@ export interface DialogData {
 }
 
 @Component({
+  standalone: false,
   selector: 'about-dialog',
   styleUrls: ['./about-dialog.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './about-dialog.component.html',
 })
 export class AboutModalDialog {
