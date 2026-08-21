@@ -1,7 +1,62 @@
-button.listBtn {
-    padding: 0 0px;
+/* the internal development record: the row actions stay compact -- the consumers sized their rows for the
+ * Material-era zero padding (jail-form's 30/50/20 rows leave 48px, the interfaces gutter 72px),
+ * so the ghost gets a 3px inset instead of the tier's 14px (Delete = 47px in the 48). The
+ * relative position keeps the interfaces-form theme nudge (`.listBtn { bottom }`) working, which
+ * used to ride on .mdc-button. */
+.listBtn {
+    position: relative;
+    padding: 0 3px;
 }
 
 .list-action {
     margin-left: auto;
+}
+
+.form-list-item-layout {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.form-list-item-layout-wrap {
+    flex-wrap: wrap;
+}
+
+.form-list-field-layout {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
+/* the internal development record: the side-by-side (inline) fields of a row had no gutter -- the basis' -16px
+   was meant for one -- so a field's help glyph, anchored at its right end since #351, touched the
+   next field's label and the boxes touched each other (jail IPv4/IPv6, iSCSI portals). Inside the
+   box (border-box), so the row's widths don't change. Single-line rows of inline fields only:
+   stacked and wrapping rows (interface aliases, ACL entries, iSCSI targets) keep their layout. */
+.form-list-item-layout:not(.form-list-item-layout-wrap) > .form-list-field-layout.form-inline + .form-list-field-layout.form-inline {
+    padding-left: 12px;
+}
+
+/* the internal development record: the row action (Add / Delete) sat on the last field's glyph and level with the
+   labels. The last field keeps the same 12px free on its right -- inside its own width, as the
+   jail rows leave the action exactly 48px -- and the action moves down to the field boxes' row
+   (16px label + 4px). */
+.form-list-item-layout:not(.form-list-item-layout-wrap) > .form-list-field-layout.form-inline:has(+ .list-action) {
+    padding-right: 12px;
+}
+
+.form-list-item-layout:not(.form-list-item-layout-wrap):has(> .form-list-field-layout.form-inline label) > .list-action {
+    padding-top: 20px;
+}
+
+@media (min-width: 600px) {
+    .form-list-field-layout {
+        max-width: none;
+    }
+
+    .form-list-field-layout-sized {
+        flex-basis: calc(var(--form-list-field-width) - 16px);
+        min-width: calc(var(--form-list-field-width) - 16px);
+    }
 }

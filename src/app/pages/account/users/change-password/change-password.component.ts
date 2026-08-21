@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebSocketService, DialogService } from '../../../../services';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
@@ -6,8 +6,11 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/account/user-change-pw';
 import { EntityUtils } from '../../../common/entity/utils';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ChangePasswordComponent {
@@ -15,12 +18,14 @@ export class ChangePasswordComponent {
   protected isEntity = true;
   protected entityForm: any;
 
+  readonly settingsTitle = T('Administrator Password'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext.pw_form_title_name,
       class: helptext.pw_form_title_class,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'input',

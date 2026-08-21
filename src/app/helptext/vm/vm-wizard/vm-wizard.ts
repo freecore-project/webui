@@ -20,6 +20,12 @@ export default {
   wizard_type_value: 'vm',
 
   os_label: T('Operating System'),
+
+  arch_placeholder: T('Architecture'),
+  arch_tooltip: T('Guest CPU architecture. <i>amd64</i> runs natively on bhyve. Any other\
+ architecture is emulated by QEMU/TCG with no hardware acceleration: usable, slow. An\
+ emulated guest uses VirtIO disks and network adapters only, has no PCI passthrough, and\
+ the architecture cannot be changed after the VM is created.'),
   os_placeholder: T('Guest Operating System'),
   os_tooltip: T('Choose the VM operating system type.'),
   os_options: [
@@ -42,11 +48,7 @@ export default {
   time_utc_text: T('UTC'),
 
   bootloader_placeholder: T('Boot Method'),
-  bootloader_tooltip: T('Select <i>UEFI</i> for newer operating systems or\
- <i>UEFI-CSM</i> (Compatibility Support Mode) for\
- older operating systems that only support BIOS\
- booting. <i>Grub</i> is not recommended but can be\
- used when the other options do not work.'),
+  bootloader_tooltip: T('FreeCORE 15.1 supports <i>UEFI</i> booting.'),
 
   autostart_placeholder: T('Start on Boot'),
   autostart_tooltip: T('Set to start this VM when the system boots.'),
@@ -120,15 +122,16 @@ export default {
   datastore_tooltip: T('Select a dataset for the new zvol.'),
   datastore_placeholder: T('Zvol Location'),
 
-  hdd_type_placeholder: T('Select Disk Type'),
+  hdd_type_placeholder: T('Disk Type'),
   hdd_type_tooltip: T('Select desired disk type.'),
   hdd_type_options: [
     { label: 'AHCI', value: 'AHCI' },
     { label: 'VirtIO', value: 'VIRTIO' },
+    { label: 'NVMe', value: 'NVME' },
   ],
   hdd_type_value: 'AHCI',
 
-  hdd_path_placeholder: T('Select Existing zvol'),
+  hdd_path_placeholder: T('Existing zvol'),
   hdd_path_tooltip: T('Browse to the desired zvol on the disk.'),
 
   NIC_label: T('Network Interface'),

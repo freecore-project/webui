@@ -25,6 +25,6 @@ export default {
   deleteDialog: {
     title: T('Delete Group '),
     message: T('Delete Group '),
-    saveButtonText: T('DELETE'),
+    saveButtonText: T('Delete'),
   },
 };

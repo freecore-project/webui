@@ -1,0 +1,31 @@
+<!-- the internal development record: the catalog as a list beside its detail panel -- a listbox to the keyboard (Up/Down,
+     Home/End, Enter/Space), one row in the tab order. Geometry in the component sheet. -->
+<div class="catalog-list" role="listbox" tabindex="-1" [class.is-disabled]="disabled" [attr.aria-label]="label"
+  [attr.aria-busy]="loading ? 'true' : null" (keydown)="onKeydown($event)">
+  @if (loading) {
+    <div class="list-state list-loading"><hlm-spinner id="catalog-list-spinner" [aria-label]="'Loading catalog' | translate" /></div>
+  } @else if (!entries.length) {
+    <div class="list-state list-empty"><mat-icon aria-hidden="true">search_off</mat-icon><span>{{ emptyText }}</span></div>
+  } @else {
+    @for (entry of entries; track entry.id; let index = $index) {
+      @let entryTag = tag(entry);
+      <button type="button" role="option" class="catalog-row" [attr.data-catalog-entry]="entry.id"
+        [attr.aria-selected]="entry.id === selectedId" [attr.aria-disabled]="disabled ? 'true' : null"
+        [attr.tabindex]="index === focusIndex ? 0 : -1" [title]="entry.description || entry.title"
+        (click)="select(entry, index)" (focus)="onRowFocus(index)">
+        <span class="row-icon">
+          @if (catalogIcon(entry); as icon) {
+            <img [src]="icon" alt="">
+          } @else {
+            <mat-icon aria-hidden="true">{{ catalogMaterialIcon(entry) }}</mat-icon>
+          }
+        </span>
+        <span class="row-title">{{ entry.title }}</span>
+        @if (entryTag.label) {
+          <small class="row-tag" [class.row-tag--warn]="entryTag.tone === 'warn'" [class.row-tag--installed]="entryTag.tone === 'installed'"
+            [title]="entryTag.title">{{ entryTag.label | translate }}</small>
+        }
+      </button>
+    }
+  }
+</div>

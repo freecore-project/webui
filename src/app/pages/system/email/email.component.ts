@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
@@ -14,7 +15,7 @@ import { EntityUtils } from 'app/pages/common/entity/utils';
 import { T } from 'app/translate-marker';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
 import { BehaviorSubject, Subscription } from 'rxjs';
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 interface OAuthData {
   client_id?: string;
@@ -23,12 +24,15 @@ interface OAuthData {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-email',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
   <entity-form [conf]="this"></entity-form>
   `,
 })
 export class EmailComponent implements OnDestroy {
+  readonly settingsTitle = T('Email');
   queryCall = 'mail.config';
   updateCall = 'mail.update';
   entityEdit: any;
@@ -246,7 +250,7 @@ export class EmailComponent implements OnDestroy {
         {
           type: 'paragraph',
           name: 'oauth_applied',
-          paraText: 'Oauth credentials have been applied.',
+          paraText: helptext_system_email.auth.applied,
           isLargeText: true,
           paragraphIcon: 'check_circle',
           paragraphIconSize: '24px',
@@ -255,7 +259,7 @@ export class EmailComponent implements OnDestroy {
         {
           type: 'paragraph',
           name: 'oauth_not_applied',
-          paraText: 'Log in to Gmail to set up Oauth credentials.',
+          paraText: helptext_system_email.auth.unavailable,
           paragraphIcon: 'info',
           paragraphIconSize: '24px',
           isLargeText: true,
@@ -267,6 +271,7 @@ export class EmailComponent implements OnDestroy {
           name: 'login-gmail',
           inputType: 'button',
           label: helptext_system_email.auth.login_button,
+          disabled: true,
           relation: [
             {
               action: 'HIDE',
@@ -276,29 +281,6 @@ export class EmailComponent implements OnDestroy {
               }],
             },
           ],
-          customEventMethod: () => {
-            const self = this;
-            const dialogService = this.dialogservice;
-
-            window.open('https://freenas.org/oauth/gmail?origin='
-              + encodeURIComponent(window.location.toString()), '_blank', 'width=640,height=480');
-            window.addEventListener('message', doAuth, false);
-
-            function doAuth(message) {
-              if (message.origin !== 'https://www.truenas.com') {
-                return;
-              }
-              if (message.data.oauth_portal) {
-                if (message.data.error) {
-                  dialogService.errorReport(T('Error'), message.data.error);
-                } else {
-                  self.oauthCreds.next(message.data.result);
-                  self.checkForOauthCreds();
-                }
-              }
-              window.removeEventListener('message', doAuth);
-            }
-          },
         },
       ],
     },
@@ -307,9 +289,9 @@ export class EmailComponent implements OnDestroy {
 
   protected dialogRef: any;
 
-  private sendMailMethod: FormControl;
+  private sendMailMethod: UntypedFormControl;
   private sendMailMethodSubscription: Subscription;
-  private smtp: FormControl;
+  private smtp: UntypedFormControl;
   private pass: FieldConfig;
 
   constructor(protected router: Router, protected rest: RestService,
@@ -317,7 +299,7 @@ export class EmailComponent implements OnDestroy {
     protected _appRef: ApplicationRef, private dialogservice: DialogService,
     protected dialog: MatDialog, protected loader: AppLoaderService) {}
 
-  resourceTransformIncomingRestData(data): void {
+  resourceTransformIncomingRestData(data): any {
     this.oauthCreds.next(data.oauth);
     delete data.pass;
     return data;
@@ -342,6 +324,7 @@ export class EmailComponent implements OnDestroy {
 
     this.sendMailMethodSubscription = this.sendMailMethod.valueChanges.subscribe((value) => {
       this.pass.hideButton = !value;
+      this.setHostedGmailEnrollmentState(value);
 
       if (!value) {
         this.checkForOauthCreds();
@@ -350,6 +333,14 @@ export class EmailComponent implements OnDestroy {
         entityEdit.setDisabled('oauth_not_applied', true, true);
       }
     });
+    this.setHostedGmailEnrollmentState(this.sendMailMethod.value);
+  }
+
+  private setHostedGmailEnrollmentState(usingSmtp: boolean) {
+    // The generic HIDE relation shows this field by clearing its disabled
+    // state.  Hosted enrollment must remain inert when the GMail form is
+    // visible, and hidden while SMTP is selected.
+    this.entityEdit.setDisabled('login-gmail', true, usingSmtp);
   }
 
   checkForOauthCreds() {

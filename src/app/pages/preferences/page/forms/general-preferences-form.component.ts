@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnInit, AfterViewInit, OnChanges, OnDestroy, ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -25,8 +26,11 @@ interface UserPreferences {
 }
 
 @Component({
+  standalone: false,
   selector: 'general-preferences-form',
-  template: '<entity-form-embedded *ngIf="preferences" #embeddedForm fxFlex="100" [target]="target" [data]="values" [conf]="this"></entity-form-embedded>',
+  template: '@if (preferences) {<entity-form-embedded #embeddedForm class="general-preferences-embedded-layout" [target]="target" [data]="values" [conf]="this"></entity-form-embedded>}',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./general-preferences-form.component.css'],
 })
 export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('embeddedForm', { static: false }) embeddedForm: EntityFormEmbeddedComponent;
@@ -134,9 +138,6 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
           this.target.next({ name: 'SubmitStart', sender: this });
           this.isWaiting = true;
           break;
-        case 'CreateTheme':
-          this.router.navigate(new Array('').concat(['ui-preferences', 'create-theme']));
-          break;
       }
     });
   }
@@ -154,7 +155,7 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
       {
         type: 'select',
         name: 'userTheme',
-        placeholder: T('Choose Theme'),
+        placeholder: T('Theme'),
         options: this.themeOptions,
         value: prefs.userTheme == 'default' ? DefaultTheme.name : prefs.userTheme,
         tooltip: T('Choose a preferred theme.'),
@@ -221,9 +222,10 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
   }
 
   updateValues(prefs) {
+    const actionControls = ['reset', 'tableDisplayedColumns'];
     const keys = Object.keys(this.embeddedForm.formGroup.controls);
     keys.forEach((key) => {
-      if (key !== 'reset') {
+      if (!actionControls.includes(key)) {
         if (key == 'userTheme' && prefs[key] == 'default') {
           this.embeddedForm.formGroup.controls[key].setValue(DefaultTheme.name);
         } else {
@@ -232,7 +234,6 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
       }
     });
 
-    // We don't store this value in middleware so we set it manually
-    this.embeddedForm.formGroup.controls['reset'].setValue(false);
+    actionControls.forEach((key) => this.embeddedForm.formGroup.controls[key].setValue(false));
   }
 }

@@ -70,8 +70,8 @@ def the_pools_page_should_appear(driver):
 @then(parsers.parse('click on the "{dataset_name}" 3 dots button, select Edit Permissions'))
 def click_on_the_tank_acl_dataset_3_dots_button_select_edit_permissions(driver, dataset_name):
     """click on the "tank_acl_dataset" 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, f'//mat-icon[@id="actions_menu_button__{dataset_name}"]')
-    driver.find_element_by_xpath(f'//mat-icon[@id="actions_menu_button__{dataset_name}"]').click()
+    assert wait_on_element(driver, 7, f'//*[@id="actions_menu_button__{dataset_name}"]')
+    driver.find_element_by_xpath(f'//*[@id="actions_menu_button__{dataset_name}"]').click()
     assert wait_on_element(driver, 7, f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]')
     driver.find_element_by_xpath(f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]').click()
 

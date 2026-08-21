@@ -1,0 +1,762 @@
+:host {
+  display: block;
+}
+
+.applications-page {
+  margin: 0;
+}
+
+.applications-shell {
+  overflow: hidden;
+}
+
+/* the internal development record: the header row is the shell's .fc-page-header; the tab bar takes the shell's
+ * tab vocabulary (#375); the notices are the shell's .fc-page-notice. */
+.toolbar-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.notice {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.notice.error {
+  border-left-color: var(--red);
+}
+
+.notice.in-tab {
+  margin: 0 0 16px;
+}
+
+.tab-content > .notice.in-tab {
+  margin: 0 0 16px;
+}
+
+.notice mat-icon {
+  flex: 0 0 auto;
+}
+
+.tab-content {
+  padding: 16px 0 0;
+}
+
+/* the internal development record: the Catalog tab's two toolbar rows on the #404 shape -- entity-table keeps that
+ * geometry in its own scoped sheet, so the numbers are restated: a 32px flex row, 8px gaps, the #351
+ * filter box flex 1 1 200 / max 300 with the 16px glyph addon, the outline/ghost tiers from the helm
+ * button file. Plain CSS: this page is not a Tailwind source. */
+.catalog-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 12px;
+  min-height: 32px;
+  min-width: 0;
+}
+
+.catalog-toolbar--narrow {
+  margin-bottom: 16px;
+}
+
+.catalog-toolbar > * {
+  min-width: 0;
+}
+
+.catalog-provider {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  margin-inline-end: auto;
+  min-height: 32px;
+}
+
+.catalog-provider-label {
+  color: var(--fg2);
+  font-size: 12px;
+}
+
+.catalog-provider-name {
+  color: var(--fg1);
+  font-size: 13px;
+}
+
+.catalog-provider [data-slot="button"] .mat-icon,
+.catalog-panel-header [data-slot="button"] .mat-icon {
+  font-size: 20px;
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+}
+
+.catalog-action .mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  margin-right: 6px;
+  width: 16px;
+}
+
+.catalog-toolbar #catalog-filter.fc-table-search {
+  align-items: center;
+  display: flex;
+  flex: 1 1 200px;
+  gap: 8px;
+  margin: 0;
+  margin-inline-end: auto;
+  max-width: 300px;
+  min-width: 0;
+}
+
+.catalog-toolbar #catalog-filter > hlm-input-group {
+  min-width: 0;
+  width: 100%;
+}
+
+.catalog-toolbar hlm-input-group-addon .mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
+}
+
+.catalog-toolbar .catalog-category,
+.catalog-toolbar .catalog-provider-select {
+  gap: 8px;
+  width: auto;
+}
+
+.catalog-toolbar .catalog-category hlm-select,
+.catalog-toolbar .catalog-provider-select hlm-select {
+  width: 160px;
+}
+
+/* the internal development record: under the review's description, the applications already made from the entry */
+.catalog-panel-installed {
+  color: var(--green, var(--fg2));
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 6px 0 0;
+}
+
+/* the internal development record (layout C): the catalog list on the left, ONE detail slot beside it; one column
+ * under 900px (the list above the slot). The slot is the hairline box the list has, on bg1. */
+.catalog-split {
+  align-items: start;
+  display: grid;
+  gap: 24px;
+  grid-template-columns: minmax(280px, 400px) minmax(0, 1fr);
+}
+
+.catalog-split-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.catalog-split-list .catalog-toolbar {
+  margin: 0;
+}
+
+.catalog-split-list .catalog-toolbar #catalog-filter.fc-table-search {
+  flex: 1 1 160px;
+  max-width: none;
+}
+
+.catalog-panel-slot.catalog-split-detail {
+  background: var(--bg1);
+  border: 1px solid var(--fc-line, var(--lines));
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin: 0;
+  min-width: 0;
+  padding: 20px 24px;
+}
+
+.catalog-detail-state {
+  align-items: center;
+  color: var(--fg2);
+  display: flex;
+  font-size: 13px;
+  justify-content: center;
+  margin: 0;
+  min-height: 240px;
+}
+
+#catalog-detail-spinner {
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 32px;
+}
+
+@media (max-width: 900px) {
+  .catalog-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* the internal development record: Install/Edit, Import, Convert and Export in dialogs -- the panel is the dialog's
+ * body and scrolls inside it; the review alone stays in the slot beside the list. */
+.applications-dialog {
+  max-height: min(80vh, 920px);
+}
+
+.applications-dialog .catalog-panel-header {
+  padding-top: 0;
+}
+
+/* the internal development record: Labels and Certificates behind one disclosure at the end of the settings -- the
+ * summary reads as a section header (the hairline, the 14px fg1 voice), the chevron turns when open. */
+.install-extras {
+  border-top: 1px solid var(--fc-line, var(--lines));
+}
+
+.install-extras > summary {
+  align-items: center;
+  color: var(--fg1);
+  cursor: pointer;
+  display: flex;
+  font-size: 14px;
+  gap: 8px;
+  line-height: 20px;
+  list-style: none;
+  padding: 18px 0;
+}
+
+.install-extras > summary::-webkit-details-marker {
+  display: none;
+}
+
+.install-extras > summary .mat-icon {
+  color: var(--fg2);
+  font-size: 20px;
+  height: 20px;
+  line-height: 20px;
+  transition: transform 120ms;
+  width: 20px;
+}
+
+.install-extras[open] > summary .mat-icon {
+  transform: rotate(90deg);
+}
+
+.install-extras > summary .extras-count {
+  color: var(--fg2);
+  font-size: 12px;
+}
+
+.install-extras > summary:focus-visible {
+  border-radius: 4px;
+  box-shadow: var(--fc-focus-ring, 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent));
+  outline: none;
+}
+
+.install-extras > .fc-settings-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* the internal development record: the panels in the slot -- the review, the import and the convert panel on the FORM
+ * law: the engine's section grid (entity-form.component.scss via styleUrls), the shared .fc-settings-form
+ * voice + .buttons row (freecore-ui.css); the card is transparent, as jail-form's. */
+.catalog-panel-slot {
+  margin: 16px 0 0;
+}
+
+.catalog-panel-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+  padding: 4px 0 16px;
+}
+
+.catalog-panel-heading {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.catalog-panel-title {
+  color: var(--fg1);
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -.1px;
+  line-height: 24px;
+  margin: 0;
+}
+
+.catalog-panel-description {
+  color: var(--fg2);
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 4px 0 0;
+  max-width: 760px;
+}
+
+.catalog-panel .fc-settings-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.catalog-panel .fieldset-label .hint {
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+/* the FACT voice (the status pages' dl): 12px fg2 terms, 14px fg1 facts -- explicit, the card voice is 12px fg2 */
+.catalog-panel .identity-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 40px;
+  margin: 0 0 12px;
+}
+
+.catalog-panel .identity-list > div {
+  max-width: 100%;
+  min-width: 0;
+}
+
+.catalog-panel .identity-list dt {
+  color: var(--fg2);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.catalog-panel .identity-list dd {
+  color: var(--fg1);
+  font-size: 14px;
+  line-height: 20px;
+  margin: 8px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.catalog-panel .identity-list .version-source {
+  color: var(--fg2);
+  display: block;
+  font-size: 12px;
+}
+
+.catalog-panel .contract-groups {
+  display: grid;
+  gap: 0 32px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.catalog-panel .contract-group p,
+.catalog-panel .contract-group code,
+.catalog-panel .contract-group strong {
+  color: var(--fg1);
+  font-size: 13px;
+}
+
+.field-subscript {
+  min-height: 20px;
+}
+
+.form-error-line {
+  margin: 2px 0 0;
+}
+
+.catalog-panel hlm-field-error:not([hidden]) {
+  display: block;
+}
+
+/* the #394 checkbox / radio rows (dynamic-field.css), restated for the hand-built panels */
+.checkbox-row {
+  align-items: center;
+  display: flex;
+  min-height: 32px;
+}
+
+.catalog-panel-confirm {
+  margin: 12px 0 0;
+}
+
+.checkbox-cell,
+.radio-cell {
+  align-items: center;
+  display: inline-flex;
+  flex: 0 0 32px;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+.checkbox-label,
+.radio-label {
+  color: var(--sp-foreground, var(--fg1));
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.checkbox-label {
+  padding-left: 6px;
+}
+
+.radio-label {
+  padding-left: 4px;
+}
+
+.radio-option-row {
+  align-items: flex-start;
+  display: flex;
+  margin-bottom: 5px;
+  min-height: 32px;
+}
+
+.radio-copy {
+  display: flex;
+  flex-direction: column;
+  padding-top: 7px;
+}
+
+.convert-modes {
+  display: block;
+}
+
+.convert-modes .hint {
+  display: block;
+  padding-left: 4px;
+}
+
+.catalog-panel-loading hlm-spinner {
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 24px;
+}
+
+.volume-field small {
+  color: var(--fg2);
+}
+
+.installed-empty {
+  align-items: center;
+  color: var(--fg2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.reason {
+  color: var(--red);
+}
+
+.loading,
+.empty-state {
+  align-items: center;
+  color: var(--fg2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  min-height: 180px;
+  padding: 24px;
+  text-align: center;
+}
+
+.catalog-panel-loading {
+  min-height: 0;
+  padding: 0;
+}
+
+.overlay-panel h2,
+.logs-panel h2 {
+  margin-top: 0;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.overlay-panel,
+.logs-panel {
+  border-top: 1px solid var(--lines);
+  padding: 24px;
+}
+
+.panel-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.panel-header p {
+  color: var(--fg2);
+  margin: 4px 0 0;
+  max-width: 760px;
+}
+
+.contract-group {
+  border-bottom: 1px solid var(--lines);
+  padding: 9px 0;
+}
+
+.contract-group p {
+  margin: 5px 0;
+}
+
+.privileges code {
+  display: block;
+  margin: 5px 0;
+  overflow-wrap: anywhere;
+}
+
+/* a generated row: the field with its 20px subscript, the fixed text beside it on the box line */
+.generated-row,
+.volume-field {
+  align-items: flex-end;
+  display: flex;
+  gap: 14px;
+}
+
+.generated-row > hlm-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.generated-row .port-arrow,
+.generated-row .port-label {
+  color: var(--fg1);
+  flex: 0 0 auto;
+  font-size: 13px;
+  padding-bottom: 20px;
+  white-space: nowrap;
+}
+
+.generated-row .add-port-button {
+  margin-bottom: 20px;
+}
+
+/* the internal development record: the per-port publish choice, on the box line like the arrow */
+.generated-row .port-publish {
+  flex: 0 0 auto;
+  margin-bottom: 20px;
+}
+
+.generated-row .bridge-port {
+  flex: 1 1 auto;
+}
+
+.volume-field {
+  align-items: stretch;
+  flex-direction: column;
+}
+
+/* the internal development record: a certificate entry holds six controls, too many for one line. The
+   certificate, its directory and Remove; the restart choice on a line of its own; then the
+   owner ids under the first two fields. */
+.generated-row.certificate-row {
+  align-items: end;
+  column-gap: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  row-gap: 0;
+}
+
+.certificate-row + .certificate-row {
+  margin-top: 12px;
+}
+
+.certificate-row > .checkbox-row {
+  grid-column: 1 / -1;
+  margin-bottom: 8px;
+}
+
+.volume-field > div {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 800px) {
+  .catalog-panel .contract-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .tab-content,
+  .overlay-panel,
+  .logs-panel {
+    padding: 16px;
+  }
+
+  .tab-content {
+    padding: 16px 0 0;
+  }
+
+  .catalog-toolbar,
+  .catalog-panel-slot,
+  .tab-content > .notice.in-tab {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .catalog-toolbar #catalog-filter.fc-table-search {
+    flex-basis: 100%;
+    max-width: none;
+  }
+}
+
+/* the internal development record: the compose read is one field and one button on the box line. */
+.compose-read {
+  align-items: flex-end;
+  display: flex;
+  gap: 8px;
+}
+
+.compose-read hlm-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.compose-read .compose-read-button {
+  margin-bottom: 20px;
+}
+
+.compose-summary {
+  color: var(--fg2);
+  margin: 8px 0 0;
+}
+
+/* the internal development record: the convert panel reuses the review panel's identity list,
+   contract groups and generated rows; only the plan listing is its own.
+   .reason is the page's problem colour; explanatory text under a choice is a hint. */
+.hint {
+  color: var(--fg2);
+  font-size: 13px;
+}
+
+.convert-panel .port-label {
+  min-width: 180px;
+}
+
+.convert-panel .add-port .protocol-field {
+  flex: 0 0 96px;
+  width: 96px;
+}
+
+.convert-plan h5 {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 12px 0 4px;
+}
+
+.convert-plan h5.refuse {
+  color: var(--red);
+}
+
+.plan-entries {
+  color: var(--fg2);
+  margin: 0;
+  padding-left: 20px;
+}
+
+.plan-entries li {
+  margin: 2px 0;
+}
+
+/* the internal development record: what a storage change leaves behind or brings back,
+   the datasets a Remove decides about, and app-owned data nothing maps. */
+.volume-note,
+.edit-note {
+  color: var(--fg2);
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+
+.removal-datasets {
+  margin-top: 16px;
+}
+
+.removal-datasets p {
+  color: var(--fg2);
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+
+.removal-datasets ul,
+.overlay-panel ul {
+  margin: 0 0 8px;
+  padding-left: 18px;
+}
+
+.removal-datasets li,
+.overlay-panel li {
+  font-size: 12px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+/* the internal development record: retained datasets are a compact secondary table. */
+.orphaned-data {
+  margin-top: 16px;
+}
+
+.orphaned-data-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 8px;
+}
+
+.orphaned-data h3 {
+  margin: 0;
+  color: var(--fg1);
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.orphaned-data table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+.orphaned-data th,
+.orphaned-data td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--fc-line);
+  text-align: left;
+  font-weight: 400;
+}
+
+.orphaned-data th {
+  color: var(--fg2);
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.orphaned-data td {
+  color: var(--fg1);
+  font-size: 13px;
+  line-height: 20px;
+  overflow-wrap: anywhere;
+}
+
+.orphaned-data .orphaned-data-used {
+  width: 112px;
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.orphaned-data p {
+  margin: 8px 0 0;
+  color: var(--fg2);
+  font-size: 12px;
+  line-height: 18px;
+}
