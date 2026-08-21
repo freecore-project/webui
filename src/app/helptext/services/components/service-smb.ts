@@ -28,7 +28,7 @@ export default {
   cifs_srv_workgroup_placeholder: T('Workgroup'),
   cifs_srv_workgroup_tooltip: T('Must match Windows workgroup name. \
  When this is unconfigured and Active Directory or LDAP are active, \
- TrueNAS will detect and set the correct workgroup from these services.'),
+ FreeCORE will detect and set the correct workgroup from these services.'),
   cifs_srv_workgroup_validation: [Validators.required],
 
   cifs_srv_description_placeholder: T('Description'),

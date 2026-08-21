@@ -65,13 +65,13 @@ def on_the_dashboard_click_on_storage_on_the_side_menu_click_on_pools(driver):
 @then('click on the tank pool three dots button, select Add Dataset')
 def click_on_the_tank_pool_three_dots_button_select_add_dataset(driver):
     """click on the tank pool three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Dataset"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('input {dataset} as Name, input "{comment}" as Comments'))
@@ -105,8 +105,8 @@ def the_dataset_should_be_created_without_error(driver):
 @then('click on the documents dataset 3 dots button, select Edit Permissions')
 def click_on_the_documents_dataset_3_dots_button_select_edit_permissions(driver):
     """click on the documents dataset 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__documents"]')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__documents"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__documents"]')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__documents"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__documents_Edit Permissions"]')
     driver.find_element_by_xpath('//button[@ix-auto="action__documents_Edit Permissions"]').click()
 
@@ -157,7 +157,7 @@ def on_the_windows_shares_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"Samba")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then('input enumeration for the Name, input documents path for the SMB dataset')
@@ -218,9 +218,9 @@ def click_the_power_button_and_click_restart_to_reboot_truenas(driver):
     assert wait_on_element(driver, 7, '//button[@ix-auto="option__Shut Down"]', 'clickable')
     assert wait_on_element(driver, 7, '//button[@ix-auto="option__Restart"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="option__Restart"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Restart")]')
-    assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Restart")]')
+    assert wait_on_element(driver, 7, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__RESTART"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__RESTART"]').click()
     assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')

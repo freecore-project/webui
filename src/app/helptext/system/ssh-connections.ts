@@ -15,7 +15,7 @@ export default {
  This can include copying SSH keys and modifying the <i>root</i> user \
  account on that system.<br><br> \
  <i>Semi-automatic</i> only works when configuring an SSH connection \
- with a remote TrueNAS system. This method uses the URL and login \
+ with a remote FreeCORE system. This method uses the URL and login \
  credentials of the remote system to connect and exchange SSH keys.'),
 
   host_placeholder: T('Host'),
@@ -53,7 +53,7 @@ export default {
   connect_timeout_tooltip: T('Time \(in seconds\) before the system \
  stops attempting to establish a connection with the remote system.'),
 
-  url_placeholder: T('TrueNAS URL'),
+  url_placeholder: T('FreeCORE URL'),
   url_tooltip: T('Hostname or IP address of the remote system. A \
  valid URL scheme is required. Example: \
  <b>https://<i>10.231.3.76</i></b>'),

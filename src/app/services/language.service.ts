@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
+import { of, Observable } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
-import { Observable } from 'rxjs/Rx';
 import { TranslateService } from '@ngx-translate/core';
 import * as _ from 'lodash';
 

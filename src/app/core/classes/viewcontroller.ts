@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Directive, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { CoreEvent } from 'app/core/services/core.service';
 import { View } from 'app/core/classes/view';
@@ -10,6 +10,10 @@ export interface ViewControllerOptions {
   // actions?: Action[];
 }
 
+// Angular 10 requires a base class that uses Angular features — here the ngOnDestroy
+// lifecycle hook — to carry a decorator (NG2007). A selectorless @Directive() is the
+// documented annotation for an abstract base that is never itself instantiated.
+@Directive()
 export abstract class ViewController implements OnDestroy {
   name = 'ViewController';
   protected controlEvents: Subject<CoreEvent>;

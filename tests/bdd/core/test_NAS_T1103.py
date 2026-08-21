@@ -57,7 +57,7 @@ def on_the_dashboard_click_on_plugins_on_the_left_sidebar(driver):
 def when_choose_pool_for_plugin_and_jail_storage_appears_select_tank(driver):
     """when Choose Pool for Plugin and Jail Storage appears, select tank."""
     assert wait_on_element(driver, 10, '//div[text()="Plugins"]')
-    if wait_on_element(driver, 2, '//h1[contains(.,"Choose Pool for Plugin and Jail Storage")]'):
+    if wait_on_element(driver, 2, '//h2[contains(.,"Choose Pool for Plugin and Jail Storage")]'):
         assert wait_on_element(driver, 5, '//mat-select[@ix-auto="select__Choose a pool for plugin and jail storage."]', 'clickable')
         driver.find_element_by_xpath('//mat-select[@ix-auto="select__Choose a pool for plugin and jail storage."]').click()
         assert wait_on_element(driver, 5, '//mat-option[contains(.,"tank")]', 'clickable')
@@ -67,11 +67,11 @@ def when_choose_pool_for_plugin_and_jail_storage_appears_select_tank(driver):
 @then('click chose, then Pool Chosen will appear, click CLOSE')
 def click_chose_then_pool_chosen_will_appear_click_close(driver):
     """click chose, then Pool Chosen will appear, click CLOSE."""
-    if is_element_present(driver, '//h1[contains(.,"Choose Pool for Plugin and Jail Storage")]'):
+    if is_element_present(driver, '//h2[contains(.,"Choose Pool for Plugin and Jail Storage")]'):
         assert wait_on_element(driver, 5, '//button[@name="Choose_button"]', 'clickable')
         driver.find_element_by_xpath('//button[@name="Choose_button"]').click()
         assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
-        assert wait_on_element(driver, 10, '//h1[contains(.,"Pool Chosen")]')
+        assert wait_on_element(driver, 10, '//h2[contains(.,"Pool Chosen")]')
         assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 
@@ -115,7 +115,7 @@ def click_save_then_an_install_window_should_be_visible_outlining_progress(drive
 @then('when Plugin installed successfully appear, click CLOSE')
 def when_plugin_installed_successfully_appear_click_close(driver):
     """when Plugin installed successfully appear, click CLOSE."""
-    assert wait_on_element(driver, 20, '//h1[text()="Plugin installed successfully"]')
+    assert wait_on_element(driver, 20, '//h2[text()="Plugin installed successfully"]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 
@@ -164,7 +164,7 @@ def click_the_manage_option(driver):
 def a_new_tab_or_window_should_load_the_iconik_credentials_page(driver):
     """A new tab or window should load the Iconik Credentials page."""
     driver.switch_to.window(driver.window_handles[1])
-    assert wait_on_element(driver, 5, '//h1[contains(.,"Iconik Credentials")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Iconik Credentials")]')
     assert wait_on_element(driver, 5, '//input[@value="Update credentials"]')
     driver.close()
     driver.switch_to.window(driver.window_handles[0])

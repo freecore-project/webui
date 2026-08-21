@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -7,10 +7,13 @@ import { DialogService, StorageService, TaskService } from '../../../../services
 import { FieldConfig, UnitType } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import { EntityUtils } from '../../../common/entity/utils';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'cron-snapshot-task-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService],
 })
 export class SnapshotFormComponent implements OnDestroy {
@@ -28,6 +31,7 @@ export class SnapshotFormComponent implements OnDestroy {
   protected save_button_enabled = true;
   protected entityForm;
 
+  readonly settingsTitle = T('Periodic Snapshot Task'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_dataset,

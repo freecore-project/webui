@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DialogService } from 'app/services';
@@ -11,7 +11,9 @@ import { T } from '../../../../translate-marker';
 import { EntityUtils } from 'app/pages/common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-group-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class GroupListComponent {
@@ -82,17 +84,8 @@ export class GroupListComponent {
 
   getActions(row) {
     const actions = [];
-    actions.push({
-      id: row.group,
-      name: helptext.group_list_actions_id_member,
-      label: helptext.group_list_actions_label_member,
-      icon: 'people',
-      onClick: (members) => {
-        this._router.navigate(new Array('/').concat(
-          ['account', 'groups', 'members', members.id],
-        ));
-      },
-    });
+    // the internal development record: one order on every table -- change (Edit, then its parts: Members), destroy
+    // (Delete last); a builtin group keeps Members alone.
     if (row.builtin === !true) {
       actions.push({
         id: row.group,
@@ -105,6 +98,19 @@ export class GroupListComponent {
           ));
         },
       });
+    }
+    actions.push({
+      id: row.group,
+      name: helptext.group_list_actions_id_member,
+      label: helptext.group_list_actions_label_member,
+      icon: 'people',
+      onClick: (members) => {
+        this._router.navigate(new Array('/').concat(
+          ['account', 'groups', 'members', members.id],
+        ));
+      },
+    });
+    if (row.builtin === !true) {
       actions.push({
         id: row.group,
         icon: 'delete',

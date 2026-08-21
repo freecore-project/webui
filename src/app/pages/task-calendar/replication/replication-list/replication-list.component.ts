@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Validators } from '@angular/forms';
@@ -13,8 +13,10 @@ import globalHelptext from '../../../../helptext/global-helptext';
 import helptext from '../../../../helptext/task-calendar/replication/replication';
 
 @Component({
+  standalone: false,
   selector: 'app-replication-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [JobService, StorageService],
 })
 export class ReplicationListComponent {
@@ -94,6 +96,17 @@ export class ReplicationListComponent {
         });
       },
     }, {
+      // the internal development record: one order on every table -- run (Run Now), change (Edit), derive (Restore),
+      // destroy (Delete last).
+      id: parentrow.name,
+      icon: 'edit',
+      name: 'edit',
+      label: T('Edit'),
+      onClick: (row) => {
+        this.route_edit.push(row.id);
+        this.router.navigate(this.route_edit);
+      },
+    }, {
       actionName: parentrow.description,
       id: 'restore',
       label: T('Restore'),
@@ -140,15 +153,6 @@ export class ReplicationListComponent {
           },
         };
         this.dialog.dialogFormWide(conf);
-      },
-    }, {
-      id: parentrow.name,
-      icon: 'edit',
-      name: 'edit',
-      label: T('Edit'),
-      onClick: (row) => {
-        this.route_edit.push(row.id);
-        this.router.navigate(this.route_edit);
       },
     }, {
       id: parentrow.name,

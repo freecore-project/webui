@@ -1,5 +1,5 @@
 import { Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebSocketService } from '../../../services/ws.service';
 import { AppLoaderService } from '../../../services/app-loader/app-loader.service';
@@ -9,12 +9,15 @@ import globalHelptext from '../../../helptext/global-helptext';
 import { LocaleService } from 'app/services/locale.service';
 
 @Component({
+  standalone: false,
   selector: 'system-shutdown',
   templateUrl: './shutdown.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./shutdown.component.css'],
 })
 export class ShutdownComponent implements OnInit {
   product_type: string;
+  requestSent = false;
   copyrightYear = this.localeService.getCopyrightYearFromBuildTime();
 
   constructor(
@@ -44,13 +47,10 @@ export class ShutdownComponent implements OnInit {
         });
       },
       () => {
+        this.requestSent = true;
         this.ws.prepare_shutdown();
       },
     );
-    // fade to black after 60 sec on shut down
-    setTimeout(() => {
-      const overlay = document.getElementById('overlay');
-      overlay.setAttribute('class', 'blackout');
-    }, 60000);
+
   }
 }

@@ -11,7 +11,9 @@ export class SystemGeneralService {
 
   updateRunning = new EventEmitter<string>();
   updateRunningNoticeSent = new EventEmitter<string>();
-  updateIsDone$ = new Subject();
+  // Signal-only, same as locale.service's dateTimeFormatChange$: rxjs 7 made
+  // Subject.next(value) required, so this must be Subject<void> for updateDone().
+  updateIsDone$ = new Subject<void>();
   constructor(protected rest: RestService, protected ws: WebSocketService) {}
 
   getCA() { return this.ws.call(this.caList, []); }

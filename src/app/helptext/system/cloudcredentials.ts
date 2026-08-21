@@ -9,6 +9,8 @@ export const helptext_system_cloudcredentials = {
   fieldset_endpoint_advanced_options: T('Endpoint Advanced Options'),
   fieldset_oauth_advanced_options: T('OAuth Advanced Options'),
 
+  hosted_oauth_unavailable: T('<b>New hosted OAuth enrollment is unavailable in FreeCORE.</b> Existing imported OAuth credentials remain usable and can still be verified or saved. Manual and provider-native credential fields remain available.'),
+
   add_tooltip: T('Add Cloud Credential'),
 
   name: {
@@ -26,12 +28,12 @@ export const helptext_system_cloudcredentials = {
 
   client_id: {
     placeholder: T('OAuth Client ID'),
-    tooltip: T(''),
+    tooltip: T('Client ID for an imported or provider-native OAuth credential.'),
   },
 
   client_secret: {
     placeholder: T('OAuth Client Secret'),
-    tooltip: T(''),
+    tooltip: T('Client secret for an imported or provider-native OAuth credential.'),
   },
 
   access_key_id_s3: {

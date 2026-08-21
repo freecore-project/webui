@@ -1,12 +1,13 @@
 import { NgModule, Injector } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { BrowserModule } from '@angular/platform-browser';
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { NgxWebstorageModule } from 'ngx-webstorage';
+import {
+  provideNgxWebstorage, withLocalStorage, withSessionStorage,
+} from 'ngx-webstorage';
 import { CommonDirectivesModule } from 'app/directives/common/common-directives.module';
 
 import { MaterialModule } from './appMaterial.module'; // customized MaterialModule
@@ -21,7 +22,6 @@ import { ConfirmDialog } from './pages/common/confirm-dialog/confirm-dialog.comp
 import { PasswordDialog } from './pages/common/password-dialog/password-dialog.component';
 import { AboutModalDialog } from './components/common/dialog/about/about-dialog.component';
 import { TaskManagerComponent } from './components/common/dialog/task-manager/task-manager.component';
-import { TruecommandComponent } from './components/common/dialog/truecommand/truecommand.component';
 import { DirectoryServicesMonitorComponent } from './components/common/dialog/directory-services-monitor/directory-services-monitor.component';
 import { ConsolePanelModalDialog } from './components/common/dialog/consolepanel/consolepanel-dialog.component';
 import { DownloadKeyModalDialog } from './components/common/dialog/downloadkey/downloadkey-dialog.component';
@@ -37,7 +37,6 @@ import { AppLoaderService } from './services/app-loader/app-loader.service';
 import { AppLoaderComponent } from './services/app-loader/app-loader.component';
 import { AppLoaderModule } from './services/app-loader/app-loader.module';
 import { NotificationsService } from 'app/services/notifications.service';
-import { MarkdownModule } from 'ngx-markdown';
 
 // Core Application Services and Service Injector
 import { CoreServices } from 'app/core/services/coreservices.module';
@@ -46,6 +45,15 @@ import { CoreComponents } from 'app/core/components/corecomponents.module';
 
 import { ErdService } from 'app/services/erd.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmProgressImports } from '@spartan-ng/helm/progress';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmLabelImports } from '@spartan-ng/helm/label';
+import { HlmFieldImports } from '@spartan-ng/helm/field';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmInputGroupImports } from '@spartan-ng/helm/input-group';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 
 import { EntityDialogComponent } from './pages/common/entity/entity-dialog/entity-dialog.component';
 import { FormCheckboxComponent } from './pages/common/entity/entity-form/components/form-checkbox/form-checkbox.component';
@@ -59,13 +67,20 @@ export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
 
+export function handleNavigationError(err: any, reload = () => window.location.reload()) {
+  const chunkFailedMessage = /Loading chunk [\d]+ failed/;
+
+  if (chunkFailedMessage.test(err.message)) {
+    reload();
+  }
+  console.error(err);
+}
+
 @NgModule({
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    FlexLayoutModule,
     AppLoaderModule,
-    HttpClientModule,
     AppCommonModule,
     TranslateModule.forRoot({
       loader: {
@@ -75,15 +90,19 @@ export function createTranslateLoader(http: HttpClient) {
       },
     }),
     MaterialModule,
-    RouterModule.forRoot(rootRouterConfig, { useHash: false }),
-    MarkdownModule.forRoot(),
+    RouterModule.forRoot(rootRouterConfig, {
+      useHash: false,
+      errorHandler: handleNavigationError,
+    }),
     CoreServices.forRoot(),
     CoreComponents,
     FormsModule,
     ReactiveFormsModule,
     EntityModule,
     CommonDirectivesModule,
-    NgxWebstorageModule.forRoot(),
+    // the internal development record: the root-declared dialogs on the helm tiers/controls
+    ...HlmButtonImports, ...HlmCheckboxImports, ...HlmLabelImports, ...HlmFieldImports,
+    ...HlmInputImports, ...HlmInputGroupImports, ...HlmSelectImports, ...HlmSpinnerImports, ...HlmProgressImports, // #464: resilver + task-manager bars
   ],
   declarations: [
     AppComponent,
@@ -93,7 +112,6 @@ export function createTranslateLoader(http: HttpClient) {
     GeneralDialogComponent,
     AboutModalDialog,
     TaskManagerComponent,
-    TruecommandComponent,
     DirectoryServicesMonitorComponent,
     ConsolePanelModalDialog,
     DownloadKeyModalDialog,
@@ -113,30 +131,11 @@ export function createTranslateLoader(http: HttpClient) {
       provide: WINDOW,
       useFactory: getWindow,
     },
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
+    provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
   ],
   bootstrap: [
     AppComponent,
-  ],
-  entryComponents: [
-    AppLoaderComponent,
-    ConfirmDialog,
-    PasswordDialog,
-    ErrorDialog,
-    InfoDialog,
-    GeneralDialogComponent,
-    AboutModalDialog,
-    TaskManagerComponent,
-    TruecommandComponent,
-    DirectoryServicesMonitorComponent,
-    ConsolePanelModalDialog,
-    DownloadKeyModalDialog,
-    ResilverProgressDialogComponent,
-    SelectDialogComponent,
-    EntityDialogComponent,
-    FormCheckboxComponent,
-    FormInputComponent,
-    FormSelectComponent,
-    FormParagraphComponent,
   ],
 })
 export class AppModule {

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -6,21 +6,26 @@ import { FieldSet } from '../../common/entity/entity-form/models/fieldset.interf
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import { TaskService } from '../../../services';
 import helptext from '../../../helptext/task-calendar/resilver/resilver';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'resilver-priority',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService],
 })
 export class ResilverComponent {
   protected queryCall = 'pool.resilver.config';
   protected editCall = 'pool.resilver.update';
 
+  readonly settingsTitle = T('Resilver Priority'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_resilver,
       class: 'resilver',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       width: '50%',
       config: [
         {

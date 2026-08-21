@@ -1,13 +1,1 @@
-<div id="wrapper">
-	<mat-card id="shutdown-card">
-		<mat-card-content id="message">{{ "System is restarting..." | translate }}</mat-card-content>
-		<mat-icon svgIcon="truenas_core_logo_full" *ngIf="product_type === 'CORE'; else isTruenas" class="logo" alt="TrueNAS CORE logo"></mat-icon>
-		<ng-template #isTruenas>
-			<mat-icon *ngIf="product_type === 'ENTERPRISE'" class="logo" svgIcon="truenas_enterprise_logo_full" alt="TrueNAS ENTERPRISE logo"></mat-icon>
-			<mat-icon *ngIf="product_type === 'SCALE'" class="logo" svgIcon="truenas_scale_logo_full" alt="TrueNAS SCALE logo"></mat-icon>
-		</ng-template>
-		<div>
-			<span fxFlex class="copyright-txt">TrueNAS {{product_type}}® © {{copyrightYear}} - <a href="http://www.ixsystems.com" target="_blank" title="iXsystems, Inc."> iXsystems, Inc</a>.</span>
-		</div>
-	</mat-card>
-</div>
+<main class="fc-status-page"><div class="fc-status-body"><section class="fc-status-panel" aria-labelledby="transition-title"><div class="fc-status-brand"><img src="assets/images/freecore-fork-mark.svg" width="24" height="24" alt=""><span>Free<strong>CORE</strong></span></div><h1 class="fc-status-title" id="transition-title">{{ 'Restarting' | translate }}</h1><div class="fc-status-track indeterminate" role="progressbar" [attr.aria-label]="'Restarting' | translate"><span></span></div><div class="fc-status-copy" role="status"><p>{{ 'Waiting for FreeCORE to reconnect.' | translate }}</p><p class="muted">{{ 'The login page will open when the system is available.' | translate }}</p></div></section></div><footer class="fc-status-footer"><a href="https://freecore.org" target="_blank" rel="noopener noreferrer">freecore.org</a>@if(copyrightYear){<span> · © {{copyrightYear}}</span>}</footer></main>

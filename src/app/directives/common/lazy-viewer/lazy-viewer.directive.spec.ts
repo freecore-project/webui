@@ -1,8 +1,13 @@
+import { ElementRef, Renderer2 } from '@angular/core';
+
 import { LazyViewerDirective } from './lazy-viewer.directive';
 
 describe('LazyViewerDirective', () => {
   it('should create an instance', () => {
-    const directive = new LazyViewerDirective();
+    const directive = new LazyViewerDirective(
+      {} as Renderer2,
+      new ElementRef({}),
+    );
     expect(directive).toBeTruthy();
   });
 });

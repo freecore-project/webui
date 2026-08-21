@@ -1,12 +1,27 @@
-div.connected-initiators-container {
-    margin-right: 10px;
-}
+/* the internal development record: the 10px right margin went -- the cell sits in the engine's 24px column gap
+ * (entity-form.component.scss .fc-settings-fields). The list's height / border / margin live in
+ * freecore-ui.css (.fc-ui .fc-initiator-form .connected-initiators-list); only the scroll stays here. */
 div.connected-initiators-container.disabled {
     opacity: 0.38;
 }
-mat-selection-list.connected-initiators-list {
+/* the internal development record: the box the mat-selection-list drew -- content-box, 8px above and below the rows, so the
+ * 320px (200px narrow) list keeps its 338px outer box; fn-styles makes every div border-box, hence the explicit
+ * content-box. Each checkbox row takes an 8px lead. */
+div.connected-initiators-list {
     overflow: auto;
-    height: 500px;
-    border: 1px solid var(--bg1);
-    margin-bottom: 5px;
+    padding: 8px 0;
+    box-sizing: content-box;
+}
+div.connected-initiator {
+    padding: 0 8px;
+}
+
+.initiator-refresh-layout {
+    align-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
 }

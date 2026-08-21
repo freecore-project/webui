@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import {
   ServicesService, DialogService, AppLoaderService, WebSocketService, StorageService,
@@ -8,9 +8,12 @@ import { FieldConfig } from '../../../../common/entity/entity-form/models/field-
 import { DialogFormConfiguration } from 'app/pages/common/entity/entity-dialog/dialog-form-configuration.interface';
 
 import helptext from 'app/helptext/services/components/service-openvpn';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'openvpn-server-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ' <entity-form [conf]="this"></entity-form>',
 })
 
@@ -22,6 +25,7 @@ export class ServiceOpenvpnServerComponent {
   protected entityEdit: any;
   dialogConf: DialogFormConfiguration;
   protected certOptions: any;
+  readonly settingsTitle = T('OpenVPN Server'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -32,6 +36,7 @@ export class ServiceOpenvpnServerComponent {
     {
       name: 'server-settings',
       label: false,
+      settingsLabel: T('Connection'), // the internal development record: the section heading (the set was headless)
       width: '53%',
       config: [
         {
@@ -103,6 +108,7 @@ export class ServiceOpenvpnServerComponent {
     {
       name: 'client-server-settings',
       label: false,
+      settingsLabel: T('Tunnel Options'), // the internal development record
       width: '43%',
       config: [
         {

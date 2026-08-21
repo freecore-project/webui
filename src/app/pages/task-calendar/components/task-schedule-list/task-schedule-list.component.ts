@@ -1,22 +1,32 @@
 import {
   Component, Input, OnChanges, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { EntityTableComponent } from 'app/pages/common/entity/entity-table';
 import { TaskService } from 'app/services';
 
 @Component({
+  standalone: false,
   selector: 'app-task-schedule-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  // the internal development record: the widget menu's content on the M1 vocabulary -- the heading in the
+  // menu-label voice on a hairline, the runs as plain 32px rows (not menu items: nothing to act on).
   template: `
-    <h4 [style.margin]="'6px 16px 12px'">{{ 'Upcoming tasks' | translate }}</h4>
-
-    <mat-divider></mat-divider>
-
-    <mat-list>
-      <mat-list-item *ngFor="let run of futureRuns">
-        {{ run }}
-      </mat-list-item>
-    </mat-list>
-  `,
+    <hlm-dropdown-menu-label>{{ 'Upcoming tasks' | translate }}</hlm-dropdown-menu-label>
+    <hlm-dropdown-menu-separator />
+    @for (run of futureRuns; track run) {
+      <div class="task-run">{{ run }}</div>
+    }
+    `,
+  styles: [`
+    .task-run {
+      font-size: 13px;
+      line-height: 32px;
+      height: 32px;
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+  `],
 })
 export class TaskScheduleListComponent implements OnInit, OnChanges {
   private static readonly LIST_LENGTH = 5;

@@ -1,0 +1,134 @@
+@if (rendered) {
+  <div class="widget stats-widget network-widget" [class.xs]="screenType === 'Mobile'">
+    <div class="card-container front">
+      <div class="fc-card front">
+        <div class="fc-card-content">
+          <!-- Header strip: title + icon actions only (no text buttons) -->
+          <div class="net-header">
+            @if (screenType === 'Mobile') {
+              <button data-dashboard-back (click)="goBack()" [attr.aria-label]="'Back to widgets' | translate" hlmTooltip="{{ 'Back to widgets' | translate }}" type="button" hlmBtn variant="ghost" size="icon" class="net-back"
+                ix-auto ix-auto-type="button" ix-auto-identifier="goBack">
+                <mat-icon>chevron_left</mat-icon>
+              </button>
+            }
+            <h2 class="net-title">{{ title | translate }}</h2>
+            <div class="controls">
+              <button type="button" hlmBtn variant="ghost" size="icon" (click)="goToReports()"
+                hlmTooltip="{{ 'Network Reports' | translate }}" [attr.aria-label]="'Network Reports' | translate"
+                ix-auto ix-auto-type="button" ix-auto-identifier="networkReports">
+                <mat-icon role="img">insert_chart</mat-icon>
+              </button>
+              <button type="button" hlmBtn variant="ghost" size="icon" (click)="goToInterfaces()"
+                hlmTooltip="{{ 'Configure Interfaces' | translate }}" [attr.aria-label]="'Configure Interfaces' | translate"
+                ix-auto ix-auto-type="button" ix-auto-identifier="configureInterfaces">
+                <mat-icon role="img">settings</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="net-body">
+            <!-- PHYSICAL -->
+            @if (physicalVisible.length > 0 || down.count > 0) {
+              <div class="section-label-sm net-section">{{ 'Physical' | translate }}</div>
+            }
+            @for (row of physicalVisible; track trackByName($index, row)) {
+              <button type="button" class="net-row"
+                (click)="goToInterface(row.name)"
+                [hlmTooltip]="row.name + ((row.ip || row.media) ? ' — ' + (row.ip || row.media) : '') + (row.moreIps ? ' +' + row.moreIps : '')" [ix-auto]="row.name" ix-auto-type="button" ix-auto-identifier="interface">
+                <span class="state-dot up"></span>
+                <span class="if-name mono">{{ row.name }}</span>
+                <span class="if-meta">
+                  <span class="if-address" [attr.title]="row.ip || row.media">
+                    @if (row.ip) {
+                      {{ row.ip }}
+                    }
+                    @if (!row.ip && row.media) {
+                      <span class="muted">{{ row.media }}</span>
+                    }
+                  </span>
+                  @if (row.moreIps) {
+                    <span class="widget-count address-count">+{{ row.moreIps }}</span>
+                  }
+                  @if (row.vlans) {
+                    <span class="widget-count vlan-count">{{ row.vlans }}&nbsp;{{ (row.vlans == 1 ? 'VLAN' : 'VLANs') | translate }}</span>
+                  }
+              </span>
+              <span class="row-tail">
+                @if (row.traffic) {
+                  <span class="if-traffic">
+                    <span class="traffic-direction"><span class="arrow in">&#8595;</span><span class="stat">{{ row.traffic.in }}</span><span class="unit">{{ row.traffic.inUnits }}/s</span></span>
+                    <span class="traffic-direction"><span class="arrow out">&#8593;</span><span class="stat">{{ row.traffic.out }}</span><span class="unit">{{ row.traffic.outUnits }}/s</span></span>
+                  </span>
+                }
+                @if (!row.traffic) {
+                  <span class="if-traffic gathering">{{ 'Gathering data' | translate }}&hellip;</span>
+                }
+              </span>
+            </button>
+          }
+          <!-- All DOWN interfaces collapse to one row -->
+          @if (down.count > 0) {
+            <button type="button" class="net-row down-row" (click)="goToInterfaces()"
+              [hlmTooltip]="('Down interfaces' | translate) + ': ' + down.names.join(', ')"
+              ix-auto ix-auto-type="button" ix-auto-identifier="downInterfaces">
+              <span class="state-dot down"></span>
+              <span class="if-name muted">{{ down.count }}&nbsp;{{ 'down' | translate }}</span>
+              <span class="if-meta muted mono" [attr.title]="down.names.join(', ')">{{ down.names.join(', ') }}</span>
+              <span class="row-tail">
+                <span class="if-traffic muted">{{ 'no traffic' | translate }}</span>
+              </span>
+            </button>
+          }
+          <!-- Overflow: frame never grows -->
+          @if (physicalOverflow > 0) {
+            <button type="button" class="net-row more-row" (click)="goToInterfaces()"
+              ix-auto ix-auto-type="button" ix-auto-identifier="moreInterfaces">
+              <span>+&nbsp;{{ physicalOverflow }}&nbsp;{{ 'more' | translate }}</span>
+            </button>
+          }
+          <!-- VIRTUAL -->
+          @if (hasVirtual) {
+            <div class="section-label-sm net-section">{{ 'Virtual' | translate }}</div>
+            @if (bridges.count > 0) {
+              <button type="button" class="net-row" (click)="goToInterfaces()"
+                ix-auto ix-auto-type="button" ix-auto-identifier="bridges">
+                <span class="state-dot" [ngClass]="bridges.up > 0 ? 'up' : 'down'"></span>
+                <span class="if-name">{{ bridges.count }}&nbsp;{{ (bridges.count == 1 ? 'bridge' : 'bridges') | translate }}</span>
+                <span class="if-meta muted">{{ bridges.up }}&nbsp;{{ 'up' | translate }}</span>
+                <span class="row-tail">
+                  <mat-icon class="chevron">chevron_right</mat-icon>
+                </span>
+              </button>
+            }
+            @if (vlanTotal > 0) {
+              <button type="button" class="net-row" (click)="goToInterfaces()"
+                [hlmTooltip]="('VLANs' | translate) + (vlanSummary ? ': ' + vlanSummary : '')"
+                ix-auto ix-auto-type="button" ix-auto-identifier="vlans">
+                <span class="state-dot up"></span>
+                <span class="if-name">{{ vlanTotal }}&nbsp;{{ (vlanTotal == 1 ? 'VLAN' : 'VLANs') | translate }}</span>
+                @if (vlanSummary) {
+                  <span class="if-meta muted" [attr.title]="vlanSummary">{{ vlanSummary }}</span>
+                }
+                <span class="row-tail">
+                  @if (vlanTraffic) {
+                    <span class="if-traffic">
+                      <span class="traffic-direction"><span class="arrow in">&#8595;</span><span class="stat">{{ vlanTraffic.in }}</span><span class="unit">{{ vlanTraffic.inUnits }}/s</span></span>
+                    <span class="traffic-direction"><span class="arrow out">&#8593;</span><span class="stat">{{ vlanTraffic.out }}</span><span class="unit">{{ vlanTraffic.outUnits }}/s</span></span>
+                    </span>
+                  }
+                  <mat-icon class="chevron">chevron_right</mat-icon>
+                </span>
+              </button>
+            }
+          }
+          <!-- Empty state -->
+          @if (physicalVisible.length == 0 && down.count == 0 && !hasVirtual) {
+            <div class="net-empty">
+              {{ 'No network interfaces' | translate }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

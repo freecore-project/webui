@@ -12,15 +12,19 @@ COMMENT=	Angular Web User Interface for FreeNAS
 
 EXTRACT_ONLY=
 
-FETCH_DEPENDS=	yarn:www/yarn \
+# Angular 20 builds on Node 24 through the matching Yarn Classic port flavor.
+# python3 is required by node-gyp: the toolchain pulls @parcel/watcher (transitively,
+# via nx) whose node-gyp-build has no FreeBSD prebuilt, so it compiles from source
+# during `yarn install` below.  Without it the fetch target dies with
+# "Could not find any Python installation to use".  It only shows up in the build
+# jail — a developer machine always has python3 on PATH.  See the internal development record.
+FETCH_DEPENDS=	yarn:www/yarn-node24 \
 		git>0:devel/git \
-		python2>0:lang/python2 \
-    gmake:devel/gmake
+    gmake:devel/gmake \
+		python3:lang/python3
 BUILD_DEPENDS=	rsync>0:net/rsync \
-		yarn:www/yarn \
-		python2>0:lang/python2 \
+		yarn:www/yarn-node24 \
     gmake:devel/gmake
-RUN_DEPENDS=  gmake:devel/gmake
 
 NO_BUILD=	yes
 WRKSRC=		/usr/webui
@@ -32,9 +36,28 @@ checksum:
 
 fetch:
 	${MKDIR} ${WRKDIR}
-	${ECHO} "export default { product:'${PRODUCT}' }" > ${WRKSRC}/src/app/helptext/product.ts
-	${ECHO} "var product = '${PRODUCT}'" > ${WRKSRC}/src/assets/scripts/product.js
-	(cd ${WRKSRC} && ${LOCALBASE}/bin/yarn install && ${LOCALBASE}/bin/yarn run build:prod:aot)
+	# the internal development record: do NOT overwrite helptext/product.ts — the repo carries the
+	# fork identity (FreeCORE, the internal development record) and PRODUCT stays 'TrueNAS' for ISO/release
+	# and train naming (protected heritage touch, the internal development record).
+	# the internal development record: product.js retired with its only consumer (index.html splash).
+	# the internal development record: no NODE_OPTIONS=--openssl-legacy-provider.  It existed only so
+	# webpack's MD4 hashing survived OpenSSL 3, and Angular 15 no longer needs it --
+	# building with the flag and without it produced byte-identical output (7,359,641
+	# bytes over the same 613 files).  #41 predicted webpack 5 would end the need at
+	# Angular 12 and #42 disproved that by testing; this is the re-test #42 asked for.
+	# Do not re-add it speculatively: if a future hop needs it, re-test and say so here.
+	# the internal development record: yarn's 30 s default network timeout and its few internal retries let one bad
+	# five minutes on the build host's uplink fail the port, and with it a whole image build (twice on
+	# 2026-10-16/17, both while lang/rust was compiling on the same host). Give each request 10 minutes
+	# and retry the install up to three times, a minute apart; yarn's cache keeps what earlier attempts
+	# fetched. The build itself runs once, unchanged.
+	(cd ${WRKSRC} || exit 1; attempt=1; \
+	    until ${LOCALBASE}/bin/yarn install --network-timeout 600000; do \
+	        [ $$attempt -ge 3 ] && exit 1; \
+	        echo "===>  yarn install failed (attempt $$attempt of 3), retrying in 60 s"; \
+	        attempt=$$((attempt + 1)); sleep 60; \
+	    done; \
+	    ${LOCALBASE}/bin/yarn run build:prod:aot)
 
 extract:
 	:

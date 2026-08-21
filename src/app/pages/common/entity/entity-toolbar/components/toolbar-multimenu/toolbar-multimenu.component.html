@@ -1,41 +1,36 @@
+<!-- the internal development record: the multi-select menu on the helm dropdown-menu (M1) -- the ghost trigger with the caret (the Reporting bar is the text tier: its tab picker beside these is); Select All as a keep-open row; the options as checkbox rows with a
+     display-only #352 box (was the check-circle / remove glyphs); the option's trailing glyph at
+     the row end. -->
 <div class="toolbar-menu">
   <div>
-
-  <!-- TRIGGER -->
-  <button mat-button [matMenuTriggerFor]="menu" color="default" class="menu-toggle">
-    <span>{{config.label}} <mat-icon class="menu-caret">arrow_drop_down</mat-icon> </span>
-  </button>
-  <mat-menu #menu="matMenu" multiple overlapTrigger="false">
-  
-    <!-- SELECT ALL -->
-    <div (click)="$event.stopPropagation()">
-      <button mat-menu-item (click)="checkAll()">
-        <span>
-          <mat-icon *ngIf="checkLength()">check_circle</mat-icon> 
-          <mat-icon *ngIf="!checkLength()">remove</mat-icon> 
-        </span> 
-        <span>Select All</span>
-      </button>
-    </div>
-
-    <!-- OPTIONS-->
-    <div (click)="$event.stopPropagation()">
-      <button mat-menu-item *ngFor="let option of config.options; let i=index;" (click)="onClick(option,i);">
-        <span>
-          <mat-icon *ngIf="selectStates[i]">check_circle</mat-icon>
-          <mat-icon *ngIf="!selectStates[i]">remove</mat-icon>
-        </span>
-        <span>{{option.label}}</span>
-        <span *ngIf="option.labelIcon" class="icon-suffix {{option.labelIconType}}">
-          &nbsp;
-          <mat-icon *ngIf="!option.labelIconType || option.labelIconType == 'default'">{{option.labelIcon}}</mat-icon>
-          <mat-icon *ngIf="option.labelIconType && option.labelIconType == 'community'" role="img" fontSet="mdi-set" fontIcon="mdi-{{option.labelIcon}}"></mat-icon>
-          <mat-icon *ngIf="option.labelIconType && option.labelIconType == 'custom'" role="img" [svgIcon]="option.labelIcon" ></mat-icon>
-        </span>
-      </button>
-    </div>
-  </mat-menu>
-
+    <button hlmBtn variant="ghost" type="button" [hlmDropdownMenuTrigger]="menu" class="menu-toggle" id="toolbar-multimenu__{{config.name}}"
+      [disabled]="config.disabled">
+      <span>{{config.label | translate}} <mat-icon class="menu-caret" aria-hidden="true">expand_more</mat-icon></span>
+    </button>
+    <ng-template #menu>
+      <hlm-dropdown-menu class="toolbar-multimenu">
+        <button hlmDropdownMenuItem keepOpen type="button" (triggered)="checkAll()" id="toolbar-multimenu__{{config.name}}__all">
+          <mat-icon aria-hidden="true">{{ checkLength() ? 'check_box_outline_blank' : 'select_all' }}</mat-icon>
+          <span>{{ (checkLength() ? "Unselect All" : "Select All") | translate }}</span>
+        </button>
+        <hlm-dropdown-menu-separator />
+        @for (option of config.options; track option; let i = $index) {
+          <div hlmDropdownMenuCheckbox [checked]="selectStates[i]" (triggered)="onClick(option, i)" id="toolbar-multimenu__{{config.name}}__{{option.value ?? option}}">
+            <span class="menu-box" inert><hlm-checkbox [checked]="selectStates[i]" /></span>
+            <span class="menu-label">{{option.label ?? option}}</span>
+            @if (option.labelIcon) {
+              <span class="icon-suffix {{option.labelIconType}}" aria-hidden="true">
+                @if (option.labelIconType !== 'custom') {
+                  <mat-icon>{{option.labelIcon}}</mat-icon>
+                }
+                @if (option.labelIconType && option.labelIconType == 'custom') {
+                  <mat-icon role="img" [svgIcon]="option.labelIcon"></mat-icon>
+                }
+              </span>
+            }
+          </div>
+        }
+      </hlm-dropdown-menu>
+    </ng-template>
   </div>
 </div>
-

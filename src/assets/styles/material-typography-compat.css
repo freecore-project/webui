@@ -1,0 +1,52 @@
+/* the internal development record: keep the established 13.3 control typography after
+ * the MDC migration. Component tokens avoid changing page/table typography,
+ * the approved sidebar, theme colors or the FreeCORE font family. */
+
+:root .mat-mdc-menu-panel {
+  --mat-menu-item-label-text-size: 14px;
+  --mat-menu-item-label-text-line-height: 20px;
+  --mat-menu-item-label-text-tracking: normal;
+}
+
+/* MDC adds a 48px minimum, which defeated the existing 36px menu height.
+ * Allow long labels to grow instead of clipping them to a fixed row. */
+:root .mat-mdc-menu-item {
+  min-height: 36px;
+  height: auto !important;
+  line-height: 20px !important;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+:root .mat-mdc-menu-item-text {
+  display: flex;
+  align-items: center;
+}
+
+/* Entity menus wrap icons in a span. Avoid an inline baseline adding space
+ * beneath that wrapper and enlarging otherwise single-line menu rows. */
+:root .mat-mdc-menu-item-text .mat-icon {
+  display: block;
+}
+
+/* The old theme-picker width rule now matches ordinary MDC menus. There
+ * is no theme picker in these menus; let their contents determine width. */
+.mat-mdc-menu-panel.mat-menu-after.mat-menu-below {
+  min-width: 112px !important;
+}
+
+:root .mat-mdc-dialog-container {
+  --mat-dialog-supporting-text-size: 14px;
+  --mat-dialog-supporting-text-line-height: 20px;
+  --mat-dialog-supporting-text-tracking: normal;
+  --mat-dialog-subhead-tracking: normal;
+}
+
+:root .mat-mdc-button-base {
+  --mat-button-text-label-text-tracking: normal;
+  --mat-button-filled-label-text-tracking: normal;
+  --mat-button-protected-label-text-tracking: normal;
+  --mat-button-outlined-label-text-tracking: normal;
+  --mat-button-tonal-label-text-tracking: normal;
+}
+

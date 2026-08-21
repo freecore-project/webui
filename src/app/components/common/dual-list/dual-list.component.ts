@@ -1,12 +1,15 @@
 import {
   Component, ContentChild, EventEmitter, Input, OnInit, Output, TemplateRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { difference, ListSelection, ListSelectionImpl } from './models';
 import { CdkDragDrop, CdkDragStart } from '@angular/cdk/drag-drop';
 
 @Component({
+  standalone: false,
   selector: 'app-dual-listbox',
   styleUrls: ['./dual-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: 'dual-list.component.html',
 })
 export class DualListboxComponent implements OnInit {

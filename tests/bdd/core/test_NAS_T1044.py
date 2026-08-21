@@ -80,10 +80,10 @@ def when_the_user_field_expand_down_click_the_delete_button(driver):
 @then('on the dialog box, Confirm deletion and click Delete')
 def on_the_dialog_box_confirm_deletion_and_click_delete(driver):
     """on the dialog box, Confirm deletion and click Delete."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Delete User")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Delete User")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Delete user primary group foo"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Delete user primary group foo"]').click()
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__DELETE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__DELETE"]').click()
 

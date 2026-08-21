@@ -10266,6 +10266,9 @@ msgstr ""
 msgid "Save Without Restarting"
 msgstr "儲存但不重新啟動"
 
+msgid "Save and Failover"
+msgstr ""
+
 msgid "Save and Restart SMB Now"
 msgstr ""
 
@@ -10910,6 +10913,9 @@ msgstr ""
 
 msgid "Send Mail Method"
 msgstr ""
+
+msgid "Send Test Alert"
+msgstr "寄送測試警報"
 
 msgid "Send Test Mail"
 msgstr "寄送測試郵件"
@@ -12044,6 +12050,9 @@ msgstr "開始"
 
 msgid "Start Automatically"
 msgstr "自動啟動"
+
+msgid "Start Replication"
+msgstr ""
 
 msgid "Start Scrub"
 msgstr "開始 Scrub"

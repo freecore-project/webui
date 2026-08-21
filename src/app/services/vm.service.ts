@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, Subscription } from 'rxjs/Rx';
+import { Observable, Subject, Subscription } from 'rxjs';
 
 import { EntityUtils } from '../pages/common/entity/utils';
 import { RestService } from './rest.service';
@@ -18,12 +18,17 @@ export class VmService {
     return this.ws.call('vm.query', [[['name', '=', vm]], { get: true }]);
   }
 
-  getBootloaderOptions() {
-    return [
+  getBootloaderOptions(currentBootloader?: string) {
+    const options = [
       ['UEFI', 'UEFI'],
       ['UEFI_CSM', 'UEFI-CSM'],
-      ['GRUB', 'Grub'],
     ];
+
+    if (currentBootloader === 'GRUB') {
+      options.push(['GRUB', 'GRUB (Deprecated - existing VM only)']);
+    }
+
+    return options;
   }
 
   getNICTypes() {

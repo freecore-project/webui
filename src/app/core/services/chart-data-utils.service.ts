@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { Observer } from 'rxjs';
-import { Subject } from 'rxjs';
+import { Observable, Observer, Subject } from 'rxjs';
 import { CoreService, CoreEvent } from './core.service';
 import { Thread } from 'app/core/classes/thread';
 import * as moment from 'moment';
@@ -13,7 +11,7 @@ export interface ProcessTask {
   data: any[];
 }
 
-interface TimeData { // This is in WidgetChartComponent as well. Widgets eventually need to be updated to use this instead
+interface TimeData { // Widgets eventually need to be updated to use this shared shape
   start: number;
   end: number;
   step: number;

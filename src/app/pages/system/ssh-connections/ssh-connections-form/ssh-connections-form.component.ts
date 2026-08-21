@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
@@ -11,10 +11,13 @@ import * as _ from 'lodash';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
 import { EntityUtils } from '../../../common/entity/utils';
 import { forbiddenValues } from '../../../common/entity/entity-form/validators/forbidden-values-validation';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-ssh-connections-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [KeychainCredentialService, ReplicationService],
 })
 export class SshConnectionsFormComponent {
@@ -31,6 +34,7 @@ export class SshConnectionsFormComponent {
   protected namesInUseConnection = [];
   protected namesInUse = [];
 
+  readonly settingsTitle = T('SSH Connection'); // the internal development record: the page's h1
   protected fieldConfig: FieldConfig[];
   fieldSets: FieldSet[] = [
     {
@@ -56,7 +60,7 @@ export class SshConnectionsFormComponent {
               label: 'Manual',
               value: 'manual',
             }, {
-              label: 'Semi-automatic (TrueNAS only)',
+              label: 'Semi-automatic (FreeCORE only)',
               value: 'semiautomatic',
             },
           ],

@@ -1,4 +1,7 @@
-<mat-card>
-<mat-card-title></mat-card-title>
-	<div id="terminal" #terminal (contextmenu)="onShellRightClick()"></div>
-</mat-card>
+<section id="system-processes-page" class="fc-page fc-console" aria-labelledby="system-processes-title">
+  <h1 id="system-processes-title" class="fc-page-title">{{ 'System Processes' | translate }}</h1>
+
+  <div class="fc-console-surface">
+    <ix-terminal [target]="{ processes: true }" [readonly]="true"></ix-terminal>
+  </div>
+</section>

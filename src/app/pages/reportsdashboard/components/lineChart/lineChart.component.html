@@ -1,3 +1,5 @@
 <div id="{{controlUid}}" #wrapper style="height:200px; max-height:200px;">
-  <canvas *ngIf="library == 'chart.js'"></canvas>
+  @if (library == 'chart.js') {
+    <canvas></canvas>
+  }
 </div>

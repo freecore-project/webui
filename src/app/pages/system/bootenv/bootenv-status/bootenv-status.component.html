@@ -1,18 +1,12 @@
-<div class="material mat-card mat-card-table">
-	<div class="mat-toolbar mat-card-toolbar" fxLayoutAlign="space-between center">
-		<div fxFlex="300px" class="mat-card-title-text">
-			{{title | translate}}
-		</div>
-	</div>
-	<div>
-		<mat-list *ngIf="poolScan">
-			<mat-list-item><b>{{poolScan.function}}</b></mat-list-item>
-			<mat-list-item>Status: {{poolScan.pause != null ? 'PAUSED' : poolScan.state ? poolScan.state : 'None requested'}}</mat-list-item>
-			<mat-list-item *ngIf="poolScan.errors != null">Errors: {{poolScan.errors}}</mat-list-item>
-			<mat-list-item *ngIf="poolScan.start_time != null">Date: {{getReadableDate(poolScan.start_time)}}</mat-list-item>
-		</mat-list>
-	</div>
-	<div class="padding-16">
-			<entity-tree-table [conf]="treeTableConfig"></entity-tree-table>
-	</div>
-</div>
+<section id="boot-pool-status-page" class="fc-page">
+  <h1 class="fc-page-title">{{title | translate}}</h1>
+  @if (poolScan) {
+    <dl class="fc-boot-scan">
+      <div><dt>{{"Operation" | translate}}</dt><dd>{{poolScan.function}}</dd></div>
+      <div><dt>{{"Status" | translate}}</dt><dd>{{poolScan.pause != null ? 'PAUSED' : poolScan.state ? poolScan.state : 'None requested'}}</dd></div>
+      @if (poolScan.errors != null) { <div><dt>{{"Errors" | translate}}</dt><dd>{{poolScan.errors}}</dd></div> }
+      @if (poolScan.start_time != null) { <div><dt>{{"Date" | translate}}</dt><dd>{{getReadableDate(poolScan.start_time)}}</dd></div> }
+    </dl>
+  }
+  <entity-tree-table [conf]="treeTableConfig"></entity-tree-table>
+</section>

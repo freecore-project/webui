@@ -86,7 +86,7 @@ def click_add(driver):
     """Click Add."""
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__Samba_ADD"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"General")]')
 
 
 @then(parsers.parse('Set Path to the ACL dataset "{path}"'))

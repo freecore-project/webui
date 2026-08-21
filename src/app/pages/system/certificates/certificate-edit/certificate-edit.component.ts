@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_certificates } from 'app/helptext/system/certificates';
 import * as _ from 'lodash';
@@ -11,10 +12,13 @@ import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.int
 import { EntityUtils } from '../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-certificate-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class CertificateEditComponent {
+  settingsTitle = T('Certificate');
   protected queryCall = 'certificate.query';
   protected editCall = 'certificate.update';
   protected route_success: string[] = ['system', 'certificates'];
@@ -26,6 +30,7 @@ export class CertificateEditComponent {
     {
       name: helptext_system_certificates.edit.fieldset_certificate,
       label: true,
+      settingsLabel: T('Details'),
       class: 'certificate',
       width: '100%',
       config: [
@@ -74,9 +79,6 @@ export class CertificateEditComponent {
     protected loader: AppLoaderService, protected dialog: DialogService) {}
 
   preInit() {
-    this.certificateField = _.find(this.fieldConfig, { name: 'certificate' });
-    this.privatekeyField = _.find(this.fieldConfig, { name: 'privatekey' });
-    this.CSRField = _.find(this.fieldConfig, { name: 'CSR' });
     this.route.params.subscribe((params) => {
       if (params['pk']) {
         this.queryCallOption[0].push(parseInt(params['pk']));
@@ -86,6 +88,10 @@ export class CertificateEditComponent {
 
   afterInit(entityEdit: any) {
     this.entityForm = entityEdit;
+    // EntityForm assembles fieldConfig after preInit.
+    this.certificateField = _.find(this.fieldConfig, { name: 'certificate' });
+    this.privatekeyField = _.find(this.fieldConfig, { name: 'privatekey' });
+    this.CSRField = _.find(this.fieldConfig, { name: 'CSR' });
     this.route.params.subscribe((params) => {
       if (params['pk']) {
         this.pk = parseInt(params['pk']);

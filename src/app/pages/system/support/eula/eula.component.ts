@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { WebSocketService } from 'app/services/ws.service';
 
 @Component({
+  standalone: false,
   selector: 'app-eula',
   templateUrl: './eula.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./eula.component.css'],
 })
 export class EulaComponent implements OnInit {

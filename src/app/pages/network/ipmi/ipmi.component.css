@@ -1,11 +1,4 @@
-.ipmi-card {
-  max-width:calc(960px - 32px);
-  margin-left:auto;
-  margin-right:auto;
-  padding-top: 0;
-}
-#ipmi_controller-spinner {
-  position: absolute;
-  top: 10px;
-  left: 25px;
+.ipmi-scope {
+  max-width:1120px; /* the internal development record/#413: the form below is the settings container (1120 anchored, no inset); the scope section sits on the same edges (#462) */
+  margin:0;
 }

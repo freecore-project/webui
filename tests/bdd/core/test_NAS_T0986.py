@@ -62,7 +62,7 @@ def click_on_the_accounts_on_the_side_menu_click_on_users(driver):
 def when_the_users_page_should_open_click_on_the_add_button(driver):
     """when the Users page should open, click on the "Add" Button."""
     assert wait_on_element(driver, 7, '//div[contains(.,"Users")]')
-    if wait_on_element(driver, 3, '//h1[contains(.,"Display Note")]'):
+    if wait_on_element(driver, 3, '//h2[contains(.,"Display Note")]'):
         assert wait_on_element(driver, 7, '//button[@ix-auto="button__Users_ADD"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Users_ADD"]', 'clickable')
@@ -72,7 +72,7 @@ def when_the_users_page_should_open_click_on_the_add_button(driver):
 @then('the Users Add Page should open')
 def the_users_add_page_should_open(driver):
     """the Users Add Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('input in the following fields Full Name, Username')

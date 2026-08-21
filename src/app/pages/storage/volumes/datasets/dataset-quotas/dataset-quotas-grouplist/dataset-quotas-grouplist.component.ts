@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { ValidationErrors, FormControl } from '@angular/forms';
+import { ValidationErrors, UntypedFormControl } from '@angular/forms';
 import {
   WebSocketService, StorageService, DialogService, AppLoaderService,
 } from 'app/services';
@@ -14,9 +14,11 @@ import { filter } from 'rxjs/operators';
 import { EntityTableService } from 'app/pages/common/entity/entity-table/entity-table.service';
 
 @Component({
+  standalone: false,
   selector: 'app-dataset-quotas-grouplist',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
-})
+  })
 export class DatasetQuotasGrouplistComponent implements OnDestroy {
   pk: string;
   title = helptext.groups.table_title;
@@ -141,7 +143,7 @@ export class DatasetQuotasGrouplistComponent implements OnDestroy {
                 blurEvent: self.blurEvent,
                 parent: self,
                 validation: [
-                  (control: FormControl): ValidationErrors => {
+                  (control: UntypedFormControl): ValidationErrors => {
                     const config = conf.fieldConfig.find((c) => c.name === 'data_quota');
                     self.quotaValue = control.value;
                     const size = self.storageService.convertHumanStringToNum(control.value);

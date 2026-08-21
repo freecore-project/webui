@@ -438,7 +438,7 @@ export default {
  <a href="https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml" \
  target="_blank">Internet Assigned Numbers Authority \(IANA\) registry</a>.'),
 
-  vnet_default_interface_placeholder: T('vnet_default_interface'),
+  vnet_default_interface_placeholder: T('VNET Default Interface'),
   vnet_default_interface_tooltip: T('Set the default VNET interface. Only\
  takes effect when <i>VNET</i> is set. Choose a specific interface or\
  set to <i>auto</i> to use the interface that has the default route.\
@@ -643,11 +643,11 @@ export default {
     },
     jailInstall: {
       title: T('Install'),
-      description: T('Installing plugin...'),
+      description: T('Installing jail...'),
     },
     jailEdit: {
       title: T('Install'),
-      description: T('Installing plugin...'),
+      description: T('Updating jail...'),
     },
   },
 };

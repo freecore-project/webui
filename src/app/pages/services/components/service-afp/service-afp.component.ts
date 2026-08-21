@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -8,10 +8,13 @@ import {
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import helptext from '../../../../helptext/services/components/service-afp';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'afp-edit',
   template: ' <entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [UserService, IscsiService],
 })
 
@@ -19,6 +22,7 @@ export class ServiceAFPComponent {
   protected route_success: string[] = ['services'];
   protected queryCall = 'afp.config';
 
+  readonly settingsTitle = T('AFP'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
 
   fieldSets: FieldSet[] = [
@@ -148,12 +152,13 @@ export class ServiceAFPComponent {
   afterInit(entityEdit: any) {
     entityEdit.submitFunction = this.submitFunction;
     const self = this;
-    this.userService.listUsers().subscribe((res) => {
+    this.userService.listUsers().subscribe((users) => {
       self.guest_users = _.find(this.fieldSets, { name: helptext.afp_fieldset_access }).config.find((config) => config.name === 'guest_user');
-      for (let i = 0; i < res.data.length; i++) {
-        this.guest_users.options.push(
-          { label: res.data[i].bsdusr_username, value: res.data[i].bsdusr_username },
-        );
+      // user.query returns user objects; `nobody` is already the field's default option
+      for (const user of users) {
+        if (!this.guest_users.options.some((option) => option.value === user.username)) {
+          this.guest_users.options.push({ label: user.username, value: user.username });
+        }
       }
     });
     this.ws.call('afp.bindip_choices').subscribe((res) => {

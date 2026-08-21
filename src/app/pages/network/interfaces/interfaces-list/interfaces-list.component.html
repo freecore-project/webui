@@ -1,21 +1,30 @@
-<mat-card *ngIf="hasPendingChanges">
-    <div *ngIf="!checkinWaiting;else checkIn">
-      <p> {{helptext.pending_changes_text | translate}} </p>
-      <p> {{helptext.checkin_text | translate }}
-      <mat-form-field floatPlaceholder="never" id="timeout-field">
-        <input matInput [(ngModel)]="checkin_timeout" [pattern]="checkin_timeout_pattern">
-      </mat-form-field>
-        {{ helptext.checkin_text_2 | translate }}
-      </p>
-    </div>
-    <ng-template #checkIn>
+@if (hasPendingChanges) {
+  <section class="fc-page-notice fc-page-notice--warn"><!-- the internal development record: the one notice box -->
+    @if (!checkinWaiting) {
+      <div>
+        <p> {{helptext.pending_changes_text | translate}} </p>
+        <p> {{helptext.checkin_text | translate }}
+          <!-- the internal development record: the kit input, inline in the sentence (no reserved label/subscript rows) -->
+          <input hlmInput id="timeout-field" type="text" inputmode="numeric" [attr.aria-label]="'Timeout' | translate"
+            [(ngModel)]="checkin_timeout" [pattern]="checkin_timeout_pattern">
+          {{ helptext.checkin_text_2 | translate }}
+        </p>
+      </div>
+    } @else {
       <p>{{helptext.pending_checkin_text | translate}} {{checkin_remaining}} {{helptext.pending_checkin_text_2 | translate}}</p>
-    </ng-template>
-    <mat-card-actions class="buttons">
-      <button *ngIf="!checkinWaiting" [disabled]="ha_enabled" mat-button type="button" (click)="commitPendingChanges()" class="btn btn-block btn-warning mat-primary" mat-button color="primary">{{helptext.commit_button | translate}}</button>
-      <button *ngIf="checkinWaiting" [disabled]="ha_enabled" mat-button type="button" (click)="checkInNow()" class="btn btn-block btn-warning mat-primary" mat-button color="primary">{{helptext.keep_button | translate}}</button>
-      <button mat-button type="button" [disabled]="ha_enabled" (click)="rollbackPendingChanges()" class="btn  btn-block btn-lg mat-accent" mat-button color="accent">{{helptext.rollback_button | translate}}</button>
-    </mat-card-actions>
-    <div class="disabled-notice" *ngIf="ha_enabled">{{helptext.ha_enabled_text | translate}} (<span class="pseudolink" (click)="goToHA()">{{helptext.go_to_ha | translate}}</span>).</div>
-</mat-card>
+    }
+    <div class="fc-notice-actions buttons">
+      @if (!checkinWaiting) {
+        <button [disabled]="ha_enabled" hlmBtn type="button" (click)="commitPendingChanges()">{{helptext.commit_button | translate}}</button>
+      }
+      @if (checkinWaiting) {
+        <button [disabled]="ha_enabled" hlmBtn type="button" (click)="checkInNow()">{{helptext.keep_button | translate}}</button>
+      }
+      <button hlmBtn variant="outline" type="button" [disabled]="ha_enabled" (click)="rollbackPendingChanges()">{{helptext.rollback_button | translate}}</button>
+    </div>
+    @if (ha_enabled) {
+      <div class="disabled-notice">{{helptext.ha_enabled_text | translate}} (<span class="pseudolink" (click)="goToHA()">{{helptext.go_to_ha | translate}}</span>).</div>
+    }
+  </section>
+}
 <entity-table [title]="title" [conf]="this"></entity-table>

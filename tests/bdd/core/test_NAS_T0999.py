@@ -79,7 +79,7 @@ def the_root_user_field_should_expand_down_then_click_the_edit_button(driver):
 @then('the User Edit Page should open')
 def the_user_edit_page_should_open(driver):
     """the User Edit Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
     time.sleep(0.5)
 
 
@@ -107,7 +107,7 @@ def reopen_the_user_edit_page(driver):
     driver.find_element_by_xpath('//a[@ix-auto="expander__root"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__EDIT_root"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__EDIT_root"]').click()
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Identification")]')
     time.sleep(0.5)
 
 

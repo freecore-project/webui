@@ -1,14 +1,15 @@
 import {
-  ApplicationRef, Component, Injector, Input, ViewChild, ElementRef,
+  ApplicationRef, Component, Injector, Input,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 import {
   DialogService, RestService, TooltipsService, WebSocketService,
-  NetworkService, SnackbarService,
+  NetworkService,
 } from '../../../services';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { regexValidator } from '../../common/entity/entity-form/validators/regex-validation';
 import { ipv4Validator } from '../../common/entity/entity-form/validators/ip-validation';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
@@ -20,37 +21,68 @@ import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.in
 import { T } from '../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-ipmi',
   template: `
-  <mat-card class="ipmi-card">
-  <mat-spinner
-    diameter='25'
-    class="form-select-spinner"
-    id="ipmi_controller-spinner"
-    *ngIf="!currentControllerLabel && is_ha">
-  </mat-spinner>
-  <mat-select *ngIf="is_ha" #storageController name="controller" placeholder="Controller" (selectionChange)="loadData()" [(ngModel)]="remoteController" [style.margin-top.px]="15">
-
-    <mat-option [value]="false">Active: {{controllerName}} {{currentControllerLabel}}</mat-option>
-    <mat-option [value]="true">Standby: {{controllerName}} {{failoverControllerLabel}}</mat-option>
-  </mat-select><br/>
-  <mat-select #selectedChannel name="channel" placeholder="Channel" (selectionChange)="switchChannel()" [(ngModel)]="selectedValue">
-    <mat-option *ngFor="let channel of channels" [value]="channel.value">
-      Channel {{channel.value}}
-    </mat-option>
-  </mat-select>
-  </mat-card>
-  <entity-form [conf]="this"></entity-form>
+  <h1 class="fc-settings-title">{{ 'IPMI' | translate }}</h1><!-- the internal development record: the page's h1 above the scope section (#462: no longer a card) -->
+  <!-- the internal development record: the scope pickers are the form's first section (the #416 hand-built shape), not a card;
+       the spartan select every field below uses. The options name themselves ("Channel 1"), so the section title
+       carries the visible word and the field labels are for assistive tech only. -->
+  <div class="fc-settings-form ipmi-scope">
+    <section class="fc-settings-section" aria-labelledby="ipmi-scope-title">
+      <h2 class="fieldset-label" id="ipmi-scope-title">{{ 'Channel' | translate }}</h2>
+      <div class="fc-settings-fields">
+        @if (is_ha) {
+          <div class="entity-form-field-layout form-line">
+            <hlm-field>
+              <label hlmFieldLabel class="cdk-visually-hidden" for="ipmi_controller">{{ 'Controller' | translate }}</label>
+              <hlm-select name="controller" [ngModel]="remoteController" (ngModelChange)="remoteController = $event; loadData()" [itemToString]="controllerLabel">
+                <hlm-select-trigger buttonId="ipmi_controller">
+                  <hlm-select-value />
+                  @if (!currentControllerLabel) {
+                    <hlm-spinner class="form-select-spinner" id="ipmi_controller-spinner" />
+                  }
+                </hlm-select-trigger>
+                <hlm-select-content *hlmSelectPortal>
+                  <hlm-select-item [value]="false">{{ controllerLabel(false) }}</hlm-select-item>
+                  <hlm-select-item [value]="true">{{ controllerLabel(true) }}</hlm-select-item>
+                </hlm-select-content>
+              </hlm-select>
+            </hlm-field>
+          </div>
+        }
+        <div class="entity-form-field-layout form-line">
+          <hlm-field>
+            <label hlmFieldLabel class="cdk-visually-hidden" for="ipmi_channel">{{ 'Channel' | translate }}</label>
+            <hlm-select name="channel" [ngModel]="selectedValue" (ngModelChange)="selectedValue = $event; switchChannel()" [itemToString]="channelLabel">
+              <hlm-select-trigger buttonId="ipmi_channel">
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content *hlmSelectPortal>
+                @for (channel of channels; track channel.value) {
+                  <hlm-select-item [value]="channel.value">{{ channelLabel(channel.value) }}</hlm-select-item>
+                }
+                @if (!channels.length) {
+                  <hlm-select-item [value]="null" disabled>--</hlm-select-item>
+                }
+              </hlm-select-content>
+            </hlm-select>
+          </hlm-field>
+        </div>
+      </div>
+    </section>
+  </div>
+    <entity-form [conf]="this"></entity-form>
   `,
-  styleUrls: ['./ipmi.component.css'],
-  providers: [TooltipsService, SnackbarService],
+  styleUrls: ['./ipmi.component.css', '../../common/entity/entity-form/entity-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  providers: [TooltipsService],
 })
 export class IPMIComponent {
-  @ViewChild('selectedChannel', { static: true }) select: ElementRef;
   selectedValue: string;
 
   protected resource_name = '';
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   busy: Subscription;
   channels = [];
   protected channel: any;
@@ -63,6 +95,9 @@ export class IPMIComponent {
   currentControllerLabel: string;
   failoverControllerLabel: string;
   managementIP: string;
+  // the internal development record: the picker labels (the options' own text and the trigger's value)
+  channelLabel = (channel: number): string => (channel == null ? '' : `Channel ${channel}`);
+  controllerLabel = (standby: boolean): string => `${standby ? 'Standby' : 'Active'}: ${this.controllerName} ${(standby ? this.failoverControllerLabel : this.currentControllerLabel) || ''}`;
   private options: any[] = [
     { label: 'Indefinitely', value: 'force' },
     { label: '15 seconds', value: 15 },
@@ -199,7 +234,7 @@ export class IPMIComponent {
     protected _injector: Injector, protected _appRef: ApplicationRef,
     protected tooltipsService: TooltipsService,
     protected networkService: NetworkService, protected dialog: DialogService,
-    protected loader: AppLoaderService, protected snackBar: SnackbarService) {}
+    protected loader: AppLoaderService) {}
 
   preInit(entityEdit: any) {
     if (window.localStorage.getItem('product_type') === 'ENTERPRISE') {

@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -6,9 +6,12 @@ import { RestService, WebSocketService, ValidationService } from '../../../../se
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import helptext from '../../../../helptext/services/components/service-dynamic-dns';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'dynamicdns-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
@@ -16,6 +19,7 @@ export class ServiceDDNSComponent {
   protected addCall = 'dyndns.update';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('Dynamic DNS'); // the internal development record: the page's h1
   fieldSets = new FieldSets([
     {
       name: helptext.fieldset_general,

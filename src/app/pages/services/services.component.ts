@@ -1,9 +1,8 @@
 import {
   Component, OnInit, ViewChild, ElementRef, Input,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { MatButtonToggleGroup } from '@angular/material/button-toggle';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 
 import { environment } from '../../../environments/environment';
@@ -14,17 +13,17 @@ import * as _ from 'lodash';
 import { T } from '../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'services',
   styleUrls: ['./services.component.css'],
   templateUrl: './services.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class Services implements OnInit {
   @ViewChild('filter', { static: true }) filter: ElementRef;
   @Input() searchTerm = '';
   @Input() cards = []; // Display List
-  @ViewChild('viewMode', { static: true }) viewMode: MatButtonToggleGroup;
-  @ViewChild('serviceStatus', { static: true }) serviceStatus: MatSlideToggle;
   focusedVM: string;
 
   services: any[];
@@ -40,6 +39,8 @@ export class Services implements OnInit {
     nfs: 'NFS',
     openvpn_client: 'OpenVPN Client',
     openvpn_server: 'OpenVPN Server',
+    qemu_guest_agent: 'QEMU Guest Agent',
+    rar2fs: 'rar2fs',
     rsync: 'Rsync',
     smartd: 'S.M.A.R.T.',
     snmp: 'SNMP',
@@ -48,7 +49,18 @@ export class Services implements OnInit {
     tftp: 'TFTP',
     ups: 'UPS',
     webdav: 'WebDAV',
+    wireguard: 'WireGuard',
+    wireguard_client: 'WireGuard Client',
   };
+
+  /**
+   * the internal development record: Configure rendered for every service but netdata, and
+   * editService() falls through to /services/<name>. A service whose lifecycle is the
+   * whole feature therefore inherited a button leading to a route that does not exist.
+   * Naming the exceptions here keeps that a property of the service rather than another
+   * name compared inline in the template.
+   */
+  lifecycleOnlyServices = ['qemu_guest_agent'];
 
   cache = [];
   showSpinner = true;
@@ -73,8 +85,6 @@ export class Services implements OnInit {
   }
 
   ngOnInit() {
-    // window.localStorage.getItem('viewValue') ? this.viewMode.value = window.localStorage.getItem('viewValue') : this.viewMode.value = 'cards';
-    this.viewMode.value = 'table';
     this.busy = this.ws.call('service.query', [
       [], { order_by: ['service'] },
     ])
@@ -116,15 +126,6 @@ export class Services implements OnInit {
   displayAll() {
     this.cards = this.cache;
   }
-
-  // cardStyles() {
-  //   let cardStyles = {
-  //     'width': this.viewMode.value == 'slim' ? '285px' : '380px',
-  //     'height': '250px',
-  //     'margin': '25px auto'
-  //   }
-  //   return cardStyles;
-  // }
 
   toggle(service: any) {
     let rpc: string;
@@ -197,7 +198,17 @@ export class Services implements OnInit {
       });
   }
 
+  isConfigurable(service: string): boolean {
+    return service !== 'netdata' && !this.lifecycleOnlyServices.includes(service);
+  }
+
   editService(service: any) {
+    // The guard belongs here as well as on the button: the fallback below navigates to
+    // /services/<name> for anything it does not recognise, so a service with no page
+    // has to be refused by the behaviour, not only hidden in the template. It tests
+    // lifecycle-only, not isConfigurable -- netdata has no Configure button but its
+    // Launch button reaches this same method and does have somewhere to go.
+    if (this.lifecycleOnlyServices.includes(service)) { return; }
     if (service === 'iscsitarget') {
       // iscsi target global config route
       const route = ['sharing', 'iscsi'];

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -16,8 +16,10 @@ import globalHelptext from '../../../../helptext/global-helptext';
 import helptext from '../../../../helptext/task-calendar/cloudsync/cloudsync-form';
 
 @Component({
+  standalone: false,
   selector: 'app-cloudsync-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [JobService, TaskService],
 })
 export class CloudsyncListComponent implements InputTableConf {
@@ -37,7 +39,7 @@ export class CloudsyncListComponent implements InputTableConf {
     { name: T('Transfer Mode'), prop: 'transfer_mode', hidden: true },
     { name: T('Path'), prop: 'path', hidden: true },
     {
-      name: T('Schedule'), prop: 'cron', hidden: true, widget: { icon: 'calendar-range', component: 'TaskScheduleListComponent' },
+      name: T('Schedule'), prop: 'cron', hidden: true, widget: { icon: 'calendar_month', component: 'TaskScheduleListComponent' },
     },
     { name: T('Next Run'), prop: 'next_run', hidden: true },
     { name: T('Minute'), prop: 'minute', hidden: true },
@@ -169,6 +171,17 @@ export class CloudsyncListComponent implements InputTableConf {
         });
       },
     }, {
+      // the internal development record: one order on every table -- run (Run Now, Stop, Dry Run), change (Edit),
+      // derive (Restore), destroy (Delete last).
+      id: 'edit',
+      actionName: parentrow.description,
+      icon: 'edit',
+      label: T('Edit'),
+      onClick: (row) => {
+        this.route_edit.push(row.id);
+        this.router.navigate(this.route_edit);
+      },
+    }, {
       actionName: parentrow.description,
       id: 'restore',
       label: T('Restore'),
@@ -249,15 +262,6 @@ export class CloudsyncListComponent implements InputTableConf {
           },
         };
         this.dialog.dialogFormWide(conf);
-      },
-    }, {
-      id: 'edit',
-      actionName: parentrow.description,
-      icon: 'edit',
-      label: T('Edit'),
-      onClick: (row) => {
-        this.route_edit.push(row.id);
-        this.router.navigate(this.route_edit);
       },
     }, {
       actionName: parentrow.description,

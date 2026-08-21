@@ -1,0 +1,198 @@
+/*
+ * the internal development record — spartan/ui foundation (15.2 only).
+ *
+ * Tailwind 4 + @spartan-ng/brain preset, wired so that NOTHING here reaches the existing
+ * Material/egret UI. Four deliberate departures from spartan's stock `init` output — keep them:
+ *
+ *  1. No Tailwind preflight. The app already ships a Meyer reset and Material's own base styles;
+ *     preflight's `button` / `img` / `:root` rules would repaint every page. Helm hosts get the
+ *     two preflight defaults they rely on (box-sizing, `border: 0 solid`) from a base layer
+ *     scoped to `[data-slot]`, which every helm component sets on its host.
+ *  2. Utilities are UNLAYERED (spartan's own documented setup) and this file is LAST in
+ *     angular.json: the app's CSS is unlayered, so layered utilities would always lose.
+ *  3. Scanning is OPT-IN (`source(none)` + explicit `@source`). Templates all over the app use
+ *     class names that are also Tailwind utilities (`p-0`, `m-0`, `mt-1`, `inline`, `table`, …);
+ *     scanning them would emit CSS that overrides the app's own rules for those classes. Every
+ *     page that adopts spartan adds its directory as an `@source` line below.
+ *  4. Tokens are namespaced `--sp-*`. The ix theme service writes `--primary` / `--accent`
+ *     (and the rest of the palette) INLINE on <html> at runtime, which beats any stylesheet
+ *     `:root`. The preset's `@theme inline` map is re-pointed at the `--sp-*` names so the two
+ *     token sets never collide by name; the brand bridge at the bottom of this file maps them
+ *     deliberately (the internal development record).
+ */
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" source(none);
+@import "@spartan-ng/brain/hlm-tailwind-preset.css";
+
+/* Opt-in scan roots (relative to this file). Add one line per page that adopts spartan.
+ * Tailwind scans files as raw text, so a word in a code comment ("inline", "hidden", "table")
+ * becomes a utility; `utils` and the spec files carry no classes and are excluded for that reason. The shadow
+ * check in scripts/spartan-shadow-check.mjs runs after every build and lists any emitted utility
+ * whose name an app template already uses. */
+@source "../../app/ui";
+@source not "../../app/ui/utils";
+@source not "../../app/ui/**/*.spec.ts";
+
+/* the internal development record: the helm progress's indeterminate sweep (the preset ships no keyframes for it). */
+@theme inline {
+	--animate-indeterminate: indeterminate 2s ease-in-out infinite;
+	@keyframes indeterminate {
+		0% { transform: translateX(-100%) scaleX(0.5); }
+		100% { transform: translateX(100%) scaleX(0.5); }
+	}
+}
+
+/* Re-point the preset's token map at the namespaced variables (later @theme wins). */
+@theme inline {
+	--color-background: var(--sp-background);
+	--color-foreground: var(--sp-foreground);
+	--color-card: var(--sp-card);
+	--color-card-foreground: var(--sp-card-foreground);
+	--color-popover: var(--sp-popover);
+	--color-popover-foreground: var(--sp-popover-foreground);
+	--color-primary: var(--sp-primary);
+	--color-primary-foreground: var(--sp-primary-foreground);
+	--color-secondary: var(--sp-secondary);
+	--color-secondary-foreground: var(--sp-secondary-foreground);
+	--color-muted: var(--sp-muted);
+	--color-muted-foreground: var(--sp-muted-foreground);
+	--color-accent: var(--sp-accent);
+	--color-accent-foreground: var(--sp-accent-foreground);
+	--color-destructive: var(--sp-destructive);
+	--color-border: var(--sp-border);
+	--color-input: var(--sp-input);
+	--color-input-hover: var(--sp-input-hover);
+	--color-field: var(--sp-field);
+	--color-ring: var(--sp-ring);
+	--color-sidebar: var(--sp-sidebar);
+	--color-sidebar-foreground: var(--sp-sidebar-foreground);
+	--color-sidebar-primary: var(--sp-sidebar-primary);
+	--color-sidebar-primary-foreground: var(--sp-sidebar-primary-foreground);
+	--color-sidebar-accent: var(--sp-sidebar-accent);
+	--color-sidebar-accent-foreground: var(--sp-sidebar-accent-foreground);
+	--color-sidebar-border: var(--sp-sidebar-border);
+	--color-sidebar-ring: var(--sp-sidebar-ring);
+	--color-chart-1: var(--sp-chart-1);
+	--color-chart-2: var(--sp-chart-2);
+	--color-chart-3: var(--sp-chart-3);
+	--color-chart-4: var(--sp-chart-4);
+	--color-chart-5: var(--sp-chart-5);
+	--font-sans: var(--sp-font-sans);
+	--font-mono: var(--sp-font-mono);
+	--radius-sm: calc(var(--sp-radius) * 0.6);
+	--radius-md: calc(var(--sp-radius) * 0.8);
+	--radius-lg: var(--sp-radius);
+	--radius-xl: calc(var(--sp-radius) * 1.4);
+	--radius-2xl: calc(var(--sp-radius) * 1.8);
+	--radius-3xl: calc(var(--sp-radius) * 2.2);
+	--radius-4xl: calc(var(--sp-radius) * 2.6);
+	/* The 13px scale (the internal development record R4; #391): helm's default `text-sm` is the control text,
+	 * `text-xs` the label / hint / error text (12/16, #351 -- corrected from 11 in #392; the footer's
+	 * 11px is a one-off), `text-lg` the dialog title. */
+	--text-xs: 12px;
+	--text-xs--line-height: 16px;
+	--text-sm: 13px;
+	--text-sm--line-height: 18px;
+	--text-base: 14px;
+	--text-base--line-height: 20px;
+	--text-lg: 16px;
+	--text-lg--line-height: 24px;
+}
+
+/* The preset flattens every non-transparent CDK backdrop to a constant opacity so its own
+ * keyframe is the sole animator. Material's dialogs use CDK's default dark backdrop and its
+ * 400 ms fade; give that back to them. Spartan overlays carry their own backdrop classes and
+ * keep the preset behaviour. */
+.cdk-overlay-backdrop.cdk-overlay-dark-backdrop {
+	opacity: 0;
+	transition: opacity 400ms cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.cdk-overlay-backdrop.cdk-overlay-dark-backdrop.cdk-overlay-backdrop-showing {
+	opacity: 1;
+}
+
+/* Preflight, restricted to helm hosts and their subtrees. The second rule is preflight's
+ * form-control normalisation: the UA sheet gives button/input their own font and colour and
+ * Meyer's reset skips form controls, so without it a helm button renders in Arial and an
+ * outline/ghost variant (which carries no text colour by design) in UA black (#391). */
+@layer base {
+	[data-slot],
+	[data-slot] *,
+	[data-slot]::before,
+	[data-slot]::after {
+		box-sizing: border-box;
+		border: 0 solid;
+	}
+	:is([data-slot], [data-slot] *):is(button, input, select, optgroup, textarea) {
+		font: inherit;
+		font-feature-settings: inherit;
+		font-variation-settings: inherit;
+		letter-spacing: inherit;
+		color: inherit;
+		background-color: transparent;
+		border-radius: 0;
+	}
+}
+
+/* Brand bridge (the internal development record). The `--sp-*` tokens read the ladder that
+ * ThemeService.setCssVars() writes inline on <html> -- --bg0 / --bg1 / --bg2 (canvas, panel,
+ * raised), --line (every hairline), --fg1 / --fg2 (text), --alt-bg1, --accent, --red and the
+ * chart colours -- so every helm component follows the active theme, all ten of them, with no
+ * hex in this file except the fallbacks: the FreeCORE default palette (theme.service.ts
+ * DefaultTheme), for a route without the theme service (karma, the signin route before the
+ * shell mounts). What is encoded here is the doctrine, not a hue:
+ *
+ *  - shadcn `primary` is the tier-1 button (the internal development record): fg1 ground, bg0 text -- the
+ *    mono default. It is NOT the ix `--primary` blue.
+ *  - shadcn `accent` is the hover surface (= --fc-hover). It is NOT the brand accent. The brand
+ *    accent (#8FB4C7) is spent only where #350 spends it: focus (`--sp-ring`), the active nav
+ *    bar (`--sp-sidebar-primary`), links.
+ *  - Surfaces: page ground bg0 (#348), cards / dialogs / menus bg2 with a hairline (#354),
+ *    sidebar rail bg0 with the open group on bg1 (#381).
+ *  - Geometry: 6px radius (the #351 field and #353 button radius); helm's stock `h-8`,
+ *    `font-medium` and `text-sm` already land on the 32px / 500 / 13px controls.
+ *  - Fields (#351, via the internal development record): the box sits on `--sp-field` (= bg1, the panel step)
+ *    and hovers to `--sp-input-hover` (= fg2 at 40%); two
+ *    tokens outside the shadcn set, mapped like the rest.
+ *
+ * There is no `:root.dark` block: the ladder carries light or dark per theme, and
+ * ThemeService toggles `dark` on <html> so helm's `dark:` modifiers follow it. */
+:root {
+	--sp-font-sans: "IBM Plex Sans", "Helvetica Neue", sans-serif;
+	--sp-font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+	--sp-radius: 6px;
+	--sp-background: var(--bg0, #0b0f13);
+	--sp-foreground: var(--fg1, #dce3e6);
+	--sp-card: var(--bg2, #171e24);
+	--sp-card-foreground: var(--fg1, #dce3e6);
+	--sp-popover: var(--bg2, #171e24);
+	--sp-popover-foreground: var(--fg1, #dce3e6);
+	--sp-primary: var(--fg1, #dce3e6);
+	--sp-primary-foreground: var(--bg0, #0b0f13);
+	--sp-secondary: var(--alt-bg1, #212a31);
+	--sp-secondary-foreground: var(--fg1, #dce3e6);
+	--sp-muted: var(--alt-bg1, #212a31);
+	--sp-muted-foreground: var(--fg2, #97a6ae);
+	--sp-accent: color-mix(in srgb, var(--fg1, #dce3e6) 5%, transparent);
+	--sp-accent-foreground: var(--fg1, #dce3e6);
+	--sp-destructive: var(--red, #e3625a);
+	--sp-border: var(--line, #2a353d);
+	--sp-input: var(--line, #2a353d);
+	--sp-input-hover: color-mix(in srgb, var(--fg2, #97a6ae) 40%, transparent);
+	--sp-field: var(--bg1, #10151a);
+	--sp-ring: var(--accent, #8fb4c7);
+	--sp-sidebar: var(--bg0, #0b0f13);
+	--sp-sidebar-foreground: var(--fg1, #dce3e6);
+	--sp-sidebar-primary: var(--accent, #8fb4c7);
+	--sp-sidebar-primary-foreground: var(--bg0, #0b0f13);
+	--sp-sidebar-accent: var(--bg1, #10151a);
+	--sp-sidebar-accent-foreground: var(--fg1, #dce3e6);
+	--sp-sidebar-border: var(--line, #2a353d);
+	--sp-sidebar-ring: var(--accent, #8fb4c7);
+	--sp-chart-1: var(--blue, #4e93c4);
+	--sp-chart-2: var(--green, #56a96a);
+	--sp-chart-3: var(--yellow, #d6ad4c);
+	--sp-chart-4: var(--orange, #dc8752);
+	--sp-chart-5: var(--violet, #9a83d3);
+}

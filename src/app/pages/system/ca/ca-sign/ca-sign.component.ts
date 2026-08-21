@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_ca } from 'app/helptext/system/ca';
 import * as _ from 'lodash';
@@ -7,12 +8,16 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 
 @Component({
+  standalone: false,
   selector: 'system-ca-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 
 export class CertificateAuthoritySignComponent {
+  settingsTitle = T('Certificate'); // the internal development record: the object the form creates (the crumb says Sign CSR); the verb is on the button
+  saveSubmitText = T('Sign');
   protected addCall = 'certificateauthority.ca_sign_csr';
   protected route_success: string[] = ['system', 'ca'];
   protected isEntity = true;
@@ -22,6 +27,7 @@ export class CertificateAuthoritySignComponent {
     {
       name: helptext_system_ca.sign.fieldset_certificate,
       label: true,
+      settingsLabel: T('Details'),
       class: 'certificate',
       width: '100%',
       config: [

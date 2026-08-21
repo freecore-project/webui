@@ -1,5 +1,4 @@
 import {
-  ComponentFactoryResolver,
   ComponentRef,
   Directive,
   Input,
@@ -8,14 +7,10 @@ import {
   Type,
   ViewContainerRef,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import {
-  FormOauthLoginComponent,
-} from 'app/pages/common/entity/entity-form/components/form-oauth-login/form-oauth-login.component';
+import { UntypedFormGroup } from '@angular/forms';
 
 import { FieldConfig } from '../../models/field-config.interface';
 import { Field } from '../../models/field.interface';
-import { FormArrayComponent } from '../form-array/form-array.component';
 import { FormButtonComponent } from '../form-button/form-button.component';
 import { FormCheckboxComponent } from '../form-checkbox/form-checkbox.component';
 import { FormInputComponent } from '../form-input/form-input.component';
@@ -25,12 +20,7 @@ import { FormTextareaComponent } from '../form-textarea/form-textarea.component'
 import { FormUploadComponent } from '../form-upload/form-upload.component';
 import { FormExplorerComponent } from '../form-explorer/form-explorer.component';
 import { FormRadioComponent } from '../form-radio/form-radio.component';
-import { FormSliderComponent } from '../form-slider/form-slider.component';
-import { FormToggleButtonComponent } from '../form-toggle-button/form-toggle-button.component';
-import { FormTaskComponent } from '../form-task/form-task.component';
 import { FormReadFileComponent } from '../form-readfile/form-readfile.component';
-import { FormTextareaButtonComponent } from 'app/pages/common/entity/entity-form/components/form-textarea-button/form-textarea-button.component';
-import { FormDatepickerComponent } from '../form-datepicker/form-datepicker.component';
 import { FormColorpickerComponent } from '../form-colorpicker/form-colorpicker.component';
 import { FormComboboxComponent } from '../form-combobox/form-combobox.component';
 import { FormParagraphComponent } from '../form-paragraph/form-paragraph.component';
@@ -42,21 +32,14 @@ import { FormChipComponent } from '../form-chip/form-chip.component';
 const components: { [type: string]: Type<Field> } = {
   button: FormButtonComponent,
   input: FormInputComponent,
-  'oauth-login': FormOauthLoginComponent,
   select: FormSelectComponent,
   checkbox: FormCheckboxComponent,
   textarea: FormTextareaComponent,
-  textareabutton: FormTextareaButtonComponent,
   permissions: FormPermissionsComponent,
-  array: FormArrayComponent,
   upload: FormUploadComponent,
   explorer: FormExplorerComponent,
   radio: FormRadioComponent,
-  slider: FormSliderComponent,
-  togglebutton: FormToggleButtonComponent,
-  task: FormTaskComponent,
   readfile: FormReadFileComponent,
-  datepicker: FormDatepickerComponent,
   colorpicker: FormColorpickerComponent,
   combobox: FormComboboxComponent,
   paragraph: FormParagraphComponent,
@@ -66,21 +49,17 @@ const components: { [type: string]: Type<Field> } = {
   chip: FormChipComponent,
 };
 
-@Directive({ selector: '[dynamicField]' })
+@Directive({ standalone: false, selector: '[dynamicField]' })
 export class DynamicFieldDirective implements Field, OnChanges, OnInit {
-  @Input()
-  config: FieldConfig;
+  @Input() config: FieldConfig;
 
-  @Input()
-  group: FormGroup;
+  @Input() group: UntypedFormGroup;
 
-  @Input()
-  fieldShow: string;
+  @Input() fieldShow: string;
 
   component: ComponentRef<Field>;
 
-  constructor(private resolver: ComponentFactoryResolver,
-    private container: ViewContainerRef) {}
+  constructor(private container: ViewContainerRef) {}
 
   ngOnChanges() {
     if (this.component) {
@@ -96,8 +75,7 @@ export class DynamicFieldDirective implements Field, OnChanges, OnInit {
       throw new Error(`Trying to use an unsupported type (${this.config.type}).
         Supported types: ${supportedTypes}`);
     }
-    const component = this.resolver.resolveComponentFactory<Field>(components[this.config.type]);
-    this.component = this.container.createComponent(component);
+    this.component = this.container.createComponent(components[this.config.type]);
     this.component.instance.config = this.config;
     this.component.instance.group = this.group;
     this.component.instance.fieldShow = this.fieldShow;

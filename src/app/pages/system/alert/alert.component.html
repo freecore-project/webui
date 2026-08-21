@@ -1,20 +1,41 @@
-<mat-card class="form-card">
-  <div class="mat-content">
-    <form (ngSubmit)="onSubmit($event)" *ngIf="formGroup" [formGroup]="formGroup" class="form-wrap" #entityForm="ngForm">
-      <div class="fieldset-container fieldset-display-default" *ngIf="fieldSets">
-        <ng-container *ngFor="let fieldSet of fieldSets.list(); let i = index">
-          <div [ngClass]="fieldSet.class" [style.margin-bottom.px]="12" class="fieldset divider-{{fieldSet.divider}}" fxLayout="row wrap" fxLayoutAlign="start start" fxFlex="100%" fxFlex.gt-xs="calc({{fieldSet.width}} - 16px)">
-            <mat-divider *ngIf="fieldSet.divider && i > 0"></mat-divider>
-            <h4 *ngIf="fieldSet.label" class="fieldset-label">{{fieldSet.name}}</h4>
-            <div *ngFor="let field of fieldSet.config; let ii = index" fxFlex="100%" fxFlex.gt-xs="calc({{field.width}} - 16px)" [ngClass]="field.class == 'inline' ? 'form-inline' : 'form-line'" id="{{fieldSet.name}}-{{ii}}">
-              <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="show"></div>
-            </div>
-          </div>
-        </ng-container>
-        <mat-card-actions class="buttons">
-          <button id="save_button" class="btn btn-block btn-warning" type="submit" mat-button color="primary" [disabled]="!entityForm.form.valid">{{ "Save" | translate}}</button>
-        </mat-card-actions>
+<section id="alert-settings-page" class="fc-page fc-page--capped" aria-labelledby="alert-settings-title">
+  <h1 id="alert-settings-title" class="fc-page-title">{{ 'Alert Settings' | translate }}</h1>
+  <!-- the internal development record: the settings form (entity-form.component.html) -- no card, the categories are
+       .fc-settings-section on the engine grid (entity-form.component.scss is in styleUrls), the rules are
+       the section's field column, and the row is the shared hairline div.buttons on hlmBtn. -->
+  @if (formGroup && fieldSets) {
+    <form (ngSubmit)="onSubmit()" [formGroup]="formGroup" class="fc-settings-form" #entityForm="ngForm">
+      <div class="fieldset-container fieldset-display-default">
+        @for (fieldSet of fieldSets.list(); track fieldSet; let i = $index) {
+          @if (!fieldSet.divider && fieldSet.config?.length) {
+            <section class="fc-settings-section fc-alert-category" [attr.aria-labelledby]="'alert-category-' + i">
+              <h2 class="fieldset-label" id="alert-category-{{i}}">{{ fieldSet.name | translate }}</h2>
+              <div class="fc-alert-rules">
+                @for (field of fieldSet.config; track field; let ii = $index) {
+                  @if (ii % 2 === 0) {
+                    <div class="fc-alert-rule" role="group" [attr.aria-labelledby]="'alert-rule-' + field.name">
+                      <h3 id="alert-rule-{{field.name}}">{{ field.inlineLabel | translate }}</h3>
+                      <div class="fc-alert-options">
+                        <div class="fc-alert-control">
+                          <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="formGroup"></div>
+                        </div>
+                        @if (fieldSet.config[ii + 1]; as frequency) {
+                          <div class="fc-alert-control">
+                            <div id="form_field_{{frequency.name}}" dynamicField [config]="frequency" [group]="formGroup"></div>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+              </div>
+            </section>
+          }
+        }
+        <div class="buttons">
+          <button hlmBtn id="save_button" type="submit" [disabled]="!entityForm.form.valid">{{ 'Save' | translate }}</button>
+        </div>
       </div>
     </form>
-  </div>
-</mat-card>
+  }
+</section>

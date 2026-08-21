@@ -1,13 +1,19 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import {
   Component, AfterViewChecked, ViewChild, ElementRef, EventEmitter,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { WebSocketService } from '../../../../services';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
+  standalone: false,
   selector: 'consolepanel-dialog',
-  styleUrls: ['./consolepanel-dialog.component.scss'],
+  styleUrls: [
+    '../../../../pages/common/entity/entity-form/components/dynamic-field/dynamic-field.css',
+    './consolepanel-dialog.component.scss',
+  ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './consolepanel-dialog.component.html',
 })
 export class ConsolePanelModalDialog {
@@ -59,8 +65,9 @@ export class ConsolePanelModalDialog {
     }, 1500);
   }
 
-  onStopRefresh(data) {
-    if (data.checked) {
+  // the internal development record: the #394 row's hlm-checkbox emits the boolean itself (checkedChange).
+  onStopRefresh(checked: boolean) {
+    if (checked) {
       clearInterval(this.intervalPing);
       this.refreshMsg = 'Uncheck to restart refresh';
     } else {

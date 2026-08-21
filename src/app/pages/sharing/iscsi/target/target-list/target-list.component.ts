@@ -1,14 +1,16 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { IscsiService } from '../../../../../services/iscsi.service';
 import { T } from 'app/translate-marker';
 import { EntityUtils } from '../../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-target-list',
   template: `
     <entity-table [conf]="this" [title]="tableTitle"></entity-table>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class TargetListComponent implements OnInit {

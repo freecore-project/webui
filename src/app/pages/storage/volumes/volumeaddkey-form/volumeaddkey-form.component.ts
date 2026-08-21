@@ -2,6 +2,7 @@ import {
   ApplicationRef,
   Component,
   Injector,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,10 +21,13 @@ import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/storage/volumes/volume-key';
 
 @Component({
+  standalone: false,
   selector: 'app-addkey-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class VolumeAddkeyFormComponent implements Formconfiguration {
+  readonly settingsTitle = T('Recovery Key'); // the internal development record: the page's h1
   saveSubmitText = T('Add Recovery Key');
 
   queryCall = 'pool.query';

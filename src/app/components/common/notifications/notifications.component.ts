@@ -1,5 +1,6 @@
 import {
   Component, OnInit, Input, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { WebSocketService } from 'app/services';
 import { NotificationsService, NotificationAlert } from 'app/services/notifications.service';
@@ -8,8 +9,10 @@ import { Subscription } from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-notifications',
   templateUrl: './notifications.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./notifications.component.css'],
 })
 export class NotificationsComponent implements OnInit, OnDestroy {

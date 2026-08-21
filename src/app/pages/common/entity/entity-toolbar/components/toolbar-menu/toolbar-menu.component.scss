@@ -1,4 +1,16 @@
-button.menu-toggle .mat-button-wrapper {
-  vertical-align:baseline;
-  max-height:36px;
+/* the internal development record: the trigger is the ghost tier with the caret (the Reporting bar is the text tier). */
+.menu-toggle {
+  padding-inline-end: 8px;
+}
+.menu-toggle > span {
+  align-items: center;
+  display: inline-flex;
+  gap: 2px;
+}
+.menu-caret {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  opacity: .8;
+  width: 16px;
 }
