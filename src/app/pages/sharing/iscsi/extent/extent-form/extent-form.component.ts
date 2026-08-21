@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Validators, FormControl, ValidationErrors } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Validators, UntypedFormControl, ValidationErrors } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
 
@@ -19,7 +19,7 @@ import globalHelptext from 'app/helptext/global-helptext';
   selector: 'app-iscsi-initiator-form',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [IscsiService, StorageService],
-})
+  })
 export class ExtentFormComponent {
   protected addCall = 'iscsi.extent.create';
   protected queryCall = 'iscsi.extent.query';
@@ -120,7 +120,7 @@ export class ExtentFormComponent {
           blurStatus: true,
           parent: this,
           validation: [Validators.required,
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'filesize');
               const size = this.storageService.convertHumanStringToNum(control.value, true);
               const errors = control.value && isNaN(size)

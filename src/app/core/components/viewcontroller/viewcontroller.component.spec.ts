@@ -1,6 +1,14 @@
+import { Component } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FlexLayoutModule } from '@angular/flex-layout';
 
-import { ViewControllerComponent } from './view-controller.component';
+import { ViewControllerComponent } from './viewcontroller.component';
+
+@Component({
+  selector: 'display',
+  template: '',
+})
+class DisplayStubComponent {}
 
 describe('ViewControllerComponent', () => {
   let component: ViewControllerComponent;
@@ -8,7 +16,8 @@ describe('ViewControllerComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ViewControllerComponent],
+      declarations: [DisplayStubComponent, ViewControllerComponent],
+      imports: [FlexLayoutModule],
     })
       .compileComponents();
   }));

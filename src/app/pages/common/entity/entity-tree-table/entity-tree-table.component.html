@@ -21,7 +21,7 @@
           			ix-auto
 					ix-auto-type="expander"
 					ix-auto-identifier="{{rowData.name}}"></p-treeTableToggler>
-				<span *ngIf="col.filesizePipe">{{ (rowData[col.prop] || 0) | filesize : {standard : "iec"} }}</span>
+				<span *ngIf="col.filesizePipe" class="entity-tree-table__size">{{ (rowData[col.prop] || 0) | filesize : {standard : "iec"} }}</span>
 				<span *ngIf="!col.filesizePipe">{{ rowData[col.prop]?.value || rowData[col.prop] }}</span>
 				<span class="icons">
 					<span *ngIf="col.prop === 'name' && rowData.hasOwnProperty('is_encrypted_root') && rowData.hasOwnProperty('non_encrypted_on_encrypted')">
@@ -38,7 +38,7 @@
 					</span>
 				</span>
 			</td>
-			<td *ngIf="showActions && rowData.actions">
+			<td *ngIf="showActions && rowData.actions" class="entity-tree-table__actions">
 				<mat-icon [matMenuTriggerFor]="appMenu" [style.cursor]="'pointer'" id="actions_menu_button__{{rowData.name}}"
 				(click)="conf.clickAction ? conf.clickAction(rowData) : clickAction()"
 				ix-auto

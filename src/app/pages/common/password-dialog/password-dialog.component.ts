@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { Component, Output, EventEmitter } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SystemGeneralService } from '../../../services/system-general.service';
@@ -10,7 +10,7 @@ import { EntityUtils } from '../entity/utils';
   selector: 'app-password-dialog',
   templateUrl: './password-dialog.component.html',
   styleUrls: ['./password-dialog.component.css'],
-})
+  })
 export class PasswordDialog {
   title: string = globalHelptext.rootpw.dialog_title;
   message: string;

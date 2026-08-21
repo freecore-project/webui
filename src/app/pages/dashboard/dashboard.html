@@ -1,9 +1,6 @@
 <div class="widgets-wrapper-container" (window:resize)="onMobileResize($event)">
 
-  <div class="widgets-wrapper"
-       [style.width]="optimalDesktopWidth"
-       fxLayout="row wrap"
-       fxLayoutGap="grid 4px">
+  <div class="widgets-wrapper">
 
     <!-- SORTABLE WIDGETS -->
     <ng-container  *ngIf="screenType == 'Desktop' && statsDataEvents && pools && nics && volumeData && sysinfoReady">
@@ -13,9 +10,7 @@
             <ng-container [ngSwitch]="widget.name.toLowerCase()">
 
               <widget-sysinfo *ngSwitchCase="'system information'"
-                id="active" fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
-                [enclosure]="systemInformation.features.enclosure"
+                id="active"
                 [isHA]="isHA"
                 [passive]="false"
                 [widgetSize]="medium">
@@ -23,9 +18,6 @@
 
               <widget-sysinfo *ngSwitchCase="'system information(standby)'"
                 id="passive"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
-                [enclosure]="systemInformation.features.enclosure"
                 [isHA]="isHA"
                 [passive]="true"
                 [widgetSize]="medium">
@@ -33,14 +25,10 @@
 
               <widget-help
                 *ngSwitchCase="'help'"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
                 [widgetSize]="medium"
               ></widget-help>
 
               <widget-cpu *ngSwitchCase="'cpu'"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
                 [data]="dataFromConfig(widget)"
                 [cpuModel]="systemInformation.model"
                 [widgetSize]="medium"
@@ -48,8 +36,6 @@
               </widget-cpu>
 
               <widget-memory *ngSwitchCase="'memory'"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
                 [ecc]="systemInformation.ecc_memory"
                 [data]="dataFromConfig(widget)"
                 [widgetSize]="medium"
@@ -57,8 +43,6 @@
               </widget-memory>
 
               <widget-pool *ngSwitchCase="'pool'"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
                 [poolState]="dataFromConfig(widget)"
                 [volumeData]="volumeDataFromConfig(widget)"
                 [widgetSize]="medium"
@@ -66,13 +50,18 @@
               </widget-pool>
 
               <widget-nic *ngSwitchCase="'interface'"
-                fxFlex="{{widgetWidth}}px"
-                fxFlex.xs="100"
                 [nicState]="dataFromConfig(widget)"
                 [stats]="statsDataEvents"
                 [widgetSize]="medium"
                 configurable="false">
               </widget-nic>
+
+              <widget-network *ngSwitchCase="'network'"
+                [nics]="dataFromConfig(widget)"
+                [stats]="statsDataEvents"
+                [widgetSize]="medium"
+                configurable="false">
+              </widget-network>
 
             </ng-container>
           </ng-container>
@@ -102,7 +91,6 @@
                 <widget-sysinfo *ngSwitchCase="'system information'"
                   (back)="onMobileBack()"
                   id="active"
-                  [enclosure]="systemInformation.features.enclosure"
                   [isHA]="isHA"
                   [passive]="false"
                   [widgetSize]="medium">
@@ -111,7 +99,6 @@
                 <widget-sysinfo *ngSwitchCase="'system information(standby)'"
                   (back)="onMobileBack()"
                   id="passive"
-                  [enclosure]="systemInformation.features.enclosure"
                   [isHA]="isHA"
                   [passive]="true"
                   [widgetSize]="medium">
@@ -153,6 +140,14 @@
                   [widgetSize]="medium"
                   configurable="false">
                 </widget-nic>
+
+                <widget-network *ngSwitchCase="'network'"
+                  (back)="onMobileBack()"
+                  [nics]="dataFromConfig(widget)"
+                  [stats]="statsDataEvents"
+                  [widgetSize]="medium"
+                  configurable="false">
+                </widget-network>
 
               </ng-container>
             </ng-container>

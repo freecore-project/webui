@@ -1,5 +1,16 @@
-@import '~@angular/material/theming';
-@include mat-core();
+@use '@angular/material' as mat;
+@import '@angular/material/theming';
+$app-typography: mat.define-legacy-typography-config($font-family: '"IBM Plex Sans", "Roboto", "Helvetica Neue", sans-serif');
+// TODO(v15): As of v15 mat.legacy-core no longer includes default typography styles.
+//  The following line adds:
+//    1. Default typography styles for all components
+//    2. Styles for typography hierarchy classes (e.g. .mat-headline-1)
+//  If you specify typography styles for the components you use elsewhere, you should delete this line.
+//  If you don't need the default component typographies but still want the hierarchy styles,
+//  you can delete this line and instead use:
+//    `@include mat.legacy-typography-hierarchy($app-typography);`
+@include mat.all-legacy-component-typographies($app-typography);
+@include mat.legacy-core();
 
 $md-primary: (
     50 : #fce4ec,
@@ -68,17 +79,17 @@ $md-accent: (
 );
 
 // mandatory stuff for theming
-$freenas-primary: mat-palette($md-primary);
-$freenas-accent:  mat-palette($md-accent);
+$freenas-primary: mat.define-palette($md-primary);
+$freenas-accent:  mat.define-palette($md-accent);
 
 // include the custom theme components into a theme object
-$freenas-theme: mat-dark-theme($freenas-primary, $freenas-accent);
+$freenas-theme: mat.define-dark-theme($freenas-primary, $freenas-accent);
 
 $primary-dark: darken( map-get($md-primary, 500), 8% );
 
 // include the custom theme object into the angular material theme
 .egret-dark-pink {
-    @include angular-material-theme($freenas-theme);
+    @include mat.all-legacy-component-themes($freenas-theme);
 
 
 .app-loader {

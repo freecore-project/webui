@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { filter } from 'rxjs/operators';
 
 import * as _ from 'lodash';
@@ -19,7 +19,7 @@ import { EntityUtils } from '../../../common/entity/utils';
   selector: 'app-cloudsync-add',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [CloudCredentialService, JobService],
-})
+  })
 export class CloudsyncFormComponent {
   protected addCall = 'cloudsync.create';
   protected editCall = 'cloudsync.update';

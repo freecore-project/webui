@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { Subscription, Observer } from 'rxjs';
 import {
   HttpClient, HttpRequest, HttpEventType, HttpResponse,
@@ -15,11 +15,11 @@ import { T } from '../../../../../../translate-marker';
   selector: 'app-form-upload',
   templateUrl: './form-upload.component.html',
   styleUrls: ['../dynamic-field/dynamic-field.css', 'form-upload.component.css'],
-})
+  })
 export class FormUploadComponent {
   @ViewChild('fileInput', { static: false }) fileInput: ElementRef<HTMLInputElement>;
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   busy: Subscription[] = [];
   sub: Subscription;

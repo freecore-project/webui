@@ -10,14 +10,14 @@ import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job
 import { SnapshotDetailsComponent } from './components/snapshot-details.component';
 import helptext from '../../../../helptext/storage/snapshots/snapshots';
 import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/dialog-form-configuration.interface';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { SnapshotsBatchDeleteResultsDialogComponent } from 'app/pages/storage/snapshots/snapshot-list/components/batch-delete-results/snapshots-batch-delete-results-dialog.component';
 
 @Component({
   selector: 'app-snapshot-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
-})
+  })
 export class SnapshotListComponent {
   title = 'Snapshots';
   protected queryCall = 'zfs.snapshot.query';
@@ -365,7 +365,7 @@ export class SnapshotListComponent {
         this.entityList.loader.open();
         this.snapshotXtraCols = !this.snapshotXtraCols;
         window.localStorage.setItem('snapshotXtraCols', this.snapshotXtraCols.toString());
-        document.location.reload(true);
+        document.location.reload();
       }
     });
   }

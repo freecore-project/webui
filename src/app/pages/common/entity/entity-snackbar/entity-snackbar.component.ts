@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-entity-snackbar',
   templateUrl: './entity-snackbar.component.html',
   styleUrls: ['./entity-snackbar.component.css'],
-})
+  })
 export class EntitySnackbarComponent {
   static message: string;
   static action: string;

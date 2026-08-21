@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewchartComponent } from './viewchart.component';
+import { ViewChartComponent } from './viewchart.component';
 
-describe('ViewchartComponent', () => {
-  let component: ViewchartComponent;
-  let fixture: ComponentFixture<ViewchartComponent>;
+describe('ViewChartComponent', () => {
+  let component: ViewChartComponent;
+  let fixture: ComponentFixture<ViewChartComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ViewchartComponent],
+      declarations: [ViewChartComponent],
     })
       .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ViewchartComponent);
+    fixture = TestBed.createComponent(ViewChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,8 +1,9 @@
 import {
-  Component, OnInit, AfterViewInit, OnDestroy, Input, ViewChild, Renderer2, ElementRef, OnChanges, SimpleChanges,
+  Component, OnInit, AfterViewInit, OnDestroy, Input, OnChanges, SimpleChanges,
 } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { Router } from '@angular/router';
+import { MediaObserver } from '@angular/flex-layout';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { MaterialModule } from 'app/appMaterial.module';
 
@@ -14,27 +15,7 @@ import { environment } from 'app/../environments/environment';
 import { TranslateService } from '@ngx-translate/core';
 
 import { T } from '../../../../translate-marker';
-
-import {
-  tween,
-  styler,
-  listen,
-  pointer,
-  value,
-  decay,
-  spring,
-  physics,
-  easing,
-  everyFrame,
-  keyframes,
-  timeline,
-  // velocity,
-  multicast,
-  action,
-  transform,
-  // transformMap,
-  // clamp
-} from 'popmotion';
+import { filter, map } from 'rxjs/operators';
 
 interface NetIfInfo {
   name: string;
@@ -63,14 +44,13 @@ interface Slide {
   selector: 'widget-nic',
   templateUrl: './widgetnic.component.html',
   styleUrls: ['./widgetnic.component.css'],
-})
+  })
 export class WidgetNicComponent extends WidgetComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @Input() stats;
   @Input() nicState;
-  @ViewChild('carousel', { static: true }) carousel: ElementRef;
-  @ViewChild('carouselparent', { static: false }) carouselParent: ElementRef;
   traffic: NetTraffic;
   currentSlide = '0';
+  screenType = 'Desktop';
 
   get currentSlideName() {
     return this.path[parseInt(this.currentSlide)].name;
@@ -111,9 +91,15 @@ export class WidgetNicComponent extends WidgetComponent implements OnInit, After
     return this.nicState.link_state.replace(/_/g, ' ');
   }
 
-  constructor(public router: Router, public translate: TranslateService) {
+  constructor(public router: Router, public translate: TranslateService, public mediaObserver: MediaObserver) {
     super(translate);
     this.configurable = false;
+    this.mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
+      this.screenType = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
+    });
   }
 
   ngOnDestroy() {
@@ -161,23 +147,11 @@ export class WidgetNicComponent extends WidgetComponent implements OnInit, After
 
   updateSlidePosition(value) {
     if (value.toString() == this.currentSlide) { return; }
-    const carousel = this.carouselParent.nativeElement.querySelector('.carousel');
-    const slide = this.carouselParent.nativeElement.querySelector('.slide');
-
-    const el = styler(carousel);
-    const slideW = styler(slide).get('width');
-
-    tween({
-      from: { x: (parseInt(this.currentSlide) * 100) * -1 },
-      to: { x: (value * slideW) * -1 },
-      duration: 250,
-    }).start(el.set);
-
     this.currentSlide = value.toString();
     this.title = this.currentSlide == '0' ? 'Interface' : this.nicState.name;
   }
 
-  vlanAliases(vlanIndex: string|number) {
+  vlanAliases(vlanIndex: string | number) {
     if (typeof vlanIndex == 'string') { vlanIndex = parseInt(vlanIndex); }
     const vlan = this.nicState.vlans[vlanIndex];
     const result = vlan.aliases.filter((item) => item.type == 'INET' || item.type == 'INET6');

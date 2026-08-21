@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
-import { MatDialog } from '@angular/material/dialog';
-import { FormArray } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { UntypedFormArray } from '@angular/forms';
 import { RestService, WebSocketService, DialogService } from '../../../../services';
 import { EntityFormService } from '../../../common/entity/entity-form/services/entity-form.service';
 import { EntityUtils } from '../../../common/entity/utils';
@@ -16,7 +16,7 @@ import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job
   selector: 'app-certificate-acme-add',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [EntityFormService],
-})
+  })
 export class CertificateAcmeAddComponent {
   protected addCall = 'certificate.create';
   protected queryCall = 'certificate.query';
@@ -24,7 +24,7 @@ export class CertificateAcmeAddComponent {
   protected isEntity = true;
   protected isNew = true;
   private csrOrg: any;
-  formArray: FormArray;
+  formArray: UntypedFormArray;
   commonName: string;
   protected arrayControl: any;
   protected fieldConfig: FieldConfig[];

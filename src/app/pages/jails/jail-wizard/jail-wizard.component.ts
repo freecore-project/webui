@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { RestService, WebSocketService } from '../../../services';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Wizard } from '../../common/entity/entity-form/models/wizard.interface';
 import { EntityWizardComponent } from '../../common/entity/entity-wizard/entity-wizard.component';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
 import * as _ from 'lodash';
 import { JailService, NetworkService, DialogService } from '../../../services';
@@ -20,7 +20,7 @@ import helptext from '../../../helptext/jails/jail-configuration';
   selector: 'jail-wizard',
   template: '<entity-wizard [conf]="this"></entity-wizard>',
   providers: [JailService, NetworkService],
-})
+  })
 export class JailWizardComponent {
   protected addWsCall = 'jail.create';
   route_success: string[] = ['jails'];
@@ -31,7 +31,7 @@ export class JailWizardComponent {
   protected namesInUse = [];
 
   isLinear = true;
-  firstFormGroup: FormGroup;
+  firstFormGroup: UntypedFormGroup;
   protected custActions: any[] = [
     {
       id: 'advanced_add',
@@ -389,9 +389,9 @@ export class JailWizardComponent {
 
   updateIpAddress(entityWizard, type) {
     if (type == 'ipv4') {
-      const ip4_interface_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip4_interface'];
-      const ip4_address_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip4_addr'];
-      const ip4_netmask_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip4_netmask'];
+      const ip4_interface_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip4_interface'];
+      const ip4_address_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip4_addr'];
+      const ip4_netmask_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip4_netmask'];
       if (ip4_address_control.value == undefined || ip4_address_control.value == '') {
         delete this.summary[T('IPv4 Address')];
       } else {
@@ -407,13 +407,13 @@ export class JailWizardComponent {
         this.summary[T('IPv4 Address')] = full_address;
       }
       this.ipv4 = this.summary[T('IPv4 Address')];
-    } else if ((< FormGroup > entityWizard.formArray.get([1])).controls['auto_configure_ip6'].value) {
+    } else if ((< UntypedFormGroup > entityWizard.formArray.get([1])).controls['auto_configure_ip6'].value) {
       this.summary[T('IPv6 Address')] = T('Auto configure IPv6');
       this.ipv6 = 'vnet0|accept_rtadv';
     } else {
-      const ip6_interface_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip6_interface'];
-      const ip6_address_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip6_addr'];
-      const ip6_prefix_control = (< FormGroup > entityWizard.formArray.get([1])).controls['ip6_prefix'];
+      const ip6_interface_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip6_interface'];
+      const ip6_address_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip6_addr'];
+      const ip6_prefix_control = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['ip6_prefix'];
       if (ip6_address_control.value == undefined || ip6_address_control.value == '') {
         delete this.summary[T('IPv6 Address')];
       } else {
@@ -442,26 +442,26 @@ export class JailWizardComponent {
 
     const httpsField = _.find(this.wizardConfig[0].fieldConfig, { name: 'https' });
 
-    (< FormGroup > entityWizard.formArray.get([0]).get('uuid')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([0]).get('uuid')).valueChanges.subscribe((res) => {
       this.summary[T('Jail Name')] = res;
     });
-    (< FormGroup > entityWizard.formArray.get([0])).get('release').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([0])).get('release').valueChanges.subscribe((res) => {
       this.summary[T('Release')] = res;
 
       httpsField.isHidden = !(_.indexOf(this.unfetchedRelease, res) > -1);
     });
     // update ipv4
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip4_interface').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip4_interface').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv4');
     });
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip4_netmask').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip4_netmask').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv4');
     });
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip4_addr').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip4_addr').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv4');
     });
 
-    (< FormGroup > entityWizard.formArray.get([1]).get('defaultrouter')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('defaultrouter')).valueChanges.subscribe((res) => {
       if (res == undefined || res == '') {
         delete this.summary[T('Default Router For IPv4')];
       } else {
@@ -469,8 +469,8 @@ export class JailWizardComponent {
       }
     });
 
-    (< FormGroup > entityWizard.formArray.get([1]).get('auto_configure_ip6')).valueChanges.subscribe((res) => {
-      const vnet_ctrl = (< FormGroup > entityWizard.formArray.get([1])).controls['vnet'];
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('auto_configure_ip6')).valueChanges.subscribe((res) => {
+      const vnet_ctrl = (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['vnet'];
       if (res) {
         vnet_ctrl.setValue(true);
       } else {
@@ -480,17 +480,17 @@ export class JailWizardComponent {
     });
 
     // update ipv6
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip6_interface').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip6_interface').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv6');
     });
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip6_prefix').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip6_prefix').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv6');
     });
-    (< FormGroup > entityWizard.formArray.get([1])).get('ip6_addr').valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1])).get('ip6_addr').valueChanges.subscribe((res) => {
       this.updateIpAddress(entityWizard, 'ipv6');
     });
 
-    (< FormGroup > entityWizard.formArray.get([1]).get('defaultrouter6')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('defaultrouter6')).valueChanges.subscribe((res) => {
       if (res == undefined || res == '') {
         delete this.summary[T('Default Router For IPv6')];
       } else {
@@ -498,37 +498,37 @@ export class JailWizardComponent {
       }
     });
 
-    (< FormGroup > entityWizard.formArray.get([1]).get('dhcp')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('dhcp')).valueChanges.subscribe((res) => {
       this.summary[T('DHCP Autoconfigure IPv4')] = res ? T('Yes') : T('No');
 
       if (res) {
-        (< FormGroup > entityWizard.formArray.get([1])).controls['vnet'].setValue(true);
-        if (!(< FormGroup > entityWizard.formArray.get([1])).controls['nat'].disabled) {
+        (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['vnet'].setValue(true);
+        if (!(< UntypedFormGroup > entityWizard.formArray.get([1])).controls['nat'].disabled) {
           entityWizard.setDisabled('nat', true, 1);
         }
-      } else if ((< FormGroup > entityWizard.formArray.get([1])).controls['nat'].disabled) {
+      } else if ((< UntypedFormGroup > entityWizard.formArray.get([1])).controls['nat'].disabled) {
         entityWizard.setDisabled('nat', false, 1);
       }
       _.find(this.wizardConfig[1].fieldConfig, { name: 'vnet' }).required = res;
     });
-    (< FormGroup > entityWizard.formArray.get([1]).get('nat')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('nat')).valueChanges.subscribe((res) => {
       this.summary[T('NAT Autoconfigure IPv4')] = res ? T('Yes') : T('No');
-      if ((< FormGroup > entityWizard.formArray.get([1]).get('dhcp')).disabled) {
+      if ((< UntypedFormGroup > entityWizard.formArray.get([1]).get('dhcp')).disabled) {
         delete this.summary[T('DHCP Autoconfigure IPv4')];
       }
       if (res) {
-        (< FormGroup > entityWizard.formArray.get([1])).controls['vnet'].setValue(true);
+        (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['vnet'].setValue(true);
       }
       _.find(this.wizardConfig[1].fieldConfig, { name: 'vnet' }).required = res;
     });
-    (< FormGroup > entityWizard.formArray.get([1]).get('vnet')).valueChanges.subscribe((res) => {
+    (< UntypedFormGroup > entityWizard.formArray.get([1]).get('vnet')).valueChanges.subscribe((res) => {
       this.summary[T('VNET Virtual Networking')] = res ? T('Yes') : T('No');
       this.ip4_interfaceField.options = res ? this.interfaces.vnetEnabled : this.interfaces.vnetDisabled;
       this.ip6_interfaceField.options = res ? this.interfaces.vnetEnabled : this.interfaces.vnetDisabled;
 
-      if ((((< FormGroup > entityWizard.formArray.get([1])).controls['dhcp'].value
-           || (< FormGroup > entityWizard.formArray.get([1])).controls['nat'].value)
-           || (< FormGroup > entityWizard.formArray.get([1])).controls['auto_configure_ip6'].value) && !res) {
+      if ((((< UntypedFormGroup > entityWizard.formArray.get([1])).controls['dhcp'].value
+           || (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['nat'].value)
+           || (< UntypedFormGroup > entityWizard.formArray.get([1])).controls['auto_configure_ip6'].value) && !res) {
         _.find(this.wizardConfig[1].fieldConfig, { name: 'vnet' })['hasErrors'] = true;
         _.find(this.wizardConfig[1].fieldConfig, { name: 'vnet' })['errors'] = 'VNET is required.';
       } else {

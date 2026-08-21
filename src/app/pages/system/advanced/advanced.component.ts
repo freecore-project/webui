@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { MatDialog } from '@angular/material/dialog';
-import { Validators, ValidationErrors, FormControl } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { Validators, ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { helptext_system_advanced } from 'app/helptext/system/advanced';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
@@ -21,7 +21,7 @@ import { take } from 'rxjs/operators';
   template: '<entity-form [conf]="this"></entity-form>',
   styleUrls: ['advanced.component.css'],
   providers: [DatePipe],
-})
+  })
 export class AdvancedComponent implements OnDestroy {
   // protected resource_name: string = 'system/advanced';
   job: any = {};
@@ -168,7 +168,7 @@ export class AdvancedComponent implements OnDestroy {
           tooltip: helptext_system_advanced.swapondrive_tooltip,
           validation: [
             ...helptext_system_advanced.swapondrive_validation,
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'swapondrive');
               const errors = control.value && isNaN(this.storage.convertHumanStringToNum(control.value, false, 'g'))
                 ? { invalid_byte_string: true }
@@ -196,7 +196,7 @@ export class AdvancedComponent implements OnDestroy {
           placeholder: helptext_system_advanced.overprovision.placeholder,
           tooltip: helptext_system_advanced.overprovision.tooltip,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'overprovision');
               const errors = control.value && isNaN(this.storage.convertHumanStringToNum(control.value, false, 'g'))
                 ? { invalid_byte_string: true }
@@ -503,8 +503,6 @@ export class AdvancedComponent implements OnDestroy {
   customSubmit(body) {
     body.swapondrive = this.storage.convertHumanStringToNum(body.swapondrive) / 1073741824;
     body.overprovision = this.storage.convertHumanStringToNum(body.overprovision) / 1073741824;
-    body.legacy_ui ? window.localStorage.setItem('exposeLegacyUI', body.legacy_ui)
-      : window.localStorage.setItem('exposeLegacyUI', 'false');
     const maxTasks = body.max_tasks > 0 ? body.max_tasks : null;
     delete body.max_tasks;
     delete body.sed_passwd2;

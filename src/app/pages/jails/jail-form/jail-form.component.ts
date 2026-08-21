@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
 import * as _ from 'lodash';
@@ -24,7 +24,7 @@ import { FieldSet } from '../../common/entity/entity-form/models/fieldset.interf
   templateUrl: './jail-form.component.html',
   styleUrls: ['../../common/entity/entity-form/entity-form.component.scss', '../jail-list/jail-list.component.css'],
   providers: [JailService, NetworkService, JailFormService, EntityFormService, FieldRelationService],
-})
+  })
 export class JailFormComponent implements OnInit, AfterViewInit {
   isReady = false;
   protected queryCall = 'jail.query';

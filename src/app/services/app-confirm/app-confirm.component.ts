@@ -1,4 +1,4 @@
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { Component } from '@angular/core';
 
 @Component({
@@ -17,7 +17,7 @@ import { Component } from '@angular/core';
     color="primary"
     (click)="dialogRef.close(true)">{{customButton}}</button>
     </div>`,
-})
+  })
 export class AppComfirmComponent {
   title: string;
   message: string;

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import * as _ from 'lodash';
@@ -10,13 +10,13 @@ import { FieldConfig } from '../../../../../common/entity/entity-form/models/fie
 @Component({
   selector: 'app-rsync-configuration-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 
 export class RYSNCConfigurationFormComponent {
   protected queryCall = 'rsyncmod.query';
   protected route_success: string[] = ['services', 'rsync', 'rsync-module'];
   protected isEntity = true;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   protected pk: any;
   protected queryKey = 'id';
   protected addCall = 'rsyncmod.create';

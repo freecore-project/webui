@@ -6,42 +6,16 @@
       <mat-icon>menu</mat-icon>
     </button>
     <!-- Sidenav toggle collapse -->
-    <button *ngIf="sidenav.opened" mat-icon-button id="collapseToggle" fxHide.lt-mat="true" (click)="toggleCollapse()" [matTooltip]="mat_tooltips.toggle_collapse | translate" class="toggle-collapsed"
+    <button *ngIf="sidenav.opened" mat-icon-button id="collapseToggle" (click)="toggleCollapse()" [matTooltip]="mat_tooltips.toggle_collapse | translate" class="toggle-collapsed"
       ix-auto ix-auto-type="button" ix-auto-identifier="collapseToggle">
       <mat-icon>chevron_left</mat-icon>
     </button>
-    <!-- Search form
-      <div
-      fxFlex
-      fxHide.lt-sm="true"
-      class="search-bar">
-      <form class="top-search-form">
-      <mat-icon role="img">search</mat-icon>
-      <input autofocus="true" placeholder="Search" type="text">
-      </form>
-      </div -->
-      <span fxFlex></span>
-      <div>
-        <mat-icon (click)="openIX()"
-          [svgIcon]="screenSize == 'xs' ? 'ix_logomark' : 'ix_full_logo'"
-          alt="iXsystems logo"
-          class="ix-logo {{screenSize}}">
-        </mat-icon>
-      </div>
+      <span class="topbar-spacer"></span>
 
-      <!-- truecommand-->
-      <button mat-icon-button id="tc-connecting" [matTooltip]="mat_tooltips.tc_connect | translate" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="tcConnecting" *ngIf="tcStatus && tcStatus.status === 'CONNECTING'" (click)="stopTCConnecting()">
-        <mat-icon class="movement" svgIcon="truecommand_logo_white"></mat-icon>
-      </button>
-      <button mat-icon-button id="tc-status" [matTooltip]="mat_tooltips.tc_status | translate" class="topbar-button-right" (click)="showTCStatus()"
-        ix-auto ix-auto-type="button" ix-auto-identifier="tcStatus" *ngIf="tcStatus && tcStatus.status !== 'CONNECTING'">
-        <mat-icon svgIcon="truecommand_logo_mono" class="truecommand {{tcStatus.status.toLowerCase()}}"></mat-icon>
-      </button>
-      <!-- finish update -->
-      <button *ngIf="upgradeWaitingToFinish" mat-icon-button id="finish-update" [matTooltip]="mat_tooltips.upgrade_waiting | translate" (click)="upgradePendingDialog()" class="topbar-button-right"
-        ix-auto ix-auto-type="button" ix-auto-identifier="upgradeWaiting">
-        <mat-icon class="movement">update</mat-icon>
+      <!-- identity mark (the internal development record): where 13.3 kept the iX logo; opens About -->
+      <button mat-icon-button id="fc-mark" [matTooltip]="mat_tooltips.about | translate" (click)="onShowAbout()" class="topbar-button-right"
+        ix-auto ix-auto-type="button" ix-auto-identifier="fcMark">
+        <img class="fc-topbar-mark" [src]="'assets/images/' + mascot" alt="FreeCORE">
       </button>
       <!--loading icon-->
       <button *ngIf="updateIsRunning" mat-icon-button id="update-running" [matTooltip]="mat_tooltips.update | translate" (click)="showUpdateDialog()" class="topbar-button-right"
@@ -56,33 +30,6 @@
         ix-auto ix-auto-type="button" ix-auto-identifier="resilvering">
         <mat-icon class="fa-spin">autorenew</mat-icon>
       </button>
-      <!-- HA Status -->
-      <span *ngIf="is_ha && ha_status_text">
-      <button
-        *ngIf="ha_disabled_reasons.length === 0 && ha_status_text === 'HA Enabled'"
-        mat-icon-button
-        id="ha"
-        [matTooltip]="ha_status_text | translate"
-        (click)="showHAStatus()"
-        ix-auto
-        ix-auto-type="button"
-        ix-auto-identifier="haStatus">
-          <mat-icon svgIcon="ha_enabled"></mat-icon>
-      </button>
-      <button
-        *ngIf="ha_disabled_reasons.length > 0 && ha_status_text === 'HA Disabled'"
-        mat-icon-button
-        id="ha"
-        [matTooltip]="ha_status_text | translate"
-        (click)="showHAStatus()"
-        ix-auto
-        ix-auto-type="button"
-        ix-auto-identifier="haStatus">
-          <mat-icon
-            [svgIcon]="ha_disabled_reasons[0] === 'NO_SYSTEM_READY' ? 'ha_reconnecting' : 'ha_disabled'"
-          ></mat-icon>
-      </button>
-      </span>
       <!-- Directory Services Monitor -->
       <button mat-icon-button *ngIf="showDirServicesIcon" id="dirservices-manager" [matTooltip]="mat_tooltips.directory_services_monitor | translate" (click)="onShowDirServicesMonitor()"
         ix-auto ix-auto-type="button" ix-auto-identifier="dirServices">
@@ -100,17 +47,11 @@
         <span *ngIf="notifications.length > 0" class="notification-number mat-bg-warn">{{notifications.length}}</span>
       </button>
       <!-- User and UI menu -->
-      <button name="Settings" mat-icon-button [matTooltip]="mat_tooltips.settings | translate" [matMenuTriggerFor]="accountMenu" class="topbar-button-right" (click)="checkLegacyUISetting()"
+      <button name="Settings" mat-icon-button [matTooltip]="mat_tooltips.settings | translate" [matMenuTriggerFor]="accountMenu" class="topbar-button-right"
         ix-auto ix-auto-type="button" ix-auto-identifier="settings">
           <mat-icon>settings</mat-icon>
       </button>
       <mat-menu #accountMenu="matMenu">
-        <!--button mat-menu-item (click)="$event.stopPropagation()" [matMenuTriggerFor]="languageMenu">
-          <mat-icon>translate</mat-icon>
-          <ng-container *ngFor="let lang of language.availableLangs">
-            <span *ngIf="lang.code == language.currentLang">{{ lang.name }}</span>
-          </ng-container>
-        </button-->
         <button class="hidden-button" mat-menu-item></button>
         <button name="settings-change-password" mat-menu-item [routerLink]="['/account/users/change-password']"
           ix-auto ix-auto-type="option" ix-auto-identifier="Change Password">
@@ -136,11 +77,6 @@
           <mat-icon>info_outline</mat-icon>
           <span>{{'About' | translate}}</span>
         </button>
-        <button *ngIf="exposeLegacyUI" name="settings-legacy-ui" mat-menu-item (click)="onGoToLegacy()"
-          ix-auto ix-auto-type="option" ix-auto-identifier="Legacy Web Interface">
-          <mat-icon>keyboard_return</mat-icon>
-          <span>{{'Legacy Web Interface' | translate}}</span>
-        </button>
       </mat-menu>
       <!-- Top right power menu -->
       <button name="Power" mat-icon-button [matTooltip]="mat_tooltips.power | translate" [matMenuTriggerFor]="runMenu" class="topbar-button-right"
@@ -165,15 +101,5 @@
               <span>{{'Shut Down' | translate}}</span>
             </button>
         </mat-menu>
-      <mat-menu #languageMenu="matMenu" [overlapTrigger]="false" xPosition="after">
-        <ng-container *ngFor="let lang of language.availableLangs">
-          <button mat-menu-item (click)="setLang(lang.code)">
-            <span>{{ lang.name }}</span>
-            <!--span class="flag-icon" [ngClass]="{'flag-icon-us': lang.code === 'en'}" *ngIf="lang.code == 'en'">{{ lang.name }}</span>
-              <span class="flag-icon" [ngClass]="{'flag-icon-es': lang.code === 'es'}" *ngIf="lang.code == 'es'">{{ lang.name }}</span>
-              <span class="flag-icon" [ngClass]="{'flag-icon-cn': lang.code === 'zh-hans'}" *ngIf="lang.code == 'zh-hans'">{{ lang.name }}</span-->
-          </button>
-        </ng-container>
-      </mat-menu>
   </mat-toolbar-row>
 </mat-toolbar>

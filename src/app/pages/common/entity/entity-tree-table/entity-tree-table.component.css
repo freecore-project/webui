@@ -1,5 +1,55 @@
+.entity-tree-table__size {
+  white-space: nowrap;
+}
+
+/* the internal development record: PrimeNG's p-* DOM needs the legacy compact cell contract. */
+:host ::ng-deep .p-treetable-thead > tr > th,
+:host ::ng-deep .p-treetable-tbody > tr > td {
+  padding: 0.25em 0.5em;
+  text-align: start;
+}
+
+:host ::ng-deep .p-treetable-tbody > tr > td {
+  line-height: 20px;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .p-treetable-tbody > tr {
+  height: 36px;
+}
+
+/* Keep legacy resizable cells compact; comments retain their wrapping exception. */
+:host ::ng-deep .p-treetable-resizable .p-treetable-tbody > tr > td:not([id^="tbody__comments_"]) {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+/* the internal development record: native PrimeNG buttons need the legacy themed foreground. */
+:host ::ng-deep .p-treetable-toggler {
+  color: var(--primary);
+}
+
 .icons {
-    font-size: 24px; 
+  align-items: center;
+  display: inline-flex;
+  font-size: 24px;
+  line-height: 1;
+  vertical-align: middle;
+  transform: translateY(-3px);
+}
+
+.icons > span {
+  align-items: center;
+  display: inline-flex;
+}
+
+.entity-tree-table__actions > mat-icon {
+  vertical-align: middle;
+}
+
+:host ::ng-deep .p-treetable-tbody > tr:nth-child(even) {
+  background-color: var(--contrast-lightest, rgba(127, 127, 127, 0.12));
 }
 
 .group-menu-header{

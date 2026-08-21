@@ -4,7 +4,6 @@ import { T } from 'app/translate-marker';
 export const helptext_system_general = {
   stg_fieldset_gui: T('GUI'),
   stg_fieldset_loc: T('Localization'),
-  stg_fieldset_other: T('Other Options'),
 
   stg_guicertificate: {
     placeholder: T('GUI SSL Certificate'),
@@ -62,7 +61,7 @@ export const helptext_system_general = {
     placeholder: T('HTTPS Protocols'),
     tooltip: T('Cryptographic protocols for securing client/server connections. Select which\
  <a href="https://en.wikipedia.org/wiki/Transport_Layer_Security" target="_blank">Transport Layer Security (TLS)</a>\
- versions TrueNAS can use for connection security.'),
+ versions FreeCORE can use for connection security.'),
   },
 
   stg_guihttpsredirect: {
@@ -118,18 +117,6 @@ export const helptext_system_general = {
   poolkeys: {
     placeholder: T('Export Legacy Encryption (GELI) Keys'),
     tooltip: T(''),
-  },
-
-  crash_reporting: {
-    placeholder: T('Crash reporting'),
-    tooltip: T('Send failed HTTP request data which can include client\
- and server IP addresses, failed method call tracebacks, and\
- middleware log file contents to iXsystems.'),
-  },
-
-  usage_collection: {
-    placeholder: T('Usage collection'),
-    tooltip: T('Enable sending anonymous usage statistics to iXsystems.'),
   },
 
   save_config_form: {

@@ -13,7 +13,7 @@ import {
 import {
   FieldConfig,
 } from '../../common/entity/entity-form/models/field-config.interface';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
 import { DialogService } from 'app/services/dialog.service';
 import { EntityUtils } from '../../common/entity/utils';
@@ -29,7 +29,7 @@ import { CoreService, CoreEvent } from 'app/core/services/core.service';
 
   <entity-form [conf]="this"></entity-form>
   </div>`,
-})
+  })
 export class ImportDiskComponent implements OnDestroy, Formconfiguration {
   initialized = true;
 
