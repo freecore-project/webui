@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
 import { LanguageService } from 'app/services/language.service';
-import { of } from 'rxjs';
-import { Observable } from 'rxjs/Observable';
+import { of, Observable } from 'rxjs';
 import {
   catchError, map, timeout,
 } from 'rxjs/operators';

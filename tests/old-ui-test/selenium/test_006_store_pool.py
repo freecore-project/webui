@@ -14,15 +14,19 @@ from source import pool1, pool2
 skip_mesages = "Skipping first run"
 script_name = os.path.basename(__file__).partition('.')[0]
 
+# FB15 systems with NVMe storage expose disks as nda*; FB13 ATA systems use ada*.
+# Override via TEST_DISK_PREFIX (e.g. nda, da) when running on non-ATA hardware.
+DISK_PREFIX = os.environ.get('TEST_DISK_PREFIX', 'ada')
+
 xpaths = {
     'navStorage': '//*[@id="nav-5"]/div/a[1]',
     'submenuPool': '//*[@id="5-0"]',
     'addAction': '//*[@id="add_action_button"]',
     'forwardButton': '//*[@id="custom_button"]',
     'newpoolName': '//*[@id="pool-manager__name-input-field"]',
-    'disk1Checkbox': "//mat-checkbox[@id='pool-manager__disks-ada1']/label/div",
-    'disk2Checkbox': "//mat-checkbox[@id='pool-manager__disks-ada2']/label/div",
-    'disk3Checkbox': "//mat-checkbox[@id='pool-manager__disks-ada3']/label/div",
+    'disk1Checkbox': f"//mat-checkbox[@id='pool-manager__disks-{DISK_PREFIX}1']/label/div",
+    'disk2Checkbox': f"//mat-checkbox[@id='pool-manager__disks-{DISK_PREFIX}2']/label/div",
+    'disk3Checkbox': f"//mat-checkbox[@id='pool-manager__disks-{DISK_PREFIX}3']/label/div",
     'diskselectedmoveButton': '//*[@id="vdev__add-button"]',
     'createButton': '//*[@id="pool-manager__create-button"]',
     # very important and useful

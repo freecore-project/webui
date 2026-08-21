@@ -45,8 +45,9 @@ export default {
   bootloader_tooltip: T('Select <i>UEFI</i> for newer operating systems or\
  <i>UEFI-CSM</i> (Compatibility Support Mode) for\
  older operating systems that only support BIOS\
- booting. <i>Grub</i> is not recommended but can be\
- used when the other options do not work.'),
+ booting. <i>GRUB</i> is deprecated and appears only for existing VMs\
+ that already use it. Migrate those VMs to UEFI or UEFI-CSM before\
+ GRUB support is removed.'),
 
   autostart_placeholder: T('Start on Boot'),
   autostart_tooltip: T('Set to start this VM when the system boots.'),

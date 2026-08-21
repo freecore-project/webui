@@ -2,7 +2,7 @@ import {
   ApplicationRef, Input, Output, EventEmitter, Component, Injector, OnInit, ViewContainerRef, TemplateRef,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import * as _ from 'lodash';
 import { FieldConfig } from '../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../common/entity/entity-form/models/fieldset.interface';
@@ -18,7 +18,7 @@ import { EntityUtils } from '../common/entity/utils';
   templateUrl: './dashboard-note-edit.component.html',
   // template: `<entity-form-embedded [args]="machineId" [conf]="this"></entity-form-embedded>`,
   providers: [EntityFormService],
-})
+  })
 export class DashboardNoteEditComponent implements OnInit {
   @Input() machineId = '';
   @Output() cancel: EventEmitter < any > = new EventEmitter < any >();
@@ -48,7 +48,7 @@ export class DashboardNoteEditComponent implements OnInit {
 
   error: any;
   success: any;
-  protected formGroup: FormGroup;
+  protected formGroup: UntypedFormGroup;
   busy: Subscription;
 
   notes: any[] ;

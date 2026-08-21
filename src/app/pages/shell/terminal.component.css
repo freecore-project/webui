@@ -1,0 +1,58 @@
+.terminal-wrapper {
+  position: relative;
+  /* The terminal is the page. Give it the viewport minus the app chrome
+     rather than deriving a row count from document.body.offsetHeight, which
+     is what the old pages did and why they were always slightly wrong. */
+  height: calc(100vh - 260px);
+  min-height: 260px;
+  overflow: hidden;
+  padding: 8px;
+}
+
+.terminal-surface {
+  height: 100%;
+  width: 100%;
+}
+
+.terminal-overlay {
+  align-items: center;
+  background: rgba(0, 0, 0, 0.55);
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.terminal-overlay-box {
+  align-items: center;
+  background: var(--bg2);
+  border: 1px solid var(--lines);
+  border-radius: 4px;
+  color: var(--fg2);
+  display: flex;
+  gap: 16px;
+  padding: 16px 24px;
+}
+
+.terminal-overlay-reason {
+  max-width: 480px;
+}
+
+.terminal-toolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 8px;
+}
+
+.terminal-toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.terminal-font-slider {
+  min-width: 140px;
+}

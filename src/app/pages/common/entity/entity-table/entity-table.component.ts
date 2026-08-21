@@ -1,7 +1,7 @@
 import {
   AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Router, NavigationStart } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
@@ -51,6 +51,7 @@ export interface InputTableConf {
   detailRowHeight?: any;
   cardHeaderComponent?: any;
   asyncView?: boolean;
+  preservePageOnRefresh?: boolean;
   wsDelete?: string;
 
   /**
@@ -103,7 +104,7 @@ const DETAIL_HEIGHT = 24;
   templateUrl: './entity-table.component.html',
   styleUrls: ['./entity-table.component.scss'],
   providers: [DialogService, StorageService],
-})
+  })
 export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() title = '';
   @Input('conf') conf: InputTableConf;
@@ -586,7 +587,9 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.needTableResize = true;
       this.currentRows = this.rows;
-      this.paginationPageIndex = 0;
+      this.paginationPageIndex = skipActions && this.conf.preservePageOnRefresh
+        ? Math.min(this.paginationPageIndex, Math.max(0, Math.ceil(this.currentRows.length / Math.max(1, this.paginationPageSize)) - 1))
+        : 0;
       this.setPaginationInfo();
     }
     return res;

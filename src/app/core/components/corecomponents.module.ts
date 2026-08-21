@@ -29,6 +29,7 @@ import { WidgetComponent } from 'app/core/components/widgets/widget/widget.compo
 import { WidgetChartComponent } from 'app/core/components/widgets/widgetchart/widgetchart.component';
 import { WidgetSysInfoComponent } from 'app/core/components/widgets/widgetsysinfo/widgetsysinfo.component';
 import { WidgetNicComponent } from 'app/core/components/widgets/widgetnic/widgetnic.component';
+import { WidgetNetworkComponent } from 'app/core/components/widgets/widgetnetwork/widgetnetwork.component';
 import { WidgetCpuComponent } from 'app/core/components/widgets/widgetcpu/widgetcpu.component';
 
 import { WidgetMemoryComponent } from 'app/core/components/widgets/widgetmemory/widgetmemory.component';
@@ -87,6 +88,7 @@ import { ConvertPipe } from './pipes/convert.pipe';
     WidgetCpuComponent,
     WidgetMemoryComponent,
     WidgetPoolComponent,
+    WidgetNetworkComponent,
     TextLimiterDirective,
     TextLimiterTooltipComponent,
     WidgetControllerComponent,
@@ -95,7 +97,7 @@ import { ConvertPipe } from './pipes/convert.pipe';
     ConvertPipe,
     WidgetHelpComponent,
   ],
-  exports: [ // Modules and Components here
+  exports: [
     CommonModule,
     MaterialModule,
     OverlayModule,
@@ -125,38 +127,11 @@ import { ConvertPipe } from './pipes/convert.pipe';
     WidgetMemoryComponent,
     TextLimiterTooltipComponent,
     WidgetPoolComponent,
+    WidgetNetworkComponent,
     WidgetControllerComponent,
     SimpleFailoverBtnComponent,
     SimpleFailoverBtnDialog,
     WidgetHelpComponent,
-  ],
-  entryComponents: [
-    ContextMenuComponent,
-    CopyPasteMessageComponent,
-    DisplayContainer,
-    ViewComponent,
-    ViewChartComponent,
-    ViewChartDonutComponent,
-    ViewChartGaugeComponent,
-    ViewChartBarComponent,
-    ViewChartPieComponent,
-    ViewChartLineComponent,
-    ViewControlComponent,
-    ViewButtonComponent,
-    ViewControllerComponent,
-    CardComponent,
-    WidgetComponent,
-    WidgetChartComponent,
-    WidgetSysInfoComponent,
-    WidgetNicComponent,
-    WidgetCpuComponent,
-    WidgetMemoryComponent,
-    WidgetPoolComponent,
-    WidgetHelpComponent,
-    TextLimiterTooltipComponent,
-    WidgetControllerComponent,
-    SimpleFailoverBtnComponent,
-    SimpleFailoverBtnDialog,
   ],
   providers: [
     StorageService,

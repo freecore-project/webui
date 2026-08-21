@@ -37,8 +37,6 @@ import { ExtentListComponent } from './iscsi/extent/extent-list';
 import { ExtentFormComponent } from './iscsi/extent/extent-form';
 import { AssociatedTargetListComponent } from './iscsi/associated-target/associated-target-list';
 import { AssociatedTargetFormComponent } from './iscsi/associated-target/associated-target-form';
-import { FibreChannelPortsComponent } from './iscsi/fibre-channel-ports/fibre-channel-ports.component';
-import { FibreChannelPortComponent } from './iscsi/fibre-channel-ports/fibre-channel-port/fibre-channel-port.component';
 
 @NgModule({
   imports: [
@@ -78,15 +76,12 @@ import { FibreChannelPortComponent } from './iscsi/fibre-channel-ports/fibre-cha
     ExtentFormComponent,
     AssociatedTargetListComponent,
     AssociatedTargetFormComponent,
-    FibreChannelPortsComponent,
-    FibreChannelPortComponent,
   ],
   providers: [
     JailService,
     EntityFormService,
     UserService,
   ],
-  entryComponents: [FibreChannelPortComponent],
 })
 export class SharingModule {
 }

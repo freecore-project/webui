@@ -26,6 +26,11 @@ import { ServiceUPSComponent } from './components/service-ups';
 import { ServiceWebdavComponent } from './components/service-webdav';
 import { ServiceOpenvpnClientComponent } from './components/service-openvpn/service-openvpn-client';
 import { ServiceOpenvpnServerComponent } from './components/service-openvpn/service-openvpn-server';
+import { ServiceRar2fsComponent } from './components/service-rar2fs';
+import { ServiceWireguardComponent } from './components/service-wireguard';
+import { ServiceWireguardClientComponent } from './components/service-wireguard-client';
+import { WireguardPeerListComponent } from './components/service-wireguard/wireguard-peer-list';
+import { WireguardPeerFormComponent } from './components/service-wireguard/wireguard-peer-form';
 import { Services } from './services.component';
 import { ServicesTableComponent } from './services-table.component';
 import { routing } from './services.routing';
@@ -38,10 +43,14 @@ import { UserService } from '../../services/user.service';
   declarations: [
     Services, ServiceSSHComponent, ServiceAFPComponent,
     ServiceFTPComponent, ServiceLLDPComponent,
+    ServiceRar2fsComponent,
     ServiceRSYNCComponent, CconfigureRYSNCComponent, RSYNCconfigurationListComponent, RYSNCConfigurationFormComponent,
     ServiceSMARTComponent, ServiceNFSComponent, ServiceTFTPComponent, ServiceUPSComponent,
     ServiceDDNSComponent, ServiceSMBComponent, ServiceSNMPComponent,
-    ServiceWebdavComponent, ServicesTableComponent, ServiceOpenvpnClientComponent, ServiceOpenvpnServerComponent,
+    ServiceWebdavComponent, ServicesTableComponent,
+    ServiceOpenvpnClientComponent, ServiceOpenvpnServerComponent,
+    ServiceWireguardComponent, WireguardPeerListComponent, WireguardPeerFormComponent,
+    ServiceWireguardClientComponent,
   ],
   providers: [UserService],
 })

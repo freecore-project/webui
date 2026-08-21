@@ -1,5 +1,5 @@
 import { Component, ViewContainerRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -11,10 +11,10 @@ import globalHelptext from '../../../../../../helptext/global-helptext';
   selector: 'form-textarea',
   templateUrl: './form-textarea.component.html',
   styleUrls: ['../dynamic-field/dynamic-field.css'],
-})
+  })
 export class FormTextareaComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   private hasPasteEvent = false;
   fileString;

@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 // import {Field} from '../../models/field.interface';
 import { Control } from '../../models/control.interface';
 import { ControlConfig } from '../../models/control-config.interface';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'toolbar-button',

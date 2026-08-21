@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewchartpieComponent } from './viewchartpie.component';
+import { ViewChartPieComponent } from './viewchartpie.component';
 
-describe('ViewchartpieComponent', () => {
-  let component: ViewchartpieComponent;
-  let fixture: ComponentFixture<ViewchartpieComponent>;
+describe('ViewChartPieComponent', () => {
+  let component: ViewChartPieComponent;
+  let fixture: ComponentFixture<ViewChartPieComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ViewchartpieComponent],
+      declarations: [ViewChartPieComponent],
     })
       .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ViewchartpieComponent);
+    fixture = TestBed.createComponent(ViewChartPieComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

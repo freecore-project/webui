@@ -1,20 +1,20 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ViewchartlineComponent } from './viewchartline.component';
+import { ViewChartLineComponent } from './viewchartline.component';
 
-describe('ViewchartlineComponent', () => {
-  let component: ViewchartlineComponent;
-  let fixture: ComponentFixture<ViewchartlineComponent>;
+describe('ViewChartLineComponent', () => {
+  let component: ViewChartLineComponent;
+  let fixture: ComponentFixture<ViewChartLineComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ViewchartlineComponent],
+      declarations: [ViewChartLineComponent],
     })
       .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ViewchartlineComponent);
+    fixture = TestBed.createComponent(ViewChartLineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

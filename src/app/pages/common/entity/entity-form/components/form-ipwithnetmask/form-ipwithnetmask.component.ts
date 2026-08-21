@@ -1,7 +1,7 @@
 import {
   Component, Output, ViewChild, EventEmitter, OnInit, OnDestroy,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -13,10 +13,10 @@ import { NetworkService } from '../../../../../../services';
   selector: 'form-ipwithnetmask',
   templateUrl: './form-ipwithnetmask.component.html',
   styleUrls: ['../dynamic-field/dynamic-field.css'],
-})
+  })
 export class FormIpWithNetmaskComponent implements Field, OnInit, OnDestroy {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
   address = '';

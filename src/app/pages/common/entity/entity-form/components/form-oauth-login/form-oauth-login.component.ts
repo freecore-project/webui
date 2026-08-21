@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 
 import { FieldConfig } from '../../models/field-config.interface';
 import { Field } from '../../models/field.interface';
@@ -16,10 +16,10 @@ export type OauthJiraMessage = MessageEvent & {
   selector: 'form-oauth-login',
   templateUrl: './form-oauth-login.component.html',
   styleUrls: ['./form-oauth-login.component.scss'],
-})
+  })
 export class FormOauthLoginComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
   get hasValue(): boolean {

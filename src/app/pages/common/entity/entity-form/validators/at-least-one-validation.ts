@@ -1,14 +1,14 @@
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 export function atLeastOne(otherControlName: string, fieldPlacehoders: [string, string]) {
-  return function atLeastOneHasValue(control: FormControl) {
+  return function atLeastOneHasValue(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
 
     // Initializing the validator.
     const thisControl = control;
-    const otherControl = control.parent.get(otherControlName) as FormControl;
+    const otherControl = control.parent.get(otherControlName) as UntypedFormControl;
     if (!thisControl) {
       if (!otherControl) {
         throw new Error(

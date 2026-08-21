@@ -33,7 +33,9 @@
   padding: 0;
   line-height: 40px;
   position: absolute;
-  right: 4px;
+  /* mirror the bar's own horizontal padding so the link isn't flush
+     with the screen edge */
+  right: .666rem;
 }
 
 @media screen and (max-width: 400px) {

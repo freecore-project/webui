@@ -1,32 +1,64 @@
-import { TestBed, async } from '@angular/core/testing';
+import { of } from 'rxjs';
 
 import { AppComponent } from './app.component';
 
 describe('AppComponent', () => {
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        AppComponent,
-      ],
-    }).compileComponents();
-  }));
+  let component: AppComponent;
+  let setTitle: jasmine.Spy;
 
-  it('should create the app', async(() => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app).toBeTruthy();
-  }));
+  beforeEach(() => {
+    setTitle = jasmine.createSpy('setTitle');
+    const router = {
+      events: of(),
+      errorHandler: undefined,
+      getCurrentNavigation: () => null,
+      navigate: jasmine.createSpy('navigate'),
+      url: '/',
+    };
+    const snackBar = {
+      open: () => ({
+        dismiss: () => undefined,
+        onAction: () => of(),
+      }),
+    };
+    const sanitizer = {
+      bypassSecurityTrustResourceUrl: (url: string) => url,
+    };
+    const iconRegistry = {
+      addSvgIcon: jasmine.createSpy('addSvgIcon'),
+      addSvgIconSetInNamespace: jasmine.createSpy('addSvgIconSetInNamespace'),
+    };
 
-  it('should have as title \'app works!\'', async(() => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('app works!');
-  }));
+    component = new AppComponent(
+      { setTitle } as any,
+      router as any,
+      {} as any,
+      {} as any,
+      snackBar as any,
+      { loggedIn: false } as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      {} as any,
+      { globalPreview: false } as any,
+      {} as any,
+      sanitizer as any,
+      iconRegistry as any,
+      {} as any,
+    );
+  });
 
-  it('should render title in a h1 tag', async(() => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('app works!');
-  }));
+  it('creates the application shell', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('exposes the FreeCORE application title', () => {
+    expect(component.appTitle).toBe('FreeCORE');
+  });
+
+  it('sets the browser title for the current host', () => {
+    expect(setTitle).toHaveBeenCalledWith(jasmine.stringMatching(/^FreeCORE - /));
+  });
 });
