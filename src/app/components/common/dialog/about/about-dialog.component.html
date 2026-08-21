@@ -1,11 +1,7 @@
 <div class="wrapper">
 	<div class="header">
 		<div class="header-overlay">
-			<div class="logo-wrapper">
-				<mat-icon *ngIf="systemType==='CORE'" svgIcon="truenas_core_logo_full" class="logo" alt="TrueNAS CORE logo"></mat-icon>
-				<mat-icon *ngIf="systemType==='ENTERPRISE'" svgIcon="truenas_enterprise_logo_full" class="logo" alt="TrueNAS ENTERPRISE logo"></mat-icon>
-				<mat-icon *ngIf="systemType==='SCALE'" svgIcon="truenas_scale_logo_full" class="logo" alt="TrueNAS SCALE logo"></mat-icon>
-			</div>
+
 			<div id="title" *ngIf="extraMsg">{{ helptext.tagline | translate }}</div>
 		</div>
 	</div>
@@ -22,18 +18,18 @@
       <div fxFlex="90%" class="medium-font" [innerHtml]="helptext.forums | translate"></div>
 		</div>
 
-		<div class="line-item" *ngIf="systemType==='CORE'">
-			<div fxFlex="10%"><img id="ix-img" src="assets/images/iX_Logomark.svg"></div>
-			<div fxFlex="90%" class="medium-font">{{ helptext.contactA | translate }}
-				<a href="https://www.ixsystems.com/truenas/?utm_source=truenas+core+ui&utm_medium=os&utm_campaign=welcome"
-					target="_blank" class="external-link">
-				{{ helptext.contactB | translate }}</a> {{ helptext.contactC | translate }}
-				<a href="https://www.ixsystems.com/quote-form/?utm_source=truenas+core+ui&utm_medium=os&utm_campaign=welcome"
-					target="_blank" class="external-link">{{ helptext.contactD | translate }}</a>.
-			</div>
+		<div class="line-item">
+			<div fxFlex="10%"><mat-icon class="bullet-icon">public</mat-icon></div>
+      <div fxFlex="90%" class="medium-font" [innerHtml]="helptext.website | translate"></div>
 		</div>
-		<div id="open-source">TrueNAS {{systemType}} {{ helptext.opensourceA | translate }} <a href="https://github.com/freenas/" target="_blank"
-			class="external-link">{{ helptext.opensourceB | translate }}</a> {{ helptext.opensourceC | translate }}
+
+		<!-- freecore/the internal development record: the "FreeCORE is Free and Open Source software,
+		     which is provided as-is with no warranty" line is removed. The
+		     warranty disclaimer that actually matters lives in the shipped
+		     LICENSE files, not in this dialog, and the fork-attribution block
+		     below carries the part that is load-bearing. -->
+		<div id="fork-attribution" class="medium-font">
+			{{"FreeCORE is an independent fork of TrueNAS\u00ae CORE 13.3. Not affiliated with or endorsed by iXsystems, Inc. TrueNAS\u00ae is a trademark of iXsystems, Inc. Thanks to the FreeNAS and TrueNAS contributors whose open-source work made this possible." | translate}}
 		</div>
 		<div id="findme" *ngIf="extraMsg">
 			{{ helptext.findagainA | translate }} <mat-icon>settings</mat-icon> {{ helptext.findagainB | translate }}
@@ -44,9 +40,8 @@
 </div>
 
 <div mat-dialog-actions id="actions">
-	<div fxFlex="45%" fxFlex.xs="100" class="copyright-txt">TrueNAS {{ systemType }}® © {{copyrightYear}} -
-		<a href="http://www.ixsystems.com" target="_blank" title="iXsystems, Inc." class="external-link">
-			iXsystems, Inc</a>.
+	<div fxFlex="45%" fxFlex.xs="100" class="copyright-txt">© {{copyrightYear}} ·
+		<a href="https://freecore.org" target="_blank" rel="noopener noreferrer" title="FreeCORE project website" class="project-home-link">freecore.org</a>
 	</div>
 	<div id="button-wrapper" fxFlex="55%" fxFlex.xs="100">
 	<button *ngIf="extraMsg; else aboutButton" mat-button class="mat-button mat-primary" (click)="dialogRef.close(false)"

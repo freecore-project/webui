@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DialogService } from '../../../../services/dialog.service';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import globalHelptext from '../../../../helptext/global-helptext';
 import { T } from '../../../../translate-marker';
@@ -19,7 +19,7 @@ export interface DialogData {
   selector: 'about-dialog',
   styleUrls: ['./about-dialog.component.css'],
   templateUrl: './about-dialog.component.html',
-})
+  })
 export class AboutModalDialog {
   copyrightYear = this.localeService.getCopyrightYearFromBuildTime();
   product_type: string;

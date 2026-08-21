@@ -2,15 +2,17 @@
   text-align: center;
   background-size:cover;
   background-image:
-  url('assets/images/backgrounds/hard_drive_2.jpg');
-  background-position-y:20%;
-  background-position-x:50%;
-  background-color: black;
+  url('assets/images/FreeCORE.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: #141213;
+  min-height: 170px;
   margin: -24px -24px 20px -24px;
 }
 .header-overlay {
   text-align: center;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.12);
   padding: 30px 10px;
   color: white;
 }
@@ -52,11 +54,7 @@
   font-size: 1rem;
 }
 
-#open-source {
-  font-size: 0.75rem;
-  padding: 1rem;
-  text-align: center;
-}
+/* freecore/the internal development record: #open-source block removed with its markup. */
 
 .copyright-txt {
   font-size: 11px;
