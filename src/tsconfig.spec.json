@@ -2,14 +2,15 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "outDir": "../out-tsc/spec",
-    "module": "commonjs",
-    "target": "es5",
+    "module": "es2020",
+    "skipLibCheck": true,
     "baseUrl": "",
     "types": [
       "jasmine",
       "node"
     ]
   },
+  "exclude": [],
   "files": [
     "test.ts",
     "polyfills.ts"

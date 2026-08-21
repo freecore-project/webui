@@ -6,7 +6,7 @@ import {
   WebSocketService, StorageService, AppLoaderService, DialogService,
 } from '../../../services';
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { regexValidator } from 'app/pages/common/entity/entity-form/validators/regex-validation';
 import { T } from '../../../translate-marker';
 import globalHelptext from '../../../helptext/global-helptext';
@@ -25,7 +25,7 @@ import { Subscription } from 'rxjs';
     </div>
     <entity-table [title]='title' [conf]='this'></entity-table>`,
   styleUrls: ['./vm-list.component.css'],
-})
+  })
 export class VMListComponent implements OnDestroy, InputTableConf {
   title = 'Virtual Machines';
   queryCall = 'vm.query';
@@ -447,6 +447,8 @@ export class VMListComponent implements OnDestroy, InputTableConf {
 
   isActionVisible(actionId: string, row: any) {
     if (actionId === 'VNC' && (row['status']['state'] !== 'RUNNING' || !this.checkVnc(row))) {
+      return false;
+    } if (actionId === 'CLONE' && row['bootloader'] === 'GRUB') {
       return false;
     } if ((actionId === 'POWER_OFF' || actionId === 'STOP' || actionId === 'RESTART'
             || actionId === 'SERIAL') && row['status']['state'] !== 'RUNNING') {

@@ -1,14 +1,14 @@
-import { FormControl } from '@angular/forms';
+import { UntypedFormControl } from '@angular/forms';
 
 export function greaterThan(otherControlName: string, fieldPlaceholers: [string]) {
-  return function greaterThanValidate(control: FormControl) {
+  return function greaterThanValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }
 
     // Initializing the validator.
     const thisControl = control;
-    const otherControl = control.parent.get(otherControlName) as FormControl;
+    const otherControl = control.parent.get(otherControlName) as UntypedFormControl;
     if (!thisControl) {
       if (!otherControl) {
         throw new Error(

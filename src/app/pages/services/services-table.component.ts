@@ -1,18 +1,19 @@
 import {
-  Component, OnChanges, OnInit, ViewChild, Input,
+  Component, OnChanges, OnInit, OnDestroy, AfterViewInit, ViewChild, Input, ElementRef, HostListener,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { RestService, WebSocketService } from '../../services';
 
 @Component({
   selector: 'services-table',
   templateUrl: './services-table.component.html',
   styleUrls: ['./services-table.component.css'],
-})
-export class ServicesTableComponent implements OnChanges, OnInit {
+  })
+export class ServicesTableComponent implements OnChanges, OnInit, AfterViewInit, OnDestroy {
   @Input() conf: any;
   @Input() data: any[];
-  @ViewChild('datatable', { static: true }) datatable;
+  @ViewChild('datatable') datatable: DatatableComponent;
 
   columns: any[] = [
     { name: 'Running', prop: 'state' },
@@ -26,15 +27,14 @@ export class ServicesTableComponent implements OnChanges, OnInit {
   baseWindowHeight = 910;
   tableHeight: number;
   isFooterConsoleOpen: boolean;
+  private resizeObserver: ResizeObserver;
+  private observedWidth = 0;
 
-  constructor(protected router: Router, protected rest: RestService, protected ws: WebSocketService) {}
+  constructor(protected router: Router, protected rest: RestService, protected ws: WebSocketService,
+    private element: ElementRef<HTMLElement>) {}
 
   ngOnInit() {
     this.findPageSize();
-
-    window.onresize = () => {
-      this.findPageSize();
-    };
 
     this.ws.call('system.advanced.config').subscribe((res) => {
       if (res) {
@@ -44,6 +44,28 @@ export class ServicesTableComponent implements OnChanges, OnInit {
     });
   }
 
+  ngAfterViewInit() {
+    // Sidebar transitions change the container after the window resize event.
+    this.resizeObserver = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width > 0 && entry.contentRect.width !== this.observedWidth) {
+        this.observedWidth = entry.contentRect.width;
+        this.datatable?.recalculate();
+        const body = this.datatable?.bodyComponent;
+        const columns = body?.columns;
+        if (columns) {
+          // Refresh the cached scroll extent without resetting operator column widths/order.
+          body.columns = columns;
+        }
+      }
+    });
+    this.resizeObserver.observe(this.element.nativeElement);
+  }
+
+  ngOnDestroy() {
+    this.resizeObserver?.disconnect();
+  }
+
+  @HostListener('window:resize')
   findPageSize() {
     const x = window.innerHeight - this.baseWindowHeight;
     this.pageSize = 12 + (Math.floor(x / 50));

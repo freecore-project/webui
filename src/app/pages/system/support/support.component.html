@@ -1,51 +1,24 @@
+<!-- the internal development record: no ticket-submission surface. Everything this page offered
+     below the system information -- the Jira form, Proactive Support, the
+     enterprise contract panels and the iX product image -- posted to
+     support-proxy.ixsystems.com, optionally with a full system debug. This fork
+     is CORE-only and is not supported by iXsystems, so the page is now system
+     information plus a link to our own tracker (see helptext FN_instructions).
+     Rendered unconditionally: product_type comes from localStorage and is
+     undefined on a browser that has never logged in, which used to fall through
+     to the ENTERPRISE branch -- the same latent bug fixed in the internal development record. -->
 <mat-card class="form-card">
   <div class="mat-content" fxLayout="column">
     <div id="top-row" class="container" fxLayout="row wrap">
-      <div id="top-left" fxFlex="55%" fxFlex.xs="100">
-          <app-fn-sys-info
-          *ngIf="product_type === 'CORE'; else TNsysinfo"
+      <div id="top-left" fxFlex="100">
+        <app-fn-sys-info
           [FN_version]='FN_version'
           [FN_model]="FN_model"
           [FN_memory]="FN_memory"
           [FN_serial]="FN_serial"
           [FN_instructions]="FN_instructions"
-          ></app-fn-sys-info>
-          <div id="fn-spacer" *ngIf="product_type === 'CORE'"></div>
-        <ng-template #TNsysinfo>
-          <app-tn-sys-info
-            [customer_name]='customer_name'
-            [features]='features'
-            [contract_type]='contract_type'
-            [expiration_date]='expiration_date'
-            [model]='model'
-            [sys_serial]='sys_serial'
-            [add_hardware]='add_hardware'
-            [daysLeftinContract]='daysLeftinContract'
-          >
-          </app-tn-sys-info>
-        </ng-template>
-        <div id="production-status-wrapper">
-          <app-production-status *ngIf="product_type === 'ENTERPRISE'"></app-production-status>
-        </div>
+        ></app-fn-sys-info>
       </div>
-      <div id="top-right" fxFlex="45%" fxFlex.xs="100">
-        <div class="sys-image">
-            <app-sys-image
-            [product_image]="product_image"
-            [ngClass]="[product_type === 'CORE' ? 'fn-sys-image' : 'tn-sys-image']"
-          ></app-sys-image>
-        </div>
-      </div>
-    </div>
-    <div *ngIf="product_type === 'ENTERPRISE'" fxLayout="row">
-      <app-proactive></app-proactive>
-    </div>
-    <div fxLayout="row" id="support_bottom-row">
-      <app-fn-support *ngIf="product_type === 'CORE'; else TNsupport"></app-fn-support>
-      <ng-template #TNsupport>
-        <app-tn-support></app-tn-support>
-      </ng-template>
     </div>
   </div>
 </mat-card>
-

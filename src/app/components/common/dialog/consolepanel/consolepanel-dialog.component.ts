@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {
   Component, AfterViewChecked, ViewChild, ElementRef, EventEmitter,
 } from '@angular/core';
@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
   selector: 'consolepanel-dialog',
   styleUrls: ['./consolepanel-dialog.component.scss'],
   templateUrl: './consolepanel-dialog.component.html',
-})
+  })
 export class ConsolePanelModalDialog {
   refreshMsg: String = 'Check to stop refresh';
   intervalPing;

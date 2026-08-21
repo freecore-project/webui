@@ -1,9 +1,7 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
-
-import * as myIP from 'what-is-my-ip-address';
 
 import { AvailablePluginsComponent } from './available-plugins/available-plugins.component';
 import { AppLoaderService, WebSocketService, DialogService } from '../../services';
@@ -201,8 +199,8 @@ export class PluginsComponent implements InputTableConf {
     private router: Router,
     protected matDialog: MatDialog,
   ) {
-    myIP.v4().then((pubIp) => {
-      this.publicIp = pubIp;
+    window.fetch('https://ipv4.icanhazip.com/').then((response) => response.text()).then((publicIp) => {
+      this.publicIp = publicIp.replace(/\s+/g, '');
     }).catch((e) => {
       console.log('Error getting Public IP: ', e);
       this.publicIp = '';

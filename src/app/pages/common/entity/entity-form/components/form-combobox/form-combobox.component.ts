@@ -1,26 +1,26 @@
 import { Component } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
 import { Field } from '../../models/field.interface';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'form-combobox',
   styleUrls: ['form-combobox.component.scss', '../dynamic-field/dynamic-field.css'],
   templateUrl: './form-combobox.component.html',
-})
+  })
 export class FormComboboxComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   textChanged: Subject<KeyboardEvent> = new Subject<KeyboardEvent>();
   constructor(public translate: TranslateService) {
     this.textChanged
-      .debounceTime(500)
-      .distinctUntilChanged()
+      .pipe(debounceTime(500), distinctUntilChanged())
       .subscribe((value) => this.updateSearchOptions(value));
   }
 

@@ -10,10 +10,10 @@ import { EntityUtils } from '../../common/entity/utils';
   styleUrls: ['./networksummary.component.css'],
 })
 export class NetworkSummaryComponent implements OnInit {
-  ips: any;
-  ipSize: number;
-  default_routes: any;
-  nameservers: any;
+  ips: any = {};
+  ipSize = 0;
+  default_routes: any[] = [];
+  nameservers: any[] = [];
   queryCall = 'network.general.summary';
 
   constructor(private ws: WebSocketService, public translate: TranslateService, protected dialogService: DialogService) {}
@@ -21,10 +21,10 @@ export class NetworkSummaryComponent implements OnInit {
   ngOnInit() {
     this.ws.call(this.queryCall, []).subscribe(
       (res) => {
-        this.ips = res.ips;
-        this.ipSize = Object.keys(res.ips).length;
-        this.default_routes = res.default_routes;
-        this.nameservers = res.nameservers;
+        this.ips = res.ips || {};
+        this.ipSize = Object.keys(this.ips).length;
+        this.default_routes = res.default_routes || [];
+        this.nameservers = res.nameservers || [];
       },
       (err) => {
         new EntityUtils().handleWSError(this, err, this.dialogService);

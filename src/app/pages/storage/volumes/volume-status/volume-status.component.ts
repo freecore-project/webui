@@ -11,7 +11,7 @@ import { TreeNode } from 'primeng/api';
 import { EntityTreeTable } from '../../../common/entity/entity-tree-table/entity-tree-table.model';
 
 import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/dialog-form-configuration.interface';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Validators } from '@angular/forms';
 import { matchOtherValidator } from '../../../common/entity/entity-form/validators/password-validation';
 import { LocaleService } from 'app/services/locale.service';
@@ -21,6 +21,7 @@ import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job
 
 interface poolDiskInfo {
   name: any;
+  type?: any;
   read: any;
   write: any;
   checksum: any;
@@ -34,7 +35,7 @@ interface poolDiskInfo {
   selector: 'volume-status',
   templateUrl: './volume-status.component.html',
   styleUrls: ['./volume-status.component.css'],
-})
+  })
 export class VolumeStatusComponent implements OnInit {
   poolScan: any;
   timeRemaining: any = {};
@@ -97,6 +98,22 @@ export class VolumeStatusComponent implements OnInit {
     type: 'input',
     name: 'target_vdev',
     value: '',
+    isHidden: true,
+  }, {
+    type: 'select',
+    name: 'expand_mode',
+    placeholder: helptext.dialogFormFields.expand_mode.placeholder,
+    tooltip: helptext.dialogFormFields.expand_mode.tooltip,
+    options: [
+      { label: helptext.dialogFormFields.expand_mode.raidz_label, value: 'raidz' },
+    ],
+    value: 'raidz',
+    disabled: true,
+    isHidden: true,
+  }, {
+    type: 'paragraph',
+    name: 'raidz_expand_warning',
+    paraText: helptext.dialogFormFields.raidz_expand_warning.paraText,
     isHidden: true,
   }, {
     type: 'select',
@@ -425,31 +442,46 @@ export class VolumeStatusComponent implements OnInit {
     return actions;
   }
 
+  isRaidzVdev(type: string): boolean {
+    return ['RAIDZ', 'RAIDZ1', 'RAIDZ2', 'RAIDZ3'].includes(type);
+  }
+
   extendAction(data) {
     return [{
       id: 'extend',
       label: helptext.actions_label.extend,
       onClick: (row) => {
         const pk = this.pk;
+        const isRaidz = this.isRaidzVdev(data.type);
+        const vdevName = row.name;
+        const duplicateSerialDisks = this.duplicateSerialDisks;
         _.find(this.extendVdevFormFields, { name: 'target_vdev' }).value = row.guid;
+        _.find(this.extendVdevFormFields, { name: 'expand_mode' }).isHidden = !isRaidz;
+        _.find(this.extendVdevFormFields, { name: 'raidz_expand_warning' }).isHidden = !isRaidz;
         const conf: DialogFormConfiguration = {
-          title: helptext.extend_disk.form_title,
+          title: isRaidz ? helptext.extend_disk.raidz_form_title : helptext.extend_disk.form_title,
           fieldConfig: this.extendVdevFormFields,
           saveButtonText: helptext.extend_disk.saveButtonText,
           parent: this,
           customSubmit(entityDialog: any) {
-            delete entityDialog.formValue['passphrase2'];
+            const body = { ...entityDialog.formValue };
+            delete body['passphrase2'];
+            delete body['expand_mode'];
+            delete body['raidz_expand_warning'];
+            if (duplicateSerialDisks.find((disk) => [disk.name, disk.devname].includes(body.new_disk))) {
+              body['allow_duplicate_serials'] = true;
+            }
 
             const dialogRef = entityDialog.parent.matDialog.open(EntityJobComponent, { data: { title: helptext.extend_disk.title }, disableClose: true });
             dialogRef.componentInstance.setDescription(helptext.extend_disk.description);
-            dialogRef.componentInstance.setCall('pool.attach', [pk, entityDialog.formValue]);
+            dialogRef.componentInstance.setCall('pool.attach', [pk, body]);
             dialogRef.componentInstance.submit();
             dialogRef.componentInstance.success.subscribe((res) => {
               dialogRef.close(true);
               entityDialog.dialogRef.close(true);
               entityDialog.parent.getData();
               entityDialog.parent.getUnusedDisk();
-              entityDialog.parent.dialogService.report(helptext.extend_disk.title, helptext.extend_disk.info_dialog_content + name + '.', '', 'info', true);
+              entityDialog.parent.dialogService.report(helptext.extend_disk.title, helptext.extend_disk.info_dialog_content + vdevName + '.', '', 'info', true);
             }),
             dialogRef.componentInstance.failure.subscribe((res) => {
               dialogRef.close();
@@ -467,6 +499,7 @@ export class VolumeStatusComponent implements OnInit {
     }, {
       id: 'Remove',
       label: helptext.actions_label.remove,
+      isHidden: this.isRaidzVdev(data.type),
       onClick: (row) => {
         const diskName = this.trimDiskName(row.name, 'p');
 
@@ -514,6 +547,7 @@ export class VolumeStatusComponent implements OnInit {
 
     const item: poolDiskInfo = {
       name: data.disk ? data.disk : data.device,
+      type: data.type,
       read: stats.read_errors ? stats.read_errors : 0,
       write: stats.write_errors ? stats.write_errors : 0,
       checksum: stats.checksum_errors ? stats.checksum_errors : 0,
@@ -526,7 +560,7 @@ export class VolumeStatusComponent implements OnInit {
     if (category && data.type) {
       if (data.type == 'DISK') {
         item.actions = this.getAction(data, category, vdev_type);
-      } else if (data.type === 'MIRROR') {
+      } else if (data.type === 'MIRROR' || this.isRaidzVdev(data.type)) {
         item.actions = this.extendAction(data);
       }
     }

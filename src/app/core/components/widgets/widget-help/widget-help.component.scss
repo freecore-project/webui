@@ -1,70 +1,47 @@
-.widget {
-  height: 400px;
-  width: 600px;
-}
+/* B6 (the internal development record): Help widget becomes the slim Resources strip. */
+.widget-help-strip {
+  min-height: 0;
 
-.widget .mat-card .mat-card-content > div {
-  padding: 8px 16px !important;
-}
+  .mat-card.strip-card {
+    display: block;
+    width: 100%;
+    margin: 0;
+  }
 
-.copyright-txt {
-  align-self: flex-end;
-  font-size: 11px;
-  text-align: center;
-}
+  .resources-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 22px;
+    padding: 6px 16px;
+    font-size: 13px;
+  }
 
-.widget mat-card-content {
-  width: 100%;
-}
+  .resources-title {
+    font-weight: 600;
+    font-size: 14px;
+  }
 
-.container {
-  padding: 16px;
-}
+  a.external-link {
+    color: var(--blue);
+    text-decoration: none;
+    cursor: pointer;
+  }
 
+  .resources-spacer {
+    flex: 1;
+  }
 
-.line-item {
-  margin: 20px;
-}
+  .resources-slogan {
+    color: var(--fg2);
+    font-weight: 500;
 
-.line-item mat-icon {
-  font-size: 2.5rem;
-}
+    .blue {
+      color: #268ecb;
+    }
+  }
 
-.line-item div {
-  align-items: center;
-}
-
-.medium-font {
-  font-size: 14px;
-  padding: 0 15px;
-  text-align: left;
-}
-
-#open-source {
-  font-size: 0.75rem;
-  padding: 1rem;
-  text-align: center;
-}
-
-::ng-deep a {
-  color: var(--primary);
-}
-
-.external-link:focus-visible {
-  background: var(--hover-bg) !important;
-}
-
-/* NARROW SCREENS */
-.xs.widget {
-  height: calc(100vh - 96px);
-  position: absolute;
-  width: 100vw;
-}
-
-.xs.widget .mat-card {
-  overflow-y: scroll;
-}
-
-::ng-deep a:focus-visible {
-  background: var(--hover-bg);
+  .resources-copyright {
+    color: var(--fg2);
+  }
 }

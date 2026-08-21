@@ -1,12 +1,12 @@
 import {
   Component, OnInit, ViewChild, OnDestroy,
 } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { MatSort } from '@angular/material/sort';
-import { MatTableDataSource, MatTable } from '@angular/material/table';
+import { MatLegacyTableDataSource as MatTableDataSource, MatLegacyTable as MatTable } from '@angular/material/legacy-table';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleService } from 'app/services/locale.service';
-import { Observable, Subscription } from 'rxjs/Rx';
+import { Observable, Subscription } from 'rxjs';
 import {
   animate, state, style, transition, trigger,
 } from '@angular/animations';
@@ -24,14 +24,14 @@ import * as _ from 'lodash';
   templateUrl: './task-manager.component.html',
   styleUrls: ['./task-manager.component.css'],
   animations: [
-    trigger('detailExpand', [
-      state('collapsed, void', style({ height: '0px', minHeight: '0', display: 'none' })),
-      state('expanded', style({ height: '*' })),
-      transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
-      transition('expanded <=> void', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+  trigger('detailExpand', [
+    state('collapsed, void', style({ height: '0px', minHeight: '0', display: 'none' })),
+    state('expanded', style({ height: '*' })),
+    transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
+    transition('expanded <=> void', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
     ]),
   ],
-})
+  })
 export class TaskManagerComponent implements OnInit, OnDestroy {
   dataSource: MatTableDataSource<any>;
   @ViewChild('taskTable', { static: true }) taskTable: MatTable<any>;

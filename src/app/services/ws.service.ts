@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { UUID } from 'angular2-uuid';
 import { LocalStorage } from 'ngx-webstorage';
-import { Observable, Subject } from 'rxjs/Rx';
+import { Observable, Subject } from 'rxjs';
 
 import { environment } from '../../environments/environment';
 import { filter, map } from 'rxjs/operators';
@@ -110,13 +110,24 @@ export class WebSocketService {
       const call = this.pendingCalls.get(data.id);
 
       this.pendingCalls.delete(data.id);
-      if (data.error) {
-        console.log('Error: ', data.error);
-        call.observer.error(data.error);
-      }
+      // the internal development record: guard `call` before dereferencing it. The error path
+      // used to read call.observer with no null check while the success path
+      // right below it checked -- so a result for an id we no longer hold threw
+      // and aborted the whole handler. That happens on reconnect, when replies
+      // to in-flight calls land after pendingCalls has moved on.
+      // error/next are now exclusive: after observer.error() the subscriber is
+      // stopped, so the old fall-through into next()/complete() was already a
+      // no-op -- this just says so.
       if (call && call.observer) {
-        call.observer.next(data.result);
-        call.observer.complete();
+        if (data.error) {
+          console.log('Error: ', data.error);
+          call.observer.error(data.error);
+        } else {
+          call.observer.next(data.result);
+          call.observer.complete();
+        }
+      } else if (data.error) {
+        console.warn('Error for an unknown call id', data.id, data.error);
       }
     } else if (data.msg == 'connected') {
       this.connected = true;
@@ -129,13 +140,17 @@ export class WebSocketService {
       if (this.pendingSubs[nom] && this.pendingSubs[nom].observers) {
         for (const uuid in this.pendingSubs[nom].observers) {
           const subObserver = this.pendingSubs[nom].observers[uuid];
+          // the internal development record: same asymmetry as the result branch above --
+          // subObserver.error() ran before the `subObserver &&` checks below it.
+          if (!subObserver) {
+            continue;
+          }
           if (data.error) {
             console.log('Error: ', data.error);
             subObserver.error(data.error);
-          }
-          if (subObserver && data.fields) {
+          } else if (data.fields) {
             subObserver.next(data.fields);
-          } else if (subObserver && !data.fields) {
+          } else {
             subObserver.next(data);
           }
         }
@@ -207,31 +222,35 @@ export class WebSocketService {
 
   sub(name): Observable<any> {
     const nom = name.replace('.', '_'); // Avoid weird behavior
-    if (!this.pendingSubs[nom]) {
-      this.pendingSubs[nom] = {
-        observers: {},
-      };
-    }
+    return Observable.create((observer) => {
+      if (!this.pendingSubs[nom]) {
+        this.pendingSubs[nom] = {
+          observers: {},
+        };
+      }
 
-    const uuid = UUID.UUID();
-    const payload = { id: uuid, name, msg: 'sub' };
-
-    const obs = Observable.create((observer) => {
+      const uuid = UUID.UUID();
       this.pendingSubs[nom].observers[uuid] = observer;
-      this.send(payload);
+      this.send({ id: uuid, name, msg: 'sub' });
 
-      // cleanup routine
-      observer.complete = () => {
-        const unsub_payload = { id: uuid, msg: 'unsub' };
-        this.send(unsub_payload);
-        this.pendingSubs[nom].observers[uuid].unsubscribe();
-        delete this.pendingSubs[nom].observers[uuid];
-        if (!this.pendingSubs[nom].observers) { delete this.pendingSubs[nom]; }
+      let active = true;
+      return () => {
+        if (!active) {
+          return;
+        }
+        active = false;
+
+        const pending = this.pendingSubs[nom];
+        if (pending && pending.observers) {
+          delete pending.observers[uuid];
+          if (Object.keys(pending.observers).length === 0) {
+            delete this.pendingSubs[nom];
+          }
+        }
+
+        this.send({ id: uuid, msg: 'unsub' });
       };
-
-      return observer;
     });
-    return obs;
   }
 
   job(method, params?: any): Observable<any> {
@@ -255,6 +274,16 @@ export class WebSocketService {
     return Observable.create((observer) => {
       this.call('auth.login', params).subscribe((result) => {
         this.loginCallback(result, observer);
+      });
+    });
+  }
+
+  login_webauthn(username, password, credential): Observable<any> {
+    return Observable.create((observer) => {
+      this.call('auth.webauthn.login', [username, password, credential]).subscribe((result) => {
+        this.loginCallback(result, observer);
+      }, (error) => {
+        observer.error(error);
       });
     });
   }

@@ -1,3 +1,0 @@
-truenas-webui: duplicate-font-file usr/share/truenas/webui/assets/fonts/Roboto/*
-truenas-webui: duplicate-font-file usr/share/truenas/webui/assets/iconfont/mdi/fonts/*
-truenas-webui: source-is-missing src/assets/iconfont/mdi/preview.html

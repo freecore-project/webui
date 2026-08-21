@@ -4,7 +4,7 @@ import { helptext_system_certificates } from 'app/helptext/system/certificates';
 import * as _ from 'lodash';
 import { DialogService, RestService, WebSocketService } from '../../../../services';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job.component';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
@@ -13,7 +13,7 @@ import { EntityUtils } from '../../../common/entity/utils';
 @Component({
   selector: 'app-certificate-edit',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class CertificateEditComponent {
   protected queryCall = 'certificate.query';
   protected editCall = 'certificate.update';

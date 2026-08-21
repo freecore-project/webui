@@ -8,7 +8,7 @@ import {
   DialogService, RestService, TooltipsService, WebSocketService,
   NetworkService, SnackbarService,
 } from '../../../services';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { regexValidator } from '../../common/entity/entity-form/validators/regex-validation';
 import { ipv4Validator } from '../../common/entity/entity-form/validators/ip-validation';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
@@ -44,13 +44,13 @@ import { T } from '../../../translate-marker';
   `,
   styleUrls: ['./ipmi.component.css'],
   providers: [TooltipsService, SnackbarService],
-})
+  })
 export class IPMIComponent {
   @ViewChild('selectedChannel', { static: true }) select: ElementRef;
   selectedValue: string;
 
   protected resource_name = '';
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   busy: Subscription;
   channels = [];
   protected channel: any;

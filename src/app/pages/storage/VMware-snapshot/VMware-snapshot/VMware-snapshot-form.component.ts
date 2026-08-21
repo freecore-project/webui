@@ -3,7 +3,7 @@ import {
   Component,
   Injector,
 } from '@angular/core';
-import { FormGroup, Validators } from '@angular/forms';
+import { UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -21,7 +21,7 @@ import { EntityUtils } from '../../../common/entity/utils';
 @Component({
   selector: 'app-vmware-snapshot-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 
 export class VMwareSnapshotFormComponent {
   protected route_success: string[] = ['storage', 'vmware-Snapshots'];
@@ -29,7 +29,7 @@ export class VMwareSnapshotFormComponent {
   queryCall = 'vmware.query';
   addCall = 'vmware.create';
   protected pk: any;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
 
   protected entityForm: any;
   private datastore: any;

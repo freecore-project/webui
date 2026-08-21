@@ -1,6 +1,15 @@
+import { Component } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FlexLayoutModule } from '@angular/flex-layout';
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card';
 
 import { CardComponent } from './card.component';
+
+@Component({
+  selector: 'display',
+  template: '',
+})
+class DisplayStubComponent {}
 
 describe('CardComponent', () => {
   let component: CardComponent;
@@ -8,7 +17,8 @@ describe('CardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [CardComponent],
+      declarations: [CardComponent, DisplayStubComponent],
+      imports: [FlexLayoutModule, MatCardModule],
     })
       .compileComponents();
   }));

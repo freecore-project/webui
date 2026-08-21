@@ -10,6 +10,26 @@ img.plugin-img {
     padding-top: 10px;
 }
 
+/* the internal development record: stand-in when an index entry carries no icon, so the card
+   keeps its shape instead of collapsing where the <img> used to be. Two
+   explicit classes rather than one clever selector -- the small variant sits in
+   the <figure> strip, the large one on the selected-plugin card. */
+mat-icon.plugin-img-placeholder {
+    padding-top: 10px;
+    color: var(--alt-fg1);
+    font-size: 40px;
+    height: 40px;
+    width: 40px;
+}
+
+mat-icon.plugin-img-placeholder-lg {
+    padding-top: 10px;
+    color: var(--alt-fg1);
+    font-size: 96px;
+    height: 96px;
+    width: 96px;
+}
+
 p.plugin-description {
     height: 100px;
 }

@@ -2,9 +2,9 @@ import {
   Component, OnInit, ElementRef, ViewChild,
 } from '@angular/core';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { MatChipInputEvent } from '@angular/material/chips';
-import { FormGroup, FormControl } from '@angular/forms';
-import { MatAutocompleteSelectedEvent, MatAutocomplete } from '@angular/material/autocomplete';
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips';
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent, MatLegacyAutocomplete as MatAutocomplete } from '@angular/material/legacy-autocomplete';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -14,13 +14,13 @@ import { Field } from '../../models/field.interface';
   selector: 'form-chip',
   templateUrl: './form-chip.component.html',
   styleUrls: ['../dynamic-field/dynamic-field.css', './form-chip.component.css'],
-})
+  })
 export class FormChipComponent implements Field, OnInit {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   chipLists: any[];
-  chipCtrl = new FormControl();
+  chipCtrl = new UntypedFormControl();
 
   @ViewChild('chipInput') chipInput: ElementRef<HTMLInputElement>;
   @ViewChild('autoComplete') matAutocomplete: MatAutocomplete;

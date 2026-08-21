@@ -123,7 +123,7 @@
     position: absolute;
     bottom: 0;
     font-weight:500;
-    font-family:Roboto;
+    font-family:"IBM Plex Sans",Roboto,sans-serif;
     opacity:0.5;
 }
 
