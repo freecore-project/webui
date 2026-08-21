@@ -2,6 +2,7 @@ import { FieldConfig } from '../entity-form/models/field-config.interface';
 
 export interface DialogFormConfiguration {
   title: string;
+  settingsStyle?: boolean;
   fieldConfig: FieldConfig[];
   method_rest?: string;
   method_ws?: string;

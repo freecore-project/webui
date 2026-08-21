@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { TextLimiterTooltipComponent } from './text-limiter-tooltip.component';
 
@@ -6,7 +6,7 @@ describe('TextLimiterTooltipComponent', () => {
   let component: TextLimiterTooltipComponent;
   let fixture: ComponentFixture<TextLimiterTooltipComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [TextLimiterTooltipComponent],
     })

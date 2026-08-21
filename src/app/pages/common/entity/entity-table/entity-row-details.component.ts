@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { EntityAction, EntityRowDetails } from './entity-row-details.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-entity-row-details',
   styles: [
     `
@@ -18,6 +19,8 @@ import { EntityAction, EntityRowDetails } from './entity-row-details.interface';
     `,
   ],
   templateUrl: './entity-row-details.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./entity-row-details.component.css'],
 })
 export class EntityRowDetailsComponent {
   @Input() conf: EntityRowDetails;

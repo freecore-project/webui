@@ -1,10 +1,10 @@
 import { AbstractControl } from '@angular/forms';
-import { FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormControl, FormGroup } from '@angular/forms';
 
 export function regexValidator(regexString: RegExp) {
-  let thisControl: FormControl;
+  let thisControl: UntypedFormControl;
 
-  return function regexValidate(control: FormControl) {
+  return function regexValidate(control: UntypedFormControl) {
     if (!control.parent) {
       return null;
     }

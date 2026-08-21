@@ -1,16 +1,20 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import * as _ from 'lodash';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
 import { WebSocketService, DialogService, AppLoaderService } from 'app/services/';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { helptext } from 'app/helptext/system/2FA';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-two-factor',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class TwoFactorComponent {
+  readonly settingsTitle = helptext.two_factor.formTitle;
   protected queryCall = 'auth.twofactor.config';
   private entityEdit: any;
   private TwoFactorEnabled: boolean;
@@ -25,7 +29,7 @@ export class TwoFactorComponent {
     {
       name: helptext.two_factor.title,
       width: '100%',
-      label: true,
+      label: false,
       config: [
         {
           type: 'paragraph',
@@ -37,6 +41,7 @@ export class TwoFactorComponent {
     { name: 'divider', divider: true },
     {
       name: helptext.two_factor.title,
+      settingsLabel: T('Code Settings'),
       width: '48%',
       label: false,
       config: [
@@ -61,6 +66,14 @@ export class TwoFactorComponent {
           tooltip: helptext.two_factor.interval.tooltip,
           validation: helptext.two_factor.interval.validation,
         },
+        {
+          type: 'input',
+          name: 'window',
+          inputType: 'number',
+          placeholder: helptext.two_factor.window.placeholder,
+          tooltip: helptext.two_factor.window.tooltip,
+          validation: helptext.two_factor.window.validation,
+        },
       ],
     },
     {
@@ -71,22 +84,21 @@ export class TwoFactorComponent {
     },
     {
       name: helptext.two_factor.title,
+      settingsLabel: T('Services'),
       width: '48%',
       label: false,
       config: [
-        {
-          type: 'input',
-          name: 'window',
-          inputType: 'number',
-          placeholder: helptext.two_factor.window.placeholder,
-          tooltip: helptext.two_factor.window.tooltip,
-          validation: helptext.two_factor.window.validation,
-        },
         {
           type: 'checkbox',
           name: 'ssh',
           placeholder: helptext.two_factor.services.placeholder,
           tooltip: helptext.two_factor.services.tooltip,
+        },
+        {
+          type: 'checkbox',
+          name: 'console',
+          placeholder: helptext.two_factor.services_console.placeholder,
+          tooltip: helptext.two_factor.services_console.tooltip,
         },
       ],
     },
@@ -95,6 +107,7 @@ export class TwoFactorComponent {
 
     {
       name: helptext.two_factor.sys,
+      settingsLabel: T('Authenticator Setup'),
       width: '100%',
       label: true,
       config: [
@@ -186,6 +199,7 @@ export class TwoFactorComponent {
 
   resourceTransformIncomingRestData(data) {
     data.ssh = data.services.ssh;
+    data.console = data.services.console;
     this.secret = data.secret;
     this.TwoFactorEnabled = data.enabled;
     this.digitsOnLoad = data.otp_digits;
@@ -261,8 +275,8 @@ export class TwoFactorComponent {
 
   doSubmit(data, openQR = false) {
     data.enabled = this.TwoFactorEnabled;
-    data.services = { ssh: data.ssh };
-    const extras = ['instructions', 'enabled_status', 'secret', 'uri', 'ssh'];
+    data.services = { ssh: data.ssh, console: data.console };
+    const extras = ['instructions', 'enabled_status', 'secret', 'uri', 'ssh', 'console'];
     extras.map((extra) => {
       delete data[extra];
     });
@@ -319,7 +333,9 @@ export class TwoFactorComponent {
 }
 
 @Component({
+  standalone: false,
   selector: 'qr-dialog',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: 'qr-dialog.html',
 })
 export class QRDialog {

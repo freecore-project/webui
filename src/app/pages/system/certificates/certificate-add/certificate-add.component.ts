@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,12 +14,15 @@ import { helptext_system_certificates } from 'app/helptext/system/certificates';
 import { helptext_system_ca } from 'app/helptext/system/ca';
 
 @Component({
+  standalone: false,
   selector: 'system-certificate-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [SystemGeneralService],
 })
 
 export class CertificateAddComponent {
+  settingsTitle = T('Certificate'); // the internal development record: the object noun, as the edit form
   protected addCall = 'certificate.create';
   protected route_success: string[] = ['system', 'certificates'];
   protected isEntity = true;

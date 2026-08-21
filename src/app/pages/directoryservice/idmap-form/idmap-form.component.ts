@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import * as _ from 'lodash';
@@ -11,10 +11,13 @@ import helptext from '../../../helptext/directoryservice/idmap';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-idmap-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class IdmapFormComponent {
+  readonly settingsTitle = T('Idmap');
   protected route_success: string[] = ['directoryservice', 'idmap'];
   protected isEntity = true;
   protected namesInUse = [];

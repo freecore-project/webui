@@ -58,8 +58,8 @@ def on_the_dashboard_click_storage_on_the_side_menu_and_click_pools(driver):
 def on_the_pools_page_click_on_the_encrypted_dataset_three_dots_button(driver):
     """on the Pools page, click on the encrypted dataset three dots button."""
     assert wait_on_element(driver, 5, '//div[contains(.,"Pools")]')
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__encrypteddataset"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__encrypteddataset"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__encrypteddataset"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__encrypteddataset"]').click()
 
 
 @then('select Delete DATASET, on Delete Dataset, input the dataset name')
@@ -67,7 +67,7 @@ def select_delete_dataset_on_delete_dataset_input_the_dataset_name(driver):
     """select Delete DATASET, on Delete Dataset, input the dataset name."""
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__encrypteddataset_Delete Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__encrypteddataset_Delete Dataset"]').click()
-    assert wait_on_element(driver, 5, '//h1[contains(.,"Delete Dataset")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Delete Dataset")]')
     assert wait_on_element(driver, 7, '//input[@ix-auto="input__"]', 'inputable')
     driver.find_element_by_xpath('//input[@ix-auto="input__"]').send_keys('encrypteddataset')
 
@@ -75,8 +75,8 @@ def select_delete_dataset_on_delete_dataset_input_the_dataset_name(driver):
 @then('click the confirm checkbox and click DELETE DATASET')
 def click_the_confirm_checkbox_and_click_delete_dataset(driver):
     """click the confirm checkbox and click DELETE DATASET."""
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__Confirm"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Confirm"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__Confirm"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__Confirm"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__DELETE DATASET"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__DELETE DATASET"]').click()
 
@@ -124,7 +124,7 @@ def click_the_confirm_checkbox_then_click_the_exportdisconnect_button(driver):
 def verify_that_the_encrypted_pool_is_removed(driver):
     """verify that the encrypted pool is removed."""
     assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 15, '//textarea[contains(.,"Successfully exported/disconnected \'encrypted\'")]')
+    assert wait_on_element(driver, 15, '//pre[contains(.,"Successfully exported/disconnected \'encrypted\'")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     assert wait_on_element_disappear(driver, 20, '//td[@id="tbody__name_encrypted"]')

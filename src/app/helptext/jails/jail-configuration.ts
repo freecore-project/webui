@@ -6,8 +6,6 @@ export default {
 
   wizard_step1_label: T('Name Jail and Choose FreeBSD Release'),
 
-  plugin_name_placeholder: T('Plugin Name'),
-
   uuid_placeholder: T('Name'),
   uuid_tooltip: T('Required. Can contain letters, numbers, periods (.), \
  dashes (-), and underscores (_).'),
@@ -637,17 +635,13 @@ export default {
   },
 
   jailFormJobDialog: {
-    pluginInstall: {
-      title: T('Install'),
-      description: T('Installing plugin...'),
-    },
     jailInstall: {
       title: T('Install'),
-      description: T('Installing plugin...'),
+      description: T('Installing jail...'),
     },
     jailEdit: {
       title: T('Install'),
-      description: T('Installing plugin...'),
+      description: T('Updating jail...'),
     },
   },
 };
