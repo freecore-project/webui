@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { EntityTreeTable } from '../../common/entity/entity-tree-table/entity-tree-table.model';
 
 @Component({
+  standalone: false,
   selector: 'app-storage-multipath',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './multipaths.component.html',
 })
 export class MultipathsComponent {

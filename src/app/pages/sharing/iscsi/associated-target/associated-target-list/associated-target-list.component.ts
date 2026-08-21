@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { IscsiService } from '../../../../../services';
@@ -7,10 +7,12 @@ import { T } from 'app/translate-marker';
 import { EntityUtils } from '../../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-associated-target-list',
   template: `
     <entity-table [conf]="this" [title]="tableTitle"></entity-table>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class AssociatedTargetListComponent {

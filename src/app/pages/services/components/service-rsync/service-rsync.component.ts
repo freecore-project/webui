@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-rsync',
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './service-rsync.component.html',
 })
 export class ServiceRSYNCComponent implements OnInit {

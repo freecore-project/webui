@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { helptext_sharing_webdav, shared } from '../../../../helptext/sharing';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -8,11 +8,15 @@ import { Router } from '@angular/router';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-user-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class WebdavFormComponent {
+  readonly settingsTitle = T('WebDAV Share');
+
   protected queryCall = 'sharing.webdav.query';
   protected queryKey = 'id';
   protected addCall = 'sharing.webdav.create';

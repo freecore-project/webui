@@ -1,5 +1,5 @@
 ##NODE temporary builder image
-from node:16-buster as uibuilder
+FROM node:24.19.0-bookworm AS uibuilder
 COPY ./ /src-ui
 WORKDIR /src-ui
 RUN yarn install

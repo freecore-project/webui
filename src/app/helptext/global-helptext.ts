@@ -11,9 +11,6 @@ export default {
   thisCtlr: T('This Controller'),
   unknownCtrl: T('The active controller cannot be detected.'),
 
-  legacyUIWarning: T('The legacy user interface is deprecated.\
- All management should be performed through the new user interface.'),
-
   sys_update_message: T('This system will restart when the update completes.'),
 
   human_readable: {
@@ -40,7 +37,7 @@ export default {
 
   scheduler: {
     general: {
-      header: T('Mintues/Hours/Days'),
+      header: T('Minutes/Hours/Days'),
       headerWithoutMinutes: T('Hours/Days'),
       tooltip: T('The time values when the task will run. Accepts standard\
  <a href="https://www.freebsd.org/cgi/man.cgi?query=crontab" target="_blank">crontab(5)</a> values.\
@@ -50,7 +47,7 @@ export default {
  and */2 in Days means the task will run on 1:30 - 1:35 AM and 2:30 - 2:35 PM every other day.'),
     },
     minutes: {
-      header: T('Mintues'),
+      header: T('Minutes'),
       tooltip: T('Minutes when this task will run.'),
     },
     hours: {

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
 
@@ -18,12 +18,18 @@ import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'vm-list',
   template: `
-    <div class="vm-summary">
-        <p *ngIf="availMem"><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
-    </div>
-    <entity-table [title]='title' [conf]='this'></entity-table>`,
+    <entity-table [title]='title' [conf]='this'>
+      <!-- the internal development record: the one notice box, left-anchored; projected under the page title -->
+      @if (availMem) {
+        <div fcTableNotice class="vm-summary fc-page-notice">
+          <p><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
+        </div>
+      }
+    </entity-table>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./vm-list.component.css'],
 })
 export class VMListComponent implements OnDestroy, InputTableConf {
@@ -296,11 +302,13 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       },
     },
     {
-      id: 'RESTART',
-      icon: 'replay',
-      label: T('Restart'),
-      onClick: (restart_row) => {
-        this.doRowAction(restart_row, this.wsMethods.restart);
+      // the internal development record: one order on every table -- run (Start · Stop · Power Off · Restart),
+      // change (Edit, Devices), look (VNC, Serial Shell), derive (Clone), destroy (Delete last).
+      id: 'STOP',
+      icon: 'stop',
+      label: T('Stop'),
+      onClick: (stop_row) => {
+        this.onSliderChange(stop_row);
       },
     },
     {
@@ -312,11 +320,11 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       },
     },
     {
-      id: 'STOP',
-      icon: 'stop',
-      label: T('Stop'),
-      onClick: (stop_row) => {
-        this.onSliderChange(stop_row);
+      id: 'RESTART',
+      icon: 'replay',
+      label: T('Restart'),
+      onClick: (restart_row) => {
+        this.doRowAction(restart_row, this.wsMethods.restart);
       },
     },
     {
@@ -325,6 +333,69 @@ export class VMListComponent implements OnDestroy, InputTableConf {
       label: T('Edit'),
       onClick: (edit_row) => {
         this.router.navigate(new Array('').concat(['vm', 'edit', edit_row.id]));
+      },
+    },
+    {
+      id: 'DEVICES',
+      icon: 'device_hub',
+      label: T('Devices'),
+      onClick: (devices_row) => {
+        this.router.navigate(new Array('').concat(['vm', devices_row.id, 'devices', devices_row.name]));
+      },
+    },
+    {
+      id: 'VNC',
+      icon: 'settings_ethernet',
+      label: T('VNC'),
+      onClick: (vnc_vm) => {
+        const vnc = vnc_vm.devices.find((o) => o.dtype === 'VNC');
+        let bind = vnc.attributes.vnc_bind;
+        if (bind === '0.0.0.0' || bind === '::') {
+          bind = window.location.hostname;
+        }
+        this.ws.call('vm.get_vnc_web', [vnc_vm.id, bind]).subscribe((res) => {
+          for (const vnc_port in res) {
+            window.open(res[vnc_port]);
+          }
+        });
+      },
+    },
+    {
+      id: 'SERIAL',
+      icon: 'keyboard_arrow_right',
+      label: T('Serial Shell'),
+      onClick: (vm) => {
+        this.router.navigate(new Array('').concat(['vm', 'serial', vm.id]));
+      },
+    },
+    {
+      id: 'CLONE',
+      icon: 'filter_none',
+      label: T('Clone'),
+      onClick: (clone_row) => {
+        const parent = this;
+        const conf: DialogFormConfiguration = {
+          title: T('Name'),
+          fieldConfig: [
+            {
+              type: 'input',
+              inputType: 'text',
+              name: 'name',
+              placeholder: T('Name (optional)'),
+              required: false,
+            },
+          ],
+          saveButtonText: T('Clone'),
+          customSubmit(entityDialog) {
+            entityDialog.dialogRef.close(true);
+            const params = [clone_row.id];
+            if (entityDialog.formValue.name) {
+              params.push(entityDialog.formValue.name);
+            }
+            parent.doRowAction(clone_row, parent.wsMethods.clone, params, true);
+          },
+        };
+        this.dialogService.dialogForm(conf);
       },
     },
     {
@@ -379,74 +450,13 @@ export class VMListComponent implements OnDestroy, InputTableConf {
         };
         this.dialogService.dialogForm(conf);
       },
-    },
-    {
-      id: 'DEVICES',
-      icon: 'device_hub',
-      label: T('Devices'),
-      onClick: (devices_row) => {
-        this.router.navigate(new Array('').concat(['vm', devices_row.id, 'devices', devices_row.name]));
-      },
-    },
-    {
-      id: 'CLONE',
-      icon: 'filter_none',
-      label: T('Clone'),
-      onClick: (clone_row) => {
-        const parent = this;
-        const conf: DialogFormConfiguration = {
-          title: T('Name'),
-          fieldConfig: [
-            {
-              type: 'input',
-              inputType: 'text',
-              name: 'name',
-              placeholder: T('Enter a Name (optional)'),
-              required: false,
-            },
-          ],
-          saveButtonText: T('Clone'),
-          customSubmit(entityDialog) {
-            entityDialog.dialogRef.close(true);
-            const params = [clone_row.id];
-            if (entityDialog.formValue.name) {
-              params.push(entityDialog.formValue.name);
-            }
-            parent.doRowAction(clone_row, parent.wsMethods.clone, params, true);
-          },
-        };
-        this.dialogService.dialogForm(conf);
-      },
-    },
-    {
-      id: 'VNC',
-      icon: 'settings_ethernet',
-      label: T('VNC'),
-      onClick: (vnc_vm) => {
-        const vnc = vnc_vm.devices.find((o) => o.dtype === 'VNC');
-        let bind = vnc.attributes.vnc_bind;
-        if (bind === '0.0.0.0' || bind === '::') {
-          bind = window.location.hostname;
-        }
-        this.ws.call('vm.get_vnc_web', [vnc_vm.id, bind]).subscribe((res) => {
-          for (const vnc_port in res) {
-            window.open(res[vnc_port]);
-          }
-        });
-      },
-    },
-    {
-      id: 'SERIAL',
-      icon: 'keyboard_arrow_right',
-      label: T('Serial Shell'),
-      onClick: (vm) => {
-        this.router.navigate(new Array('').concat(['vm', 'serial', vm.id]));
-      },
     }] as EntityTableAction[];
   }
 
   isActionVisible(actionId: string, row: any) {
     if (actionId === 'VNC' && (row['status']['state'] !== 'RUNNING' || !this.checkVnc(row))) {
+      return false;
+    } if (actionId === 'CLONE' && row['bootloader'] === 'GRUB') {
       return false;
     } if ((actionId === 'POWER_OFF' || actionId === 'STOP' || actionId === 'RESTART'
             || actionId === 'SERIAL') && row['status']['state'] !== 'RUNNING') {

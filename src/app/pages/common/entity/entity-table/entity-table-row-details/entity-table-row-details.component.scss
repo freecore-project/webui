@@ -1,36 +1,106 @@
+/* the internal development record: the band. Actions first as text on the ghost tier (the internal development record's 32px,
+   12px sides, no glyph), then the hidden columns as a grid of facts: the label over the value,
+   as many across as 220px columns fit, values wrapping instead of clipping. One band for every
+   entity table -- Jails, Network, Installed applications -- its height measured, not guessed. */
 :host {
+    box-sizing: border-box;
     display: block;
-    padding: 16px;
+    min-width: 0;
+    padding: 8px 16px 18px;
+    padding-inline-start: var(--band-inset, 16px); /* under the row's first content cell */
+    width: 100%;
 
-    button {
-        padding: 8px 16px;
+    /* the action strip: boxed between the row's border and a hairline, so it reads as the row's
+       toolbar wherever the band is (v1 of the separation challenger, 2026-10-23) */
+    .wrapper__action-buttons {
+        border-bottom: 1px solid var(--fc-line, rgba(127, 127, 127, 0.4)); /* the fallback keeps the hairline where the ladder is not loaded */
+        margin-bottom: 16px;
+        padding: 0 0 8px;
+    }
+
+    .entity-table-row-actions-layout {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        justify-content: flex-start;
+    }
+
+    .row-action {
+        height: auto;
+        margin: 0 -12px 0 0; /* the text starts on the band's left edge; the 12px sides are the hit area */
+        max-width: 100%;
+        min-height: 32px;
+        padding: 0 12px;
+    }
+
+    .row-action:first-child {
+        margin-inline-start: -12px;
+    }
+
+    /* on the label, not the button: the kit's ghost tier sets the button's own colour */
+    .row-action-destructive:not(:disabled) .entity-table-row-action-layout {
+        color: var(--red);
+    }
+
+    .entity-table-row-action-layout {
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 20px;
+        margin: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
+    }
+
+    .wrapper__details {
+        display: grid;
+        gap: 14px 24px;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+
+    .entity-table-row-detail-layout {
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
     }
 
     h4 {
-        font-style: bold;
-        line-height: 24px;
-        margin-bottom: 0;
+        color: var(--fg2);
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        line-height: 16px;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .entity-table-row-detail-value-layout {
+        align-items: center;
+        box-sizing: border-box;
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 4px;
+        min-width: 0;
     }
 
     p {
-        line-height: 24px;
+        color: var(--fg1);
+        line-height: 20px;
         margin: 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+        white-space: normal;
     }
 
     mat-icon.widget-icon {
         cursor: pointer;
-        font-size: 24px;
-        line-height: 24px;
-    }
-
-    .wrapper__details {
-        padding-bottom: 12px;
-    }
-
-    .wrapper__action-buttons {
-        padding: 4px 0;
-    }
-    .mat-button:hover {
-      background-color: rgba(0,0,0,0.1);
+        flex-shrink: 0;
+        font-size: 20px;
+        height: 20px;
+        line-height: 20px;
+        width: 20px;
     }
 }

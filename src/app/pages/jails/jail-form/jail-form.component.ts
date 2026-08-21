@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -20,23 +20,25 @@ import { T } from '../../../translate-marker';
 import { FieldSet } from '../../common/entity/entity-form/models/fieldset.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-jail-form',
   templateUrl: './jail-form.component.html',
-  styleUrls: ['../../common/entity/entity-form/entity-form.component.scss', '../jail-list/jail-list.component.css'],
+  // the internal development record: the engine sheet carries the settings grid, the spinner and the error line;
+  // the jail-list css (one datatable rule) never matched this template.
+  styleUrls: ['../../common/entity/entity-form/entity-form.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [JailService, NetworkService, JailFormService, EntityFormService, FieldRelationService],
 })
 export class JailFormComponent implements OnInit, AfterViewInit {
-  isReady = false;
   protected queryCall = 'jail.query';
   protected updateCall = 'jail.update';
   protected upgradeCall = 'jail.upgrade';
 
   protected addCall = 'jail.create';
-  route_success: string[] = ['jails'];
-  protected route_conf: string[] = ['jails', 'configuration'];
-
   protected pluginAddCall = 'plugin.create';
+  route_success: string[] = ['jails'];
   plugin_route_success: string[] = ['plugins'];
+  protected route_conf: string[] = ['jails', 'configuration'];
 
   formGroup: any;
   error: string;
@@ -52,6 +54,7 @@ export class JailFormComponent implements OnInit, AfterViewInit {
       width: '100%',
       config: [
         {
+          // the internal development record: the advanced plugin install (plugins/advanced/:plugin) names its plugin here
           type: 'input',
           name: 'plugin_name',
           placeholder: helptext.plugin_name_placeholder,
@@ -837,8 +840,6 @@ export class JailFormComponent implements OnInit, AfterViewInit {
   customConfig = _.find(this.fieldSets, { class: 'custom' }).config;
   protected formFields = _.concat(this.basicfieldConfig, this.jailfieldConfig, this.networkfieldConfig, this.customConfig);
 
-  step: any = 0;
-
   protected releaseField = _.find(this.basicfieldConfig, { name: 'release' });
   protected ip4_interfaceField = _.find(this.basicfieldConfig, { name: 'ip4_addr' }).templateListField[0];
   protected ip6_interfaceField = _.find(this.basicfieldConfig, { name: 'ip6_addr' }).templateListField[0];
@@ -849,12 +850,12 @@ export class JailFormComponent implements OnInit, AfterViewInit {
 
   save_button_enabled: boolean;
   protected isPlugin = false;
+  plugin: any;
+  protected pluginRepository: any;
   protected wsResponse: any;
   pk: any;
   protected currentReleaseVersion: any;
   protected currentServerVersion: any;
-  plugin: any;
-  protected pluginRepository: any;
 
   constructor(protected router: Router,
     protected aroute: ActivatedRoute,
@@ -1023,7 +1024,7 @@ export class JailFormComponent implements OnInit, AfterViewInit {
             this.disableForm();
             this.formGroup.controls['plugin_name'].setValue(this.plugin);
             this.jailFromService.getPluginDefaults(this.plugin, this.pluginRepository, this.formGroup, this.networkfieldConfig).then(
-              (res) => {
+              () => {
                 this.toEnableForm();
               },
             );
@@ -1140,11 +1141,7 @@ export class JailFormComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    setTimeout(() => {
-      this.isReady = true;
-      this.disableForm();
-      this.setStep(0);
-    }, 100);
+    setTimeout(() => this.disableForm(), 100);
 
     for (const ipType of ['ip4', 'ip6']) {
       const targetPropName = ipType + '_addr';
@@ -1268,7 +1265,7 @@ export class JailFormComponent implements OnInit, AfterViewInit {
         dialogRef.componentInstance.setDescription(install_notes);
         dialogRef.componentInstance.showCloseButton = true;
 
-        dialogRef.afterClosed().subscribe((result) => {
+        dialogRef.afterClosed().subscribe(() => {
           this.router.navigate(new Array('/').concat(this.plugin_route_success));
         });
       });
@@ -1321,17 +1318,5 @@ export class JailFormComponent implements OnInit, AfterViewInit {
         },
       );
     }
-  }
-
-  setStep(index: number) {
-    this.step = index;
-  }
-
-  nextStep() {
-    this.step++;
-  }
-
-  prevStep() {
-    this.step--;
   }
 }

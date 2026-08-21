@@ -1,14 +1,18 @@
-<div id="breadcrumb-bar" class="breadcrumb-bar" *ngIf="isEnabled">
-  <ul class="breadcrumb">
-    <li *ngFor="let part of routeParts"
-      ix-auto ix-auto-type="option" ix-auto-identifier="{{part.breadcrumb}}">
-      <span *ngIf="!part.disabled;else noclick">
-        <a (click)="gotoRoute(part.url)" class="clickable">{{part.breadcrumb | translate}}</a>
-      </span>
-      <ng-template #noclick>
-        <a>{{part.breadcrumb | translate}}</a>
-      </ng-template>
-    </li>
-  </ul>
-  <span fxFlex class="copyright-txt">TrueNAS {{product_type}}® © {{copyrightYear}} - <a href="http://www.ixsystems.com" target="_blank" title="iXsystems, Inc."> iXsystems, Inc</a>.</span>
-</div>
+@if (isEnabled) {
+  <div id="breadcrumb-bar" class="breadcrumb-bar">
+    <ul class="breadcrumb">
+      @for (part of routeParts; track part.url) {
+        <li
+          ix-auto ix-auto-type="option" ix-auto-identifier="{{part.breadcrumb}}">
+          @if (!part.disabled) {
+            <span>
+              <a (click)="gotoRoute(part.url)" class="clickable">{{part.breadcrumb | translate}}</a>
+            </span>
+          } @else {
+            <a>{{part.breadcrumb | translate}}</a>
+          }
+        </li>
+      }
+    </ul>
+  </div>
+}

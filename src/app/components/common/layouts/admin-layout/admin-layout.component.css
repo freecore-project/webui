@@ -67,3 +67,28 @@
 .fn-maincontent {
   overflow:  hidden !important;
 }
+
+.admin-shell-layout {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.admin-primary-sidenav-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+}
+
+.admin-navigation-layout {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
+
+.admin-main-content-layout {
+  box-sizing: border-box;
+  flex: 1 1 calc(100% - var(--admin-sidenav-width));
+  min-width: calc(100% - var(--admin-sidenav-width));
+}

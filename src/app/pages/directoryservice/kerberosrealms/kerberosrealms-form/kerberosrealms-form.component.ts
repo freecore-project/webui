@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -8,10 +9,14 @@ import helptext from '../../../../helptext/directoryservice/kerberosrealms-form-
 import global_helptext from '../../../../helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-group-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class KerberosRealmsFormComponent {
+  readonly settingsTitle = T('Kerberos Realm'); // the internal development record: the object noun, add and edit alike
+
   protected route_success: string[] = ['directoryservice', 'kerberosrealms'];
   protected addCall = 'kerberos.realm.create';
   protected editCall = 'kerberos.realm.update';

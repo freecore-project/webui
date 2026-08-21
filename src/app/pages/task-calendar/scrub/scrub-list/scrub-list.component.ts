@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -10,8 +10,10 @@ import { Moment } from 'moment';
 import { TaskScheduleListComponent } from '../../components/task-schedule-list/task-schedule-list.component';
 
 @Component({
+  standalone: false,
   selector: 'app-scrub-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService],
 })
 export class ScrubListComponent {
@@ -28,7 +30,7 @@ export class ScrubListComponent {
     { name: 'Pool', prop: 'pool_name', always_display: true },
     { name: 'Threshold days', prop: 'threshold' },
     { name: 'Description', prop: 'description' },
-    { name: 'Schedule', prop: 'schedule', widget: { icon: 'calendar-range', component: 'TaskScheduleListComponent' } },
+    { name: 'Schedule', prop: 'schedule', widget: { icon: 'calendar_month', component: 'TaskScheduleListComponent' } },
     { name: 'Next Run', prop: 'scrub_next_run' },
     { name: 'Enabled', prop: 'enabled' },
   ];

@@ -1,9 +1,9 @@
 import { Inject, Injectable, Optional } from '@angular/core';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
   FormGroup,
   Validators,
 } from '@angular/forms';
@@ -32,7 +32,7 @@ export class EntityFormService {
     size: 'KIB',
     duration: 'MINUTE',
   };
-  constructor(@Inject(FormBuilder) private formBuilder: FormBuilder,
+  constructor(@Inject(UntypedFormBuilder) private formBuilder: UntypedFormBuilder,
     protected ws: WebSocketService, private rest: RestService) {}
 
   createFormGroup(controls: FieldConfig[]) {
@@ -51,7 +51,7 @@ export class EntityFormService {
         } else if (controls[i].listFields) {
           formGroup[controls[i].name] = this.formBuilder.array([]);
         } else {
-          formGroup[controls[i].name] = new FormControl(
+          formGroup[controls[i].name] = new UntypedFormControl(
             { value: controls[i].value, disabled: controls[i].disabled },
             controls[i].type === 'input-list' ? [] : controls[i].validation, controls[i].asyncValidation,
           );
@@ -74,13 +74,13 @@ export class EntityFormService {
     return formArray;
   }
 
-  insertFormArrayGroup(index: number, formArray: FormArray,
+  insertFormArrayGroup(index: number, formArray: UntypedFormArray,
     controls: FieldConfig[]) {
     const formGroup = this.createFormGroup(controls);
     formArray.insert(index, formGroup);
   }
 
-  removeFormArrayGroup(index: number, formArray: FormArray) {
+  removeFormArrayGroup(index: number, formArray: UntypedFormArray) {
     formArray.removeAt(index);
   }
 

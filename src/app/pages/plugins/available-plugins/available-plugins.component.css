@@ -1,35 +1,40 @@
-mat-card-content.plugin-info {
-    padding: 15px 15px 0px 15px;
-}
+/* the internal development record: the Plugins header on the catalog toolbar's numbers (the 15.1 Applications Catalog
+ * tab, the internal development record): a 32px flex row with 8px gaps, the outline/ghost tiers, the 16px action glyph.
+ * The selected plugin sits between the toolbar and the strip as on 13.3. Plain CSS: not a Tailwind source. */
+:host { display: block; }
+.available-plugins { margin: 0 0 16px; }
 
-mat-button-toggle-group.plugin-buttons {
-    width: 100%;
-    overflow-x: auto;
+.plugins-toolbar {
+  align-items: center; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; min-height: 32px; min-width: 0;
 }
-img.plugin-img {
-    padding-top: 10px;
-}
+.plugins-toolbar > * { min-width: 0; }
+.plugins-collection { align-items: center; display: inline-flex; gap: 8px; margin-inline-end: auto; min-height: 32px; }
+.plugins-collection-label { color: var(--fg2); font-size: 12px; }
+.plugins-collection-name { color: var(--fg1); font-size: 13px; }
+.plugins-collection-select { gap: 8px; width: auto; }
+.plugins-collection-select hlm-select { width: 200px; }
+.plugins-action .mat-icon { font-size: 16px; height: 16px; line-height: 16px; margin-right: 6px; width: 16px; }
+.plugins-toggle .mat-icon { font-size: 20px; height: 20px; line-height: 20px; width: 20px; }
+.plugins-summary { color: var(--fg2); font-size: 13px; margin-inline-end: auto; }
+.plugins-summary-title { color: var(--fg1); }
 
-p.plugin-description {
-    height: 100px;
+/* the selected plugin: the 150px icon, the description, the facts column with Install under them */
+.plugin-detail {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr) minmax(180px, 25%); gap: 24px;
+  align-items: start; margin: 0 0 16px;
 }
-div.plugin-vinfo {
-    margin-bottom: 20px;
-}
-mat-icon.official-plugin {
-    vertical-align: middle;
-}
+.plugin-detail-icon { display: flex; align-items: center; justify-content: center; width: 150px; height: 150px; color: var(--fg2); }
+.plugin-detail-icon img { max-width: 150px; max-height: 150px; object-fit: contain; }
+.plugin-detail-icon .mat-icon { font-size: 96px; width: 96px; height: 96px; line-height: 96px; }
+.plugin-description { margin: 0; font-size: 13px; line-height: 20px; color: var(--fg1); white-space: pre-line; }
+.plugin-facts p { margin: 0 0 6px; font-size: 13px; line-height: 20px; color: var(--fg1); }
+.plugin-facts button { margin-top: 6px; }
+.plugin-official { display: flex; align-items: center; gap: 6px; }
+.plugin-official .mat-icon { font-size: 16px; width: 16px; height: 16px; line-height: 16px; color: var(--green, var(--fg2)); }
 
-figcaption {
-    color: var(--fg1);
-}
-
-button.plugin-button {
-    background: var(--primary);
-    color: white;
-    margin-left: 16px;
-}
-
-span.subtitle {
-    font-size: 1.1rem;
+@media (max-width: 800px) {
+  .plugin-detail { grid-template-columns: 96px minmax(0, 1fr); }
+  .plugin-detail-icon { width: 96px; height: 96px; }
+  .plugin-detail-icon img { max-width: 96px; max-height: 96px; }
+  .plugin-facts { grid-column: 1 / -1; }
 }
