@@ -1,6 +1,14 @@
 .widget{
-  width:600px;
-  height:400px;
+  min-height:400px;
+}
+
+mat-toolbar-row{
+  display:flex;
+  align-items:center;
+}
+
+.controls{
+  margin-left:auto;
 }
 
 .widget mat-card-content{
@@ -39,13 +47,9 @@
   top: 2px;
 }
 
-.carousel{
-  position:absolute;
-  /*top:48px;*/
-  width:300%;
+.panes{
+  position:relative;
   height:100%;
-  /*height:calc(100% - 48px);*/
-  /*background:var(--alt-bg2);*/
 }
 
 /*.carousel.lagg{
@@ -53,11 +57,8 @@
 }*/
 
 .slide{
-  /*position:absolute;
-  top:48px;*/
-  display:inline;
+  display:none;
   width:100%;
-  /*height:calc(100% - 96px);*/
   height:100%;
   /*border-left:solid 1px var(--bg1);*/
 }
@@ -84,11 +85,8 @@
 
 .slide.overview .left{
   /*background-color:var(--primary);*/
-  background-color:#303437;
-  background-size:cover;
-  background-image:url('assets/images/backgrounds/rj45.jpg');
-  background-position-y:center;
-  background-position-x:65%;
+  background-color:var(--alt-bg1);
+  border-radius:8px;
   background-blend-mode: overlay;
   color:#efefef;
   position:relative;
@@ -265,4 +263,50 @@
 
 .xs.widget .nic-traffic{
   margin-left: 4px;
+}
+
+
+/* B4 (the internal development record): pane switching + flat identity pane */
+.slide.active{
+  display:block;
+}
+
+.slide.overview.active{
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  gap:16px;
+  padding:12px 16px;
+}
+
+.slide.overview .left{
+  flex: 0 0 38%;
+  display:flex;
+}
+
+.slide.overview .overlay{
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+  align-items:center;
+  width:100%;
+}
+
+.slide.overview .right{
+  flex: 1 1 58%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-around;
+}
+
+.slide.overview .right-inner{
+  width:100%;
+}
+
+.widget.xs .slide.overview.active{
+  flex-direction:column;
+}
+
+.widget.xs .slide.overview .left{
+  flex-basis:250px;
 }

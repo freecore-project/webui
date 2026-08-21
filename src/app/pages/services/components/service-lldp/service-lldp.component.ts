@@ -2,7 +2,7 @@ import { ApplicationRef, Component, Injector } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
-import { FormControl, Validators } from '@angular/forms';
+import { UntypedFormControl, Validators } from '@angular/forms';
 import * as _ from 'lodash';
 
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
@@ -12,7 +12,7 @@ import { RestService, WebSocketService, ServicesService } from '../../../../serv
 @Component({
   selector: 'lldp-edit',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class ServiceLLDPComponent {
   protected queryCall = 'lldp.config';
   protected route_success: string[] = ['services'];
@@ -69,7 +69,7 @@ export class ServiceLLDPComponent {
 
   countryValidator(code: string) {
     const self = this;
-    return function validCode(control: FormControl) {
+    return function validCode(control: UntypedFormControl) {
       const config = self.fieldConfig.find((c) => c.name === code);
       if (control.value || control.value === '') {
         const errors = (!(control.value).match(/^[A-Z]{2}$/) && !(control.value === ''))

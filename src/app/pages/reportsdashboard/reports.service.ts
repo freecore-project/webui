@@ -1,7 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { WebSocketService } from 'app/services/ws.service';
-import { Subject } from 'rxjs';
-import { Observable } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
 import { HttpClient } from '@angular/common/http';
@@ -31,7 +30,7 @@ export class ReportsService implements OnDestroy {
 
   constructor(private ws: WebSocketService, private core: CoreService, private http: HttpClient) {
     // @ts-ignore
-    this.reportsUtils = new Worker('./reports-utils.worker', { type: 'module' });
+    this.reportsUtils = new Worker(new URL('./reports-utils.worker', import.meta.url), { type: 'module' });
 
     this.core.register({ observerClass: this, eventName: 'ReportDataRequest' }).subscribe((evt: CoreEvent) => {
       this.ws.call('reporting.get_data', [[evt.data.params], evt.data.timeFrame]).subscribe((raw_res) => {

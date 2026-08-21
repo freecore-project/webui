@@ -5,9 +5,7 @@ import { NgxUploaderModule } from 'ngx-uploader';
 
 import { QRCodeModule } from 'angular2-qrcode';
 import { EntityModule } from '../common/entity/entity.module';
-import { AttachDebugWarningService } from './support/services/attach-debug-warning.service'
 import { MaterialModule } from '../../appMaterial.module';
-import { MarkdownModule } from 'ngx-markdown';
 import { routing } from './system.routing';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { CommonDirectivesModule } from '../../directives/common/common-directives.module';
@@ -50,27 +48,19 @@ import { AlertConfigComponent } from './alert/alert.component';
 import { AcmednsListComponent } from './acmedns/acmedns-list/acmedns-list.component';
 import { AcmednsFormComponent } from './acmedns/acmedns-add/acmedns-form.component';
 import { CertificateAcmeAddComponent } from './certificates/certificate-acme-add/certificate-acme-add.component';
-import { FailoverComponent } from './failover/failover.component';
 import { ReportingComponent } from './reporting/reporting.component';
-import { EnclosureModule } from './viewenclosure/enclosure.module';
 import { EulaComponent } from './support/eula/eula.component';
-import { TnSysInfoComponent } from './support/tn-sys-info/tn-sys-info.component';
-import { SysImageComponent } from './support/sys-image/sys-image.component';
-import { ProductionStatusComponent } from './support/production-status/production-status.component';
-import { ProactiveComponent } from './support/proactive/proactive.component';
-import { TnSupportComponent } from './support/tn-support/tn-support.component';
-import { FnSupportComponent } from './support/fn-support/fn-support.component';
 import { FnSysInfoComponent } from './support/fn-sys-info/fn-sys-info.component';
-import { KmipComponent } from './kmip/kmip.component';
 import { TwoFactorComponent } from './two-factor/two-factor.component';
 import { QRDialog } from './two-factor/two-factor.component';
+import { WebauthnComponent } from './webauthn/webauthn.component';
 
 @NgModule({
   imports: [
     EntityModule, CommonModule, FormsModule,
     ReactiveFormsModule, NgxUploaderModule, routing,
-    MaterialModule, MarkdownModule.forRoot(), TranslateModule, FlexLayoutModule,
-    EnclosureModule, CommonDirectivesModule, QRCodeModule,
+    MaterialModule, TranslateModule, FlexLayoutModule,
+    CommonDirectivesModule, QRCodeModule,
   ],
   declarations: [
     GeneralComponent,
@@ -110,23 +100,13 @@ import { QRDialog } from './two-factor/two-factor.component';
     AcmednsListComponent,
     AcmednsFormComponent,
     CertificateAcmeAddComponent,
-    FailoverComponent,
     ReportingComponent,
     EulaComponent,
-    TnSysInfoComponent,
-    SysImageComponent,
-    ProductionStatusComponent,
-    ProactiveComponent,
-    TnSupportComponent,
-    FnSupportComponent,
     FnSysInfoComponent,
-    KmipComponent,
     TwoFactorComponent,
     QRDialog,
+    WebauthnComponent,
   ],
-  entryComponents: [QRDialog],
-  providers: [
-    AttachDebugWarningService
-  ],
+  providers: [],
 })
 export class SystemModule {}

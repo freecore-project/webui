@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
 
@@ -18,7 +18,7 @@ import jailHelptext from '../../helptext/jails/jails-list';
 @Component({
   selector: 'app-plugins-ui',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
-})
+  })
 export class PluginsComponent implements InputTableConf {
   title = 'Plugins';
   globalConfig = {

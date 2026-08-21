@@ -6,8 +6,9 @@
     [rowHeight]="50" 
     [headerHeight]="50" 
     [footerHeight]="50"
+    [scrollbarH]="true"
     [scrollbarV]="true">
-  <ngx-datatable-column name="Label">
+  <ngx-datatable-column name="Label" [minWidth]="150">
     <ng-template let-column="column" ngx-datatable-header-template>
       <span class="datatable-header-cell-label">{{'Name' | translate}}</span>
     </ng-template>
@@ -16,7 +17,7 @@
       ix-auto ix-auto-type="value" ix-auto-identifier="{{value}}">{{value}}</div>
     </ng-template>
   </ngx-datatable-column>
-  <ngx-datatable-column name="State">
+  <ngx-datatable-column name="State" [minWidth]="100">
     <ng-template let-column="column" ngx-datatable-header-template>
       <span class="datatable-header-cell-label">{{'Running' | translate}}</span>
     </ng-template>
@@ -38,16 +39,18 @@
       </ng-template>
     </ng-template>
   </ngx-datatable-column>
-  <ngx-datatable-column name="Enable">
+  <ngx-datatable-column name="Enable" [minWidth]="180" cellClass="service-enable-cell">
     <ng-template let-column="column" ngx-datatable-header-template>
       <span class="datatable-header-cell-label">{{'Start Automatically' | translate}}</span>
     </ng-template>
     <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
-      <mat-checkbox id="checkbox__{{row.label}}" class="checkbox" style="position:absolute;bottom:16px;" [(ngModel)]="row.enable" (change)="this.conf.enableToggle($event, row)"
-        ix-auto ix-auto-type="checkbox" ix-auto-identifier="{{row.label}}_Start Automatically"></mat-checkbox>
+      <div class="service-enable">
+        <mat-checkbox id="checkbox__{{row.label}}" class="checkbox" [(ngModel)]="row.enable" (change)="this.conf.enableToggle($event, row)"
+          ix-auto ix-auto-type="checkbox" ix-auto-identifier="{{row.label}}_Start Automatically"></mat-checkbox>
+      </div>
     </ng-template>
   </ngx-datatable-column>
-  <ngx-datatable-column name="Actions" [flexGrow]="2">
+  <ngx-datatable-column name="Actions" [flexGrow]="2" [minWidth]="120">
     <ng-template let-column="column" ngx-datatable-header-template>
       <span class="datatable-header-cell-label">{{'Actions' | translate}}</span>
     </ng-template>

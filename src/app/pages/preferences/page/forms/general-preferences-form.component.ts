@@ -27,7 +27,7 @@ interface UserPreferences {
 @Component({
   selector: 'general-preferences-form',
   template: '<entity-form-embedded *ngIf="preferences" #embeddedForm fxFlex="100" [target]="target" [data]="values" [conf]="this"></entity-form-embedded>',
-})
+  })
 export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
   @ViewChild('embeddedForm', { static: false }) embeddedForm: EntityFormEmbeddedComponent;
   target: Subject<CoreEvent> = new Subject();
@@ -221,9 +221,10 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
   }
 
   updateValues(prefs) {
+    const actionControls = ['reset', 'tableDisplayedColumns'];
     const keys = Object.keys(this.embeddedForm.formGroup.controls);
     keys.forEach((key) => {
-      if (key !== 'reset') {
+      if (!actionControls.includes(key)) {
         if (key == 'userTheme' && prefs[key] == 'default') {
           this.embeddedForm.formGroup.controls[key].setValue(DefaultTheme.name);
         } else {
@@ -232,7 +233,6 @@ export class GeneralPreferencesFormComponent implements OnInit, AfterViewInit, O
       }
     });
 
-    // We don't store this value in middleware so we set it manually
-    this.embeddedForm.formGroup.controls['reset'].setValue(false);
+    actionControls.forEach((key) => this.embeddedForm.formGroup.controls[key].setValue(false));
   }
 }

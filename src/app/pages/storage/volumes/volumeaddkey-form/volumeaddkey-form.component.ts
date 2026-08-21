@@ -13,7 +13,7 @@ import {
   FieldConfig,
 } from '../../../common/entity/entity-form/models/field-config.interface';
 import { DialogService } from 'app/services/dialog.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Formconfiguration } from 'app/pages/common/entity/entity-form/entity-form.component';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
 import { T } from '../../../../translate-marker';
@@ -22,7 +22,7 @@ import helptext from '../../../../helptext/storage/volumes/volume-key';
 @Component({
   selector: 'app-addkey-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class VolumeAddkeyFormComponent implements Formconfiguration {
   saveSubmitText = T('Add Recovery Key');
 

@@ -1,11 +1,11 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 import { Component, Input, OnInit } from '@angular/core';
 
 import { EntityFormService } from '../entity-form/services/entity-form.service';
 import { FieldRelationService } from '../entity-form/services/field-relation.service';
 import { FieldConfig } from '../entity-form/models/field-config.interface';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { RestService } from '../../../../services/rest.service';
 import { WebSocketService } from '../../../../services/ws.service';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
@@ -20,14 +20,14 @@ import { T } from '../../../../translate-marker';
   templateUrl: './entity-dialog.component.html',
   styleUrls: ['./entity-dialog.component.css'],
   providers: [EntityFormService, DatePipe, FieldRelationService],
-})
+  })
 export class EntityDialogComponent implements OnInit {
   @Input() conf: DialogFormConfiguration;
 
   title: string;
   warning: string;
   fieldConfig: FieldConfig[] ;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   saveButtonText: string;
   cancelButtonText = 'Cancel';
   detachButtonText: string;

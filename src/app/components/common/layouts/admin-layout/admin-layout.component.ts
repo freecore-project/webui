@@ -2,7 +2,7 @@ import {
   AfterViewChecked, ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild,
 } from '@angular/core';
 import { MediaChange, MediaObserver } from '@angular/flex-layout';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { NavigationEnd, Router } from '@angular/router';
 import { CoreEvent, CoreService } from 'app/core/services/core.service';
@@ -13,12 +13,13 @@ import { RestService, WebSocketService } from '../../../../services';
 import { LanguageService } from '../../../../services/language.service';
 import { ThemeService } from '../../../../services/theme/theme.service';
 import { ConsolePanelModalDialog } from '../../dialog/consolepanel/consolepanel-dialog.component';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-admin-layout',
   templateUrl: './admin-layout.template.html',
   styleUrls: ['./admin-layout.component.css'],
-})
+  })
 export class AdminLayoutComponent implements OnInit, AfterViewChecked {
   private isMobile;
   screenSizeWatcher: Subscription;
@@ -34,6 +35,11 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
   logoTextPath = 'assets/images/light-logo-text.svg';
   currentTheme = '';
   retroLogo = false;
+
+  // Sidenav identity mark follows the active theme (FreeCORE Coretrident / FreeBSD Beastie).
+  get mascot(): string {
+    return this.themeService.currentTheme()?.mascot || 'FreeCORE_mascot.png';
+  }
   // we will just have to add to this list as more languages are added
 
   @ViewChild(MatSidenav, { static: false }) private sideNave: MatSidenav;
@@ -65,7 +71,10 @@ export class AdminLayoutComponent implements OnInit, AfterViewChecked {
       }
     });
     // Watches screen size and open/close sidenav
-    this.screenSizeWatcher = media.media$.subscribe((change: MediaChange) => {
+    this.screenSizeWatcher = media.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((change: MediaChange) => {
       this.isMobile = window.innerWidth < 960;
       // this.isMobile = (change.mqAlias == 'xs') || (change.mqAlias == 'sm');
       this.updateSidenav();

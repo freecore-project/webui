@@ -1,5 +1,5 @@
 import { Component, ViewContainerRef, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { EntityFormService } from '../../services/entity-form.service';
 import {
   TREE_ACTIONS, KEYS, IActionMapping, TreeModel,
@@ -14,18 +14,23 @@ import { T } from '../../../../../../translate-marker';
   selector: 'form-explorer',
   templateUrl: './form-explorer.component.html',
   styleUrls: [
-    '../dynamic-field/dynamic-field.css',
-    './form-explorer.component.scss',
+  '../dynamic-field/dynamic-field.css',
+  './form-explorer.component.scss',
   ],
-})
+  })
 export class FormExplorerComponent implements Field, OnInit {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   nodes: any[];
 
   private treeVisible = true;
-  private displayFieldName: string;
+  // Still explicitly initialized: the customTemplateStringOptions initializer below
+  // reads it at construction, and TypeScript 4.0 rejects reading an uninitialized
+  // sibling (TS2729). That read necessarily yields undefined — the real value is
+  // assigned in ngOnInit from config.explorerType and copied into
+  // customTemplateStringOptions.displayField there (the internal development record).
+  private displayFieldName: string = undefined;
   private rootSelectable: boolean;
 
   private actionMapping: IActionMapping = {
@@ -106,6 +111,19 @@ export class FormExplorerComponent implements Field, OnInit {
         hasChildren: true,
         expanded: !this.rootSelectable,
       }];
+    }
+
+    // the internal development record: the customTemplateStringOptions initializer runs at
+    // construction, when displayFieldName is still undefined, so displayField was
+    // handed to angular-tree-component as undefined for every explorer that does
+    // not supply its own options. Assign it here, where displayFieldName is known.
+    //
+    // Guarded, and it matters: by this point this.customTemplateStringOptions may
+    // BE the caller's object (replaced above), and all five callers -- cloudsync,
+    // replication-form x2, replication-wizard x2 -- set displayField: 'Path'.
+    // Idempotent too: cloudsync-form re-invokes this ngOnInit at runtime.
+    if (!this.customTemplateStringOptions.displayField) {
+      this.customTemplateStringOptions.displayField = this.displayFieldName;
     }
   }
 

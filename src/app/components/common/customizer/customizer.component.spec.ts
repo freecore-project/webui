@@ -1,25 +1,12 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { CustomizerComponent } from './customizer.component';
 
 describe('CustomizerComponent', () => {
-  let component: CustomizerComponent;
-  let fixture: ComponentFixture<CustomizerComponent>;
+  it('creates with a navigation publisher', () => {
+    const navigation = {
+      publishNavigationChange: jasmine.createSpy('publishNavigationChange'),
+    };
+    const component = new CustomizerComponent(navigation as any);
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [CustomizerComponent],
-    })
-      .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CustomizerComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should be created', () => {
     expect(component).toBeTruthy();
   });
 });

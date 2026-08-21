@@ -1,0 +1,194 @@
+.widget.network-widget {
+  min-height: 400px;
+}
+
+.network-widget mat-card {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.network-widget mat-card-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+/* Header strip */
+.net-header {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 8px 0 16px;
+  border-bottom: 1px solid var(--lines);
+}
+
+.net-header .net-back {
+  margin-left: -8px;
+}
+
+.net-header .controls {
+  margin-left: auto;
+  color: var(--fg2);
+}
+
+.net-header .controls button {
+  display: inline-block;
+}
+
+/* Body -- scrolls inside the frame; the frame never grows.
+   text-align:left kills the global .mat-card-content centering, which
+   otherwise floats section labels and cell text mid-track (#67). */
+.net-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 2px 0 8px;
+  text-align: left;
+}
+
+/* the internal development record: type comes from the shared .section-label-sm law -- this
+   copy had drifted to 0.08em and dropped the law's opacity. Only the placement
+   is the card's own business. */
+.net-section {
+  padding: 10px 16px 4px;
+}
+
+/* Column grid (card-spec law: one internal grid): dot | name (fixed track
+   so every row's meta starts at the same x) | meta 1fr | right-anchored
+   tail (traffic, chip, chevron). Flex packed cells after variable-width
+   names, so the meta column drifted row to row. */
+.net-row {
+  display: grid;
+  grid-template-columns: 8px 92px minmax(0, 1fr) max-content;
+  column-gap: 10px;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 16px;
+  border-bottom: 1px solid var(--lines);
+  font-size: 13px;
+  color: var(--fg1);
+  cursor: pointer;
+}
+
+.row-tail {
+  grid-column: 4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-self: end;
+}
+
+.if-meta {
+  grid-column: 3;
+}
+
+.net-row:hover {
+  background: rgba(127, 127, 127, 0.09);
+}
+
+/* State dots: green up / grey down (per card-system spec) */
+/* State dots are the shared .state-dot law (the internal development record). */
+
+.if-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mono {
+  font-family: 'Roboto Mono', 'SFMono-Regular', Menlo, Consolas, monospace;
+}
+
+.if-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--fg1);
+}
+
+.muted {
+  color: var(--fg2);
+}
+
+/* VLAN count chip */
+/* Chip type/box is the shared .widget-chip law (the internal development record). */
+
+/* Traffic readout -- tabular so columns line up as values change */
+.if-traffic {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--fg2);
+  font-variant-numeric: tabular-nums;
+}
+
+.if-traffic .stat {
+  color: var(--fg1);
+  font-weight: 500;
+}
+
+.if-traffic .unit {
+  color: var(--fg2);
+  margin-left: 2px;
+}
+
+.if-traffic .arrow {
+  font-weight: 700;
+}
+
+.if-traffic .arrow.in {
+  color: var(--green);
+  margin-right: 1px;
+}
+
+.if-traffic .arrow.out {
+  color: var(--blue);
+  margin-left: 8px;
+  margin-right: 1px;
+}
+
+.if-traffic.gathering {
+  font-style: italic;
+  color: var(--fg2);
+}
+
+.down-row .if-meta {
+  font-size: 12px;
+}
+
+.more-row {
+  display: flex;
+  justify-content: center;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.more-row:hover {
+  text-decoration: underline;
+}
+
+.chevron {
+  color: var(--fg2);
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+
+.net-empty {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--fg2);
+}
+
+/* Narrow screens */
+.xs.widget.network-widget {
+  width: 100%;
+  height: calc(100vh - 96px);
+  position: absolute;
+  min-height: 500px;
+}

@@ -1,32 +1,41 @@
-// This file is required by karma.conf.js and loads recursively all the .spec and framework files
+// This file initializes the Angular testing environment for Karma.
 
-import 'zone.js/dist/long-stack-trace-zone';
-import 'zone.js/dist/proxy.js';
-import 'zone.js/dist/sync-test';
-import 'zone.js/dist/jasmine-patch';
-import 'zone.js/dist/async-test';
-import 'zone.js/dist/fake-async-test';
+// zone.js 0.11 on this line: the testing bundle carries long-stack-trace,
+// proxy, sync/async/fake-async and the jasmine patch in one file.
+import 'zone.js/dist/zone-testing';
+import { Injector } from '@angular/core';
 import { getTestBed } from '@angular/core/testing';
 import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing';
+import { of } from 'rxjs';
 
-// Unfortunately there's no typing for the `__karma__` variable. Just declare it as any.
-declare var __karma__: any;
-declare var require: any;
+import { CoreService } from './app/core/services/core.service';
+import { setCoreServiceInjector } from './app/core/services/coreserviceinjector';
+import { ThemeService } from './app/services/theme/theme.service';
 
-// Prevent Karma from running prematurely.
-__karma__.loaded = function () {};
+setCoreServiceInjector(Injector.create({
+  providers: [
+    {
+      provide: CoreService,
+      useValue: {
+        register: () => of({}),
+        unregister: () => undefined,
+      },
+    },
+    {
+      provide: ThemeService,
+      useValue: {
+        currentTheme: () => ({ accentColors: [] }),
+      },
+    },
+  ],
+}));
 
-// First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(
   BrowserDynamicTestingModule,
-  platformBrowserDynamicTesting(),
+  platformBrowserDynamicTesting(), {
+    teardown: { destroyAfterEach: false },
+  },
 );
-// Then we find all the tests.
-const context = require.context('./', true, /\.spec\.ts$/);
-// And load the modules.
-context.keys().map(context);
-// Finally, start Karma to run the tests.
-__karma__.start();

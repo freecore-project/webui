@@ -7,6 +7,8 @@
     <div class="fn-sys-info-line" fxFlex="50%"><h4>{{"Serial Number:" | translate}}</h4> {{FN_serial}}</div>
   </div>
 
+  <!-- the internal development record: ENTER LICENSE removed. system.license_update is an
+       enterprise licensing surface and this fork has no license concept -- same
+       reasoning as #48 / the internal development record. -->
   <div class="fn-sys-info-line" id="fn-instructions" [innerHTML]="FN_instructions | translate"></div>
-  <button mat-flat-button id="update-license-btn" (click)="updateLicense()">{{"ENTER LICENSE" | translate}}</button>
 </div>

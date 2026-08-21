@@ -1,4 +1,4 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import {
   Component, Output, EventEmitter, OnInit,
 } from '@angular/core';
@@ -10,7 +10,7 @@ import { T } from '../../../../../../translate-marker';
   selector: 'app-unlock-dialog',
   templateUrl: './unlock-dialog.component.html',
   styleUrls: ['./unlock-dialog.component.css'],
-})
+  })
 export class UnlockDialogComponent {
   title: string = helptext.unlock_dataset_dialog.title;
   errors_title: string = helptext.unlock_dataset_dialog.errors;

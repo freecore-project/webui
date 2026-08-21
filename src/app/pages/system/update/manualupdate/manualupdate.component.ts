@@ -1,6 +1,6 @@
 import { ApplicationRef, Component, Injector } from '@angular/core';
-import { FormGroup } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { UntypedFormGroup } from '@angular/forms';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { FormUploadComponent } from 'app/pages/common/entity/entity-form/components/form-upload/form-upload.component';
@@ -22,9 +22,9 @@ import { UpdateService } from 'app/services/update.service';
   selector: 'app-manualupdate',
   template: '<entity-form [conf]="this"></entity-form>',
   providers: [MessageService],
-})
+  })
 export class ManualUpdateComponent extends ViewControllerComponent {
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   route_success: string[] = ['system', 'update'];
   protected dialogRef: any;
   fileLocation: string;

@@ -27,12 +27,12 @@
  */
 
 import { Component, HostBinding, Input } from '@angular/core';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatLegacyMenuTrigger as MatMenuTrigger } from '@angular/material/legacy-menu';
 
 @Component({
   selector: 'app-context-menu',
   template: '<ng-content></ng-content>',
-})
+  })
 export class ContextMenuComponent extends MatMenuTrigger {
   /* Use these dial in the exact menu position required */
   @Input() offsetX = -124;

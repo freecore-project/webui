@@ -1,419 +1,118 @@
+/* B6 rework (the internal development record): compact identity card, splash panel removed. */
 .widget{
-  width:600px;
-  height:400px;
+  min-height:400px;
 }
 
 .widget mat-card-content{
   width: 100%;
 }
 
-.widget mat-toolbar-row{
-  position:absolute;
-  height:48px;
-  width:calc(100% - 16px);
-  z-index:2;
-  background:unset;
-  padding:0 8px;
-  left:0;
-  text-align:left;
-
-  font-size: 1.5rem;
-  line-height: 180%;
-}
-
-.widget mat-toolbar-row.view-overview .primary-nav{
-  color:#efefef;
-}
-
-.view-overview .mat-card-title-text{
-  margin-left:calc(40% + 16px) !important;
-}
-
-span.passive{
-  font-size: 75%;
-  text-transform: lowercase;
-}
-
-.primary-nav .card-title-text{
-  font-size:1.5rem;
-  font-weight: 500;
-  display:inline-block;
-  vertical-align:middle;
-  position: relative;
-  top: 2px;
-}
-
-.carousel{
-  position:absolute;
-  width:100%;
+.widget .mat-card.front{
+  display:block;
   height:100%;
 }
 
-.slide{
-  display:inline;
-  width:100%;
-  height:100%;
-}
-
-.slide .hidden{
-  display:none;
-}
-
-.slide .left,
-.slide .right{
-  width:50%;
-  height:100%;
-  display:inline-block;
-  padding:32px 0;
-}
-
-.slide.overview .right > div{
-  width:100%;
-}
-
-.slide.overview .right{
-  padding:0;
-}
-
-.slide.overview .left{
-  /*background-color:var(--primary);*/
-  color:#efefef;
-  position:relative;
-  padding:0;
-}
-
-.slide.overview .left .overlay{
-  position:absolute;
-  width:100%;
-  height:100%;
-  padding:48px 0;
-  text-shadow:0 0px 48px #000;
-}
-
-.data-container{
-  position: absolute;
-  top: 0;
-  height: 100%;
-}
-
-.product-image.rackmount img,
-.product-image.ix-logo img {
-  width:80%;
-}
-
-.product-image img{
-  width:60%;
-}
-
-.slide .right{
-  text-align:left;
-  border-left:solid 1px rgba(0,0,0,0.1);
-}
- 
-.slide .right li{
-  font-size: 115%;
-  padding: 6px;
-  margin-left: 8px;
-}
-
-.nic-name{
-  font-size:300%;
-}
-
-.link-state .icon-wrapper{
-  display: inline-block;
-  font-size: 175%;
-  top: 3px;
-  position: relative;
-}
-
-.nic-name .icon-wrapper{
-  display: inline;
-  font-size: 75%;
-}
-
-.nic-name.up .icon-wrapper,
-.link-state.up .icon-wrapper{
-  color: var(--green);
-}
-
-.nic-name.down .icon-wrapper,
-.link-state.down .icon-wrapper{
-  color: var(--red);
+mat-toolbar-row{
+  display:flex;
+  align-items:center;
 }
 
 .controls{
-  position:absolute;
-  top:0;
-  right:16px;
-  color: var(--fg2);
+  margin-left:auto;
 }
 
-.controls button{
-  display:inline-block;
+#update-in-progress{
+  font-size:12px;
+  color:var(--yellow);
+  letter-spacing:0.05em;
 }
 
-.carousel-nav{
-  position:absolute;
-  bottom:0;
-  width:100%;
-  height:48px;
-  padding:6px;
-  border-top:solid 1px var(--bg1);
-  background:var(--bg2);
+.sysinfo-body{
+  padding: 8px 16px 16px;
+}
+
+.spinner-wrapper{
+  padding-top:64px;
+  text-align:center;
+}
+
+/* Identity zone per the card-spec mockup: 34px mark, 19px wordmark (CORE
+   bold), 11px mono version line — all left. text-align:left kills the
+   global .mat-card-content centering, which otherwise floats the wordmark
+   in the middle of the identity box while the facts sit left (#67
+   alignment fix). */
+.sysinfo-hero{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin: 16px 0 18px;
   text-align:left;
 }
 
-.carousel-nav .btn{
-  width:12px;
-  height:12px;
-  border-radius:50%;
-  display:inline-block;
-  margin:0 4px;
-  background-color:var(--fg1);
-  opacity:0.5;
-  cursor:pointer;
+.sysinfo-mark{
+  width:34px;
+  height:37px;
 }
 
-.carousel-nav .back-arrow.mat-icon{
-  margin-top: -3px;
+mat-icon.sysinfo-mark{
+  font-size:32px;
 }
 
-.carousel-nav .btn.active{
-  opacity:1;
+.sysinfo-product{
+  font-size:19px;
+  font-weight:400;
+  line-height:1.15;
 }
 
-.nic-traffic{
-}
-
-.stat{
-}
-
-.slide{
-  overflow:auto;
-}
-
-img.clickable,
-.slide .mat-list-item.clickable{
-  cursor:pointer;
-}
-
-.slide .mat-icon.next-slide{
-  position:absolute;
-  right:0;
-}
-
-.mat-list-base .mat-list-item{
-  border-bottom:solid 1px rgba(0,0,0,0.1);
-}
-
-.mat-list-base {
-}
-
-.list-subheader{
-  margin-top:48px;
-  text-transform:capitalize;
+.sysinfo-product .core{
   font-weight:700;
-  padding:8px 8px 0 16px;
-  text-align:left;
-  font-size: 90%;
-  color: var(--fg1);
+  color:var(--blue);
 }
 
-.platform-logo-wrapper{
-  padding-top:12px;
-  color: var(--primary-color-txt);
+/* The identity block spans the frame so the version row can push its status
+   text to the card's right edge (the internal development record). */
+.sysinfo-identity{
+  flex:1;
+  min-width:0;
 }
 
-.platform-logo-wrapper.core{
-  padding-top:18px;
+.sysinfo-version{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--fg2);
+  font-family:'Roboto Mono','SFMono-Regular',Menlo,Consolas,monospace;
+  font-size:11px;
+  margin-top:2px;
 }
 
-.platform-logo-wrapper .mat-icon{
-  width:auto;
-  height: 2.5rem;
+/* Layout + type come from the shared .facts-dl law in egret_overrides.css
+   (the internal development record) — one fact per row, label column auto-sized. The law
+   carries the #58 text-align:left lesson globally. */
+.sysinfo-meta{
+  margin-top:4px;
 }
 
-.platform-logo-wrapper.core .mat-icon{
-  height: 2.25rem;
+/* Update affordance (the internal development record): the ⟳ goes steady yellow when an
+   update is available — completing the family with the spinning yellow
+   update-running icon. Status-text look comes from the shared law. */
+mat-icon.update-available{
+  color:var(--yellow);
 }
 
-.platform-logo-wrapper .mat-icon.retro{
-  height:2.4rem;
+mat-icon.update-running{
+  color:var(--fg2);
+  margin-right:8px;
+  animation:sysinfo-update-spin 1.6s linear infinite;
 }
 
-.product-image.rackmount{
-  padding-bottom:0;
+@keyframes sysinfo-update-spin{
+  from{ transform:rotate(0deg); }
+  to{ transform:rotate(360deg); }
 }
 
-.product-image.ix-logo,
-.product-image.rackmount .generic,
-.freenas .generic{
-  padding-bottom:10%;
-}
-
-.product-image.rackmount .generic,
-.freenas .mat-icon.generic{
-  width:calc(240px * 0.5);
-  height:auto;
-}
-
-img.platform-logo{
-  width: 10rem;
-}
-
-.xs.carousel img.platform-logo{
-  width: 70%;
-}
-
-.product-image img.certified-badge{
-  position: absolute;
-  left: 54%;
-  bottom: 30%;
-  width: auto !important;
-  height: 16%;
-  border-radius:5px;
-}
-
-.content-left{
-  position:relative;
-}
-
-.ha-node-status{
-  font-weight:500;
-}
-
-.right{
-  position:relative;
-}
-
-.ha-status .spinner-wrapper,
-.ha-status h3{
-  width: auto;
-  height: auto;
-  text-align: center;
-  top: 49%;
-  position: relative;
-}
-
-div.generic.alert {
+.ha-status{
+  padding-top:48px;
   text-align:center;
 }
-
-div.generic.alert .mat-icon{
-  width:auto;
-  height:auto;
-  font-size:48px;
-}
-
-.left.passive .product-image img {
-  opacity: 0.5;
-}
-
-/* NARROW SCREENS */
-.xs.widget{
-  width: 100%;
-  height: calc(100vh - 96px);
-  position: absolute;
-}
-
-.xs.widget .overview .right .list-subheader{
-  margin-top: 0;
-}
-
-.xs.widget .left,
-.xs.widget .right{
-  width:100%;
-}
-
-#update-in-progress {
-  font-weight: 500;
-  margin-bottom: 40px;
-}
-
-.xs.widget .data-container{
-  position:relative;
-}
-
-.xs.widget .product-image.rackmount img,
-.xs.widget .product-image.ix-logo img {
-  width:auto;
-  height:28%;
-  margin: 21% 0 8px;
-}
-
-.xs.widget .product-image.rackmount img#X10{
-  margin: 8% 0 5%;
-}
-
-.xs.widget img.platform-logo{
-    width: auto;
-    height: 48px;
-}
-
-.xs.widget .view-overview .mat-card-title-text {
-  color: var(--primary-txt);
-  margin-left: unset !important;
-}
-
-.xs.widget .ha-node-status{
-  font-size:125%;
-}
-
-.xs.widget .slide.overview {
-    overflow-x: hidden;
-}
-
-.xs.widget .mat-card {
-    border-radius: 0;
-}
-
-.xs.widget .mobile-update-action {
-  padding:32px 0;
-  text-align:center;
-}
-
-.xs.widget img#Z20{
-  margin: 14% 0 18px;
-}
-
-/* FIX Generic hardware icon */
-.xs.widget.generic-hardware .platform-logo-wrapper{
-  display:none;
-}
-
-.xs.widget.generic-hardware .product-image.tower{
-  margin-top:50%;
-}
-
-.xs.widget.generic-hardware .product-image.tower .mat-icon{
-  margin-top:48px;
-}
-
-.xs.widget.generic-hardware .product-image.tower .certified-badge{
-  bottom:-40%;
-  height:25%;
-}
-
-.xs.widget .left {
-  min-height:275px;
-}
-
-.primary-nav.mat-card-title-text{
-  position:absolute;
-  top:4px;
-  left:16px;
-  z-index:2;
-}
-
-.xs .freenas.product-image img{
-  height: 150px;
-  width: auto;
-}
-
-.xs .freenas.product-image{
-  position: relative;
-  top: -24px;
-}
-
-
