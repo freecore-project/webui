@@ -1,0 +1,53 @@
+:host { display: block; }
+
+/* the internal development record: the strip frame -- the two ghost icon arrows (32px, the 20px glyph as .row-kebab) on
+   either side of the scroller; idle = everything fits (visibility keeps the scroller width stable, so one
+   measure is enough -- [hidden] would not hide an hlmBtn: no preflight, the helm inline-flex utility is last). */
+.catalog-strip { display: flex; align-items: stretch; gap: 4px; }
+.strip-arrow { align-self: center; flex: 0 0 auto; }
+.catalog-strip .strip-arrow.is-idle { visibility: hidden; }
+.strip-arrow .mat-icon { font-size: 20px; height: 20px; line-height: 20px; width: 20px; }
+
+/* the scroller: one row, snap per tile (proximity: the end of the strip stays reachable and the
+   arrows' page lands where it lands), thin scrollbar; 2px top for the focus ring, 8px under the tiles.
+   scroll-padding matches the inline padding so the first tile's snap point is scrollLeft 0. */
+.strip-scroller {
+  display: flex; flex: 1 1 auto; gap: 8px; min-width: 0; min-height: 134px;
+  padding: 2px 2px 8px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scroll-padding-inline: 2px; scrollbar-width: thin; outline: none;
+}
+@media (prefers-reduced-motion: reduce) { .strip-scroller { scroll-behavior: auto; } }
+
+/* a tile: 132 wide, 124 high (40 icon + 6 + 32 title + 6 + 14 tell + 24 padding + 2 border); the glyph and
+   the title sit centred in the box, so a tile without a tell line does not read bottom-heavy */
+.strip-tile {
+  flex: 0 0 132px; width: 132px; height: 124px; box-sizing: border-box; scroll-snap-align: start;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 8px; margin: 0;
+  border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--fg1);
+  cursor: pointer; font: inherit; line-height: inherit; text-align: center; -webkit-appearance: none; appearance: none;
+}
+.strip-tile:hover { background: var(--fc-hover, color-mix(in srgb, var(--fg1) 5%, transparent)); }
+.strip-tile[aria-selected="true"] { background: var(--bg2); border-color: var(--fg1); }
+.strip-tile:focus-visible { outline: none; border-color: var(--accent); box-shadow: var(--fc-focus-ring, 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent)); }
+.strip-tile[aria-disabled="true"] { cursor: default; opacity: .4; }
+
+.tile-icon { display: flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; height: 40px; color: var(--fg2); }
+.tile-icon img { width: 40px; height: 40px; object-fit: contain; }
+/* the internal development record: provider logos drawn for light backgrounds (dark wordmarks, black glyphs) sink into a
+   dark canvas -- a 1px half-foreground outline traced from the image's alpha lifts them; colourful and light
+   logos keep their look. Dark themes only, provider images only (the placeholder mat-icon is ours). */
+:host-context(html.dark) .tile-icon img {
+  --tile-icon-edge: color-mix(in srgb, var(--fg1) 50%, transparent);
+  filter: drop-shadow(1px 0 0 var(--tile-icon-edge)) drop-shadow(-1px 0 0 var(--tile-icon-edge))
+    drop-shadow(0 1px 0 var(--tile-icon-edge)) drop-shadow(0 -1px 0 var(--tile-icon-edge));
+}
+.tile-icon .mat-icon { font-size: 32px; width: 32px; height: 32px; line-height: 32px; }
+
+.tile-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; max-height: 32px; font-size: 13px; line-height: 16px; overflow-wrap: anywhere; }
+.tile-tell { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 14px; color: var(--fg2); }
+
+/* loading / no match: the slot at the strip's height so nothing jumps; the helm spinner is sized by
+   font-size and spins the host on transform (no translate here) */
+.strip-state { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 124px; color: var(--fg2); font-size: 13px; }
+#catalog-strip-spinner { font-size: 32px; color: var(--sp-muted-foreground, var(--fg2)); }
+.strip-empty .mat-icon { font-size: 20px; width: 20px; height: 20px; line-height: 20px; }

@@ -1,0 +1,12 @@
+:host {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+
+.general-preferences-embedded-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 100%;
+}

@@ -1,0 +1,101 @@
+/* the internal development record: the standalone band (Snapshots and any rowDetailComponent that renders
+   app-entity-row-details) on the same grid-of-facts + ghost-actions shape as the table's own;
+   the internal development record: the 16px glyph before the label, as on the table's own band. */
+:host {
+  box-sizing: border-box;
+  display: block;
+  min-width: 0;
+  padding: 8px 16px 18px;
+  padding-inline-start: var(--band-inset, 16px); /* under the row's first content cell */
+}
+
+.entity-row-details-layout {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* the action strip boxed between the row's border and a hairline (v1 of the separation challenger) */
+.entity-row-details-actions-layout {
+  align-items: center;
+  border-bottom: 1px solid var(--fc-line, rgba(127, 127, 127, 0.4)); /* the fallback keeps the hairline where the ladder is not loaded */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  justify-content: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+}
+
+.entity-row-details-action-layout {
+  align-items: center;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+  height: auto;
+  margin: 0;
+  min-height: 32px;
+  padding: 0 12px;
+}
+
+.entity-row-details-action-glyph {
+  color: var(--fg1);
+  flex-shrink: 0;
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
+}
+
+.entity-row-details-action-layout:first-child {
+  margin-inline-start: -12px;
+}
+
+/* the action label in fg1, as on the table's own band (the kit's ghost tier rests on fg2) */
+.entity-row-details-action-layout span {
+  color: var(--fg1);
+}
+
+/* the internal development record (forum t/92): the facts read top to bottom, one per line, labels in their own column
+   (the same list as the table's own band and the internal development record's facts list). */
+.entity-row-details-summary-layout {
+  align-items: baseline;
+  display: grid;
+  gap: 10px 28px;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
+}
+
+.entity-row-details-summary-layout > div {
+  display: contents;
+}
+
+.entity-row-details-summary-layout p {
+  color: var(--fg2);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.entity-row-details-summary-layout h4 {
+  color: var(--fg1);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 20px;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 599px) {
+  .entity-row-details-summary-layout {
+    gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .entity-row-details-summary-layout > div:not(:first-child) p {
+    margin-top: 10px;
+  }
+}

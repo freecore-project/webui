@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { TreeNode } from 'primeng/api';
 
 import { WebSocketService } from '../../../../services';
+import { EntityTreeNode } from './entity-tree-table.model';
 
 @Injectable()
 export class EntityTreeTableService {
   constructor(private ws: WebSocketService) {}
 
-  buildTree(data) {
-    const tree: TreeNode[] = [];
+  buildTree(data): EntityTreeNode[] {
+    const tree: EntityTreeNode[] = [];
     for (let i = 0; i < data.length; i++) {
       const node = this.getNode(data[i]);
       tree.push(node);
@@ -16,7 +16,7 @@ export class EntityTreeTableService {
     return tree;
   }
 
-  getNode(item) {
+  getNode(item): EntityTreeNode {
     const nodeData = {};
     for (const prop in item) {
       nodeData[prop] = item[prop];
@@ -27,7 +27,7 @@ export class EntityTreeTableService {
       nodeChildren.push(this.getNode(item.children[child]));
     }
 
-    const node: TreeNode = {};
+    const node: EntityTreeNode = {};
     node.data = nodeData;
     node.expanded = true;
     node.children = nodeChildren;

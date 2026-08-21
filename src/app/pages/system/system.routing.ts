@@ -5,7 +5,6 @@ import { RouterModule, Routes } from '@angular/router';
 
 import { GeneralComponent } from './general/general.component';
 import { AdvancedComponent } from './advanced';
-import { ViewEnclosureComponent } from './viewenclosure';
 import { DatasetComponent } from './dataset';
 import { BootEnvironmentCloneComponent } from './bootenv/bootenv-clone';
 import { BootEnvironmentRenameComponent } from './bootenv/bootenv-rename';
@@ -41,12 +40,11 @@ import { EmailComponent } from './email';
 import { AlertServiceComponent } from './alertservice/alert-service/alert-service.component';
 import { AlertConfigComponent } from './alert/alert.component';
 import { CertificateAcmeAddComponent } from './certificates/certificate-acme-add/certificate-acme-add.component';
-import { FailoverComponent } from './failover/failover.component';
 import { ReportingComponent } from './reporting/reporting.component';
 import { EulaComponent } from './support/eula/eula.component';
-import { KmipComponent } from './kmip/kmip.component';
 import { T } from '../../translate-marker';
 import { TwoFactorComponent } from './two-factor/two-factor.component';
+import { WebauthnComponent } from './webauthn/webauthn.component';
 
 export const routes: Routes = [
   // {path : '', component : GeneralComponent },
@@ -67,10 +65,6 @@ export const routes: Routes = [
       component: AdvancedComponent,
       data: { title: T('Advanced'), breadcrumb: T('Advanced'), icon: 'settings' },
 
-    }, {
-      path: 'viewenclosure',
-      component: ViewEnclosureComponent,
-      data: { title: T('View Enclosure'), breadcrumb: T('View Enclosure'), icon: 'settings' },
     }, {
       path: 'reporting',
       component: ReportingComponent,
@@ -285,10 +279,6 @@ export const routes: Routes = [
         data: { title: T('Sign CSR'), breadcrumb: T('Sign CSR') },
       }],
     }, {
-      path: 'kmip',
-      component: KmipComponent,
-      data: { title: 'KMIP', breadcrumb: 'KMIP', icon: 'dns' },
-    }, {
       path: 'certificates',
       data: { title: T('Certificates'), breadcrumb: T('Certificates'), icon: 'turned_in' },
       children: [{
@@ -327,10 +317,6 @@ export const routes: Routes = [
         data: { title: T('Edit'), breadcrumb: T('Edit') },
       },
       ],
-    }, {
-      path: 'failover',
-      component: FailoverComponent,
-      data: { title: T('Failover'), breadcrumb: T('Failover'), icon: 'device_hub' },
     },
     {
       path: 'support',
@@ -353,7 +339,12 @@ export const routes: Routes = [
       component: TwoFactorComponent,
       data: { title: T('Two-Factor Auth'), breadcrumb: T('Two-Factor Auth') },
     },
+    {
+      path: 'webauthn',
+      component: WebauthnComponent,
+      data: { title: T('Security Keys'), breadcrumb: T('Security Keys') },
+    },
     ],
   },
 ];
-export const routing: ModuleWithProviders = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders<RouterModule> = RouterModule.forChild(routes);

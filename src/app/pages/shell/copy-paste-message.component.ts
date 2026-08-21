@@ -1,17 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslateService } from '@ngx-translate/core';
 import helptext from '../../helptext/shell/shell';
 
 @Component({
+  standalone: false,
   selector: 'app-copy-paste-message',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-      <h1 mat-dialog-title> {{title | translate}}</h1>
+      <h2 mat-dialog-title>{{title | translate}}</h2>
       <div mat-dialog-content [innerHtml]="messageHtml"></div>
       <div mat-dialog-actions>
-        <span fxFlex></span>
-        <button class="mat-button mat-primary" (click)="dialogRef.close(true)"
-        ix-auto ="CLOSE"
+        <button hlmBtn variant="outline" type="button" (click)="dialogRef.close(true)"
+        ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE"
         >{{"Close" | translate}}</button>
       </div>
   `,

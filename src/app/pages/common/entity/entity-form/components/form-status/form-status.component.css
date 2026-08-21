@@ -8,19 +8,8 @@
   left: 8px;
 }
 
-.status,
-.status svg{
-}
-
-
-/* Misc Vars */
---curve: cubic-bezier(0.650, 0.000, 0.450, 1.000);
-
-body {
-  align-items: center;
-  justify-content: center;
-}
-
+/* the internal development record: the dead body{} rule, the top-level --curve and the empty .status svg{}
+ * rule went; the stroke fallback is currentColor (the paths set their own). */
 .checkmark {
   opacity:0;
   width: 32px;
@@ -30,7 +19,7 @@ body {
   position: absolute;
   top: -32px;
   stroke-width: 2;
-  stroke: #fff;
+  stroke: currentColor;
   stroke-miterlimit: 10;
   box-shadow: inset 0px 0px 0px var(--green);
   animation: fadein 0.1s ease-in 0s forwards, /*fill .4s ease-in-out .4s forwards,*/ scale .2s ease-in-out 0s both, fadeout 1s linear 2s forwards ;

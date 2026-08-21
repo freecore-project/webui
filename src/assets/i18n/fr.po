@@ -12128,6 +12128,9 @@ msgstr ""
 msgid "Revert CHANGES"
 msgstr "Rétablir les CHANGEMENTS"
 
+msgid "Revert Changes"
+msgstr "Rétablir les CHANGEMENTS"
+
 msgid "Revert Network Interface Changes"
 msgstr "Annuler les modifications de l'interface réseau"
 
@@ -12412,6 +12415,9 @@ msgstr "Enregistrer les options du volume"
 
 msgid "Save Without Restarting"
 msgstr "Enregistrer sans redémarrer"
+
+msgid "Save and Failover"
+msgstr "ENREGISTRER ET BASCULEMENT"
 
 msgid "Save and Restart SMB Now"
 msgstr "Enregistrer et redémarrer SMB maintenant"
@@ -13243,6 +13249,9 @@ msgstr "Envoyer des courriels sur les statuts des mises à jour"
 
 msgid "Send Mail Method"
 msgstr ""
+
+msgid "Send Test Alert"
+msgstr "ENVOYER L'ALERTE DE TEST"
 
 msgid "Send Test Mail"
 msgstr "Envoyer un courriel de test"
@@ -14756,6 +14765,9 @@ msgstr "Démarrer"
 
 msgid "Start Automatically"
 msgstr "Démarrage automatique"
+
+msgid "Start Replication"
+msgstr "COMMENCER LA RÉPLICATION"
 
 msgid "Start Scrub"
 msgstr "Démarrer Scrub"

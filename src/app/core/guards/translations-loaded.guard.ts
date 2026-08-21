@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, RouterStateSnapshot } from '@angular/router';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { LanguageService } from 'app/services/language.service';
-import { of } from 'rxjs';
-import { Observable } from 'rxjs/Observable';
+import { of, Observable } from 'rxjs';
 import {
   catchError, map, timeout,
 } from 'rxjs/operators';
@@ -12,7 +11,7 @@ import { WebSocketService } from 'app/services/ws.service';
  * Ensures that translations have been loaded.
  */
 @Injectable({ providedIn: 'root' })
-export class TranslationsLoadedGuard implements CanActivate {
+export class TranslationsLoadedGuard {
   // Bail on translations if it takes too much time to load.
   private readonly maxLanguageLoadingTime = 20 * 1000;
 

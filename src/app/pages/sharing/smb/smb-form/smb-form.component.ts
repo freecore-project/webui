@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_sharing_smb, shared } from 'app/helptext/sharing';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
@@ -18,10 +18,13 @@ import { Validators } from '@angular/forms';
 import globalHelptext from 'app/helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-smb-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class SMBFormComponent {
+  readonly settingsTitle = T('SMB Share'); // the internal development record: the page's h1
   protected queryCall = 'sharing.smb.query';
   protected addCall = 'sharing.smb.create';
   protected editCall = 'sharing.smb.update';
@@ -44,6 +47,7 @@ export class SMBFormComponent {
       name: helptext_sharing_smb.fieldset_basic,
       class: 'basic',
       label: true,
+      settingsLabel: T('General'), // the internal development record: 'Basic' is a mode word
       width: '100%',
       config: [
         {

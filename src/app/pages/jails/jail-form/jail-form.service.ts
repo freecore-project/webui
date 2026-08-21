@@ -152,14 +152,6 @@ export class JailFormService {
     return full_address;
   }
 
-  getPluginDefaluts(plugin, pluginRepository) {
-    return this.ws.call('plugin.defaults', [{
-      plugin,
-      plugin_repository: pluginRepository,
-      refresh: false,
-    }]);
-  }
-
   getInterface() {
     return this.ws.call('interface.query', [[['name', 'rnin', 'vnet0:']]]);
   }
@@ -261,8 +253,9 @@ export class JailFormService {
     }
   }
 
+  /** the internal development record: the advanced plugin install starts from the plugin's own jail properties. */
   getPluginDefaults(plugin, pluginRepository, formGroup, networkfieldConfig): Promise<boolean> {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
       await this.ws.call('plugin.defaults', [{
         plugin,
         plugin_repository: pluginRepository,

@@ -80,7 +80,7 @@ def click_on_login_to_provider_authorization_box_will_appear(driver):
     assert wait_on_element(driver, 5, '//button[@id="cust_button_LOGIN TO PROVIDER"]', 'clickable')
     driver.find_element_by_xpath('//button[@id="cust_button_LOGIN TO PROVIDER"]').click()
     driver.switch_to.window(driver.window_handles[1])
-    assert wait_on_element(driver, 10, '//h1[text()="Authorization"]')
+    assert wait_on_element(driver, 10, '//h2[text()="Authorization"]')
 
 
 @then(parsers.parse('click Proceed, then enter the login "{user_name}" and "{password}"'))
@@ -120,8 +120,8 @@ def click_verify_credential_to_verify_it_is_valid(driver):
     driver.find_element_by_xpath('//button[@ix-auto="button__VERIFY CREDENTIAL"]').click()
     if wait_on_element(driver, 5, '//h1[contains(.,"Please wait")]'):
         assert wait_on_element_disappear(driver, 20, '//h1[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 10, '//h1[normalize-space(text())="Valid"]')
-    assert wait_on_element(driver, 10, '//textarea[text()="The Credential is valid."]')
+    assert wait_on_element(driver, 10, '//h2[normalize-space(text())="Valid"]')
+    assert wait_on_element(driver, 10, '//pre[text()="The Credential is valid."]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CLOSE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
 

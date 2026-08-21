@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -23,20 +24,26 @@ import { FieldSet } from '../../common/entity/entity-form/models/fieldset.interf
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 
 @Component({
+  standalone: false,
   selector: 'app-import-disk',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
-  <div *ngIf="initialized">
-
-  <entity-form [conf]="this"></entity-form>
-  </div>`,
+  @if (initialized) {
+    <div>
+      <entity-form [conf]="this"></entity-form>
+    </div>
+  }`,
 })
 export class ImportDiskComponent implements OnDestroy, Formconfiguration {
+  readonly settingsTitle = T('Import Disk'); // the internal development record: a sidebar entry keeps its name; the verb is on the button
+  saveSubmitText = T('Import');
   initialized = true;
 
   fieldConfig: FieldConfig[];
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_disk,
+      settingsLabel: T('Source'),
       label: true,
       class: 'general',
       width: '49%',
@@ -72,6 +79,12 @@ export class ImportDiskComponent implements OnDestroy, Formconfiguration {
           options: [],
           isHidden: true,
         },
+      ],
+    },
+    {
+      name: T('Destination'),
+      label: true,
+      config: [
         {
 
           type: 'explorer',

@@ -1,8 +1,7 @@
-mat-spinner {
-    margin: auto;
-}
-
-.spinner-container {
-    height: 120px;
-    overflow:hidden;
+.console-action-row {
+    display: flex;
+    box-sizing: border-box;
+    flex-direction: row;
+    place-content: center;
+    align-items: center;
 }

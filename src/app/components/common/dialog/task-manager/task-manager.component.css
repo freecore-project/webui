@@ -1,20 +1,39 @@
-mat-dialog-content.task-manager-dialog-content.mat-dialog-content {
-    padding: 0px;
-    overflow: scroll !important;
-    margin-top: -10px;
+/* the internal development record: the docked panel on the dialog law. The body drops the law's
+ * gutter so the table runs flush (its cells carry the 24px edge); the filter group
+ * sits on the gutter above it. */
+mat-dialog-content.task-manager-dialog-content.mat-mdc-dialog-content {
+    padding: 0;
 }
-span.task-manager-search {
-    padding: 0 24px;
+
+/* the #351 filter group: the toolbar's search glyph as the addon */
+.task-manager-search {
+    padding: 8px 24px 12px;
 }
-span.task-manager-search input{
-    width: 80%;
-}
-span.task-manager-search mat-icon {
-    top: 10px;
-    position: relative;
-}
-button.task-manager-action-button {
+.task-manager-search hlm-input-group {
+    min-width: 0;
     width: 100%;
+}
+.task-manager-search hlm-input-group-addon .mat-icon {
+    font-size: 16px;
+    height: 16px;
+    line-height: 16px;
+    width: 16px;
+}
+
+/* the internal development record: the job list is a native .fc-dialog-table (#466); the fixed layout takes the column widths
+   from the header cells (the old 74 / flexible / 166). The row and detail rules are keyed through the table so
+   they outrank the voice's cell rule. */
+th.task-manager-state-column {
+    width: 74px;
+}
+th.task-manager-percent {
+    width: 166px;
+}
+.fc-dialog-table td.task-manager-percent span {
+    display: block;
+}
+.fc-dialog-table td.task-manager-percent hlm-progress {
+    margin-top: 4px;
 }
 
 mat-icon.state-success {
@@ -33,25 +52,23 @@ mat-icon.state-aborted {
     color: var(--orange);
 }
 
-mat-cell.mat-column-percent {
-    display: inline-grid;
-}
-mat-cell.mat-column-expandedDetail {
-    display: inline-grid;
-}
-
-.element-row:not(.expanded) {
-    cursor: pointer;
-}
-
-.element-row:not(.expanded):hover {
-    background: #f5f5f5;
-}
-
-.element-row.expanded {
+/* an open row hands its rule to its detail */
+.fc-dialog-table tr.element-row.expanded td {
     border-bottom-color: transparent;
 }
-
-mat-row.detail-row {
+.fc-dialog-table tr.task-manager-detail-row td {
+    height: auto;
+    padding-top: 0;
     padding-bottom: 12px;
+    white-space: normal;
+    font-size: 12px;
+    color: var(--fg2);
+}
+.task-manager-detail {
+    display: grid;
+    gap: 2px;
+    overflow: hidden;
+}
+.task-manager-detail > span {
+    overflow-wrap: anywhere;
 }

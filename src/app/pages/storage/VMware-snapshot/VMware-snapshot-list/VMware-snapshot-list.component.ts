@@ -1,10 +1,12 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'vmware-snapshot-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class VMwareSnapshotListComponent {
@@ -40,15 +42,7 @@ export class VMwareSnapshotListComponent {
 
   getActions(row) {
     const actions = [];
-    actions.push({
-      id: row.hostname,
-      icon: 'delete',
-      name: 'delete',
-      label: T('Delete'),
-      onClick: (row) => {
-        this.entityList.doDelete(row);
-      },
-    });
+    // the internal development record: one order on every table -- change (Edit), destroy (Delete last).
     actions.push({
       id: row.hostname,
       icon: 'edit',
@@ -58,6 +52,15 @@ export class VMwareSnapshotListComponent {
         this._router.navigate(new Array('/').concat(
           ['storage', 'vmware-Snapshots', 'edit', row.id],
         ));
+      },
+    });
+    actions.push({
+      id: row.hostname,
+      icon: 'delete',
+      name: 'delete',
+      label: T('Delete'),
+      onClick: (row) => {
+        this.entityList.doDelete(row);
       },
     });
     return actions;

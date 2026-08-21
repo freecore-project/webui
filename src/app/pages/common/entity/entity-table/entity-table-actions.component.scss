@@ -1,38 +1,32 @@
-.ion-android-more-vertical:before {
-    color: black;
-}
-
-
 .panel_container {
     text-align: center;
 }
 
-.global_volume_based_action_menu {
-    margin-top: 8px; 
-    float: right; 
-    padding-bottom: 20px;
+/* the internal development record: the kebab is a ghost icon button centred in its column, its glyph 20px. */
+.row-kebab {
+  margin: 0;
+}
+.row-kebab .mat-icon {
+  font-size: 20px;
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
 }
 
-.group-menu-header{
+/* the internal development record: the grouped kebab menu keeps its 200px floor; the heading is the helm label
+ * (the table-header voice) on the helm separator, so the old title/hairline rules are gone. The
+ * tooltip wrapper is a block so the disabled row's hover target is the whole row. */
+.group-menu-header {
   min-width: 200px;
-  padding-bottom: 16px;
-  margin-top: 12px;
 }
 
-.group-menu-header div.title{
-  margin-left: 16px;
-  margin-top: 4px;
-  opacity: 0.5;
-  font-size: 0.85rem;
-}
-
-.group-menu-header mat-divider {
-  background-color: var(--fg2);
-  opacity: 0.35;
+.row-menu-item {
+  display: block;
 }
 
 
-.action-length-1 button{
+/* wrappable single actions opt out (volumes-list offline row owns its own alignment) */
+.action-length-1 .row-single-action:not(.single-action-wrappable){
   position: relative;
   right: 16px;
 }

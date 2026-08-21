@@ -1,5 +1,6 @@
 import {
   Component, AfterViewInit, OnInit, OnChanges, Input, HostListener,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { LayoutChild } from 'app/core/classes/layouts';
 import { ViewComponent } from 'app/core/components/view/view.component';
@@ -22,20 +23,30 @@ export interface Legend {
 export const ViewChartMetadata = {
   template: `
     <div class="viewchart-wrapper {{chartClass}}-wrapper">
-      <div *ngIf="chartLoaded" class="legend-wrapper">
-        <div class="legend-x legend-item" *ngIf="chartConfig.data.x">Time: <span *ngIf="showLegendValues" class="legend-item-time">{{legend[0].x}}</span></div>
-        <div class="legend-html" fxLayout="row wrap" fxLayoutAlign="space-between" fxLayoutGap="16px" >
-          <ng-container *ngFor="let item of legend; let i=index ">
-            <div fxFlex.xs="calc(33% - 16px)" class="legend-item" *ngIf="chartType != 'gauge'" (click)="focus(legend[i])" [ngClass]="{'legend-item-disabled':!legend[i].visible}">
+      @if (chartLoaded) {
+      <div class="legend-wrapper">
+        @if (chartConfig.data.x) {
+        <div class="legend-x legend-item">Time: @if (showLegendValues) {
+          <span class="legend-item-time">{{legend[0].x}}</span>
+        }</div>
+        }
+        <div class="legend-html">
+          @for (item of legend; track item; let i = $index) {
+            @if (chartType != 'gauge') {
+            <div class="legend-item" (click)="focus(legend[i])" [ngClass]="{'legend-item-disabled':!legend[i].visible}">
               <div>
                 <span class="legend-swatch" [style.background-color]="legend[i].swatch"></span>
                 <span class="legend-name">{{legend[i].name}}: </span>
               </div>
-              <div class="legend-value" [style.color]="legend[i].swatch"><span *ngIf="showLegendValues">{{legend[i].value | number : '1.2-2'}}{{units}}</span></div>
+              <div class="legend-value" [style.color]="legend[i].swatch">@if (showLegendValues) {
+                <span>{{legend[i].value | number : '1.2-2'}}{{units}}</span>
+              }</div>
             </div>
-          </ng-container>
+            }
+          }
         </div>
       </div>
+      }
       <div id="{{chartId}}" [ngClass]="chartClass">
       </div>
     </div>
@@ -43,9 +54,11 @@ export const ViewChartMetadata = {
 };
 
 @Component({
+  standalone: false,
   selector: 'viewchart',
   template: ViewChartMetadata.template,
-  styleUrls: ['./viewchart.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./viewchart.component.css', './viewchart-layout.css'],
 })
 export class ViewChartComponent extends ViewComponent implements AfterViewInit {
   chartColors: string[];

@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { MaterialModule } from '../../appMaterial.module';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -21,13 +21,16 @@ import { routing } from './vm.routing';
 import { CoreComponents } from 'app/core/components/corecomponents.module';
 import { VMWizardComponent } from './vm-wizard';
 import { VMSerialShellComponent } from './vm-serial-shell';
+import { TerminalModule } from '../shell/terminal.module';
 import { DeviceAddComponent } from './devices/device-add2';
 
 @NgModule({
   imports: [
     CoreComponents,
     EntityModule, CommonModule, FormsModule, TranslateModule,
-    ReactiveFormsModule, routing, MaterialModule, FlexLayoutModule, // , BrowserModule
+    ReactiveFormsModule, routing, MaterialModule, // , BrowserModule
+    TerminalModule,
+    ...HlmButtonImports, // the internal development record: the device forms' tiers
   ],
   declarations: [
     VMListComponent,

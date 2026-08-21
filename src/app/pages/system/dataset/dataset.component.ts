@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 
 import * as _ from 'lodash';
 import { WebSocketService, DialogService } from '../../../services';
@@ -11,8 +11,10 @@ import { AppLoaderService } from '../../../services/app-loader/app-loader.servic
 import { T } from '../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-system-dataset',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class DatasetComponent {
@@ -20,7 +22,7 @@ export class DatasetComponent {
   protected updateCall = 'systemdataset.update';
   isEntity = false;
 
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   entityForm: any;
 
   protected syslog_subscription: any;
@@ -33,12 +35,14 @@ export class DatasetComponent {
   protected pool_fg: any;
   protected pool_value: any;
 
+  readonly settingsTitle = T('System Dataset'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext_system_dataset.metadata.fieldsets[0],
       class: 'edit-system-dataset',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       width: '300px',
       config: [
         {
@@ -154,6 +158,38 @@ export class DatasetComponent {
   }
 
   doUpdate(value) {
+    if (value.pool === this.pool_value) {
+      this.runUpdate(value);
+      return;
+    }
+    // the internal development record: a move while the 13.3 return is open ends that return; say so and confirm.
+    this.ws.call('system.rollback.available').subscribe(
+      (rollback) => {
+        if (rollback?.available !== true) {
+          this.runUpdate(value);
+          return;
+        }
+        this.loader.close();
+        this.dialogService.confirm(
+          helptext_system_dataset.return_warning.title,
+          helptext_system_dataset.return_warning.message,
+          false,
+          helptext_system_dataset.return_warning.button,
+        ).subscribe((confirmed) => {
+          if (confirmed) {
+            this.loader.open();
+            this.runUpdate({ ...value, confirm_rollback_loss: true });
+          }
+        });
+      },
+      (err) => {
+        this.loader.close();
+        new EntityUtils().handleWSError(this, err);
+      },
+    );
+  }
+
+  runUpdate(value) {
     this.ws.job('systemdataset.update', [value]).subscribe(
       (res) => {
         if (res.error) {

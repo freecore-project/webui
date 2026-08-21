@@ -1,18 +1,30 @@
-<h1 mat-dialog-title>
-    <mat-icon *ngIf="conf.icon" class="general-dialog-icon">{{conf.icon}}</mat-icon>
-    <span *ngIf="conf.title">{{conf.title}}</span>
-</h1>
-<div mat-dialog-content class="general-dialog-content-container">
-    <div class="generial-dialog-content">
-        <span *ngIf="conf.is_html; else normalContent" [innerHTML]="conf.message | translate"></span>
-        <ng-template #normalContent>
-            <span>{{conf.message}}</span>
-        </ng-template>
-    </div>
+<h2 mat-dialog-title>
+  @if (conf.icon) {
+    <mat-icon aria-hidden="true">{{conf.icon}}</mat-icon>
+  }
+  @if (conf.title) {
+    <span>{{conf.title}}</span>
+  }
+</h2>
+<div mat-dialog-content>
+  @if (conf.is_html) {
+    <span [innerHTML]="conf.message | translate"></span>
+  } @else {
+    <span>{{conf.message}}</span>
+  }
 </div>
 <div mat-dialog-actions>
-    <mat-checkbox *ngIf="conf.confirmCheckbox" (change)="confirmed = !confirmed">{{conf.confirmCheckboxMsg || 'CONFIRM'}}</mat-checkbox>
-    <span fxFlex></span>
-    <button *ngIf="!conf.hideCancel" mat-button  class="mat-button mat-accent" (click)="dialogRef.close(false)">{{conf.cancelBtnMsg || 'CANCEL'}}</button>
-    <button mat-button  class="mat-button mat-primary" [disabled]="isDisabled()" (click)="dialogRef.close(true)">{{conf.confirmBtnMsg || 'CLOSE'}}</button>
+  @if (conf.confirmCheckbox) {
+    <div class="checkbox-row">
+      <span class="checkbox-cell">
+        <hlm-checkbox inputId="general-dialog__confirm-checkbox" [checked]="confirmed" (checkedChange)="confirmed = $event" />
+      </span>
+      <label hlmLabel class="checkbox-label" for="general-dialog__confirm-checkbox">{{ (conf.confirmCheckboxMsg || 'Confirm') | translate }}</label>
+    </div>
+  }
+  <span class="dialog-action-spacer"></span>
+  @if (!conf.hideCancel) {
+    <button hlmBtn variant="outline" type="button" (click)="dialogRef.close(false)">{{ (conf.cancelBtnMsg || 'Cancel') | translate }}</button>
+  }
+  <button hlmBtn type="button" [disabled]="isDisabled()" (click)="dialogRef.close(true)">{{ (conf.confirmBtnMsg || 'Close') | translate }}</button>
 </div>

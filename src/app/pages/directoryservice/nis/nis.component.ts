@@ -1,4 +1,5 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { DialogService } from '../../../services';
@@ -15,11 +16,14 @@ import {
 } from '../../common/entity/entity-form/models/field-config.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-nis',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class NISComponent {
+  readonly settingsTitle = T('NIS');
   queryCall = 'nis.config';
   protected addCall = 'nis.update';
   custActions: any[] = [
@@ -39,6 +43,7 @@ export class NISComponent {
   fieldSets: FieldSet[] = [
     {
       name: helptext.nis_label,
+      settingsLabel: T('Domain and servers'),
       class: 'nis',
       label: true,
       config: [

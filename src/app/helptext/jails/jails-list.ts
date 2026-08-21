@@ -6,17 +6,16 @@ export default {
   },
   activatePoolDialog: {
     title: T('Choose Pool for Plugin and Jail Storage'),
-    selectedPool_placeholder: T('Choose a pool for plugin and jail storage.'),
+    // the internal development record: names the field, not the task. It was a full sentence
+    // repeating the dialog title, and since the internal development record promotes a placeholder to
+    // the floating label it became the label too. 'Data Pool' is what the
+    // Bastille Settings dialog calls the identical thing.
+    selectedPool_placeholder: T('Data Pool'),
     saveButtonText: T('Choose'),
     successInfoDialog: {
       title: T('Pool Chosen'),
       message: T('Using pool '),
     },
-  },
-  noPoolDialog: {
-    title: T('No Pools'),
-    message: T('Cannot create plugins or jails until a pool is present for storing them.'),
-    buttonMsg: T('Create Pool'),
   },
   updateConfirmDialog: {
     title: T('Update Jail'),

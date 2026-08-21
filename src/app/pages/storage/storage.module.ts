@@ -3,11 +3,18 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { MaterialModule } from '../../appMaterial.module';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { FC_EXPANSION } from 'app/components/common/expansion/fc-expansion';
+import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmSeparatorImports } from '@spartan-ng/helm/separator';
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
+import { HlmCheckboxImports } from '@spartan-ng/helm/checkbox';
+import { HlmInputImports } from '@spartan-ng/helm/input';
+import { HlmLabelImports } from '@spartan-ng/helm/label';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
-import { FlexLayoutModule } from '@angular/flex-layout';
-import { NgxFilesizeModule } from 'ngx-filesize';
 import { CommonDirectivesModule } from '../../directives/common/common-directives.module';
 
 import { EntityModule } from '../common/entity/entity.module';
@@ -35,7 +42,6 @@ import { DiskListComponent } from './disks/disk-list';
 import { DiskFormComponent } from './disks/disk-form';
 import { DiskBulkEditComponent } from './disks/disk-bulk-edit/disk-bulk-edit.component';
 import { SmartResultsComponent } from './disks/smart-results/smart-results.component';
-import { TreeTableModule } from 'primeng/treetable';
 import { VolumeRekeyFormComponent } from 'app/pages/storage/volumes/volumerekey-form';
 import { VolumeAddkeyFormComponent } from 'app/pages/storage/volumes/volumeaddkey-form';
 import { VolumeCreatekeyFormComponent } from 'app/pages/storage/volumes/volumecreatekey-form/volumecreatekey-form.component';
@@ -53,10 +59,16 @@ import { UnlockDialogComponent } from 'app/pages/storage/volumes/datasets/datase
 
 @NgModule({
   imports: [
+    ...HlmButtonImports, ...HlmDropdownMenuImports, // the internal development record: the helm menus
+    ...HlmSpinnerImports, // the internal development record: the Pools header spinner
+    ...HlmSeparatorImports, // the internal development record: the unlock dialog's section hairlines
+    ...HlmCheckboxImports, // the internal development record: dataset Columns menu
+    ...HlmInputImports, ...HlmLabelImports, ...HlmSelectImports, // the internal development record: the pool manager + vdev form controls
+    ...FC_EXPANSION, // the internal development record: the Pools page panels
     RouterModule, EntityModule, CommonModule, FormsModule,
-    ReactiveFormsModule, routing, MaterialModule, TreeTableModule,
-    NgxDatatableModule, TranslateModule, FlexLayoutModule,
-    NgxFilesizeModule, CommonDirectivesModule,
+    ReactiveFormsModule, routing, MaterialModule,
+    NgxDatatableModule, TranslateModule,
+    CommonDirectivesModule,
   ],
   declarations: [
     VolumesListComponent,
@@ -94,7 +106,6 @@ import { UnlockDialogComponent } from 'app/pages/storage/volumes/datasets/datase
     UserQuotaFormComponent,
     GroupQuotaFormComponent,
   ],
-  entryComponents: [SnapshotDetailsComponent, UnlockDialogComponent, SnapshotsBatchDeleteResultsDialogComponent],
   providers: [UserService, StorageService, MessageService, JobService, TranslateService],
 })
 export class StorageModule {

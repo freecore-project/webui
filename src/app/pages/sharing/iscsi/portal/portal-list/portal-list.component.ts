@@ -1,10 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { T } from 'app/translate-marker';
 import { IscsiService } from '../../../../../services';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-portal-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <entity-table [conf]="this" [title]="tableTitle"></entity-table>
   `,

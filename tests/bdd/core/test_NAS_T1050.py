@@ -41,7 +41,7 @@ def test_verify_nfs_allows_nonroot_access(driver):
         time.sleep(0.5)
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__NFS_Actions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__NFS_Actions"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Other Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Other Options")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow non-root mount"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow non-root mount"]', 'class', 'mat-checkbox-checked')
     if value_exist:
@@ -81,20 +81,20 @@ def on_the_dashboard_click_on_storage_on_the_side_menu_click_on_pools(driver):
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__Storage"]').click()
     assert wait_on_element(driver, 7, '//mat-list-item[@ix-auto="option__Pools"]', 'clickable')
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__Pools"]').click()
-    assert wait_on_element(driver, 10, '//div[contains(text(),"Pools")]')
+    assert wait_on_element(driver, 10, '//h1[contains(text(),"Pools")]')
 
 
 @then('click on the tank pool three dots button, select Add Dataset')
 def click_on_the_tank_pool_three_dots_button_select_add_dataset(driver):
     """click on the tank pool three dots button, select Add Dataset."""
     assert wait_on_element(driver, 15, '//mat-panel-title[contains(text(),"tank")]')
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Dataset"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then('input nfs for Name, select Generic as Share Type and click Submit')
@@ -119,8 +119,8 @@ def the_dataset_should_be_created_without_error(driver):
 @then('click on the nfs dataset 3 dots button, select Edit Permissions')
 def click_on_the_nfs_dataset_3_dots_button_select_edit_permissions(driver):
     """click on the nfs dataset 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__nfs"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__nfs"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__nfs"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__nfs"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__nfs_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__nfs_Edit Permissions"]').click()
 
@@ -169,7 +169,7 @@ def on_the_windows_shares_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"NFS")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__NFS_ADD"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__NFS_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Paths")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Paths")]')
 
 
 @then(parsers.parse('input "{description}" in the Description'))
@@ -205,13 +205,13 @@ def click_submit_the_new_share_should_be_created_without_error(driver):
     """click Submit, the new share should be created without error."""
     rsc.click_The_Summit_Button(driver)
     assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Enable service")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Enable service")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__CANCEL"]', 'clickable')
-    if wait_on_element(driver, 3, '//h1[contains(.,"Enable service")]'):
+    if wait_on_element(driver, 3, '//h2[contains(.,"Enable service")]'):
         assert wait_on_element(driver, 7, '//button[@ix-auto="button__ENABLE SERVICE"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__ENABLE SERVICE"]').click()
         assert wait_on_element_disappear(driver, 15, '//h6[contains(.,"Please wait")]')
-        assert wait_on_element(driver, 7, '//h1[contains(text(),"NFS Service")]')
+        assert wait_on_element(driver, 7, '//h2[contains(text(),"NFS Service")]')
         assert wait_on_element(driver, 7, '//button[@ix-auto="button__CLOSE"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"/mnt/tank/nfs")]')
@@ -243,7 +243,7 @@ def on_the_service_page_scroll_to_nfs_and_click_on_the_pencil(driver):
 @then('on the Other Options click Allow non-root mount checkbox')
 def one_the_other_options_click_allow_nonroot_mount_checkbox(driver):
     """on the Other Options click Allow non-root mount checkbox."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Other Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Other Options")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow non-root mount"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow non-root mount"]', 'class', 'mat-checkbox-checked')
     if not value_exist:

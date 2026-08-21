@@ -26,11 +26,11 @@ export default {
  destination system, then uses \
  <a href="https://github.com/freenas/py-libzfs" \
  target="_blank">py-libzfs</a> to send an unencrypted data stream for \
- higher transfer speeds. This only works when replicating to a TrueNAS, \
+ higher transfer speeds. This only works when replicating to a FreeCORE, \
  TrueNAS, or other system with <i>py-libzfs</i> installed.</li> \
  <li><i>LOCAL</i> efficiently replicates snapshots to another dataset on \
  the same system without using the network.</li> \
- <li><i>LEGACY</i> uses the legacy replication engine from TrueNAS 11.2 \
+ <li><i>LEGACY</i> uses the legacy replication engine from FreeNAS 11.2 \
  and earlier.</li></ul>'),
 
   ssh_credentials_placeholder: T('SSH Connection'),
@@ -120,8 +120,8 @@ clones and snapshots that match the specified naming schema.'),
   naming_schema_tooltip: T('Pattern of naming custom snapshots to be \
  replicated. Enter the name and \
  <a href="https://www.freebsd.org/cgi/man.cgi?query=strftime" \
- target="_blank">strftime(3)</a> <i>%Y</i>, <i>%m</i>, <i>%d</i>, \
- <i>%H</i>, and <i>%M</i> strings that match the snapshots to include in \
+ target="_blank">strftime(3)</a> <i>&#37;Y</i>, <i>&#37;m</i>, <i>&#37;d</i>, \
+ <i>&#37;H</i>, and <i>&#37;M</i> strings that match the snapshots to include in \
  the replication. Separate entries by pressing <code>Enter</code>.'),
 
   also_include_naming_schema_placeholder: T('Also Include Naming Schema'),
@@ -132,8 +132,8 @@ clones and snapshots that match the specified naming schema.'),
  target="_blank">strftime(3)</a> strings that match the snapshots to \
  include in the replication.<br><br> \
  When a periodic snapshot is not linked to the replication, enter the \
- naming schema for manually created snapshots. Has the same <i>%Y</i>, \
- <i>%m</i>, <i>%d</i>, <i>%H</i>, and <i>%M</i> string requirements as \
+ naming schema for manually created snapshots. Has the same <i>&#37;Y</i>, \
+ <i>&#37;m</i>, <i>&#37;d</i>, <i>&#37;H</i>, and <i>&#37;M</i> string requirements as \
  the <b>Naming Schema</b> in a <b>Periodic Snapshot Task</b>. Separate \
  entries by pressing <code>Enter</code>.'),
 
@@ -202,7 +202,7 @@ clones and snapshots that match the specified naming schema.'),
   encryption_key_passphrase_placeholder: T('Passphrase'),
   encryption_key_passphrase_tooltip: T(''),
 
-  encryption_key_location_truenasdb_placeholder: T('Store Encryption key in Sending TrueNAS database'),
+  encryption_key_location_truenasdb_placeholder: T('Store Encryption key in Sending FreeCORE database'),
   encryption_key_location_truenasdb_tooltip: T(''),
 
   encryption_key_location_placeholder: T('Encryption Key Location in Target System'),

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 import { PreferencesService } from 'app/core/services/preferences.service';
 import { WebSocketService } from './ws.service';
 import { Subject } from 'rxjs';
@@ -12,7 +12,10 @@ export class LocaleService {
   timeZone: string;
   dateFormat = 'YYYY-MM-DD';
   timeFormat = 'HH:mm:ss';
-  dateTimeFormatChange$ = new Subject();
+  // Signal-only: consumers subscribe with no value. Explicitly Subject<void> because
+  // rxjs 7 made Subject.next(value) required, so a bare new Subject() (inferred
+  // Subject<unknown>) rejects the no-arg .next() calls below.
+  dateTimeFormatChange$ = new Subject<void>();
   target: Subject<CoreEvent> = new Subject();
 
   constructor(public prefService: PreferencesService, public ws: WebSocketService, private core: CoreService) {
@@ -154,8 +157,10 @@ export class LocaleService {
   }
 
   getCopyrightYearFromBuildTime(): string {
-    const buildTime = localStorage.getItem('buildtime').trim();
-    const buildTimeInMillis = parseInt(buildTime);
-    return new Date(buildTimeInMillis).getFullYear().toString();
+    // Copyright metadata can arrive after authentication; it must never block the shell.
+    const buildTime = localStorage.getItem('buildtime')?.trim();
+    if (!buildTime || !/^\d+$/.test(buildTime)) return '';
+    const buildDate = new Date(Number(buildTime));
+    return Number.isNaN(buildDate.getTime()) ? '' : buildDate.getFullYear().toString();
   }
 }

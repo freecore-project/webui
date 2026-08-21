@@ -37,7 +37,9 @@ export default {
   description_tooltip: T('Description (optional).'),
 
   time_placeholder: T('System Clock'),
-  time_tooltip: T('VM system time. Default is <i>Local</i>.'),
+  time_tooltip: T('Set from the Guest Operating System: Linux and FreeBSD keep the\
+ real-time clock in UTC, Windows keeps it in local time. Change it only if the guest\
+ is configured differently.'),
   time_local_text: T('Local'),
   time_utc_text: T('UTC'),
 
@@ -45,8 +47,9 @@ export default {
   bootloader_tooltip: T('Select <i>UEFI</i> for newer operating systems or\
  <i>UEFI-CSM</i> (Compatibility Support Mode) for\
  older operating systems that only support BIOS\
- booting. <i>Grub</i> is not recommended but can be\
- used when the other options do not work.'),
+ booting. <i>GRUB</i> is deprecated and appears only for existing VMs\
+ that already use it. Migrate those VMs to UEFI or UEFI-CSM before\
+ GRUB support is removed.'),
 
   autostart_placeholder: T('Start on Boot'),
   autostart_tooltip: T('Set to start this VM when the system boots.'),
@@ -120,7 +123,7 @@ export default {
   datastore_tooltip: T('Select a dataset for the new zvol.'),
   datastore_placeholder: T('Zvol Location'),
 
-  hdd_type_placeholder: T('Select Disk Type'),
+  hdd_type_placeholder: T('Disk Type'),
   hdd_type_tooltip: T('Select desired disk type.'),
   hdd_type_options: [
     { label: 'AHCI', value: 'AHCI' },
@@ -128,7 +131,7 @@ export default {
   ],
   hdd_type_value: 'AHCI',
 
-  hdd_path_placeholder: T('Select Existing zvol'),
+  hdd_path_placeholder: T('Existing zvol'),
   hdd_path_tooltip: T('Browse to the desired zvol on the disk.'),
 
   NIC_label: T('Network Interface'),

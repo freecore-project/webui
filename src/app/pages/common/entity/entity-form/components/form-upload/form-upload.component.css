@@ -1,7 +1,12 @@
-.top {
-    margin-bottom: 10px;
+/* the internal development record: the file input and its optional Upload action sit on one row, 8px apart,
+ * the action aligned with the input's control (the file button carries 8px vertical margins). */
+.form-upload-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
-
-.buttons {
-    margin-left: 1px;
+.form-upload-actions {
+    display: flex;
+    align-items: center;
 }

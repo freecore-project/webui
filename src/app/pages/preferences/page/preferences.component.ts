@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Input, Output, EventEmitter, Component, Injector, OnInit, ViewContainerRef, OnChanges, OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,23 +14,18 @@ import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { Subject } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'ui-preferences',
+  // the internal development record: the page shell (freecore-ui.css: .fc-page--capped 1120 anchored, .fc-page-title
+  // the one title voice) around the one embedded form -- no card, no divider; the form draws its
+  // own hairline section (the sheet's .prefs-form rules).
   template: `
-  <mat-card class="prefs-card">
-  <!--<mat-toolbar-row style="margin-bottom:16px;">
-  <h4>User Preferences</h4>
-  </mat-toolbar-row>
-  <mat-divider></mat-divider>-->
-  <mat-card-content>
-    <general-preferences-form  class="prefs-form"></general-preferences-form>
-  </mat-card-content>
-  <mat-divider></mat-divider>
-  <mat-card-content>
-    <custom-theme-manager-form  class="prefs-form"></custom-theme-manager-form>
-  </mat-card-content>
-
-  </mat-card>
+  <section id="ui-preferences-page" class="fc-page fc-page--capped">
+    <h1 class="fc-page-title">{{ 'Preferences' | translate }}</h1>
+    <general-preferences-form class="prefs-form"></general-preferences-form>
+  </section>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./preferences.component.css'],
 })
 export class PreferencesPage implements OnInit, OnDestroy {
@@ -84,9 +80,6 @@ export class PreferencesPage implements OnInit, OnDestroy {
           console.log("Form Submitted");
           //console.log(evt.data);
           this.core.emit({name:"ChangePreferences",data:evt.data});
-          break;
-        case "CreateTheme":
-          this.router.navigate(new Array('').concat(['ui-preferences', 'create-theme']));
           break;
         }
       });

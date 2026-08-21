@@ -1,12 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { ipv4or6Validator } from 'app/pages/common/entity/entity-form/validators/ip-validation';
 import helptext from '../../../../helptext/network/staticroutes/staticroutes';
 import { NetworkService, RestService, WebSocketService } from '../../../../services';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-staticroute-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class StaticRouteFormComponent {
@@ -18,10 +21,12 @@ export class StaticRouteFormComponent {
   protected route_success: string[] = ['network', 'staticroutes'];
   protected isEntity = true;
 
+  readonly settingsTitle = T('Static Route'); // the internal development record: the page's h1
   protected fieldSets: FieldSet[] = [
     {
       name: helptext.sr_fieldset_general,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'input',

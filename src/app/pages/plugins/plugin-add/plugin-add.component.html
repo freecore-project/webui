@@ -1,22 +1,39 @@
-<p *ngIf="error" type="danger"><span [innerHTML]="error"></span></p>
-<mat-card>
-  <mat-spinner class="plugin-spinner" [diameter]='40' id="plugin-spinner" *ngIf="showSpinner"></mat-spinner>
-  <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup">
-    <div class="form-wrap">
-      <ng-container *ngFor="let field of fieldConfig;">
-        <div [ngClass]="field.class == 'inline' ? 'form-inline' : 'form-line'" fxFlex="100%" fxFlex.gt-xs="calc({{field.width}} - 16px)">
-          <div id="dynamicField_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'">
-          </div>
+<!-- the internal development record: the 15.0 basic plugin install on the settings-form shell the jail editor uses
+     (jail-form.component.html): a .fc-page--capped page, the plugin and network fields as two sections,
+     the action row in the button tiers. -->
+<div class="fc-page fc-page--capped">
+  <h1 class="fc-page-title">{{ 'Install Plugin' | translate }}</h1>
+  <div class="form-card fc-settings-form">
+    @if (showSpinner) {
+      <hlm-spinner id="plugin-spinner" class="plugin-spinner" />
+    }
+    <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup">
+      <div class="fieldset-container fieldset-display-default">
+        @for (section of sections; track section.name; let i = $index) {
+          <section class="fc-settings-section" [attr.aria-labelledby]="'plugin-section-' + i">
+            <h2 class="fieldset-label" id="plugin-section-{{i}}">{{ section.name | translate }}</h2>
+            <div class="fc-settings-fields">
+              @for (field of section.fields; track field.name) {
+                <div class="entity-form-field-layout form-line"
+                  [class.fc-settings-wide]="field.type !== 'input' && field.type !== 'select'"
+                  [hidden]="field.isHidden">
+                  <div id="dynamicField_{{field.name}}" dynamicField [config]="field" [group]="formGroup" [fieldShow]="'show'"></div>
+                </div>
+              }
+            </div>
+          </section>
+        }
+        <div class="buttons">
+          <button hlmBtn id="save_button" type="submit" [disabled]="!formGroup.valid || showSpinner">{{ 'Save' | translate }}</button>
+          @if (route_success) {
+            <button hlmBtn variant="outline" id="goback_button" type="button" (click)="goBack()">{{ 'Cancel' | translate }}</button>
+          }
+          <button hlmBtn variant="outline" id="advanced_button" type="button" (click)="goAdvanced()">{{ 'Advanced Plugin Installation' | translate }}</button>
         </div>
-      </ng-container>
-    </div>
-    <mat-card-actions>
-      <button class="btn btn-block btn-warning" type="submit" mat-button color="primary" [disabled]="!formGroup.valid || showSpinner"
-        ix-auto ix-auto-type="button" ix-auto-identifier="SAVE">{{ "Save" | translate }} </button>
-      <button *ngIf="route_success" (click)="goBack()" type="button" mat-button color="accent"
-        ix-auto ix-auto-type="button" ix-auto-identifier="CANCEL">{{ "Cancel" | translate }}</button>
-      <button type="button" (click)="goAdvanced()" mat-button color="primary"
-        ix-auto ix-auto-type="button" ix-auto-identifier="ADVANCED PLUGIN INSTALLATION">{{ "Advanced Plugin Installation" | translate }}</button>
-    </mat-card-actions>
-  </form>
-</mat-card>
+      </div>
+    </form>
+    @if (error) {
+      <div id="error_message" class="form-error-line" role="alert"><div [innerHTML]="error"></div></div>
+    }
+  </div>
+</div>

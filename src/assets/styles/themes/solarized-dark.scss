@@ -1,5 +1,8 @@
-@import '~@angular/material/theming';
-@include mat-core();
+@use '@angular/material' as mat;
+$app-typography: mat.m2-define-typography-config($font-family: '"IBM Plex Sans", "Helvetica Neue", sans-serif');
+@include mat.all-component-typographies($app-typography);
+@include mat.elevation-classes();
+@include mat.app-background();
 
 // Solarized Color Palette - don't forget to add accents to theme.service!
 $base03:    #002b36; // Dark BG tone
@@ -131,29 +134,36 @@ $mat-warn: (
 );
 
 // mandatory stuff for theming
-$freenas-primary: mat-palette($mat-primary);
-$freenas-accent:  mat-palette($mat-accent);
-$freenas-warn: mat-palette($mat-warn);
+$freenas-primary: mat.m2-define-palette($mat-primary);
+$freenas-accent:  mat.m2-define-palette($mat-accent);
+$freenas-warn: mat.m2-define-palette($mat-warn);
 
 
 // include the custom theme components into a theme object
-$freenas-theme: mat-dark-theme($freenas-primary, $freenas-accent/*, $freenas-warn*/);
+$freenas-theme: mat.m2-define-dark-theme((
+  color: (
+    primary: $freenas-primary,
+    accent: $freenas-accent,
+  ),
+  typography: null,
+  density: 0,
+));
 
 $primary-dark: darken( map-get($mat-primary, 700), 8% );
 
 
 // include the custom theme object into the angular material theme
 .solarized-dark {
-    @include angular-material-theme($freenas-theme);
+    @include mat.all-component-themes($freenas-theme);
     
     // Background
-    body, .mat-sidenav-content{
+    body, .fc-sidenav-content{
       background-color:$canvas;
       color:$base01;
     }
 
     //Background Elevated
-    .sidebar-panel.mat-sidenav .navigation-hold#scroll-area, .mat-card, .breadcrumb-bar#breadcrumb-bar{
+    .sidebar-panel.fc-sidenav .navigation-hold#scroll-area, .mat-card, .mat-mdc-card, .breadcrumb-bar#breadcrumb-bar{
       background-color: $background !important;
       color:$foreground;
     }
@@ -175,7 +185,7 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
 }
     .mat-bg-primary,
     .topbar,
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open mat-icon:not(.menu-caret),
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open mat-icon:not(.menu-caret),
     .chats-wrap .conversations-hold .single-conversation.me .conversation-msg,
     .ngx-datatable .datatable-footer .datatable-pager .pager .pages.active a,
     .fileupload-drop-zone.dz-file-over,
@@ -186,8 +196,8 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
         color: #ffffff !important;
     }
     .mat-color-primary, .tree, 
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open > .mat-list-item-content > a > span,
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open .sub-menu .mat-list-item.selected a {
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > a > span,
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open .sub-menu .fc-nav-item.selected a {
         color: map-get($mat-primary, 700) !important;
     }
     .node-content-wrapper-active, 
@@ -197,24 +207,17 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
         color: #000000;
     }
 
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open > .mat-list-item-content > a > span,
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open .sub-menu .mat-list-item.selected a {
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > a > span,
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open .sub-menu .fc-nav-item.selected a {
         font-weight: 500;
     }
-    .sidebar-panel.mat-sidenav .sidebar-list-item.open > .mat-list-item-content > .sub-menu {
+    .sidebar-panel.fc-sidenav .sidebar-list-item.open > .fc-nav-item__content > .fc-nav-item__text > .sub-menu {
         border-left: 2px solid map-get($mat-primary, 500);
     }
     .messages-wrap .inbox-hold {
         background: transparent !important;
     }
-    .sidebar-panel.mat-sidenav {
-        background: url('/assets/images/sidebar-bg-dark.jpg') no-repeat;
-    }
-    .app-user .app-user-name,
-    .sidebar-panel.mat-sidenav .sidebar-list-item mat-icon:not(.menu-caret),
-    .ql-snow .ql-picker,
-    .mat-option,
-    .mat-dialog-container {
+    .mat-mdc-dialog-container {
         color: white !important;
     }
     .text-muted {
@@ -232,8 +235,7 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
         border-color: rgba(255, 255, 255, 0.12) !important;
     }
 
-    .sidebar-panel.mat-sidenav .navigation-hold,
-    .mat-tab-header,
+    .sidebar-panel.fc-sidenav .navigation-hold,
     .message-item.open .message-head,
     .ngx-datatable.material .datatable-header,
     .bg-white,
@@ -310,7 +312,7 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
         background-color: map-get($mat-accent, 500);
         color: black;
     }
-    .mat-button {
+    .mat-mdc-button {
         background-color: map-get($mat-primary, 500);
         color: black;   
     }
@@ -406,74 +408,6 @@ $primary-dark: darken( map-get($mat-primary, 700), 8% );
     }
 
 
-    .mat-dialog-title {
-        .warning-icon {
-          color: #ffc107;
-          position: relative;
-          top: 8px;
-          font-size: 35px;
-          margin-right: 10px;
-        }
-      }
-      
-      .mat-dialog-content {
-        max-width: 600px;
-      
-      
-        .info-panel {
-          max-height: 100px;
-          padding: 0px;
-          border: 0px;
-          overflow: hidden;
-          -webkit-transition: max-height 0.3s linear;
-          -moz-transition: max-height 0.3s linear;
-          -o-transition: max-height 0.3s linear;
-          -ms-transition: max-height 0.3s linear;
-          transition: max-height 0.5s linear;
-      
-          &.open {
-            max-height: calc( 100px + 2rem + 4px );
-            padding: 2px;
-          }
-      
-          textarea {
-            overflow: auto;
-            color: white;
-            background: black;
-            border: 1px solid #ddd;
-            min-height: 100px;
-            padding: 1rem;
-            width: calc( 100% - 2rem );
-          }
-        }
-    
-        .backtrace-panel {
-            max-height: 0;
-            padding: 0px;
-            border: 0px;
-            overflow: hidden;
-            -webkit-transition: max-height 0.3s linear;
-            -moz-transition: max-height 0.3s linear;
-            -o-transition: max-height 0.3s linear;
-            -ms-transition: max-height 0.3s linear;
-            transition: max-height 0.5s linear;
-        
-            &.open {
-              max-height: calc( 100px + 2rem + 4px );
-              padding: 2px;
-            }
-        
-            textarea {
-              overflow: auto;
-              background: black;
-              color: white;
-              border: 1px solid #ddd;
-              min-height: 100px;
-              padding: 1rem;
-              width: calc( 100% - 2rem );
-            }
-        }
-      }
 
 }
 

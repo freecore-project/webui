@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 import * as _ from 'lodash';
@@ -7,12 +7,16 @@ import { RestService, WebSocketService } from '../../../../services';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/storage/disks/disks';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-disk-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class DiskFormComponent {
+  readonly settingsTitle = T('Disk'); // the internal development record: the page's h1
   protected route_success: string[] = ['storage', 'disks'];
   protected queryCall = 'disk.query';
   protected editCall = 'disk.update';

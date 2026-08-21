@@ -1,203 +1,64 @@
-/* Search Field */
+/* the internal development record: the card / slim view, its power fab, chips, view toggles and the slim variants
+ * left with the dead entity-card engine.
+ * the internal development record: the mat-card strip, its Material filter field and the 40px spinner offset left
+ * with the page-shell alignment; the header row is the list toolbar's #351 filter group beside the
+ * loading glyph (entity-table.component.scss draws the same group). */
 
-mat-card.card-filter.mat-card {
-  width: 85%;
-  margin: 24px auto 0;
-  overflow: visible;
-  padding: 0;
+.services-header-layout,
+.services-table-row-layout,
+.services-table-layout {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: nowrap;
 }
 
-/* mat-card.card-filter.mat-card .mat-card-content {
-  padding: 8px 0;
+.services-header-layout,
+.services-table-row-layout {
+  flex-direction: row;
 }
 
-mat-card.card-filter.mat-card .mat-card-header>div {
-  display:inline-block;
-} */
-
-
-mat-card.card-filter .filter-field {
-  width: 30%;
-  margin-top: 12px;
+.services-header-layout {
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 16px;
 }
 
-mat-card.card-filter .filter-field mat-icon {
-  position: absolute;
-  top: 24px;
+/* the #351 filter group: the toolbar's 300px cap, shrinking with the row */
+.services-filter {
+  flex: 1 1 200px;
+  max-width: 300px;
+  min-width: 0;
 }
 
-div.card-filter-field {
+.services-filter hlm-input-group {
+  min-width: 0;
   width: 100%;
 }
 
-mat-card.card-filter .view-controls {
-  width: 22%;
-  position: relative;
-  text-align: right;
-  min-width: 274px;
-  margin-right: 16px;
-  margin-top: 10px;
+.services-filter hlm-input-group-addon .mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
 }
 
-mat-card.card-filter .view-controls .mat-button-toggle-group {
-  top: 10px;
-  position: relative;
-  margin: 2px 16px;
-}
-
-.card-filter mat-form-field.mat-form-field {
-  width: 97%;
-  padding-left: 32px;
-}
-
-
-
-/* cards */
-
-.entity-cards-container .entity-card-wrapper {
-  display: inline-flex;
-  padding: 0 32px;
-  text-align: left;
-}
-
-.entity-cards-container {
-  text-align: center;
-}
-
-service-cards mat-card.front {
-  padding: 0 !important;
-  min-height: 320px;
-}
-
-.service-bg {
-  width: 25%;
-  text-align: center;
-  background-color: #d0d0d0;
-/*  background-image:url('/assets/images/services/services-bg-2.jpg');*/
-  background-size: cover;
-  background-position: 50%;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  color: #efefef;
-}
-
-.side-content-header {
-  position: relative;
-}
-
-.side-content button.service-power-btn {
-  box-shadow: none;
-}
-
-.side-content {
-  margin-left: 25%;
-  text-align: center;
-}
-
-.side-content ul.stats {
-  list-style-type: none;
-}
-
-.side-content .service-controls {
-  position: absolute;
-  padding: 16px 0;
-  width: 75%;
-  text-align: center;
-  bottom: 0;
-}
-
-.side-content .stats-info {
-  width: 100%;
-  margin-bottom: 50px !important;
-  margin-top: 50px !important;
-}
-
-.side-content .stats-info td.stat-label,
-.side-content .stats-info td.stat {
-  text-align: left;
-}
-
-.service-power-btn-on.mat-fab,
-.service-power-btn-off.mat-fab,
-.service-power-btn-crash.mat-fab {
-  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.5)!important;
-  top: 16px;
-  left: -28px;
-  position: absolute;
-}
-
-div.service-inline-spinner {
-  padding-left: 126.5px;
-}
-
-mat-chip.service-state,
-mat-chip.service-state-on,
-mat-chip.service-state-off {
-  padding: 4px 10px;
-}
-
-mat-chip.service-state {
-  background-color: #666 !important;
-  color: #fff !important;
-}
-
-mat-chip.service-state-on,
-.service-power-btn-on.mat-fab {
-  background-color: #41bd45 !important;
-  color: #fff !important;
-}
-
-.service-state-off,
-.service-power-btn-off.mat-fab {
-  background-color: #900 !important;
-  color: #fff !important;
-}
-
-.card-close {
-  background: none;
-  border: none;
-  position: fixed;
-  top: 5px;
-  right: 0px;
-  color: rgba(0, 0, 0, 0.35);
-}
-
-.card-close mat-icon.mat-icon.material-icons {
-  font-size: 18px;
-  cursor: pointer;
-}
-
-
-/* Slim Cards */
-
-.slim .side-content .stats-info {
-  width: 100%;
-  margin-top: 20px !important;
-}
-
-.slim .side-content {
-  margin: 0;
-}
-
-.slim .service-controls {
-  width: 100%;
-}
-
-.slim .service-power-btn {
-  top: 130px;
-  left: 116px;
-  position: absolute;
-}
-
-#start-label {
-  position: relative;
-  top: -3px;
-}
-
+/* the loading state: a 20px inline glyph on the header line */
 #services-spinner {
-  position: relative;
-  top: 25px;
-  margin-left: 20%;
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 20px;
+}
+
+.services-table-row-layout {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.services-table-row-layout > :not(:last-child) {
+  margin-inline-end: 5%;
+}
+
+.services-table-layout {
+  flex: 1 1 100%;
+  flex-direction: column;
+  max-width: 100%;
 }

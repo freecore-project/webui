@@ -1,0 +1,29 @@
+/* FreeCORE 15.2 approved status presentation. */
+.fc-status-page{box-sizing:border-box;position:relative;display:flex;flex-direction:column;min-height:100vh;min-height:100dvh;background:#10151a;color:#bfccd6;font-family:'IBM Plex Sans',sans-serif;color-scheme:dark}
+.fc-status-page *, .fc-status-panel *{box-sizing:border-box}
+.fc-status-body{display:flex;flex:1;align-items:center;justify-content:center;padding:72px 24px 96px}
+.fc-status-panel{width:300px;max-width:100%;color:#bfccd6;font-family:'IBM Plex Sans',sans-serif;font-size:13px;line-height:1.65}
+.fc-status-brand{display:flex;align-items:center;gap:10px;font-family:inherit;font-size:25px;font-weight:400;letter-spacing:-.2px;color:#e0e5e8;margin:0 0 32px;line-height:1.2}
+.fc-status-brand img{width:24px;height:24px}.fc-status-brand strong{font-weight:700}
+.fc-status-title{font-family:inherit!important;font-size:20px!important;font-weight:400!important;letter-spacing:normal;line-height:1.35;margin:0 0 22px!important;color:#cbd6df!important;overflow-wrap:anywhere}
+.fc-status-track{height:2px;border-radius:4px;background:#ffffff0c;overflow:hidden;margin:0 0 24px}
+.fc-status-track>span{display:block;height:100%;background:#a9bccb;border-radius:inherit}
+.fc-status-track.indeterminate>span{width:24%;animation:fc-status-progress 2.4s ease-in-out infinite}
+.fc-status-rule{height:2px;background:#ffffff0d;border-radius:4px;margin:0 0 24px}.fc-status-rule.complete{background:#a0b8ab66}.fc-status-rule.failed{background:#c8989166}
+.fc-status-copy{font-family:inherit;font-size:13px;line-height:1.7;color:#bfccd6}.fc-status-copy p{margin:0 0 12px}.fc-status-copy .muted{color:#9eafbd}
+.fc-status-progress-copy{display:flex;justify-content:space-between;gap:14px;font-size:12px;color:#a0b2c0;margin:0 0 10px;font-variant-numeric:tabular-nums}
+.fc-status-footer{font-family:'IBM Plex Sans',sans-serif;text-align:center;padding:0 24px 26px;color:#a4b0bb;font-size:11px;line-height:1.6}.fc-status-footer a{color:inherit;text-decoration:none}
+.fc-status-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.fc-status-actions button,.fc-status-actions a{font:inherit;font-size:12px;background:transparent;border:1px solid #ffffff1c;border-radius:9px;padding:8px 14px;color:#b6c4cf;cursor:pointer;text-decoration:none;min-height:36px}.fc-status-actions button:hover,.fc-status-actions a:hover{background:#ffffff06;border-color:#ffffff30}
+.fc-status-panel :focus-visible,.fc-status-footer :focus-visible{outline:1px solid #adbec9;outline-offset:4px}
+.fc-status-details{margin-top:20px;font-size:12px;color:#9eb2c2}.fc-status-details summary{cursor:pointer}.fc-status-details pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.6;border:1px solid #ffffff15;border-radius:7px;padding:12px;max-height:240px;overflow:auto;color:#acbdca}
+.fc-status-dialog .mat-mdc-dialog-surface{background:#171e24!important;color:#bfccd6!important;border:1px solid #ffffff16;border-radius:12px!important;box-shadow:none!important;padding:32px!important}
+.fc-status-dialog .fc-status-panel{margin:auto}.fc-ui .fc-status-dialog .mat-mdc-dialog-title.fc-status-title{padding:0;display:block;line-height:1.35;letter-spacing:normal}.fc-ui .fc-status-dialog .mat-mdc-dialog-actions.fc-status-actions{justify-content:flex-start;gap:12px}.fc-status-dialog .mat-mdc-dialog-content{padding:0!important;margin:0!important;max-height:65vh}.fc-status-dialog .mat-mdc-dialog-actions{padding:0!important;min-height:0;margin:24px 0 0!important}
+.fc-status-dialog .mat-mdc-dialog-title::before{display:none}
+.fc-status-inline .fc-status-title{font-size:20px!important;margin-bottom:22px!important}.fc-status-inline{margin-top:0}
+@keyframes fc-status-progress{0%,100%{transform:translateX(-100%)}50%{transform:translateX(416%)}}
+@media(max-width:400px){.fc-status-dialog .mat-mdc-dialog-surface{padding:24px 18px!important}.fc-status-body{padding-left:24px;padding-right:24px}}
+@media(prefers-reduced-motion:reduce){.fc-status-track.indeterminate>span{animation:none;transform:translateX(158%)}}
+
+.cdk-overlay-pane.fc-status-fullscreen{width:100vw!important;max-width:100vw!important;height:100dvh!important}.fc-status-fullscreen .mat-mdc-dialog-surface{background:#10151a!important;border:0;border-radius:0!important;display:flex;align-items:center;justify-content:center;padding:64px 24px!important}.fc-status-fullscreen entity-job{width:300px;max-width:100%}.fc-status-fullscreen .fc-status-panel{width:100%}
+
+.fc-status-fullscreen app-app-loader{display:block;width:300px;max-width:100%}.fc-status-fullscreen .fc-status-footer{position:fixed;bottom:0;left:0;right:0;padding-bottom:26px}.fc-status-copy.muted{color:#9eafbd}@media(max-height:600px){.fc-status-fullscreen .fc-status-footer{position:static;padding-top:32px;padding-bottom:0}}

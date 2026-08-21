@@ -1,95 +1,178 @@
-/deep/ #tree-list-demo {
-    min-height: 530px;   
-}
-
-/deep/ #employees {
-   max-height: 530px;
-}
-
-.hov:hover{
-    cursor: pointer;
-}
-
-.ion-android-more-vertical:before {
-    color: black;
-}
-
-
-:host ::ng-deep .global_volume_based_action_menu .panel_container {
-  text-align:right;
-}
-
-.panel_status_enc {
-    font-size: 16px;
-    padding-left: 4px;
-}
-
-.encryption_icon {
-    float: right; 
-    padding-bottom: 20px;
-    padding-top: 4px;
-    position:relative;
-    z-index:50;
-}
-
-.unlock_button {
-    cursor: pointer;
-}
-
+/* the internal development record: keep the shared page shell; pool identity, facts and
+   actions wrap within a natural-height summary instead of percentage offsets. */
 #pools-spinner {
-    position: absolute;
-    left: 47%;
-    top: 12px;
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 20px;
+  margin-right: auto;
 }
 
-.pool-icon {
-    margin-left: 15px;
-    position: relative;
-    top: 10px;
+.pools-page-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-inline-start: auto;
 }
 
-.icon-row {
-    margin: -5px -5px 12px 0;
+.pools-page-actions > button mat-icon {
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
 }
 
-.green-icon {
-    color: var(--green);
+.pool-panel-layout {
+  container-type: inline-size;
+  position: relative;
 }
 
-.orange-icon {
-    color: var(--orange);
+.pool-panel-layout:not(.pool-panel-offline) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto;
 }
 
-.yellow-icon {
-    color: var(--yellow);
+/* Share the actual header row with its sibling operation. Its center follows
+   wrapping and expansion without depending on the height of the dataset tree. */
+#volumes-list\.component_html .pool-panel-layout:not(.pool-panel-offline) > .fc-expansion-panel { /* the internal development record */
+  display: grid;
+  grid-area: 1 / 1 / 3 / 2;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: subgrid;
+  min-width: 0;
 }
 
-.blue-icon {
-    color: var(--blue);
+.pool-summary-header {
+  background: transparent;
+  border-top: 1px solid var(--fc-line, var(--line));
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 16px 8px 16px 0;
 }
 
-.red-icon {
-    color: var(--red);
+.pool-summary {
+  align-items: center;
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  margin-inline-end: 48px;
+  min-width: 0;
 }
 
-.mat-expansion-panel-header-title {
-    max-width: 30%;
-    width: 30%;
-    min-width: 30%;
+.pool-identity {
+  align-items: baseline;
+  display: flex;
+  flex: 1 1 200px;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
 }
 
-.mat-expansion-panel-header-title,
-.mat-expansion-panel-header-description{
-    position: relative;
-    top: 4px;
-    max-height: 24px;
+.pool-name {
+  color: var(--fg1);
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
-.mat-expansion-panel-header.offline .mat-expansion-panel-header-title,
-.mat-expansion-panel-header.offline .mat-expansion-panel-header-description{
-    top: 12px;
+.pool-identity-note,
+.pool-decryption-error {
+  color: var(--fg2);
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
-.icons {
-    font-size: 24px; 
+.pool-encryption {
+  align-items: center;
+  display: inline-flex;
+  gap: 4px;
+}
+
+.pool-decryption-error { flex-basis: 100%; }
+
+.pool-facts,
+.pool-capacity {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}
+
+.pool-facts { min-width: 0; }
+.pool-capacity { margin: 0; }
+.pool-capacity dt { color: var(--fg2); font-size: 11px; }
+.pool-capacity dd { color: var(--fg1); font-size: 13px; font-variant-numeric: tabular-nums; margin: 0; }
+
+.pool-state {
+  align-items: center;
+  color: var(--fg2);
+  display: inline-flex;
+  font-size: 12px;
+  gap: 6px;
+}
+
+.pool-state mat-icon,
+.pool-encryption mat-icon {
+  flex: 0 0 16px;
+  font-size: 16px;
+  height: 16px;
+  width: 16px;
+}
+
+.pool-operations {
+  align-self: center;
+  grid-area: 1 / 1;
+  justify-self: end;
+  margin-inline-end: 32px;
+  position: relative;
+  z-index: 2;
+}
+
+/* The inherited OFFLINE action component can render a labeled single action.
+   Give that control a natural-width row instead of treating it as a 32px cog. */
+.pool-panel-offline .pool-operations {
+  display: flex;
+  justify-content: flex-end;
+  margin-inline-end: 0;
+  padding-top: 12px;
+  position: static;
+}
+
+.pool-panel-offline .pool-operations > app-entity-table-actions {
+  display: block;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* This row already owns alignment. The shared single-action offset and Helm's
+   fixed nowrap height would push a translated label outside a narrow pool. */
+:host ::ng-deep .pool-panel-offline .pool-operations .single-action-wrappable {
+  box-sizing: border-box;
+  height: auto;
+  max-width: 100%;
+  min-height: 32px;
+  overflow-wrap: anywhere;
+  padding-block: 6px;
+  position: static;
+  right: auto;
+  white-space: normal;
+}
+
+.pool-panel-offline .pool-summary { margin-inline-end: 0; }
+
+.green-icon { color: var(--green); }
+.orange-icon { color: var(--orange); }
+.yellow-icon { color: var(--yellow); }
+.blue-icon { color: var(--blue); }
+.red-icon { color: var(--red); }
+
+/* The panel body (the internal development record: the page's own markup now); the page removes its side insets, while
+   the shared tree still owns row/cell geometry and deliberate local overflow. */
+.pool-panel-layout .fc-expansion-panel-body { padding: 0 0 16px; }
+
+@container (max-width: 760px) {
+  .pool-summary { align-items: flex-start; gap: 8px; }
+  .pool-identity { flex-basis: 100%; }
+  .pool-capacity > div { align-items: baseline; display: flex; gap: 6px; }
+  .pool-facts { gap: 8px 16px; }
 }

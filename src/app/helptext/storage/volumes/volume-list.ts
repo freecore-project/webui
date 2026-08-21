@@ -50,7 +50,7 @@ export default {
 core files, encryption keys for pools, and Samba 4 metadata such as the user/group cache and share level \
 permissions. Exporting this pool will transfer the system dataset to another available pool. If the only \
 available pool is encrypted, that pool will no longer be able to be locked. When no other pools exist, \
-the system dataset transfers back to the TrueNAS operating system device.'),
+the system dataset transfers back to the FreeCORE operating system device.'),
     warningA: T('WARNING: Exporting/disconnecting pool <i>'),
     warningB: T('</i>.\
  Data on the pool will not be available after export.\
@@ -78,7 +78,13 @@ the system dataset transfers back to the TrueNAS operating system device.'),
 
   upgradePoolDialog_warning: T('Proceed with upgrading the pool? WARNING: Upgrading a pool is a\
  one-way operation that might make some features of\
- the pool incompatible with older versions of TrueNAS: '),
+ the pool incompatible with older versions of FreeCORE or TrueNAS: '),
+
+  upgradePoolDialog_return_warning: T('Proceed with upgrading the pool? WARNING: Upgrading a pool is a\
+ one-way operation that might make some features of the pool incompatible with older versions of\
+ FreeCORE or TrueNAS. This upgrade will permanently forfeit the captured return to TrueNAS CORE 13.3\
+ and start cleanup of its coordinated snapshots and origin boot-environment keep pin. The origin boot\
+ environment itself is not deleted. There is no undo: '),
 
   pool_lock_warning_paratext_a: T('WARNING: Locking pool <i>'),
   pool_lock_warning_paratext_b: T('</i>.\
@@ -129,7 +135,7 @@ the system dataset transfers back to the TrueNAS operating system device.'),
   pool_options_dialog: {
     dialog_title: T('Edit Pool Options for '),
     autotrim_placeholder: T('Auto TRIM'),
-    autotrim_tooltip: T('Enable for TrueNAS to periodically review data blocks and identify\
+    autotrim_tooltip: T('Enable for FreeCORE to periodically review data blocks and identify\
  empty blocks of obsolete blocks that can be deleted. Unset to incorporate day block\
  overwrites when a device write is started (default).'),
     confirm_checkbox: T('Confirm'),

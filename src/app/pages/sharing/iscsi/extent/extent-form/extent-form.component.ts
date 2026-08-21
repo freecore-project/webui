@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { Validators, FormControl, ValidationErrors } from '@angular/forms';
-import { Subscription } from 'rxjs/Subscription';
+import { Validators, UntypedFormControl, ValidationErrors } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
 
@@ -16,11 +17,15 @@ import { helptext_sharing_iscsi } from 'app/helptext/sharing';
 import globalHelptext from 'app/helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-initiator-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService, StorageService],
 })
 export class ExtentFormComponent {
+  readonly settingsTitle = T('Extent');
+
   protected addCall = 'iscsi.extent.create';
   protected queryCall = 'iscsi.extent.query';
   protected editCall = 'iscsi.extent.update';
@@ -120,7 +125,7 @@ export class ExtentFormComponent {
           blurStatus: true,
           parent: this,
           validation: [Validators.required,
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'filesize');
               const size = this.storageService.convertHumanStringToNum(control.value, true);
               const errors = control.value && isNaN(size)

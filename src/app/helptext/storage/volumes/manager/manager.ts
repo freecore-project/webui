@@ -44,7 +44,7 @@ export default {
   Pool-level encryption does not apply to the storage pool or disks in the pool. It applies\
   to the root dataset that shares the pool name and any child datasets created unless you change\
   the encryption at the time you create the child dataset. For more information on encryption please\
-  refer to the <a href="http://TrueNAS.com/docs/" target="_blank">TrueNAS Documentation hub</a>.'),
+  refer to the <a href="https://docs.freecore.org/" target="_blank">FreeCORE Documentation</a>.'),
 
   manager_duplicate_title: T('Repeat Data VDev'),
   manager_duplicate_vdevs_tooltip: T('Create more data vdevs like the first.'),

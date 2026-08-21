@@ -85,7 +85,7 @@ def click_update_license(driver):
 @then('the "Update License" widget should open')
 def the_update_license_widget_should_open(driver):
     """the "Update License" widget should open."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Update License")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Update License")]')
 
 
 @then(parsers.parse('enter "{License}"'))
@@ -205,15 +205,15 @@ def navigate_to_system_click_failover_click_disable_failover_click_save(driver):
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__System"]').click()
     assert wait_on_element(driver, 7, '//mat-list-item[@ix-auto="option__Reporting"]', 'clickable')
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__Failover"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Failover Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Failover Configuration")]')
     time.sleep(0.5)
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Disable Failover"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Disable Failover"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__SAVE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Disable Failover")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Disable Failover")]', 'clickable')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Disable Failover")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Disable Failover")]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__OK"]').click()
     assert wait_on_element_disappear(driver, 20, xpaths.popup.please_wait)
 
@@ -221,7 +221,7 @@ def navigate_to_system_click_failover_click_disable_failover_click_save(driver):
 @then('after settings are applied you should see "Settings applied"')
 def after_settings_are_applied_you_should_see_settings_applied(driver):
     """after settings are applied you should see "Settings applied"."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Settings saved")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Settings saved")]')
     driver.find_element_by_xpath(xpaths.button.close).click()
 
 
@@ -240,7 +240,7 @@ def navigate_to_network_then_interfaces_click_next_to_vtnet0_click_edit(driver):
 @then('interface Settings should appear')
 def interface_settings_should_appear(driver):
     """interface Settings should appear."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Interface Settings")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Interface Settings")]')
 
 
 @then(parsers.parse('uncheck DHCP, check Critical, Select 1 for Failover Group, select the Failover VHID "{vhid}", IP Address (This Controller) "{ip1}" then select /"{netmask1}"'))
@@ -290,8 +290,8 @@ def click_test_changes_check_confirm_click_test_changes_again(driver):
     """click Test Changes, check Confirm, click Test Changes again."""
     assert wait_on_element(driver, 10, '//button[contains(.,"TEST CHANGES")]', 'clickable')
     driver.find_element_by_xpath('//button[contains(.,"TEST CHANGES")]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Test Changes")]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Test Changes")]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__TEST CHANGES"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__TEST CHANGES"]').click()
     assert wait_on_element_disappear(driver, 20, xpaths.popup.please_wait)
@@ -316,7 +316,7 @@ def switch_to_the_virtual_hostname_virtual_hostname_and_login(driver, virtual_ho
 def once_on_the_virtual_hostname_Dashboard_Save_the_network_interface_changes(driver, nas_url, password):
     """on the virtual hostname Dashboard Save the network interface changes."""
     assert wait_on_element(driver, 7, '//a[text()="Dashboard"]')
-    assert wait_on_element(driver, 7, '//h1[text()="Save Changes"]')
+    assert wait_on_element(driver, 7, '//h2[text()="Save Changes"]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__SAVE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
     assert wait_on_element(driver, 7, xpaths.button.close, 'clickable')
@@ -360,11 +360,11 @@ def starting_with_da0_click__click_wipe_check_confirm_and_click_continue_repeat_
             assert wait_on_element(driver, 7, f'//a[@ix-auto="expander__da{num}"]', 'clickable')
             driver.find_element_by_xpath(f'//a[@ix-auto="expander__da{num}"]').click()
         driver.find_element_by_xpath(f'//button[@ix-auto="button__WIPE_da{num}_da{num}"]').click()
-        assert wait_on_element(driver, 7, f'//h1[contains(.,"Wipe Disk da{num}")]')
+        assert wait_on_element(driver, 7, f'//h2[contains(.,"Wipe Disk da{num}")]')
         driver.find_element_by_xpath('//button[@ix-auto="button__WIPE"]').click()
-        assert wait_on_element(driver, 7, f'//h1[contains(.,"Wipe Disk da{num}")]')
-        assert wait_on_element(driver, 10, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-        driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+        assert wait_on_element(driver, 7, f'//h2[contains(.,"Wipe Disk da{num}")]')
+        assert wait_on_element(driver, 10, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+        driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
         driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
         assert wait_on_element(driver, 10, '//span[contains(.,"Disk Wiped successfully")]')
         assert wait_on_element(driver, 20, '//button[contains(.,"CLOSE")]', 'clickable')
@@ -397,7 +397,7 @@ def click_create_pool_enter_tank_for_pool_name_check_the_box_next_to_da0_press_u
     """click create pool, enter tank for pool name, check the box next to da0, press under data vdev, click create, check confirm, click CREATE POOL."""
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__CREATE POOL"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CREATE POOL"]').click()
-    assert wait_on_element(driver, 7, '//div[contains(.,"Pool Manager")]')
+    assert wait_on_element(driver, 7, '//h1[contains(.,"Pool")]')
     assert wait_on_element(driver, 7, '//input[@placeholder="Name"]', 'inputable')
     driver.find_element_by_xpath('//input[@placeholder="Name"]').clear()
     driver.find_element_by_xpath('//input[@placeholder="Name"]').send_keys('tank')
@@ -406,15 +406,15 @@ def click_create_pool_enter_tank_for_pool_name_check_the_box_next_to_da0_press_u
     driver.find_element_by_xpath('//button[@id="vdev__add-button"]').click()
     assert wait_on_element(driver, 5, '//mat-checkbox[@id="pool-manager__force-submit-checkbox"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@id="pool-manager__force-submit-checkbox"]').click()
-    assert wait_on_element(driver, 5, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 5, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE"]').click()
     assert wait_on_element(driver, 7, '//button[@name="create-button"]', 'clickable')
     driver.find_element_by_xpath('//button[@name="create-button"]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Warning")]')
-    assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__CONFIRM"]', 'clickable')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Warning")]')
+    assert wait_on_element(driver, 7, '//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]', 'clickable')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__CREATE POOL"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CREATE POOL"]').click()
 
@@ -441,7 +441,7 @@ def navigate_to_system_then_failover_click_disable_failover_click_save(driver, n
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__System"]').click()
     assert wait_on_element(driver, 7, '//mat-list-item[@ix-auto="option__Reporting"]', 'clickable')
     driver.find_element_by_xpath('//mat-list-item[@ix-auto="option__Failover"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Failover Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Failover Configuration")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Disable Failover"]', 'clickable')
     driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Disable Failover"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__SAVE"]', 'clickable')
@@ -452,7 +452,7 @@ def navigate_to_system_then_failover_click_disable_failover_click_save(driver, n
 @then('navigate to dashboard, wait for HA to be online')
 def navigate_to_dashboard_wait_for_ha_to_be_online(driver):
     """navigate to dashboard, wait for HA to be online."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Failover Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Failover Configuration")]')
     # scroll up the mat-list-item
     element = driver.find_element_by_xpath('//span[contains(.,"root")]')
     driver.execute_script("arguments[0].scrollIntoView();", element)

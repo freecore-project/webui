@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -9,12 +9,16 @@ import { AppLoaderService } from '../../../../services/app-loader/app-loader.ser
 import { DialogService } from '../../../../services/dialog.service';
 import { StorageService } from '../../../../services/storage.service';
 import helptext from '../../../../helptext/storage/disks/disks';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-disk-bulk-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class DiskBulkEditComponent {
+  readonly settingsTitle = T('Disk Settings'); // the internal development record: the page's h1
   protected route_success: string[] = ['storage', 'disks'];
   protected isEntity = true;
 
@@ -24,6 +28,7 @@ export class DiskBulkEditComponent {
       name: helptext.bulk_edit.title,
       class: 'disks',
       label: true,
+      settingsLabel: T('Selected Disks'), // the internal development record: the selection reads as such under the h1
       config: [
         {
           type: 'input',
@@ -38,6 +43,7 @@ export class DiskBulkEditComponent {
       name: helptext.bulk_edit.label,
       class: 'settings',
       label: true,
+      settingsLabel: T('Options'), // the internal development record: the set's name repeats the page's h1
       config: [
         {
           type: 'input',

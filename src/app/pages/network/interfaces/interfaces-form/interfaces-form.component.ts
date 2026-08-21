@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 import { TranslateService } from '@ngx-translate/core';
@@ -18,7 +18,9 @@ import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.in
 import isCidr, * as ipCidr from 'is-cidr';
 
 @Component({
+  standalone: false,
   selector: 'app-interfaces-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class InterfacesFormComponent extends ViewControllerComponent implements OnDestroy {
@@ -36,6 +38,7 @@ export class InterfacesFormComponent extends ViewControllerComponent implements 
   protected offload_warned = false;
   protected offload_warning_sub: any;
 
+  readonly settingsTitle = T('Interface'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {

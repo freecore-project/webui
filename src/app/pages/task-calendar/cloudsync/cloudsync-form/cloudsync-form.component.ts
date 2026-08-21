@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -16,8 +16,10 @@ import helptext from '../../../../helptext/task-calendar/cloudsync/cloudsync-for
 import { EntityUtils } from '../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-cloudsync-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [CloudCredentialService, JobService],
 })
 export class CloudsyncFormComponent {
@@ -30,6 +32,7 @@ export class CloudsyncFormComponent {
   protected queryPayload = [];
   protected customFilter;
 
+  readonly settingsTitle = T('Cloud Sync Task'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_transfer,

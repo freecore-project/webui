@@ -1,9 +1,11 @@
 import {
   Component, OnInit, AfterViewInit, OnDestroy, Input, ViewChild, Renderer2, ElementRef, TemplateRef, ChangeDetectorRef, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { Router } from '@angular/router';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
+import { LayoutMediaObserver } from 'app/services/layout-media-observer.service';
 import { MaterialModule } from 'app/appMaterial.module';
 
 import filesize from 'filesize';
@@ -36,6 +38,14 @@ import {
   // transformMap,
   // clamp
 } from 'popmotion';
+import { Subscription } from 'rxjs';
+import { filter, map } from 'rxjs/operators';
+import { WebSocketService } from 'app/services/ws.service';
+import {
+  DiskFacts, PoolMember, PoolRole, PoolVdev, POOL_ROLES, isOnline, memberErrors, poolDiskNames, poolVdevs,
+} from './widgetpool-drilldown';
+
+type DrillLevel = 'pools' | 'pool' | 'vdev' | 'disk';
 
 interface NetIfInfo {
   name: string;
@@ -96,12 +106,30 @@ export interface VolumeData {
   vol_name?: string;
 }
 
+interface PoolRow {
+  name: string;
+  status: string;
+  unhealthy: boolean;
+  percent: number | null;
+  available: string;
+  used: string;
+  total: string;
+  errors: number;
+  errorsKnown: boolean;
+  scanErrors: number;
+}
+
 @Component({
+  standalone: false,
   selector: 'widget-pool',
   templateUrl: './widgetpool.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./widgetpool.component.css'],
 })
 export class WidgetPoolComponent extends WidgetComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+  @Input() pools: any[] = [];
+  rows: PoolRow[] = [];
+  // Retained for the legacy carousel helpers below; Dashboard uses pools.
   @Input() poolState;
   @Input() volumeData: any;// VolumeData;
   @ViewChild('carousel', { static: true }) carousel: ElementRef;
@@ -113,7 +141,10 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
   @ViewChild('disk_details', { static: false }) disk_details: TemplateRef<any>;
   @ViewChild('empty', { static: false }) empty: TemplateRef<any>;
   templates: any;
-  tpl = this.overview;
+  // Was `tpl = this.overview`, which always read undefined: @ViewChild queries are
+  // resolved after view init, long after property initializers run. TypeScript 4.0
+  // now rejects the read (TS2729); dropping it keeps the identical starting value.
+  tpl: TemplateRef<any>;
 
   // NAVIGATION
   currentSlide = '0';
@@ -157,15 +188,20 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     if (this.poolState && this.poolState.topology) {
       const unhealthy = []; // Disks with errors
       this.poolState.topology.data.forEach((item) => {
+        // Error counters live under .stats on this platform; the old flat
+        // item.read_errors reads were undefined, so NaN > 0 never flagged
+        // a disk and the card always reported zero errors.
         if (item.type == 'DISK') {
-          const diskErrors = item.read_errors + item.write_errors + item.checksum_errors;
+          const stats = item.stats || {};
+          const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
           if (diskErrors > 0) {
             unhealthy.push(item.disk);
           }
         } else {
           item.children.forEach((device) => {
-            const diskErrors = device.read_errors + device.write_errors + device.checksum_errors;
+            const stats = device.stats || {};
+            const diskErrors = (stats.read_errors || 0) + (stats.write_errors || 0) + (stats.checksum_errors || 0);
 
             if (diskErrors > 0) {
               unhealthy.push(device.disk);
@@ -176,6 +212,54 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
       return { totalErrors: unhealthy.length/* errors.toString() */, disks: unhealthy };
     }
     return { totalErrors: 'Unknown', disks: [] };
+  }
+
+  // Card-spec facts (the internal development record): vdev summary, per-role disk counts
+  // and the read/write/cksum error triple, all from the pool.query payload
+  // the widget already receives.
+  get vdevSummary(): string {
+    if (!this.poolState || !this.poolState.topology || !this.poolState.topology.data.length) { return ''; }
+    const data = this.poolState.topology.data;
+    const types = data.map((v) => v.type).filter((t, i, all) => all.indexOf(t) == i);
+    return data.length + ' ' + (data.length == 1 ? 'vdev' : 'vdevs') + ' · ' + types.join(' + ');
+  }
+
+  private countDisks(category): number {
+    if (!category || !category.length) { return 0; }
+    let count = 0;
+    category.forEach((item) => {
+      if (item.type == 'DISK') { count++; } else { count += item.children.length; }
+    });
+    return count;
+  }
+
+  get diskCounts() {
+    const topology = this.poolState && this.poolState.topology ? this.poolState.topology : null;
+    if (!topology) { return { data: 0, spare: 0, log: 0 }; }
+    return {
+      data: this.countDisks(topology.data),
+      spare: this.countDisks(topology.spare),
+      log: this.countDisks(topology.log),
+    };
+  }
+
+  get errorTriple() {
+    const totals = { read: 0, write: 0, cksum: 0 };
+    if (!this.poolState || !this.poolState.topology) { return totals; }
+    ['data', 'log', 'spare', 'cache', 'special', 'dedup'].forEach((categoryName) => {
+      const category = this.poolState.topology[categoryName];
+      if (!category) { return; }
+      category.forEach((item) => {
+        const devices = item.type == 'DISK' ? [item] : item.children;
+        devices.forEach((device) => {
+          if (!device.stats) { return; }
+          totals.read += device.stats.read_errors || 0;
+          totals.write += device.stats.write_errors || 0;
+          totals.cksum += device.stats.checksum_errors || 0;
+        });
+      });
+    });
+    return totals;
   }
 
   get allDiskNames(): string[] {
@@ -209,8 +293,13 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return allDiskNames;
   }
 
-  title: string = this.path.length > 0 && this.poolState && this.currentSlide !== '0' ? this.poolState.name : 'Pool';
+  // This initializer always produced 'Pool': `path` is initialized to [] earlier in
+  // the class, so `path.length > 0` short-circuits the ternary before `poolState`
+  // (an @Input, still unset at construction) is ever read. TypeScript 4.0 rejects
+  // the read of the uninitialized input (TS2729); the constant is what it evaluated to.
+  title = 'Pool';
   displayValue: any;
+  screenType = 'Desktop';
   diskSize: any;
   diskSizeLabel: string;
   poolHealth: PoolDiagnosis = {
@@ -227,22 +316,269 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
     return this.currentDiskDetails ? Object.keys(this.currentDiskDetails) : [];
   }
 
-  constructor(public router: Router, public translate: TranslateService, private cdr: ChangeDetectorRef) {
+  private mediaSub: Subscription;
+
+  // the internal development record: in-card navigation, Pools -> pool -> vdev -> disk, as 13.3's pool card did.
+  // The selection is kept by name/GUID so a refreshed `pools` input re-finds it.
+  drillLevel: DrillLevel = 'pools';
+  drillMoved = false;
+  drillBack = false;
+  drillPool: any = null;
+  drillRow: PoolRow | null = null;
+  drillSections: { role: PoolRole; label: string; vdevs: PoolVdev[] }[] = [];
+  drillVdev: PoolVdev | null = null;
+  drillDisk: PoolMember | null = null;
+  diskFacts: Record<string, DiskFacts> = {};
+  private drillPoolName: string | null = null;
+  private drillVdevGuid: string | null = null;
+  private drillDiskGuid: string | null = null;
+  private diskFactsFor: string | null = null;
+  private diskFactsSub: Subscription;
+  private drillScroll: number[] = [];
+  readonly isOnline = isOnline;
+  readonly memberErrors = memberErrors;
+
+  constructor(
+    public router: Router,
+    public translate: TranslateService,
+    private cdr: ChangeDetectorRef,
+    public mediaObserver: LayoutMediaObserver,
+    private ws: WebSocketService,
+    private host: ElementRef<HTMLElement>,
+  ) {
     super(translate);
+    this.mediaSub = this.mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
+      this.screenType = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
+    });
     this.configurable = false;
   }
 
   ngOnDestroy() {
+    this.mediaSub?.unsubscribe();
+    this.diskFactsSub?.unsubscribe();
     this.core.unregister({ observerClass: this });
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.poolState) {
+    if (changes.pools || changes.volumeData) {
+      this.rows = (this.pools || []).map((pool) => this.poolRow(pool));
+      if (this.drillLevel && this.drillLevel !== 'pools') { this.resolveDrill(); }
     }
+  }
 
-    if (changes.volumeData) {
-      this.getAvailableSpace();
+  get drillTitle(): string {
+    switch (this.drillLevel) {
+      case 'pool': return this.drillPoolName;
+      case 'vdev': return this.drillVdev?.name;
+      case 'disk': return this.drillDisk?.disk || this.translate.instant('Unknown disk');
+      default: return this.translate.instant('Pools');
     }
+  }
+
+  roleLabel(role: PoolRole): string {
+    return POOL_ROLES.find((entry) => entry.role === role)?.label || role;
+  }
+
+  facts(disk: string | null): DiskFacts {
+    return (disk && this.diskFacts[disk]) || {};
+  }
+
+  // One translatable sentence (a split sentence renders bare until i18n loads; the internal development record).
+  errorCounts(leaf: PoolMember): string {
+    const value = (count: number | null): string => (count === null ? '–' : String(count));
+    return this.translate.parser.interpolate(
+      this.translate.instant(T('{{read}} read · {{write}} write · {{checksum}} checksum')),
+      { read: value(leaf.read), write: value(leaf.write), checksum: value(leaf.checksum) },
+    ) as string;
+  }
+
+  size(bytes: number): string {
+    return String(filesize(bytes, { standard: 'iec', round: 1 }));
+  }
+
+  openPool(name: string): void {
+    this.drillPoolName = name;
+    this.drillVdevGuid = null;
+    this.drillDiskGuid = null;
+    this.drillTo('pool', true);
+    this.loadDiskFacts();
+  }
+
+  openVdev(vdev: PoolVdev): void {
+    if (vdev.single) {
+      this.openDisk(vdev, vdev.members[0]);
+      return;
+    }
+    this.drillVdevGuid = vdev.guid;
+    this.drillDiskGuid = null;
+    this.drillTo('vdev', true);
+  }
+
+  openDisk(vdev: PoolVdev, leaf: PoolMember): void {
+    this.drillVdevGuid = vdev.guid;
+    this.drillDiskGuid = leaf.guid;
+    this.drillTo('disk', true);
+  }
+
+  drillUp(): void {
+    const from = this.drillLevel;
+    let returnKey: string;
+    if (from === 'disk') {
+      returnKey = this.drillVdev?.single ? 'vdev:' + this.drillVdevGuid : 'disk:' + this.drillDiskGuid;
+      this.drillDiskGuid = null;
+      if (this.drillVdev?.single) { this.drillVdevGuid = null; }
+      this.drillTo(this.drillVdevGuid ? 'vdev' : 'pool', false, returnKey);
+    } else if (from === 'vdev') {
+      returnKey = 'vdev:' + this.drillVdevGuid;
+      this.drillVdevGuid = null;
+      this.drillTo('pool', false, returnKey);
+    } else if (from === 'pool') {
+      returnKey = 'pool:' + this.drillPoolName;
+      this.drillPoolName = null;
+      this.drillTo('pools', false, returnKey);
+    }
+  }
+
+  openPoolStatus(): void {
+    if (this.drillPool?.id !== undefined) {
+      this.router.navigate(['storage/pools/status', this.drillPool.id]);
+    }
+  }
+
+  private drillTo(level: DrillLevel, forward: boolean, returnKey?: string): void {
+    const body = this.host?.nativeElement?.querySelector('.pool-body') as HTMLElement;
+    let scrollTop = 0;
+    if (forward) {
+      this.drillScroll.push(body?.scrollTop || 0);
+    } else {
+      scrollTop = this.drillScroll.pop() || 0;
+    }
+    this.drillLevel = level;
+    this.drillMoved = true;
+    this.drillBack = !forward;
+    this.resolveDrill();
+    setTimeout(() => {
+      const current = this.host?.nativeElement?.querySelector('.pool-body') as HTMLElement;
+      if (current) { current.scrollTop = scrollTop; }
+      // Forward: focus the back button, which now heads the card. Back: the row the user came from.
+      const target = forward || !returnKey
+        ? this.host?.nativeElement?.querySelector('[data-drill-back]')
+        : this.host?.nativeElement?.querySelector(`[data-drill-key="${CSS.escape(returnKey)}"]`);
+      (target as HTMLElement)?.focus();
+    });
+  }
+
+  // Re-find the open pool, vdev and disk in the current input; fall back to the deepest level that
+  // still exists (an exported pool, a removed vdev, a replaced disk).
+  private resolveDrill(): void {
+    if (this.drillLevel === 'pools') {
+      this.drillPool = null;
+      this.drillRow = null;
+      this.drillSections = [];
+      this.drillVdev = null;
+      this.drillDisk = null;
+      return;
+    }
+    const pool = (this.pools || []).find((candidate) => candidate?.name === this.drillPoolName);
+    if (!pool) {
+      this.drillPoolName = null;
+      this.drillVdevGuid = null;
+      this.drillDiskGuid = null;
+      this.drillLevel = 'pools';
+      this.drillScroll = [];
+      this.resolveDrill();
+      return;
+    }
+    this.drillPool = pool;
+    this.drillRow = this.rows.find((row) => row.name === pool.name) || null;
+    const vdevs = poolVdevs(pool);
+    this.drillSections = POOL_ROLES
+      .map(({ role, label }) => ({ role, label, vdevs: vdevs.filter((vdev) => vdev.role === role) }))
+      .filter((section) => section.vdevs.length > 0);
+    this.drillVdev = this.drillVdevGuid ? vdevs.find((vdev) => vdev.guid === this.drillVdevGuid) || null : null;
+    this.drillDisk = this.drillVdev && this.drillDiskGuid
+      ? this.drillVdev.members.find((leaf) => leaf.guid === this.drillDiskGuid) || null
+      : null;
+    if (this.drillLevel !== 'pool' && !this.drillVdev) {
+      this.drillVdevGuid = null;
+      this.drillDiskGuid = null;
+      this.drillLevel = 'pool';
+    } else if (this.drillLevel === 'disk' && !this.drillDisk) {
+      this.drillDiskGuid = null;
+      this.drillLevel = this.drillVdev.single ? 'pool' : 'vdev';
+    }
+  }
+
+  // Serial, model and size live on the disk records, not in pool.query: one disk.query per opened
+  // pool. A failed or partial answer just leaves those facts out (card law 4).
+  private loadDiskFacts(): void {
+    if (!this.drillPool || this.diskFactsFor === this.drillPool.name) { return; }
+    const names = poolDiskNames(poolVdevs(this.drillPool));
+    this.diskFactsFor = this.drillPool.name;
+    this.diskFactsSub?.unsubscribe();
+    if (!names.length || !this.ws) { return; }
+    this.diskFactsSub = this.ws.call('disk.query', [[['name', 'in', names]], { select: ['name', 'serial', 'model', 'size'] }])
+      .subscribe({
+        next: (disks: any[]) => {
+          const facts: Record<string, DiskFacts> = {};
+          for (const disk of disks || []) {
+            if (!disk?.name) { continue; }
+            facts[disk.name] = {
+              serial: disk.serial || undefined,
+              model: disk.model || undefined,
+              size: typeof disk.size === 'number' && disk.size > 0 ? disk.size : undefined,
+            };
+          }
+          this.diskFacts = facts;
+          this.cdr.markForCheck();
+        },
+        error: () => { this.diskFactsFor = null; },
+      });
+  }
+
+  private poolRow(pool: any): PoolRow {
+    const locked = pool.is_decrypted === false || pool.status === 'LOCKED';
+    const capacity = this.volumeData?.[pool.name];
+    const used = capacity?.used;
+    const available = capacity?.avail;
+    const total = used + available;
+    const hasCapacity = !locked && this.validCounter(used) && this.validCounter(available) && Number.isFinite(total) && total > 0;
+    const errors = { count: 0, known: true, devices: 0 };
+    const visit = (device: any): void => {
+      if (device?.children?.length) {
+        device.children.forEach(visit);
+        return;
+      }
+      errors.devices++;
+      for (const key of ['read_errors', 'write_errors', 'checksum_errors']) {
+        const count = device?.stats?.[key];
+        if (this.validCounter(count)) { errors.count += count; } else { errors.known = false; }
+      }
+    };
+    for (const category of ['data', 'log', 'spare', 'cache', 'special', 'dedup']) {
+      (pool.topology?.[category] || []).forEach(visit);
+    }
+    return {
+      name: pool.name,
+      status: locked ? 'Locked' : pool.status || 'Unknown',
+      unhealthy: locked || pool.healthy === false || !['ONLINE', 'HEALTHY'].includes(pool.status),
+      percent: hasCapacity ? Math.round(used / total * 100) : null,
+      available: hasCapacity ? String(filesize(available, { standard: 'iec', round: 1 })) : '',
+      used: hasCapacity ? String(filesize(used, { standard: 'iec', round: 1 })) : '',
+      total: hasCapacity ? String(filesize(total, { standard: 'iec', round: 1 })) : '',
+      errors: errors.count,
+      errorsKnown: errors.known && errors.devices > 0,
+      // A completed scan can report errors without leaf I/O counters. Keep its
+      // result separate: adding the two counts could double-count the same fault.
+      scanErrors: this.validCounter(pool.scan?.errors) ? pool.scan.errors : 0,
+    };
+  }
+
+  private validCounter(value: unknown): value is number {
+    return typeof value === 'number' && Number.isFinite(value) && value >= 0;
   }
 
   ngOnInit() {
@@ -253,6 +589,8 @@ export class WidgetPoolComponent extends WidgetComponent implements OnInit, Afte
   }
 
   ngAfterViewInit() {
+    // Aggregate rows do not enter the inherited per-pool carousel lifecycle.
+    if (!this.poolState) { return; }
     this.templates = {
       overview: this.overview,
       data: this.data,

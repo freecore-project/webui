@@ -1,6 +1,7 @@
 import {
   Component,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -20,10 +21,14 @@ import { EntityUtils } from '../../../../common/entity/utils';
 import { UnlockDialogComponent } from './unlock-dialog/unlock-dialog.component';
 
 @Component({
+  standalone: false,
   selector: 'app-dataset-unlock',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class DatasetUnlockComponent implements OnDestroy {
+  readonly settingsTitle = T('Encrypted Datasets'); // the internal development record: the object noun; the verb is on the button
+  saveSubmitText = T('Unlock');
   protected queryCall = 'pool.dataset.encryption_summary';
   protected updateCall = 'pool.dataset.unlock';
   route_success: string[] = ['storage', 'pools'];
@@ -52,6 +57,7 @@ export class DatasetUnlockComponent implements OnDestroy {
       name: helptext.dataset_unlock_title,
       class: 'dataset-unlock-title',
       label: true,
+      settingsLabel: T('Options'), // the internal development record: the set's name is the page's h1
       config: [
         {
           type: 'checkbox',
@@ -99,6 +105,7 @@ export class DatasetUnlockComponent implements OnDestroy {
     {
       name: 'encrypted_roots',
       label: false,
+      settingsLabel: T('Datasets'), // the internal development record: the section heading (the list was headless); #424: the h1 carries the adjective
       class: 'encrypted_roots',
       config: [
         {

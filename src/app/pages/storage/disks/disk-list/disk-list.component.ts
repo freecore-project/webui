@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -13,7 +13,9 @@ import helptext from '../../../../helptext/storage/disks/disks';
 import { EntityUtils } from '../../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'disk-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class DiskListComponent {
@@ -60,7 +62,7 @@ export class DiskListComponent {
     label: T('Edit Disk(s)'),
     icon: 'edit',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       if (selected.length > 1) {
         for (const i of selected) {
@@ -109,7 +111,7 @@ export class DiskListComponent {
     label: T('Manual Test'),
     icon: 'play_arrow',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       this.manualTest(selected);
     },

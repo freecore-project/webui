@@ -1,25 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
 
-import { WidgetcontrollerComponent } from './widgetcontroller.component';
+import { WidgetControllerComponent } from './widgetcontroller.component';
 
-describe('WidgetcontrollerComponent', () => {
-  let component: WidgetcontrollerComponent;
-  let fixture: ComponentFixture<WidgetcontrollerComponent>;
+describe('WidgetControllerComponent', () => {
+  it('creates with an idle media observer', () => {
+    const component = new WidgetControllerComponent(
+      {} as any,
+      {} as any,
+      { asObservable: () => of([]) } as any,
+    );
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [WidgetcontrollerComponent],
-    })
-      .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(WidgetcontrollerComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.screenType).toBe('Desktop');
   });
 });

@@ -1,7 +1,7 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ValidationErrors, FormControl } from '@angular/forms';
+import { ValidationErrors, UntypedFormControl } from '@angular/forms';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldConfig } from 'app/pages/common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -12,10 +12,13 @@ import {
   IdmapService, RestService, ServicesService, UserService, WebSocketService,
 } from '../../../../services';
 import { AppLoaderService } from '../../../../services/app-loader/app-loader.service';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'smb-edit',
   template: ' <entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [ServicesService, IdmapService],
 })
 
@@ -54,6 +57,7 @@ export class ServiceSMBComponent {
   ];
   protected hiddenFieldSets = [helptext.cifs_srv_fieldset_other];
 
+  readonly settingsTitle = T('SMB'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[];
   fieldSets: FieldSet[] = [
     {
@@ -84,7 +88,7 @@ export class ServiceSMBComponent {
           placeholder: helptext.cifs_srv_netbiosalias_placeholder,
           tooltip: helptext.cifs_srv_netbiosalias_tooltip,
           validation: [
-            (control: FormControl): ValidationErrors => {
+            (control: UntypedFormControl): ValidationErrors => {
               const config = this.fieldConfig.find((c) => c.name === 'netbiosalias');
               const aliasArr = control.value ? control.value : [];
               let counter = 0;
@@ -141,9 +145,8 @@ export class ServiceSMBComponent {
     { name: 'divider', divider: false },
 
     {
-      name: helptext.cifs_srv_fieldset_other,
+      name: helptext.cifs_srv_fieldset_other, // the internal development record: one section (the 49%/49% column split is gone with the section layout)
       label: false,
-      width: '49%',
       config: [
         {
           type: 'select',
@@ -181,6 +184,7 @@ export class ServiceSMBComponent {
           type: 'combobox',
           name: 'admin_group',
           label: helptext.cifs_srv_admin_group_label,
+          showLabel: true,
           placeholder: helptext.cifs_srv_admin_group_placeholder,
           tooltip: helptext.cifs_srv_admin_group_tooltip,
           options: [],
@@ -188,14 +192,6 @@ export class ServiceSMBComponent {
           parent: this,
           updater: this.updateGroupSearchOptions,
         },
-      ],
-    },
-    { name: 'vertical-spacer', width: '2%' },
-    {
-      name: 'otherColTwo',
-      label: false,
-      width: '49%',
-      config: [
         {
           type: 'select',
           name: 'guest',
@@ -273,7 +269,6 @@ export class ServiceSMBComponent {
     }
 
     const otherSet = _.find(this.fieldSets, { name: helptext.cifs_srv_fieldset_other });
-    const otherColTwoSet = _.find(this.fieldSets, { name: 'otherColTwo' });
 
     this.cifs_srv_unixcharset = otherSet.config.find((config) => config.name === 'unixcharset');
     this.ws.call('smb.unixcharset_choices').subscribe((res) => {
@@ -285,7 +280,7 @@ export class ServiceSMBComponent {
 
     this.servicesService.getSmbBindIPChoices().subscribe((res) => {
       this.validBindIps = res;
-      this.cifs_srv_bindip = otherColTwoSet.config.find((config) => config.name === 'bindip');
+      this.cifs_srv_bindip = otherSet.config.find((config) => config.name === 'bindip');
       for (const key in res) {
         if (res.hasOwnProperty(key)) {
           this.cifs_srv_bindip.options.push({ label: res[key], value: res[key] });
@@ -294,7 +289,7 @@ export class ServiceSMBComponent {
     });
 
     this.ws.call('user.query').subscribe((res) => {
-      this.cifs_srv_guest = otherColTwoSet.config.find((config) => config.name === 'guest');
+      this.cifs_srv_guest = otherSet.config.find((config) => config.name === 'guest');
       res.forEach((user) => {
         this.cifs_srv_guest.options.push({ label: user.username, value: user.username });
       });

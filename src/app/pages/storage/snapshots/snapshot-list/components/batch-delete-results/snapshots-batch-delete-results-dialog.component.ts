@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { T } from 'app/translate-marker';
 
@@ -9,7 +9,9 @@ interface BatchResults {
 }
 
 @Component({
+  standalone: false,
   templateUrl: './snapshots-batch-delete-results-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./snapshots-batch-delete-results-dialog.component.scss'],
 })
 export class SnapshotsBatchDeleteResultsDialogComponent {
