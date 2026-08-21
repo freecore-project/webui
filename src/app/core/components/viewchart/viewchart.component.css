@@ -6,7 +6,7 @@
 }
 
 .c3-legend-item text{
-  font-family:Roboto;
+  font-family:"IBM Plex Sans",sans-serif;
 }
 
 /* Chart Tooltips */
@@ -19,7 +19,8 @@
   overflow: hidden;
   padding:24px;
   border-radius:2px;
-  font-family:"Roboto Medium";
+  font-family:"IBM Plex Sans",sans-serif;
+  font-weight:500;
 }
 
 .c3-tooltip,

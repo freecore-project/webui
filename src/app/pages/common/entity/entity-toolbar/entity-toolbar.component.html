@@ -1,7 +1,15 @@
 <div style="color:var(--fg2);" class="control-group">
-  <div *ngFor="let control of conf">
-    <toolbar-button *ngIf="control.type == 'button'" [config]="control" [controller]="controller" ></toolbar-button>
-    <toolbar-menu *ngIf="control.type == 'menu'" [config]="control" [controller]="controller" style="max-height:36px;"></toolbar-menu>
-    <toolbar-multimenu *ngIf="control.type == 'multimenu'" [config]="control" [controller]="controller" style="max-height:36px;"></toolbar-multimenu>
-  </div>
+  @for (control of conf; track control) {
+    <div>
+      @if (control.type == 'button') {
+        <toolbar-button [config]="control" [controller]="controller" ></toolbar-button>
+      }
+      @if (control.type == 'menu') {
+        <toolbar-menu [config]="control" [controller]="controller" style="max-height:36px;"></toolbar-menu>
+      }
+      @if (control.type == 'multimenu') {
+        <toolbar-multimenu [config]="control" [controller]="controller" style="max-height:36px;"></toolbar-multimenu>
+      }
+    </div>
+  }
 </div>

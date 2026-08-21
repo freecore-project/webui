@@ -1,132 +1,193 @@
-<div class="page-wrap height-100" style="">
-  <div class="session-form-hold">
-    <mat-progress-bar mode="determinate" value="0" class="session-progress"></mat-progress-bar>
-    <mat-card>
-      <mat-card-content>
-        <div [hidden]="!(connected() && logo_ready)">
-          <div class="text-center logo-wrapper" *ngIf="logo_ready">
-            <img class="logo-bg" alt="Logo image background of stars and sky at night" src="assets/images/stars-sky-1200w.jpg" srcset="assets/images/stars-sky-400w.jpg, assets/images/stars-sky-800w.jpg 2x, assets/images/stars-sky-1200w.jpg 3x">
-            <mat-icon svgIcon="truenas_core_logo_full" *ngIf="product_type === 'CORE'; else isTruenas" class="logo" alt="TrueNAS CORE logo"></mat-icon>
-            <ng-template #isTruenas>
-              <mat-icon *ngIf="product_type === 'ENTERPRISE'" class="logo" svgIcon="truenas_enterprise_logo_full" alt="TrueNAS ENTERPRISE logo"></mat-icon>
-              <mat-icon *ngIf="product_type === 'SCALE'" class="logo" svgIcon="truenas_scale_logo_full" alt="TrueNAS SCALE logo"></mat-icon>
-            </ng-template>
-          </div>
-          <span [hidden]="!canLogin()">
-            <form #signinForm="ngForm" (ngSubmit)="signin()" [hidden]="!has_root_password">
-              <div class="">
-                <mat-form-field class="full-width">
-                  <span matPrefix><mat-icon fontSet="mdi-set" fontIcon="mdi-account" style="color:var(--fg1);position:relative;top:2px;"></mat-icon>&nbsp;&nbsp;</span>
-                  <input autofocus
-                    matInput name="username"
-                    required
-                    [(ngModel)]="signinData.username"
-                    #username="ngModel"
-                    placeholder="{{'Username' | translate}}"
-                    value=""
-                    autocorrect="off" autocapitalize="none" autocomplete="off"
-                  >
-                  <mat-error *ngIf="username.errors && (username.dirty || username.touched) && (username.errors.required)">
-                    <span *ngIf="!failed">{{"Please enter your username" | translate}}</span>
-                    <span *ngIf="failed">{{"Please enter your username again" | translate}}</span>
-                  </mat-error>
-                </mat-form-field>
+<main class="signin-page">
+  <hlm-progress class="signin-progress" [class.is-busy]="busy" [value]="busy ? null : 0"><hlm-progress-indicator /></hlm-progress>
+
+  <div class="signin-body">
+    <section class="signin-panel" aria-labelledby="signin-brand">
+      <h1 id="signin-brand" class="signin-brand">
+        <img src="assets/images/freecore-fork-mark.svg" width="26" height="26" alt="">
+        <span>Free<strong>CORE</strong></span>
+      </h1>
+
+      <div [hidden]="!(connected() && logo_ready)">
+        <div [hidden]="!canLogin()">
+          <form #signinForm="ngForm" (ngSubmit)="signin()" [hidden]="!has_root_password">
+            <div class="signin-field">
+              <label class="visually-hidden" for="signin-username">{{ 'Username' | translate }}</label>
+              <input
+                autofocus
+                id="signin-username"
+                name="username"
+                required
+                [(ngModel)]="signinData.username"
+                #username="ngModel"
+                [placeholder]="'Username' | translate | lowercase"
+                autocorrect="off"
+                autocapitalize="none"
+                autocomplete="username"
+                spellcheck="false"
+                [attr.aria-invalid]="username.invalid && (username.dirty || username.touched)"
+                aria-describedby="signin-username-error"
+              >
+              <div id="signin-username-error" class="field-error" aria-live="polite">
+                @if (username.errors?.required && (username.dirty || username.touched)) {
+                  @if (!failed) {
+                    {{ 'Please enter your username' | translate }}
+                  } @else {
+                    {{ 'Please enter your username again' | translate }}
+                  }
+                }
               </div>
-              <div class="">
-                <mat-form-field class="full-width">
-                  <span matPrefix><mat-icon style="color:var(--fg1);position:relative;top:2px;">lock</mat-icon>&nbsp;&nbsp;</span>
-                  <input type="password" name="password" required matInput [(ngModel)]="signinData.password" #password="ngModel" placeholder="{{'Password' | translate}}" value="">
-                  <mat-error *ngIf="password.errors && (password.dirty || password.touched) && (password.errors.required)">
-                      <span *ngIf="!failed">{{"Please enter your password" | translate}}</span>
-                      <span *ngIf="failed">{{"Please enter your password again" | translate}}</span>
-                  </mat-error>
-                </mat-form-field>
+            </div>
+
+            <div class="signin-field">
+              <label class="visually-hidden" for="signin-password">{{ 'Password' | translate }}</label>
+              <div class="password-field">
+                <input
+                  id="signin-password"
+                  name="password"
+                  [type]="showPassword ? 'text' : 'password'"
+                  required
+                  [(ngModel)]="signinData.password"
+                  #signinPassword="ngModel"
+                  placeholder="••••••••"
+                  autocomplete="current-password"
+                  [attr.aria-invalid]="signinPassword.invalid && (signinPassword.dirty || signinPassword.touched)"
+                  aria-describedby="signin-password-error"
+                >
+                <button
+                  type="button"
+                  class="password-visibility"
+                  [attr.aria-label]="(showPassword ? 'Hide Password' : 'Show Password') | translate"
+                  [attr.aria-pressed]="showPassword"
+                  (click)="showPassword = !showPassword"
+                >{{ (showPassword ? 'Hide' : 'Show') | translate | lowercase }}</button>
               </div>
-              <div *ngIf="isTwoFactor">
-                <mat-form-field class="full-width">
-                  <span matPrefix><mat-icon style="color:var(--fg1);position:relative;top:2px;">phonelink</mat-icon>&nbsp;&nbsp;</span>
-                  <input matInput name="otp"
-                    [(ngModel)]="signinData.otp"
-                    #otp="ngModel"
-                    required
-                    autocomplete="off"
-                    placeholder="{{'Two-Factor Authentication Code' | translate}}"
-                    >
-                  <mat-error>
-                    <span *ngIf="!failed">{{"Please enter your 2FA code" | translate}}</span>
-                    <span *ngIf="failed">{{"Please enter your 2FA code again" | translate}}</span>
-                  </mat-error>
-                </mat-form-field>
+              <div id="signin-password-error" class="field-error" aria-live="polite">
+                @if (signinPassword.errors?.required && (signinPassword.dirty || signinPassword.touched) && !signinError) {
+                  @if (!failed) {
+                    {{ 'Please enter your password' | translate }}
+                  } @else {
+                    {{ 'Please enter your password again' | translate }}
+                  }
+                }
               </div>
-              <button name="signin_button" mat-button class="fn-theme-primary full-width mb-1" id="signin_button" [disabled]="username.errors || password.errors">{{"Log in" | translate}}</button>
+            </div>
+
+            @if (isTwoFactor) {
+              <div class="signin-field">
+                <label for="signin-otp">{{ 'Two-Factor Authentication Code' | translate }}</label>
+                <input
+                  id="signin-otp"
+                  name="otp"
+                  [(ngModel)]="signinData.otp"
+                  #otp="ngModel"
+                  [required]="!isWebauthn"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  aria-describedby="signin-otp-error"
+                >
+                <div id="signin-otp-error" class="field-error" aria-live="polite">
+                  @if (otp.errors?.required && (otp.dirty || otp.touched) && !signinError) {
+                    @if (!failed) {
+                      {{ 'Please enter your 2FA code' | translate }}
+                    } @else {
+                      {{ 'Please enter your 2FA code again' | translate }}
+                    }
+                  }
+                </div>
+              </div>
+            }
+
+            @if (isWebauthn) {
+              <p class="signin-note">
+                @if (!isTwoFactor) {
+                  {{ 'Insert your security key. Tap it when prompted after pressing Log in.' | translate }}
+                } @else {
+                  {{ 'Tap your security key when prompted after pressing Log in, or enter a 2FA code instead.' | translate }}
+                }
+              </p>
+            }
+
+            <!-- the internal development record: a failed sign-in says so here, in the page's own error voice, until the next attempt;
+                 while it shows, the password/2FA "enter it again" prompts stay quiet (one message, not two) -->
+            <div id="signin-error" class="field-error signin-error" role="alert">{{ signinError }}</div>
+
+            <button
+              #signinSubmitButton
+              type="submit"
+              class="signin-submit"
+              name="signin_button"
+              id="signin_button"
+              [disabled]="username.errors || signinPassword.errors"
+            >
+              <span class="submit-label">{{ 'Log in' | translate }}</span>
+              <span class="submit-arrow" aria-hidden="true">↵</span>
+            </button>
+          </form>
+
+          <div [hidden]="has_root_password">
+            <form (ngSubmit)="setpassword()" [formGroup]="setPasswordFormGroup" #setPasswordForm="ngForm">
+              <p class="signin-note">{{ 'Set new root account password:' | translate }}</p>
+              <div class="signin-field">
+                <label for="password">{{ 'Password' | translate }}</label>
+                <input id="password" type="password" formControlName="password" required autocomplete="new-password" aria-describedby="setup-password-error">
+                <div id="setup-password-error" class="field-error" aria-live="polite">
+                  @if (password.errors?.required && (password.dirty || password.touched)) {
+                    {{ 'This field is required' | translate }}
+                  }
+                </div>
+              </div>
+              <div class="signin-field">
+                <label for="password2">{{ 'Confirm Password' | translate }}</label>
+                <input id="password2" type="password" name="password2" formControlName="password2" required autocomplete="new-password" aria-describedby="setup-confirm-error">
+                <div id="setup-confirm-error" class="field-error" aria-live="polite">
+                  @if (password2.errors && (password2.dirty || password2.touched)) {
+                    {{ 'Passwords do not match' | translate }}
+                  }
+                </div>
+              </div>
+              <button class="signin-submit" name="signin_button2" type="submit" [disabled]="!setPasswordForm.form.valid">
+                <span class="submit-label">{{ 'Sign in' | translate }}</span>
+                <span class="submit-arrow" aria-hidden="true">↵</span>
+              </button>
             </form>
-            <span [hidden]="has_root_password">
-              <form (ngSubmit)="setpassword()" [formGroup]="setPasswordFormGroup" #setPasswordForm="ngForm">
-                <div>
-                  <span>{{"Set new root account password:" | translate}}</span>
-                </div>
-                <div class="">
-                  <mat-form-field class="full-width">
-                    <input matInput type="password" id="password" formControlName="password" required placeholder="{{'Password' | translate}}">
-                    <mat-error *ngIf="password.errors && (password.dirty || password.touched)">
-                      <span *ngIf="password.errors.required">{{"This field is required" | translate}}</span>
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-                <div class="">
-                  <mat-form-field class="full-width">
-                    <input matInput type="password" name="password2" formControlName="password2" required placeholder="{{'Confirm Password' | translate}}">
-                    <mat-error *ngIf="password2.errors && (password2.dirty || password2.touched)">
-                      <span *ngIf="password2.errors">{{"Passwords do not match" | translate}}</span>
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-                <button name="signin_button2" mat-button class="mat-accent full-width mb-1" type="submit" [disabled]="!setPasswordForm.form.valid">{{"Sign in" | translate}}</button>
-              </form>
-            </span>
-            <div id="legacy-btn-wrapper" *ngIf='exposeLegacyUI'>
-              <button mat-button color="default" class="mb-1 full-width" style="text-transform:capitalize !important;" (click)="onGoToLegacy()">{{"LEGACY WEB INTERFACE" | translate}}</button>
-            </div>
-          </span>
-          <span *ngIf="product_type === 'ENTERPRISE' && failover_status != 'SINGLE'"><div class="ha-status">
-            <div class="ha-status-txt">
-              <p>{{ha_status_text}}</p>
-              <span *ngIf="show_reasons"><p *ngFor='let reason of ha_disabled_reasons'>
-                {{reason_text[reason] | translate}}
-              </p></span>
-              <span *ngIf="ha_info_ready">
-                <p>{{failover_statuses[failover_status]}}</p>
-                <span *ngIf="failover_ips.length > 0">
-                  <p>Active IP Addresses: {{failover_ips.join(", ")}}</p>
-                </span>
-              </span>
-            </div>
-          </div></span>
-
-          <div class="truecommand" *ngIf="tc_ip" (click)="gotoTC()">
-              <img id="truecommand-logo" src="assets/images/truecommand/truecommand-logo-mark-full-color-rgb.svg">
-              <span class="truecommand-txt">TrueCommand IP: {{tc_ip}}</span>
-          </div>
-
-          <div class="copyright-line">
-            <span  class="copyright-txt">TrueNAS {{product_type}} ® © {{copyrightYear}} </span>
-            <img id="full-logo" (click)="openIX()" src="assets/images/ix_logo_full.png">
           </div>
         </div>
-        <div class="disconnected" [hidden]="connected() && logo_ready">
-          <div *ngIf="product">
-            <div class="fake-icon">?</div>
-            <p *ngIf="!ha_status">
-              {{"Connecting to " | translate}} {{product}}
-              {{"... Make sure the " | translate}} {{product}}
-              {{" system is powered on and connected to the network." | translate}}
-            </p>
-            <p *ngIf="ha_status">
-              {{"Waiting for Active TrueNAS controller to come up..." | translate}}
-            </p>
+
+        @if (product_type === 'ENTERPRISE' && failover_status != 'SINGLE') {
+          <div class="signin-note ha-status" role="status">
+            <p>{{ ha_status_text }}</p>
+            @if (show_reasons) {
+              @for (reason of ha_disabled_reasons; track reason) {
+                <p>{{ reason_text[reason] | translate }}</p>
+              }
+            }
+            @if (ha_info_ready) {
+              <p>{{ failover_statuses[failover_status] }}</p>
+              @if (failover_ips.length > 0) {
+                <p>Active IP Addresses: {{ failover_ips.join(', ') }}</p>
+              }
+            }
           </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
+        }
+      </div>
+
+      <div class="signin-note disconnected fc-status-inline" role="status" [hidden]="connected() && logo_ready">
+        <h2 class="fc-status-title">{{ (ha_status ? 'Waiting for active controller' : reconnecting ? 'Reconnecting' : 'Connecting') | translate }}</h2>
+        @if(!ha_status){<div class="fc-status-track indeterminate" role="progressbar" [attr.aria-label]="(reconnecting ? 'Reconnecting' : 'Connecting') | translate"><span></span></div>}@else{<div class="fc-status-rule"></div>}
+        @if (product) {
+          @if (!ha_status) {
+            @if(reconnecting){<p>{{ 'The connection was interrupted.' | translate }}</p><p>{{ 'This page will reconnect automatically.' | translate }}</p>}@else{<p>{{ connectingMessage }}</p>}
+          } @else {
+            <p>{{ waitingForActiveMessage }}</p>
+          }
+        }
+      </div>
+    </section>
   </div>
-</div>
+
+  <footer class="signin-footer">
+    <a href="https://freecore.org" target="_blank" rel="noopener noreferrer" title="FreeCORE project website">freecore.org</a>
+    @if (copyrightYear) { <span> · © {{ copyrightYear }}</span> }
+  </footer>
+</main>

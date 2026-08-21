@@ -4,6 +4,7 @@ import {
   Input,
   OnInit,
   ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { StorageService } from '../../../../../services/storage.service';
@@ -11,9 +12,12 @@ import { DatatableComponent } from '@swimlane/ngx-datatable';
 import helptext from '../../../../../helptext/storage/volumes/manager/vdev';
 
 @Component({
+  standalone: false,
   selector: 'app-vdev',
   templateUrl: 'vdev.component.html',
-  styleUrls: ['vdev.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  // the internal development record: dynamic-field.css carries the #394 checkbox cell
+  styleUrls: ['vdev.component.css', '../../../../common/entity/entity-form/components/dynamic-field/dynamic-field.css'],
 })
 export class VdevComponent implements OnInit {
   @Input() index: any;
@@ -23,6 +27,11 @@ export class VdevComponent implements OnInit {
   @ViewChild('dnd', { static: true }) dnd;
   @ViewChild(DatatableComponent, { static: false }) table: DatatableComponent;
   type: string;
+  /** the internal development record: the closed type field shows the option's label, not the zpool keyword. */
+  typeLabel = (value: string): string => {
+    const labels = { stripe: 'Stripe', mirror: 'Mirror', raidz: 'Raid-z', raidz2: 'Raid-z2', raidz3: 'Raid-z3' };
+    return labels[value] ? this.translate.instant(labels[value]) : (value || '');
+  };
   removable = true;
   disks: any[] = [];
   selected: any[] = [];

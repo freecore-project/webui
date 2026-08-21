@@ -7,8 +7,8 @@ This is the project for the Angular.io WebUI for TrueNAS CORE & TrueNAS SCALE.
 
 # Development requirements
 
-  - yarn >= 1.12
-  - Node.js >= 8.9
+  - Yarn Classic >= 1.22.19 and < 2
+  - Node.js 24.19.0 (see `.nvmrc`)
   - Running TrueNAS 12 Nightly Machine (VM is fine)
 
 
@@ -17,7 +17,7 @@ This is the project for the Angular.io WebUI for TrueNAS CORE & TrueNAS SCALE.
 Install the development requirements (FreeBSD 11 or later):
 
 ```sh
-# pkg install yarn
+# pkg install yarn-node24
 ```
 
 Checkout TrueNAS git repository:

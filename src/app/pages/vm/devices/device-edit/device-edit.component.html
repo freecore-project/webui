@@ -1,55 +1,79 @@
-<mat-card>
-  <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" #entityForm="ngForm">
-    <div class="mat-card-title" *ngIf="vminfo">{{ 'Edit' | translate }} {{vminfo.dtype}} {{ vminfo.id }}</div>
-    <div class="fieldset-container fieldset-display-default" *ngIf="fieldSets">
-      <ng-container *ngFor="let fieldSet of fieldSets; let i = index">
-        <div [ngClass]="fieldSet.class" class="fieldset divider-{{fieldSet.divider}}" fxLayout="row wrap" fxLayoutAlign="start start" fxFlex="100%" fxFlex.gt-xs="calc({{fieldSets[i].width}} - 16px)">
-          <mat-divider *ngIf="fieldSets[i].divider && i > 0"></mat-divider>
-          <div *ngFor="let field of fieldSet.fieldConfig;" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div dynamicField [config]="field" [group]="formGroup"></div>
-          </div>
-
-          <div *ngIf="selectedType == 'CDROM'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let cdromField of fieldSet.cdromFieldConfig;">
-              <div dynamicField [config]="cdromField" [group]="cdromFormGroup"></div>
-            </div>
-          </div>
-          <div *ngIf="selectedType == 'NIC'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let nicField of fieldSet.nicFieldConfig;">
-              <div dynamicField [config]="nicField" [group]="nicFormGroup"></div>
-            </div>
-          </div>
-          <div *ngIf="selectedType == 'DISK'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let diskField of fieldSet.diskFieldConfig;">
-              <div dynamicField [config]="diskField" [group]="diskFormGroup"></div>
-            </div>
-          </div>
-          <div *ngIf="selectedType == 'RAW'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let rawfileField of fieldSet.rawfileFieldConfig;">
-              <div dynamicField [config]="rawfileField" [group]="rawfileFormGroup"></div>
-            </div>
-          </div>
-          <div *ngIf="selectedType == 'PCI'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let pciField of fieldSet.pciFieldConfig;">
-              <div dynamicField [config]="pciField" [group]="pciFormGroup"></div>
-            </div>
-          </div>
-          <div *ngIf="selectedType == 'VNC'" fxFlex="100%" fxFlex.gt-xs="calc(100% - 16px)" class="form-line">
-            <div *ngFor="let vncField of fieldSet.vncFieldConfig;">
-              <div dynamicField [config]="vncField" [group]="vncFormGroup"></div>
-            </div>
-          </div>
-
+<!-- the internal development record: the device form on the settings shape (entity-form.component.html), the same
+     markup as device-add: the page shell and title, one .fc-settings-section headed by the device's
+     type (the hidden Type select stays a [hidden] cell: onSubmit reads vminfo.dtype, not the control),
+     one cell per field on the engine grid (entity-form.component.scss is in styleUrls), the shared
+     hairline div.buttons on hlmBtn. The cell carries [hidden]: form-input / form-checkbox render
+     nothing when isHidden and would otherwise leave an empty grid slot (rootpwd / boot / wait). -->
+<div class="fc-page fc-page--capped">
+  <h1 class="fc-page-title">{{ 'Device' | translate }}</h1>
+  <div class="form-card fc-settings-form">
+    <form (ngSubmit)="onSubmit($event)" [formGroup]="formGroup" #entityForm="ngForm">
+      <ng-template #deviceCell let-field let-group="group" let-ii="index">
+        <div class="entity-form-field-layout form-line"
+          [class.fc-settings-wide]="field.type !== 'input' && field.type !== 'select' || field.inputType === 'file'"
+          [hidden]="field.isHidden"
+          id="device-{{field.name}}-{{ii}}">
+          <div id="form_field_{{field.name}}" dynamicField [config]="field" [group]="group"></div>
         </div>
-      </ng-container>
-      <mat-card-actions class="buttons">
-        <button id="save_button" class="btn btn-block btn-warning" type="submit" mat-button color="primary" [disabled]="!activeFormGroup.valid">{{"Save" | translate}}</button>
-        <button id="goback_button" *ngIf="route_success" class="btn  btn-block btn-lg btn-primary" type="button" (click)="goBack()" mat-button color="accent">{{"Cancel" | translate}}</button>
-        <span *ngFor="let custBtn of custActions">
-          <button id="cust_button_{{custBtn.name}}" mat-button *ngIf="isCustActionVisible" type="button" (click)="custBtn['function']()">{{custBtn.name | translate}}</button>
-        </span>
-      </mat-card-actions>
-      <mat-error *ngIf="error" type="danger" id="error_message"><div [innerHTML]="error"></div></mat-error>
-    </div>
-  </form>
-</mat-card>
+      </ng-template>
+      <div class="fieldset-container fieldset-display-default">
+        <section class="fc-settings-section" aria-labelledby="device-section">
+          <h2 class="fieldset-label" id="device-section">{{ selectedTypeLabel | translate }}@if (vminfo?.id) { {{ vminfo.id }} }</h2><!-- the internal development record: the id the old card title carried, so two devices of one type stay told apart -->
+          <div class="fc-settings-fields">
+            @for (field of fieldConfig; track field; let ii = $index) {
+              <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: formGroup, index: ii }"></ng-container>
+            }
+            @switch (selectedType) {
+              @case ('CDROM') {
+                @for (field of cdromFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: cdromFormGroup, index: ii }"></ng-container>
+                }
+              }
+              @case ('NIC') {
+                @for (field of nicFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: nicFormGroup, index: ii }"></ng-container>
+                }
+              }
+              @case ('DISK') {
+                @for (field of diskFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: diskFormGroup, index: ii }"></ng-container>
+                }
+              }
+              @case ('RAW') {
+                @for (field of rawfileFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: rawfileFormGroup, index: ii }"></ng-container>
+                }
+              }
+              @case ('PCI') {
+                @for (field of pciFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: pciFormGroup, index: ii }"></ng-container>
+                }
+              }
+              @case ('VNC') {
+                @for (field of vncFieldConfig; track field; let ii = $index) {
+                  <ng-container *ngTemplateOutlet="deviceCell; context: { $implicit: field, group: vncFormGroup, index: ii }"></ng-container>
+                }
+              }
+            }
+          </div>
+        </section>
+        <div class="buttons">
+          <button hlmBtn id="save_button" type="submit" [disabled]="!activeFormGroup.valid">{{ 'Save' | translate }}</button>
+          @if (route_success) {
+            <button hlmBtn variant="outline" id="goback_button" type="button" (click)="goBack()">{{ 'Cancel' | translate }}</button>
+          }
+          @for (custBtn of custActions; track custBtn) {
+            <span>
+              @if (isCustActionVisible) {
+                <button hlmBtn variant="ghost" id="cust_button_{{custBtn.name}}" type="button" (click)="custBtn['function']()">{{ custBtn.name | translate }}</button>
+              }
+            </span>
+          }
+        </div>
+      </div>
+    </form>
+    @if (error) {
+      <div id="error_message" class="form-error-line" role="alert"><div [innerHTML]="error"></div></div>
+    }
+  </div>
+</div>

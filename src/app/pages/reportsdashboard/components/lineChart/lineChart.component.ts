@@ -1,7 +1,8 @@
 import {
   Component, Input, AfterViewInit, OnDestroy, OnChanges, SimpleChanges, ViewChild, ElementRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { BehaviorSubject } from 'rxjs';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { ThemeUtils } from 'app/core/classes/theme-utils';
 import { ViewComponent } from 'app/core/components/view/view.component';
@@ -9,7 +10,7 @@ import { Report, ReportData } from '../report/report.component';
 import { ThemeService, Theme } from 'app/services/theme/theme.service';
 
 import { UUID } from 'angular2-uuid';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 import Dygraph from 'dygraphs';
 import smoothPlotter from 'dygraphs/src/extras/smooth-plotter.js';
 import Chart from 'chart.js';
@@ -32,15 +33,29 @@ interface DataSet {
 }
 
 @Component({
+  standalone: false,
   selector: 'linechart',
   templateUrl: './lineChart.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./lineChart.component.css'],
 })
 export class LineChartComponent extends ViewComponent implements AfterViewInit, OnDestroy, OnChanges {
   @ViewChild('wrapper', { static: true }) el: ElementRef;
   @Input() chartId: string;
   @Input() chartColors: string[];
-  @Input() data: ReportData;
+
+  // ViewComponent declares data as an accessor; overriding it with a property is
+  // rejected under TypeScript 4.0 (TS2610). This pair preserves the previous
+  // behaviour exactly — the property declaration emitted no initializer, so reads
+  // and writes already went through the inherited accessor.
+  @Input() set data(value: ReportData) {
+    this._data = value;
+  }
+
+  get data(): ReportData {
+    return this._data;
+  }
+
   @Input() report: Report;
   @Input() title: string;
   @Input() timezone: string;
@@ -58,6 +73,8 @@ export class LineChartComponent extends ViewComponent implements AfterViewInit, 
   ctx: any; // canvas context for chart.js
 
   chart: any;
+  private resizeObserver: ResizeObserver;
+  private resizeFrame: number;
   conf: any;
   columns: any;
   linechartData: any;
@@ -125,7 +142,45 @@ export class LineChartComponent extends ViewComponent implements AfterViewInit, 
       showLabelsOnHighlight: false,
       labelsSeparateLines: true,
       axes: {
+        // the internal development record: the x axis had no config at all, so dygraphs fell
+        // back to formatting timestamps in the BROWSER's timezone, while the
+        // Start/End captions under the chart use
+        // localeService.formatDateTime(date, this.timezone) -- the timezone
+        // from system.general.config. The same graph therefore showed two
+        // clocks: on a box set to America/Los_Angeles read from CEST, the axis
+        // said 21:20-22:15 while the captions said 12:19-13:19, nine hours
+        // apart, with only the captions labelled.
+        //
+        // The data is already timezone-correct (rows are built with
+        // moment.tz(..., this.timezone) below) -- only the tick rendering was
+        // guessing, so this formats ticks and hover values through the same
+        // timezone rather than touching the values.
+        x: {
+          axisLabelFormatter: (value, granularity, opts, dygraph) => {
+            // timezone arrives from an async system.general.config call, so it
+            // can still be undefined on first paint -- fall back to browser
+            // local, which is exactly the old behaviour and no worse.
+            const m = this.timezone ? moment.tz(value, this.timezone) : moment(value);
+            let spanMs = 0;
+            try {
+              const range = dygraph.xAxisRange();
+              spanMs = range[1] - range[0];
+            } catch (e) {
+              spanMs = 0;
+            }
+            const DAY = 86400000;
+            if (spanMs > 3 * DAY) { return m.format('MMM D'); }
+            if (spanMs > DAY) { return m.format('MMM D HH:mm'); }
+            return m.format('HH:mm');
+          },
+          valueFormatter: (value) => (this.timezone
+            ? moment.tz(value, this.timezone)
+            : moment(value)).format('YYYY-MM-DD HH:mm:ss'),
+        },
         y: {
+          // Reserve room for the in-bounds unit title and formatted numeric ticks.
+          // Dygraph does not allocate a separate lane for ylabel.
+          axisLabelWidth: 72,
           yRangePad: 24,
           axisLabelFormatter: (numero, granularity, opts, dygraph) => {
             const converted = this.formatLabelValue(numero, this.inferUnits(this.labelY), 1, true);
@@ -359,6 +414,15 @@ export class LineChartComponent extends ViewComponent implements AfterViewInit, 
 
   ngAfterViewInit() {
     this.render();
+    // Dygraph observes window resize; the Reporting grid also changes with the sidebar and legend.
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.resizeFrame !== undefined) { cancelAnimationFrame(this.resizeFrame); }
+      this.resizeFrame = requestAnimationFrame(() => {
+        this.resizeFrame = undefined;
+        if (this.el.nativeElement.clientWidth) { this.chart?.resize(); }
+      });
+    });
+    this.resizeObserver.observe(this.el.nativeElement);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -379,6 +443,8 @@ export class LineChartComponent extends ViewComponent implements AfterViewInit, 
   ngOnDestroy() {
     this.core.unregister({ observerClass: this });
 
-    this.chart.destroy();
+    this.resizeObserver?.disconnect();
+    if (this.resizeFrame !== undefined) { cancelAnimationFrame(this.resizeFrame); }
+    this.chart?.destroy();
   }
 }

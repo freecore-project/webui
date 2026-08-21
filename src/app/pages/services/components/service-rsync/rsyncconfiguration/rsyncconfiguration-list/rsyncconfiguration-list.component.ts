@@ -1,10 +1,12 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 import { T } from '../../../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-rsync-module-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class RSYNCconfigurationListComponent {

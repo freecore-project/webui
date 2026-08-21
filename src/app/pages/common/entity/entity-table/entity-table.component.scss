@@ -46,12 +46,15 @@
     margin-left: 10px;
 }
 
-// Small page-loading spinner for entity tables
+// Small page-loading spinner for entity tables -- the internal development record: hlm-spinner is an inline-flex
+// icon sized by font-size, centred through `left` (the helm spins the host on `transform`).
 #entity-spinner {
   position: absolute;
-  top: 10px; left: 0; bottom: 0; right: 0;
+  top: 10px;
+  left: calc(50% - 20px);
   z-index: 10;
-  margin: 0 auto;
+  font-size: 40px;
+  color: var(--sp-muted-foreground, var(--fg2));
 }
 
 .mat-card-title-text {
@@ -60,6 +63,7 @@
 }
 
 #filter{
+  position: relative; /* the internal development record: the search glyph sits inside the box */
   margin-right:16px;
 }
 
@@ -67,18 +71,8 @@
     display: inline-block;
 }
 
-#filter, .tooltiptext {
+.tooltiptext {
     font-size: 14px;
-}
-
-#filter .mat-icon{
-  position:relative;
-  left:25px;
-  top: 8px;
-}
-
-#filter .mat-form-field{
-  padding-left:32px;
 }
 
 //#filter {
@@ -109,16 +103,80 @@
 }
 
 .clickable {
-    height: 28px;
-    width: 40px;
+    inset: 0;
     position: absolute;
     background: rgba(0,0,0, .0);
+    cursor: pointer;
     z-index: 10;
+}
+
+.clickable.inert {
+  cursor: not-allowed;
+}
+
+/* the internal development record: the overlay covers exactly the switch it stands in for and is the accessible
+   control; the switch behind it is display-only. The cell's parts (spinner, switch, the state
+   text) sit on one flex line; the in-flight spinner is 20px. */
+.state-toggle {
+  display: inline-flex;
+  position: relative;
+}
+
+:host ::ng-deep .datatable-body-cell:has(.state-toggle) .datatable-body-cell-label {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+/* the checkbox law's hover tell, from the wrapper the pointer actually reaches */
+.state-toggle:hover ::ng-deep button[role="switch"][data-state="unchecked"]:not([data-disabled="true"]) {
+  border-color: var(--sp-muted-foreground, var(--fg2));
+}
+
+.state-spinner {
+  color: var(--sp-muted-foreground, var(--fg2));
+  font-size: 20px;
+}
+
+/* the internal development record: optional column status, separate from the cell's process state. */
+.entity-table-cell-layout.has-status-icon {
+  min-width: 0;
+
+  > div {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
+}
+
+.entity-table-status-icon {
+  color: var(--fg2);
+  flex: 0 0 16px;
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
+  width: 16px;
+
+  &.status-success { color: var(--green); }
+  &.status-error { color: var(--red); }
+  &.status-warning { color: var(--yellow); }
+}
+
+/* Light palettes need the foreground mixed into these small status glyphs. */
+:host-context(html:not(.dark)) .entity-table-status-icon {
+  &.status-success { color: color-mix(in srgb, var(--green) 50%, var(--fg1)); }
+  &.status-error { color: color-mix(in srgb, var(--red) 50%, var(--fg1)); }
+  &.status-warning { color: var(--fg2); }
+}
 
 :host {
     ::ng-deep datatable-row-wrapper {
         width: auto;
+    }
+
+    ::ng-deep .wrap-row-actions datatable-row-wrapper {
+        max-width: 100%;
     }
 
     mat-icon.widget-icon {
@@ -134,8 +192,91 @@
     min-width: 460px;
 }
 
+.entity-table-toolbar-layout,
+.entity-table-controls-layout,
+.entity-table-multi-actions-layout,
+.entity-table-cell-layout {
+  align-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+}
+
+.entity-table-toolbar-layout,
+.entity-table-controls-layout,
+.entity-table-multi-actions-layout {
+  flex-wrap: wrap;
+}
+
+.entity-table-cell-layout {
+  flex-wrap: nowrap;
+}
+
+.entity-table-toolbar-layout {
+  justify-content: space-between;
+}
+
+.entity-table-title-layout {
+  box-sizing: border-box;
+  flex: 1 1 300px;
+  max-width: 300px;
+  min-width: 300px;
+}
+
+.entity-table-controls-layout {
+  flex: 1 1 0%;
+  justify-content: flex-end;
+}
+
+.entity-table-multi-actions-layout {
+  display: flex !important;
+  justify-content: flex-start;
+}
+
+.entity-table-cell-layout {
+  justify-content: flex-start;
+}
+
+/* the internal development record: the widget menu is an ng-template now (no hidden host in the cell). */
+.entity-table-cell-layout > :not(:last-child) {
+  margin-inline-end: 4px;
+}
+
 .datatable-icon-right:focus, .datatable-icon-down:focus {
     outline: none;
+}
+
+/* Use the configured header height instead of the legacy theme's fixed 52px. */
+:host ::ng-deep .datatable-header-inner {
+  height: 100%;
+}
+
+:host ::ng-deep .datatable-header-cell .headerCheckBox {
+  align-items: center;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  margin: 0;
+  position: absolute;
+}
+
+/* the internal development record: the select-all is the #352 box in a 32px cell (the shared .checkbox-cell
+   from the form's dynamic-field sheet does not reach here; restated); the cell is the hit area. */
+:host ::ng-deep .datatable-header-cell .headerCheckBox .checkbox-cell {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
+}
+
+/* the internal development record: the kebab is a 32px ghost button in the 60px actions column -- the ngx
+   cell label's 12px padding and overflow clip would cut its surface; the button centres itself. */
+:host ::ng-deep .datatable-body-cell:has(.row-kebab) .datatable-body-cell-label {
+  overflow: visible;
+  padding: 0;
 }
 
 @media (max-width: 600px) {
@@ -143,7 +284,7 @@
         width: 300px;
         min-width: 300px;
         
-        button, #filter {
+        > * {
         margin-bottom: 5px;
         }
     }
@@ -153,79 +294,282 @@ div#cardHeaderContainer {
     padding: 0px !important;
 }
 
-/* The fake mat-checkbox */
-.fake-mat-checkbox {
-  display: block;
-  position: absolute;
-  left: 24px;
-  padding-left: 35px;
-  margin-bottom: 12px;
+/* the internal development record: the row selector -- the #352 box centred in the cell; the whole cell is
+   the hit area (#385: the 40px row, never into the neighbours). The box is display:contents,
+   so the cell's flex centres its 16px button. */
+:host ::ng-deep .datatable-body-cell:has(.row-checkbox) {
+  position: relative;
+}
+
+.row-checkbox {
+  align-items: center;
   cursor: pointer;
-  font-size: 22px;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  position: absolute;
   user-select: none;
-  min-height: 24px;
 }
 
-/* Hide the browser's default checkbox */
-.fake-mat-checkbox input {
-  position: absolute;
-  opacity: 0;
+.row-checkbox-hidden {
+  cursor: default;
+}
+
+/* The cell is the only pointer path, so the box can only ever mirror the selection (a click on
+   the box itself would flip it before ngx decides -- a shift-click on a selected row keeps the
+   selection and the box would desync); the keyboard still reaches the focusable button. */
+:host ::ng-deep .row-checkbox button[role="checkbox"] {
+  pointer-events: none;
+}
+
+/* The selectable value cell keeps the form's 32px cell; the cell is the hit area (#402). */
+.checkbox-cell {
+  align-items: center;
   cursor: pointer;
-  height: 0;
-  width: 0;
-  border:solid black 3px;
-  top: 6px;
-  left: 6px;
-  width: 6px;
-  height: 6px;
-  z-index: 10;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  width: 32px;
 }
 
-/* Create a custom checkbox */
-.checkmark {
-  position: absolute;
-  top: 9px;
-  left: 9px;
-  height: 1.06rem;
+/* the internal development record: the state cell as text (C3) -- the click tell is the underline on the
+   hairline; fg1 while running, fg2 once done, the #392 red on an error. */
+.state-link {
+  background: transparent;
+  border: 0;
+  color: var(--sp-foreground, var(--fg1));
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  height: 32px;
+  line-height: 18px;
+  padding: 0;
+  text-decoration: underline;
+  text-decoration-color: var(--sp-border, var(--line));
+  text-underline-offset: 3px;
+}
+
+.state-link.state-done,
+.state-link.state-hold {
+  color: var(--sp-muted-foreground, var(--fg2));
+}
+
+.state-link.state-error {
+  color: var(--sp-destructive, var(--red));
+}
+
+.state-link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* the internal development record: the batch bar's actions on the ghost tier, icon + label inline; the glyph
+   follows the button's colour (fg2 at rest, fg1 on hover). */
+.multi-action .mat-icon {
+  font-size: 16px;
+  height: 16px;
+  line-height: 16px;
   width: 16px;
-  border: solid 1.85px var(--fg2);
-  border-radius: 10%;
-  display: block;
 }
 
-/* On mouse-over, add a grey background color */
-.fake-mat-checkbox:hover input ~ .checkmark {
-  cursor: pointer;
+/* FreeCORE record pages retain ngx-datatable's measured row and detail geometry.
+ * Only the surrounding chrome and typography change here. */
+.fc-records {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  color: var(--fg2);
+  font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-width: 0;
+
+  .entity-table-toolbar-layout {
+    background: transparent;
+    gap: 16px;
+    height: auto;
+    white-space: normal;
+  }
+
+  .entity-table-title-layout {
+    color: var(--fg1);
+    flex: 1 1 100%;
+    font-family: inherit;
+    font-size: 27px; /* the internal development record: the one page-title voice */
+    font-weight: 400;
+    letter-spacing: -0.55px;
+    line-height: 1.3;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .entity-table-controls-layout {
+    flex: 1 1 100%;
+    gap: 8px;
+    min-height: 32px;
+    min-width: 0;
+    width: 100%;
+    /* the internal development record: the toolbar carries the M2 title typography (weight 500, tracking);
+       the helm controls inherit `font`, so the controls row restates the body voice. */
+    font-weight: 400;
+    letter-spacing: normal;
+
+    > div,
+    > span,
+    app-entity-table-add-actions {
+      align-items: center;
+      display: flex;
+      min-width: 0;
+    }
+  }
+
+  #filter.fc-table-search {
+    align-items: center;
+    display: flex;
+    flex: 1 1 200px;
+    gap: 8px;
+    margin: 0;
+    margin-inline-end: auto;
+    max-height: none;
+    max-width: 300px;
+    min-width: 0;
+    /* the internal development record: the inherited `#filter { position: static !important }`
+       would make the toolbar the magnifier's containing block. */
+    position: relative !important;
+    text-align: start;
+
+    /* the internal development record: the #351 box with the search glyph as its inline-start addon (#387's
+       bespoke absolute glyph is gone; the addon's 8px gutter, 16px glyph and 6px lead stand). */
+    > hlm-input-group {
+      min-width: 0;
+      width: 100%;
+    }
+
+    hlm-input-group-addon .mat-icon {
+      font-size: 16px;
+      height: 16px;
+      line-height: 16px;
+      width: 16px;
+    }
+  }
+
+  /* the internal development record: on the toolbar's 32px line with the field and the Add button; #404: the
+     #353 ghost icon button, its glyph 20px. */
+  .fc-table-columns,
+  #config > button {
+    box-sizing: border-box;
+    height: 32px;
+    width: 32px;
+
+    .mat-icon {
+      font-size: 20px;
+      height: 20px;
+      line-height: 20px;
+      width: 20px;
+    }
+  }
+
+  .entity-table-multi-actions-layout {
+    background: color-mix(in srgb, var(--fg2) 4%, transparent);
+    border-block: 1px solid color-mix(in srgb, var(--fg2) 12%, transparent);
+    font-size: 13px;
+    top: 0;
+  }
+
+  #footer {
+    font-size: 12px;
+    padding-block: 12px;
+  }
+
+  .datatable-icon-right:focus-visible,
+  .datatable-icon-down:focus-visible {
+    border-radius: 4px;
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
 }
 
-/* When the checkbox is checked, add a background */
-.fake-mat-checkbox input:checked ~ .checkmark {
-  background-color: var(--accent);
-  border-color: var(--accent);
+:host ::ng-deep .fc-records {
+  .entity-add-actions-wrapper {
+    align-items: center;
+    display: flex !important;
+
+    /* the internal development record: the Actions caret on the helm button (the shell's `.mat-mdc-button
+       .menu-caret` rule no longer reaches it). */
+    .menu-toggle {
+      padding-inline-end: 8px;
+    }
+    .menu-toggle > span {
+      align-items: center;
+      display: inline-flex;
+      gap: 2px;
+    }
+    .menu-caret {
+      font-size: 16px;
+      height: 16px;
+      line-height: 16px;
+      opacity: .8;
+      position: static;
+      width: 16px;
+    }
+  }
+
+  .ngx-datatable.material {
+    background: transparent;
+    box-shadow: none;
+    font-family: inherit;
+  }
+
+  .ngx-datatable.material .datatable-header {
+    background: transparent;
+    border-color: color-mix(in srgb, var(--fg2) 12%, transparent);
+    box-shadow: none;
+  }
+
+  /* the internal development record: header and cell typography, colour and the row hover
+   * are the global table law (freecore-ui.css, the internal development record). This block used to
+   * restate them with older values and, behind emulated encapsulation, won. */
+  .ngx-datatable.material .datatable-body .datatable-row-wrapper datatable-body-row {
+    background: transparent;
+    border-bottom-color: color-mix(in srgb, var(--fg2) 9%, transparent) !important;
+  }
+
+  .ngx-datatable.material .datatable-body .datatable-body-row .datatable-body-cell {
+    border-bottom-color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ngx-datatable.material .datatable-footer {
+    background: transparent;
+    color: var(--fg2);
+    font-size: 12px;
+  }
 }
 
-/* Create the checkmark/indicator (hidden when not checked) */
-.checkmark:after {
-  content: "";
-  position: absolute;
-  display: none;
+@media (max-width: 700px) { /* the internal development record: the page title's narrow twin (24px at 700) */
+  .fc-records .entity-table-title-layout {
+    font-size: 24px;
+  }
+
+  .fc-records #filter.fc-table-search {
+    flex-basis: 100%;
+    max-width: none;
+  }
 }
 
-/* Show the checkmark when checked */
-.fake-mat-checkbox input:checked ~ .checkmark:after {
-  display: block;
+@media (prefers-reduced-motion: reduce) {
+  :host ::ng-deep .fc-records .datatable-row-group {
+    transition: none !important;
+  }
 }
 
-/* Style the checkmark/indicator */
-.fake-mat-checkbox .checkmark:after {
-  left: 4px;
-  top: 0px;
-  width: 5px;
-  height: 11px;
-  border: solid white 0.05px;
-  border-width: 0 1px 1px 0;
-  transform: rotate(45deg);
+/* the internal development record: the columns picker rows draw a display-only #352 box (inert: no focus, no
+ * pointer target -- the checkbox row itself is the control); the picker's rows are div hosts so the
+ * box's button is not nested in a button. The glyph rows keep the 16px muted glyph of the item copy. */
+.columns-menu .menu-box {
+  display: flex;
+  align-items: center;
+  height: 16px;
+  width: 16px;
 }

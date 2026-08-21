@@ -73,8 +73,8 @@ def click_on_users(driver):
 @then('The Users page should open')
 def the_users_page_should_open(driver):
     """The Users page should open."""
-    assert wait_on_element(driver, 0.5, 5, '//h1[contains(.,"Display Note")]')
-    if is_element_present(driver, '//h1[contains(.,"Display Note")]'):
+    assert wait_on_element(driver, 0.5, 5, '//h2[contains(.,"Display Note")]')
+    if is_element_present(driver, '//h2[contains(.,"Display Note")]'):
         driver.find_element_by_xpath('//button[@ix-auto="button__CLOSE"]').click()
     assert wait_on_element(driver, 0.5, 30, '//div[contains(.,"Users")]')
 
@@ -88,7 +88,7 @@ def click_the_add_button_on_the_right_side_of_the_screen(driver):
 @then('The Users Add Page should open')
 def the_users_add_page_should_open(driver):
     """The Users Add Page should open."""
-    assert wait_on_element(driver, 1, 30, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 1, 30, '//h2[contains(.,"Identification")]')
 
 
 @then('Fill in the following fields Full Name, Username, Password, Confirm Password and click Save')

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,13 +10,19 @@ import { AppLoaderService } from '../../../services/app-loader/app-loader.servic
 import { StorageService } from '../../../services/storage.service';
 import { T } from '../../../translate-marker';
 import { EntityJobComponent } from '../../common/entity/entity-job/entity-job.component';
+import { showNoPoolDialog } from '../../common/no-pool-dialog';
 import { EntityUtils } from '../../common/entity/utils';
 import { DialogFormConfiguration } from '../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import helptext from '../../../helptext/jails/jails-list';
 
 @Component({
+  standalone: false,
   selector: 'app-jail-list',
-  template: '<entity-table [title]="title" [conf]="this" ></entity-table>',
+  template: `
+    <entity-table [title]="title" [conf]="this"></entity-table>
+  `,
+  styleUrls: ['./jail-list.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DialogService, StorageService],
 })
 export class JailListComponent implements InputTableConf {
@@ -29,6 +35,8 @@ export class JailListComponent implements InputTableConf {
   wsDelete = 'jail.delete';
   wsMultiDelete = 'core.bulk';
   entityList;
+  // the internal development record: the twin's Refresh -- jails are made on the console; nothing pushes a change
+  custActions = [{ id: 'refresh', name: T('Refresh'), function: () => this.entityList?.getData() }];
   route_add = ['jails', 'add', 'wizard'];
   protected route_add_tooltip = 'Add Jail';
   toActivatePool = false;
@@ -63,7 +71,7 @@ export class JailListComponent implements InputTableConf {
     label: T('Start'),
     icon: 'play_arrow',
     enable: true,
-    ttpos: 'above', // tooltip position
+    ttpos: 'top', // tooltip position
     onClick: (selected) => {
       const selectedJails = this.getSelectedNames(selected);
       this.loader.open();
@@ -100,7 +108,7 @@ export class JailListComponent implements InputTableConf {
     label: T('Stop'),
     icon: 'stop',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       const dialog = {};
       this.dialogService.confirm('Stop', 'Stop the selected jails?',
@@ -131,10 +139,10 @@ export class JailListComponent implements InputTableConf {
     label: T('Update'),
     icon: 'update',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       const selectedJails = this.getSelectedNames(selected);
-      this.dialogService.report(T('Jail Update'), T('Updating selected plugins.'), '500px', 'info');
+      this.dialogService.report(T('Jail Update'), T('Updating selected jails.'), '500px', 'info');
       this.entityList.busy = this.ws.job('core.bulk', ['jail.update_to_latest_patch', selectedJails]).subscribe(
         (res) => {
           let message = '';
@@ -163,18 +171,20 @@ export class JailListComponent implements InputTableConf {
     label: T('Delete'),
     icon: 'delete',
     enable: true,
-    ttpos: 'above',
+    ttpos: 'top',
     onClick: (selected) => {
       this.entityList.doMultiDelete(selected);
     },
   },
   ];
 
+  // the internal development record: 15.0 has no Bastille, so the cog is the single pool-activation
+  // button 15.0 and 13.3 had (the internal development record made it a menu to reach Bastille on 15.1).
   globalConfig = {
     id: 'config',
     tooltip: helptext.globalConfig.tooltip,
     onClick: () => {
-      this.prerequisite().then((res) => {
+      this.prerequisite().then(() => {
         if (this.availablePools !== undefined) {
           this.activatePool();
         }
@@ -189,18 +199,7 @@ export class JailListComponent implements InputTableConf {
     public sorter: StorageService, public dialog: MatDialog) {}
 
   noPoolDialog() {
-    const dialogRef = this.dialogService.confirm(
-      helptext.noPoolDialog.title,
-      helptext.noPoolDialog.message,
-      true,
-      helptext.noPoolDialog.buttonMsg,
-    );
-
-    dialogRef.subscribe((res) => {
-      if (res) {
-        this.router.navigate(new Array('/').concat(['storage', 'pools', 'manager']));
-      }
-    });
+    showNoPoolDialog(this.dialogService, this.router);
   }
 
   prerequisite(): Promise<boolean> {
@@ -219,13 +218,13 @@ export class JailListComponent implements InputTableConf {
 
       if (this.availablePools !== undefined) {
         this.ws.call('jail.get_activated_pool').toPromise().then((res) => {
-          resolve(true);
           if (res != null) {
             this.activatedPool = res;
             this.addBtnDisabled = false;
           } else {
             this.activatePool();
           }
+          resolve(true);
         }, (err) => {
           this.dialogService.errorReport(err.trace.class, err.reason, err.trace.formatted).subscribe(
             (res) => {
@@ -291,6 +290,20 @@ export class JailListComponent implements InputTableConf {
     }
   }
 
+  runLifecycleJob(row: any, action: 'start' | 'stop' | 'restart', title: string) {
+    const dialogRef = this.dialog.open(EntityJobComponent, {
+      data: { title },
+      disableClose: true,
+    });
+    dialogRef.componentInstance.setCall(`jail.${action}`, [row.host_hostuuid]);
+    dialogRef.componentInstance.submit();
+    dialogRef.componentInstance.success.subscribe(() => {
+      dialogRef.close(true);
+      this.updateRow(row);
+      this.updateMultiAction([row]);
+    });
+  }
+
   getActions(parentRow): EntityTableAction[] {
     return [{
       name: parentRow.host_hostuuid,
@@ -298,9 +311,7 @@ export class JailListComponent implements InputTableConf {
       id: 'edit',
       label: T('Edit'),
       onClick: (row) => {
-        this.router.navigate(
-          new Array('').concat(['jails', 'edit', row.host_hostuuid]),
-        );
+        this.router.navigate(new Array('').concat(['jails', 'edit', row.host_hostuuid]));
       },
     } as unknown as EntityTableAction,
     {
@@ -320,14 +331,7 @@ export class JailListComponent implements InputTableConf {
       id: 'start',
       label: T('Start'),
       onClick: (row) => {
-        const dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Starting ') + row.id }, disableClose: true });
-        dialogRef.componentInstance.setCall('jail.start', [row.host_hostuuid]);
-        dialogRef.componentInstance.submit();
-        dialogRef.componentInstance.success.subscribe((res) => {
-          dialogRef.close(true);
-          this.updateRow(row);
-          this.updateMultiAction([row]);
-        });
+        this.runLifecycleJob(row, 'start', T('Starting ') + row.host_hostuuid);
       },
     },
     {
@@ -336,14 +340,7 @@ export class JailListComponent implements InputTableConf {
       id: 'restart',
       label: T('Restart'),
       onClick: (row) => {
-        const dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Restarting ') + row.id }, disableClose: true });
-        dialogRef.componentInstance.setCall('jail.restart', [row.host_hostuuid]);
-        dialogRef.componentInstance.submit();
-        dialogRef.componentInstance.success.subscribe((res) => {
-          dialogRef.close(true);
-          this.updateRow(row);
-          this.updateMultiAction([row]);
-        });
+        this.runLifecycleJob(row, 'restart', T('Restarting ') + row.host_hostuuid);
       },
     },
     {
@@ -353,17 +350,10 @@ export class JailListComponent implements InputTableConf {
       label: T('Stop'),
       onClick: (row) => {
         const dialog = {};
-        this.dialogService.confirm(T('Stop Jail'), T('Stop ') + row.id + '?',
+        this.dialogService.confirm(T('Stop Jail'), T('Stop ') + row.host_hostuuid + '?',
           dialog.hasOwnProperty('hideCheckbox') ? dialog['hideCheckbox'] : true, T('Stop')).subscribe((dialog_res) => {
           if (dialog_res) {
-            const dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Stopping Jail') }, disableClose: true });
-            dialogRef.componentInstance.setCall('jail.stop', [row.host_hostuuid]);
-            dialogRef.componentInstance.submit();
-            dialogRef.componentInstance.success.subscribe((res) => {
-              dialogRef.close(true);
-              this.updateRow(row);
-              this.updateMultiAction([row]);
-            });
+            this.runLifecycleJob(row, 'stop', T('Stopping Jail'));
           }
         });
       },
@@ -430,8 +420,8 @@ export class JailListComponent implements InputTableConf {
 
   getSelectedNames(selectedJails) {
     const selected: any = [];
-    for (const i in selectedJails) {
-      selected.push([selectedJails[i].host_hostuuid]);
+    for (const jail of selectedJails) {
+      selected.push([jail.host_hostuuid]);
     }
     return selected;
   }
@@ -465,6 +455,9 @@ export class JailListComponent implements InputTableConf {
     } else {
       _.find(this.multiActions, { id: 'mstart' as any })['enable'] = false;
     }
+
+    _.find(this.multiActions, { id: 'mupdate' as any })['enable'] = true;
+    _.find(this.multiActions, { id: 'mdelete' as any })['enable'] = true;
   }
 
   wsMultiDeleteParams(selected: any) {

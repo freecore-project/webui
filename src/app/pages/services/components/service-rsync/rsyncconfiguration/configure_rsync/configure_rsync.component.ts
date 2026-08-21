@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import helptext from '../../../../../../helptext/services/components/service-rsync';
 import { RestService } from '../../../../../../services/rest.service';
 import { WebSocketService } from '../../../../../../services/ws.service';
 import { FieldConfig } from '../../../../../common/entity/entity-form/models/field-config.interface';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-configure-rsync',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 

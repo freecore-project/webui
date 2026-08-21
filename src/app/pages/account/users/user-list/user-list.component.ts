@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../../translate-marker';
@@ -12,7 +12,9 @@ import helptext from '../../../../helptext/account/user-list';
 import { EntityUtils } from 'app/pages/common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-user-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class UserListComponent {

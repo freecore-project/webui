@@ -104,7 +104,7 @@ def click_on_the_core_files_warning_dismiss_and_verify_it_is_dismissed(driver):
     """click on the core files warning Dismiss and verify it is dismissed."""
     assert wait_on_element(driver, 7, '//a[@class="dismiss" and text()="Dismiss"]', 'clickable')
     driver.find_element_by_xpath('//a[@class="dismiss" and text()="Dismiss"]').click()
-    assert wait_on_element(driver, 7, '//mat-icon[@mattooltip="DISMISSED"]', 'clickable')
+    assert wait_on_element(driver, 7, '//mat-icon[@hlmtooltip="DISMISSED"]', 'clickable')
 
 
 @then('click on the core files warning Re-Open and verify the alert is back')

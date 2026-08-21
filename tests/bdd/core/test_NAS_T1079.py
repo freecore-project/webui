@@ -59,8 +59,8 @@ def on_the_dashboard_click_on_storage_on_the_side_menu_click_on_pools(driver):
 def on_the_pools_page_click_on_the_tank_three_dots_button_and_select_add_zvol(driver):
     """on the Pools page, click on the tank three dots button, and select Add Zvol."""
     assert wait_on_element(driver, 5, '//div[contains(.,"Pools")]')
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__tank"]')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__tank"]')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Zvol"]')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Zvol"]').click()
 

@@ -1,5 +1,6 @@
 import {
   AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router, NavigationStart } from '@angular/router';
@@ -28,6 +29,8 @@ import { DatatableComponent } from '@swimlane/ngx-datatable';
 export interface InputTableConf {
   prerequisite?: any;
   globalConfig?: any;
+  /** the internal development record: the initial sort (and row identity) key; otherwise deleteMsg.key_props[0], else the first column. */
+  sortKey?: string;
   columns: any[];
   columnFilter?: boolean;
   hideTopActions?: boolean;
@@ -47,10 +50,14 @@ export interface InputTableConf {
   config?: any;
   confirmDeleteDialog?: any;
   hasDetails?: boolean;
+  /** Keep the detail action strip when the user makes every optional column visible. */
+  alwaysShowDetails?: boolean;
   rowDetailComponent?: any;
   detailRowHeight?: any;
+  wrapRowActions?: boolean;
   cardHeaderComponent?: any;
   asyncView?: boolean;
+  preservePageOnRefresh?: boolean;
   wsDelete?: string;
 
   /**
@@ -66,6 +73,8 @@ export interface InputTableConf {
   dataHandler?(entity: EntityTableComponent);
   resourceTransformIncomingRestData?(data);
   getActions?(row: any): EntityTableAction[];
+  /** Optional cell status lives on the config so saved column preferences cannot discard it. */
+  getCellStatusIcon?(row: any, column: any): EntityTableStatusIcon | null;
   getAddActions?(): any [];
   rowValue?(row, attr): any;
   wsMultiDelete?: any;
@@ -79,9 +88,18 @@ export interface InputTableConf {
   afterDelete?();
 }
 
+export interface EntityTableStatusIcon {
+  icon: string;
+  tone: 'success' | 'error' | 'warning' | 'neutral';
+  label: string;
+  tooltip: string;
+}
+
 export interface EntityTableAction {
   id: string | number;
-  actionName: string;
+  disabled?: boolean;
+  name?: string;
+  actionName?: string;
   icon: string;
   label: string;
   onClick: (row: any) => void;
@@ -97,11 +115,17 @@ export interface TableConfig {
 }
 
 const DETAIL_HEIGHT = 24;
+/* the internal development record: the generic strip's chrome around its 24px lines -- 16 padding, 12 below the
+ * lines, the 1px separator, 4 + 32 (a ghost button row) + 4, 16 padding. It was 76 with the 36px
+ * Material buttons, which clipped 13px of the strip. */
+const DETAIL_CHROME = 85;
 
 @Component({
+  standalone: false,
   selector: 'entity-table',
   templateUrl: './entity-table.component.html',
   styleUrls: ['./entity-table.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DialogService, StorageService],
 })
 export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -122,9 +146,15 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   displayedColumns: string[] = [];
   busy: Subscription;
   columns: any[] = [];
-  rowHeight = 50;
+  // the internal development record: shell.height tokens -- 40px rows, 32px header, 40px footer.
+  static readonly ROW_HEIGHT = 40;
+  static readonly HEADER_HEIGHT = 32;
+  static readonly FOOTER_HEIGHT = 40;
+  static readonly EMPTY_BODY_HEIGHT = 53; // the "no data" row; 153 - 100 on the inherited frame
+  rowHeight = EntityTableComponent.ROW_HEIGHT;
+  readonly headerHeight = EntityTableComponent.HEADER_HEIGHT;
   zoomLevel: number;
-  tableHeight: number = (this.paginationPageSize * this.rowHeight) + 100;
+  tableHeight: number = (this.paginationPageSize * this.rowHeight) + EntityTableComponent.HEADER_HEIGHT + EntityTableComponent.FOOTER_HEIGHT;
   fixedTableHight = false;
   cardHeaderComponentHight = 0;
   windowHeight: number;
@@ -146,6 +176,7 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   rows: any[] = [];
   currentRows: any[] = []; // Rows applying filter
   seenRows: any[] = [];
+  activeSorts: { prop: string; dir: 'asc' | 'desc' }[] = [];
   getFunction;
   config: TableConfig = {
     paging: true,
@@ -157,7 +188,7 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   cardHeaderReady = false;
   showActions = true;
   entityTableRowDetailsComponent = EntityTableRowDetailsComponent;
-  readonly footerHeight = 50;
+  readonly footerHeight = EntityTableComponent.FOOTER_HEIGHT;
 
   private _multiActionsIconsOnly = false;
   get multiActionsIconsOnly() {
@@ -172,9 +203,11 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   removeFromSelectedTotal = 0;
 
   private interval: any;
+  private resizeSubscription: Subscription;
   private excuteDeletion = false;
   private needRefreshTable = false;
   private needTableResize = true;
+  private originalRows: any[] = [];
 
   hasActions = true;
   sortKey: string;
@@ -182,13 +215,30 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
   protected toDeleteRow: any;
   private routeSub: any;
   private expandedRowIds: number[] = [];
+  private measuredDetailHeights = new WeakMap<object, number>();
 
   hasDetails = () =>
-    this.conf.rowDetailComponent || (this.allColumns.length > 0 && this.conf.columns.length !== this.allColumns.length);
-  getRowDetailHeight = () =>
-    (this.hasDetails() && !this.conf.rowDetailComponent
-      ? (this.allColumns.length - this.conf.columns.length) * DETAIL_HEIGHT + 76 // add space for padding
-      : this.conf.detailRowHeight || 100);
+    this.conf.alwaysShowDetails || this.conf.rowDetailComponent || (this.allColumns.length > 0 && this.conf.columns.length !== this.allColumns.length);
+  getRowDetailHeight = (row?: object, visibleIndex?: number) => {
+    const minimum = this.hasDetails() && !this.conf.rowDetailComponent
+      ? (this.allColumns.length - this.conf.columns.length) * DETAIL_HEIGHT + DETAIL_CHROME
+      : this.conf.detailRowHeight || 100;
+    // ngx-datatable 20 passes the row to its height cache, but its ungrouped
+    // wrapper template passes undefined plus an index in the visible rows.
+    const detailRow = row || this.table?.bodyComponent?.temp[visibleIndex];
+    return this.conf.wrapRowActions && detailRow ? Math.max(minimum, this.measuredDetailHeights.get(detailRow) || 0) : minimum;
+  };
+
+  updateRowDetailHeight(row: object, height: number): void {
+    if (!this.conf.wrapRowActions || !Number.isFinite(height) || height <= 0 || !this.currentRows.includes(row)) { return; }
+    const measured = Math.ceil(height);
+    if (this.measuredDetailHeights.get(row) === measured) { return; }
+    this.measuredDetailHeights.set(row, measured);
+    // Preserve row identity and expansion while rebuilding ngx-datatable's
+    // virtual height cache through its normal rows input.
+    this.currentRows = [...this.currentRows];
+    if (!this.fixedTableHight) { this.updateTableHeightAfterDetailToggle(); }
+  }
 
   constructor(protected core: CoreService, protected rest: RestService, protected router: Router, protected ws: WebSocketService,
     protected _eRef: ElementRef, protected dialogService: DialogService, protected loader: AppLoaderService,
@@ -216,6 +266,7 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.interval) {
       clearInterval(this.interval);
     }
+    this.resizeSubscription?.unsubscribe();
     if (!this.routeSub.closed) {
       this.routeSub.unsubscribe();
     }
@@ -226,7 +277,7 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setTableHeight();
     this.hasActions = this.conf.noActions !== true;
 
-    this.sortKey = (this.conf.config.deleteMsg && this.conf.config.deleteMsg.key_props) ? this.conf.config.deleteMsg.key_props[0] : this.conf.columns[0].prop;
+    this.sortKey = this.conf.sortKey ?? ((this.conf.config.deleteMsg && this.conf.config.deleteMsg.key_props) ? this.conf.config.deleteMsg.key_props[0] : this.conf.columns[0].prop);
     setTimeout(async () => {
       if (this.conf.prerequisite) {
         await this.conf.prerequisite().then(
@@ -434,16 +485,20 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       n = 0;
     }
-    window.onresize = () => {
+    const resizeTable = () => {
       this.oldPagesize = this.paginationPageSize;
       this.zoomLevel = Math.round(window.devicePixelRatio * 100);
-      // Browser zoom of exacly 175% causes pagination anomalies; Dropping row size to 49 fixes it
-      this.zoomLevel === 175 ? this.rowHeight = 49 : this.rowHeight = 50;
+      // Browser zoom of exactly 175% causes pagination anomalies; dropping the row by 1px fixes it
+      this.rowHeight = this.zoomLevel === 175 ? EntityTableComponent.ROW_HEIGHT - 1 : EntityTableComponent.ROW_HEIGHT;
       const hasSelectedRows = this.selected && this.selected.length > 0;
 
       if (this.conf.autoFillWindowHeight) {
         // This special case was introduced to avoid breaking existing behaviour (see `else` case).
-        const rowsOffsetInViewport = document.querySelector('datatable-body').getBoundingClientRect().top;
+        const tableBody = this._eRef.nativeElement.querySelector('datatable-body');
+        if (!tableBody) {
+          return;
+        }
+        const rowsOffsetInViewport = tableBody.getBoundingClientRect().top;
         const extraMargin = 20;
         const y = window.innerHeight - rowsOffsetInViewport - this.footerHeight - extraMargin;
         this.paginationPageSize = Math.floor(y / this.rowHeight);
@@ -457,7 +512,17 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
         this.paginationPageSize = 2;
       }
       this.setPaginationInfo();
+      if (this.conf.wrapRowActions && this.table?.bodyComponent) {
+        // the internal development record: ngx resizes columns in place, but its body caches their
+        // total in the columns setter. Refresh that cache after measuring the new width.
+        this.table.recalculate();
+        const body = this.table.bodyComponent;
+        body.columns = body.columns;
+      }
     };
+
+    this.resizeSubscription?.unsubscribe();
+    this.resizeSubscription = observableFromEvent(window, 'resize').subscribe(resizeTable);
   }
 
   setShowSpinner(showSpinner = true) {
@@ -560,8 +625,12 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.rows = this.generateRows(res);
+    this.syncOriginalRowOrder(this.rows);
     if (!skipActions) {
       this.storageService.tableSorter(this.rows, this.sortKey, 'asc');
+      this.activeSorts = this.rows.length > 1
+        ? [{ prop: this.sortKey, dir: 'asc' }]
+        : [];
     }
     if (this.conf.dataHandler) {
       this.conf.dataHandler(this);
@@ -570,6 +639,8 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.conf.addRows) {
       this.conf.addRows(this);
     }
+
+    this.syncOriginalRowOrder(this.rows);
 
     this.setFilteredRows();
 
@@ -586,7 +657,9 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.needTableResize = true;
       this.currentRows = this.rows;
-      this.paginationPageIndex = 0;
+      this.paginationPageIndex = skipActions && this.conf.preservePageOnRefresh
+        ? Math.min(this.paginationPageIndex, Math.max(0, Math.ceil(this.currentRows.length / Math.max(1, this.paginationPageSize)) - 1))
+        : 0;
       this.setPaginationInfo();
     }
     return res;
@@ -894,13 +967,16 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.seenRows.length < this.paginationPageSize && this.paginationPageIndex === 0) {
       this.fixedTableHight = false;
     }
-    // This section controls page height for infinite scrolling
+    // This section controls page height for infinite scrolling.
+    // the internal development record: the box is the header and footer plus the rows; the
+    // old literals (153 / +110 / +100) were 13.3's 50px header and footer.
+    const frame = this.headerHeight + this.footerHeight;
     if (this.currentRows.length === 0) {
-      this.tableHeight = 153;
+      this.tableHeight = frame + EntityTableComponent.EMPTY_BODY_HEIGHT;
     } else if (this.currentRows.length > 0 && this.currentRows.length < this.paginationPageSize) {
-      this.tableHeight = (this.currentRows.length * this.rowHeight) + 110;
+      this.tableHeight = (this.currentRows.length * this.rowHeight) + frame + 10;
     } else {
-      this.tableHeight = (this.paginationPageSize * this.rowHeight) + 100;
+      this.tableHeight = (this.paginationPageSize * this.rowHeight) + frame;
     }
     this.startingHeight = this.tableHeight;
 
@@ -935,14 +1011,73 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
     const configuredShowActions = this.showActions;
     this.showActions = false;
     this.paginationPageIndex = 0;
-    const sort = event.sorts[0];
     const rows = this.currentRows;
-    this.storageService.tableSorter(rows, sort.prop, sort.dir);
+    const activeSort = this.activeSorts[0];
+    const clickedProp = event.column?.prop;
+    const clearSort = activeSort?.prop === clickedProp
+      && activeSort.dir === 'desc'
+      && event.prevValue === 'desc'
+      && event.newValue === 'asc';
+
+    if (clearSort) {
+      this.activeSorts = [];
+      this.restoreOriginalRowOrder(rows);
+    } else {
+      const sort = event.sorts.find((candidate) => candidate.prop === clickedProp) || event.sorts[0];
+      this.activeSorts = sort ? [{ prop: sort.prop, dir: sort.dir }] : [];
+      if (sort) {
+        this.storageService.tableSorter(rows, sort.prop, sort.dir);
+      } else {
+        this.restoreOriginalRowOrder(rows);
+      }
+    }
+
+    if (this.table) {
+      this.table.sorts = this.activeSorts;
+    }
     this.rows = rows;
     this.setPaginationInfo();
     setTimeout(() => {
       this.showActions = configuredShowActions;
     }, 50);
+  }
+
+  private syncOriginalRowOrder(rows: any[]) {
+    if (this.originalRows.length === 0) {
+      this.originalRows = [...rows];
+      return;
+    }
+
+    const unmatchedRows = [...rows];
+    const originalRows = [];
+
+    this.originalRows.forEach((originalRow) => {
+      const index = unmatchedRows.findIndex((row) => this.rowsHaveSameIdentity(originalRow, row));
+      if (index >= 0) {
+        originalRows.push(unmatchedRows.splice(index, 1)[0]);
+      }
+    });
+
+    this.originalRows = originalRows.concat(unmatchedRows);
+  }
+
+  private rowsHaveSameIdentity(first: any, second: any): boolean {
+    const keyProps = this.conf?.config?.deleteMsg?.key_props;
+    const identityProps = keyProps?.length
+      ? keyProps
+      : Object.prototype.hasOwnProperty.call(first, 'id')
+        ? ['id']
+        : [this.sortKey];
+
+    return identityProps.every((prop) => _.isEqual(first?.[prop], second?.[prop]));
+  }
+
+  private restoreOriginalRowOrder(rows: any[]) {
+    const positions = new Map(this.originalRows.map((row, index) => [row, index]));
+    rows.sort((first, second) => (
+      (positions.get(first) ?? Number.MAX_SAFE_INTEGER)
+      - (positions.get(second) ?? Number.MAX_SAFE_INTEGER)
+    ));
   }
 
   /**
@@ -1146,10 +1281,13 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   resetTableToStartingHeight() {
     setTimeout(() => {
+      const scope = this.conf.wrapRowActions ? this._eRef.nativeElement : document;
+      const table = scope.querySelector('.ngx-datatable');
+      if (!table) { return; }
       if (!this.startingHeight) {
-        this.startingHeight = document.getElementsByClassName('ngx-datatable')[0].clientHeight;
+        this.startingHeight = table.clientHeight;
       }
-      document.getElementsByClassName('ngx-datatable')[0].setAttribute('style', `height: ${this.startingHeight}px`);
+      table.setAttribute('style', `height: ${this.startingHeight}px`);
     }, 100);
   }
 
@@ -1158,13 +1296,20 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
       this.resetTableToStartingHeight();
     }
     setTimeout(() => {
-      this.expandedRows = document.querySelectorAll('.datatable-row-detail').length;
-      let newHeight = this.expandedRows * this.getRowDetailHeight() + this.startingHeight;
+      const scope = this.conf.wrapRowActions ? this._eRef.nativeElement : document;
+      const table = scope.querySelector('.ngx-datatable');
+      if (!table) { return; }
+      const details = scope.querySelectorAll('.datatable-row-detail');
+      this.expandedRows = details.length;
+      const detailHeight = this.conf.wrapRowActions
+        ? Array.from(details, (detail: HTMLElement) => detail.getBoundingClientRect().height).reduce((sum: number, height: number) => sum + height, 0)
+        : this.expandedRows * this.getRowDetailHeight();
+      let newHeight = detailHeight + this.startingHeight;
       if (newHeight > window.innerHeight - 233 - this.cardHeaderComponentHight) {
         newHeight = window.innerHeight - 233 - this.cardHeaderComponentHight;
       }
       newHeight = Math.max(newHeight, this.startingHeight);
-      document.getElementsByClassName('ngx-datatable')[0].setAttribute('style', `height: ${newHeight}px`);
+      table.setAttribute('style', `height: ${newHeight}px`);
     }, 100);
   }
 
@@ -1201,6 +1346,24 @@ export class EntityTableComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onclick($event) {
     this.tableMouseEvent = $event;
+  }
+
+  /** the internal development record: the whole row cell is the selector's hit area -- its click carries the
+   * mouse event (shift/ctrl ranges) to ngx's selection; the box inside only mirrors isSelected. */
+  onRowSelectClick($event: MouseEvent, onCheckboxChangeFn: (event: MouseEvent) => void) {
+    this.tableMouseEvent = $event;
+    onCheckboxChangeFn($event);
+  }
+
+  /** the internal development record: the state cell's tone (C3): fg1 while running, fg2 once done, red on an error. */
+  getStateTone(prop: string): 'running' | 'done' | 'error' | 'hold' {
+    switch (prop) {
+      case 'RUNNING': return 'running';
+      case 'ERROR':
+      case 'FAILED': return 'error';
+      case 'HOLD': return 'hold';
+      default: return 'done';
+    }
   }
 
   onActivate(event) {

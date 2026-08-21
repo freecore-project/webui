@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -10,7 +10,9 @@ import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/jails/storage';
 
 @Component({
+  standalone: false,
   selector: 'app-storage-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class StorageListComponent {

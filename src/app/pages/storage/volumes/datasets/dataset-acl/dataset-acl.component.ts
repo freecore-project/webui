@@ -1,10 +1,11 @@
 import {
   Component,
   OnDestroy,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import {
-  FormGroup,
+  UntypedFormGroup,
 } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import * as _ from 'lodash';
@@ -27,10 +28,14 @@ import { DialogFormConfiguration } from 'app/pages/common/entity/entity-dialog/d
 import { AccessControlList } from 'app/interfaces/access-control-list.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-dataset-acl',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class DatasetAclComponent implements OnDestroy {
+  readonly settingsTitle = T('ACL'); // the internal development record: the page's h1
+  readonly legacyLayout = true; // the internal development record: the two-pane ACE editor keeps the flex fieldsets (the preset button is positioned against them)
   protected queryCall = 'filesystem.getacl';
   protected updateCall = 'filesystem.setacl';
   protected isEntity = true;
@@ -50,7 +55,7 @@ export class DatasetAclComponent implements OnDestroy {
   private aces_subscription: any;
   private entityForm: any;
   sub: Subscription;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   data: Object = {};
   error: string;
   busy: Subscription;
@@ -87,6 +92,7 @@ export class DatasetAclComponent implements OnDestroy {
           name: 'uid',
           width: '100%',
           label: helptext.dataset_acl_uid_label,
+          showLabel: true,
           placeholder: helptext.dataset_acl_uid_placeholder,
           tooltip: helptext.dataset_acl_uid_tooltip,
           updateLocal: true,
@@ -106,6 +112,7 @@ export class DatasetAclComponent implements OnDestroy {
           type: 'combobox',
           name: 'gid',
           label: helptext.dataset_acl_gid_label,
+          showLabel: true,
           placeholder: helptext.dataset_acl_gid_placeholder,
           tooltip: helptext.dataset_acl_gid_tooltip,
           updateLocal: true,
@@ -148,6 +155,7 @@ export class DatasetAclComponent implements OnDestroy {
               type: 'combobox',
               name: 'user',
               label: helptext.dataset_acl_user_label,
+              showLabel: true,
               placeholder: helptext.dataset_acl_user_placeholder,
               tooltip: helptext.dataset_acl_user_tooltip,
               updateLocal: true,
@@ -161,6 +169,7 @@ export class DatasetAclComponent implements OnDestroy {
               type: 'combobox',
               name: 'group',
               label: helptext.dataset_acl_group_label,
+              showLabel: true,
               placeholder: helptext.dataset_acl_group_placeholder,
               tooltip: helptext.dataset_acl_group_tooltip,
               updateLocal: true,

@@ -1,19 +1,21 @@
 import {
   Component, Input, OnInit, OnChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, interval } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { RestService } from '../../../../services/rest.service';
 
 import { EntityTableComponent } from './entity-table.component';
-import { interval } from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-entity-table-actions',
   styleUrls: ['./entity-table-actions.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './entity-table-actions.component.html',
 })
 export class EntityTableActionsComponent implements OnInit, OnChanges {
@@ -22,6 +24,9 @@ export class EntityTableActionsComponent implements OnInit, OnChanges {
   @Input('icon_name') icon_name = 'more_vert';
   @Input('action') action: any;
   @Input('groups') groups = false;
+  // Opt-in presentation hook for owners that provide a bounded wrapping row.
+  // Existing consumers keep the original single-action layout by default.
+  @Input() wrapSingleAction = false;
 
   actions: any[];
   showMenu = true;

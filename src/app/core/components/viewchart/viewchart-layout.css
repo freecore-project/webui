@@ -1,0 +1,21 @@
+.legend-html {
+  align-content: stretch;
+  align-items: stretch;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.legend-html > .legend-item:not(:last-child) {
+  margin-inline-end: 16px;
+}
+
+@media screen and (min-width: 0px) and (max-width: 599.98px) {
+  .legend-html > .legend-item {
+    box-sizing: border-box;
+    flex: 1 1 calc(33% - 16px);
+    min-width: calc(33% - 16px);
+  }
+}

@@ -103,7 +103,7 @@ def click_the_edit_button_that_appears(driver):
 @then('The User Edit Page should open')
 def the_user_edit_page_should_open(driver):
     """The User Edit Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('Change the password in both fields but make sure they are different and try to click save.')
@@ -123,4 +123,4 @@ def you_should_not_be_able_to_save_the_changes(driver):
     class_attribute = element.get_attribute('disabled')
     assert class_attribute == 'true'
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')

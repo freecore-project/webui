@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WebSocketService, StorageService, DialogService } from 'app/services';
 import { PreferencesService } from 'app/core/services/preferences.service';
@@ -15,7 +15,9 @@ import { FieldConfig } from '../../../common/entity/entity-form/models/field-con
 import { SnapshotsBatchDeleteResultsDialogComponent } from 'app/pages/storage/snapshots/snapshot-list/components/batch-delete-results/snapshots-batch-delete-results-dialog.component';
 
 @Component({
+  standalone: false,
   selector: 'app-snapshot-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class SnapshotListComponent {
@@ -85,7 +87,7 @@ export class SnapshotListComponent {
       label: 'Delete',
       icon: 'delete',
       enable: true,
-      ttpos: 'above',
+      ttpos: 'top',
       onClick: (selected) => {
         this.doMultiDelete(selected);
       },
@@ -365,7 +367,7 @@ export class SnapshotListComponent {
         this.entityList.loader.open();
         this.snapshotXtraCols = !this.snapshotXtraCols;
         window.localStorage.setItem('snapshotXtraCols', this.snapshotXtraCols.toString());
-        document.location.reload(true);
+        document.location.reload();
       }
     });
   }

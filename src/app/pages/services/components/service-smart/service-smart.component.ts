@@ -1,6 +1,5 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatSelectChange } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -10,7 +9,9 @@ import { RestService, WebSocketService } from '../../../../services';
 import { PowerMode } from 'app/enums/power-mode.enum';
 
 @Component({
+  standalone: false,
   selector: 'smart-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
@@ -18,10 +19,12 @@ export class ServiceSMARTComponent {
   protected queryCall = 'smart.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('S.M.A.R.T.'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.smart_fieldset_general,
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'input',

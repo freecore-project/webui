@@ -76,8 +76,8 @@ def on_the_dashboard_click_on_storage_on_the_side_menu_click_on_pool(driver):
 def click_on_the_system_pool_three_dots_button_select_add_dataset(driver):
     """click on the system pool three dots button, select Add Dataset."""
     assert wait_on_element(driver, 5, '//div[contains(.,"Pools")]')
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__system"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__system"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__system"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__system"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__system_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__system_Add Dataset"]', 'clickable')
@@ -87,7 +87,7 @@ def click_on_the_system_pool_three_dots_button_select_add_dataset(driver):
 @then('input appleshare has the Name, and click SUBMIT')
 def input_appleshare_has_the_name_and_click_submit(driver):
     """input appleshare has the Name, and click SUBMIT."""
-    assert wait_on_element(driver, 5, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"Name and Options")]')
     assert wait_on_element(driver, 5, '//input[@ix-auto="input__Name"]', 'inputable')
     driver.find_element_by_xpath('//input[@ix-auto="input__Name"]').send_keys('appleshare')
     assert wait_on_element(driver, 5, xpaths.button.summit, 'clickable')
@@ -121,7 +121,7 @@ def on_the_apple_shares_page_click_add(driver):
 @then('click on CONTINUE WITH AFP SETUP')
 def click_on_continue_with_afp_setup(driver):
     """click on CONTINUE WITH AFP SETUP."""
-    assert wait_on_element(driver, 10, '//h1[contains(.,"Recommendation")]')
+    assert wait_on_element(driver, 10, '//h2[contains(.,"Recommendation")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="button__CONTINUE WITH AFP SETUP"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CONTINUE WITH AFP SETUP"]').click()
 
@@ -129,7 +129,7 @@ def click_on_continue_with_afp_setup(driver):
 @then('input the apple share dataset as the Path, and a share name')
 def input_the_apple_share_dataset_as_the_path_and_a_share_name(driver):
     """input the apple share dataset as the Path, and a share name."""
-    assert wait_on_element(driver, 5, '//h4[contains(.,"General Options")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"General Options")]')
     assert wait_on_element(driver, 5, '//input[@ix-auto="input__path"]', 'inputable')
     driver.find_element_by_xpath('//input[@ix-auto="input__path"]').clear()
     driver.find_element_by_xpath('//input[@ix-auto="input__path"]').send_keys('/mnt/system/appleshare')
@@ -144,7 +144,7 @@ def click_summit_the_new_share_should_create_without_errors(driver):
     assert wait_on_element(driver, 5, xpaths.button.summit, 'clickable')
     rsc.click_The_Summit_Button(driver)
     assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
-    if wait_on_element(driver, 3, '//h1[contains(.,"Enable service")]'):
+    if wait_on_element(driver, 3, '//h2[contains(.,"Enable service")]'):
         assert wait_on_element(driver, 7, '//button[@ix-auto="button__ENABLE SERVICE"]', 'clickable')
         driver.find_element_by_xpath('//button[@ix-auto="button__ENABLE SERVICE"]').click()
         assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')

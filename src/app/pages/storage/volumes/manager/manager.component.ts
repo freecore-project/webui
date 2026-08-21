@@ -1,5 +1,6 @@
 import {
   AfterViewInit, Component, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -22,9 +23,12 @@ import { VdevComponent } from './vdev';
 import { DiskBus } from 'app/enums/disk-bus.enum';
 
 @Component({
+  standalone: false,
   selector: 'app-manager',
   templateUrl: 'manager.component.html',
-  styleUrls: ['manager.component.css'],
+  // the internal development record: dynamic-field.css carries the #394 checkbox row and the error line
+  styleUrls: ['manager.component.css', '../../../common/entity/entity-form/components/dynamic-field/dynamic-field.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DialogService],
 })
 export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -581,8 +585,19 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
     return true;
   }
 
+  /** the internal development record: ticking Force shows its warnings and it stays on only when they are confirmed;
+   * unticking needs no dialog. The model follows the box first, so a Cancel (false) is a real change the
+   * box hears back. Material's `(click)` ran after its own model update when the box itself was clicked,
+   * so `!this.force` was already false there and the warnings were skipped. */
+  onForceChange(checked: boolean) {
+    this.force = checked;
+    if (checked) {
+      this.forceCheckboxChecked();
+    }
+  }
+
   forceCheckboxChecked() {
-    if (this.canForceCheck() && !this.force) {
+    if (this.canForceCheck()) {
       let warnings = helptext.force_warning;
       if (this.disknumForceError) {
         warnings = warnings + '<br/><br/>- ' + this.disknumForceError;
@@ -598,7 +613,7 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       warnings = warnings + '<br/><br/>' + helptext.force_confirm_title;
       this.dialog.confirm(helptext.force_title, warnings).subscribe((res) => {
-        this.force = res;
+        this.force = !!res;
       });
     }
   }
@@ -655,7 +670,7 @@ export class ManagerComponent implements OnInit, OnDestroy, AfterViewInit {
         }
 
         const dialogRef = this.mdDialog.open(EntityJobComponent, {
-          data: { title: confirmButton, disableClose: true },
+          data: { title: confirmButton }, disableClose: true, // the internal development record: was inside data, inert (the internal development record)
         });
         if (this.pk) {
           dialogRef.componentInstance.setCall(this.editCall, [this.pk, body]);

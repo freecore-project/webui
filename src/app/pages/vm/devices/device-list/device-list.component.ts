@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,9 @@ import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/di
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-device-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
   <entity-table [title]="title" [conf]="this"></entity-table>
   `,

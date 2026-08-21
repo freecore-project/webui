@@ -1,56 +1,92 @@
+<!-- the internal development record: the docked Task Manager panel on the dialog law -- an h2 title, the list
+     toolbar's #351 filter group (the search glyph as its addon, the #filter ref on the native
+     input) over the flush table, an outline Close. -->
+<h2 mat-dialog-title>{{ 'Task Manager' | translate }}</h2>
 <mat-dialog-content class="task-manager-dialog-content">
-    <span class="task-manager-search">
-        <mat-icon>search</mat-icon>
-        <mat-form-field>
-            <input matInput (keyup)="applyFilter($event.target.value)" placeholder="{{'Filter' | translate}}"
-                ix-auto ix-auto-type="input" ix-auto-identifier="tm-filter">
-        </mat-form-field>
-    </span>
+  <div class="task-manager-search">
+    <hlm-input-group>
+      <hlm-input-group-addon (click)="filter.focus()"><mat-icon aria-hidden="true">search</mat-icon></hlm-input-group-addon>
+      <input hlmInputGroupInput #filter type="text" (keyup)="applyFilter($event.target.value)" placeholder="{{'Filter' | translate}}"
+        [attr.aria-label]="'Filter' | translate"
+        ix-auto ix-auto-type="input" ix-auto-identifier="tm-filter">
+    </hlm-input-group>
+  </div>
 
-    <mat-table #taskTable [dataSource]="dataSource" multiTemplateDataRows matSort>
-        <ng-container matColumnDef="state">
-            <mat-header-cell *matHeaderCellDef mat-sort-header fxFlex="74px"
-                ix-auto ix-auto-type="tab" ix-auto-identifier="State"> {{ 'State' | translate }} </mat-header-cell>
-            <mat-cell *matCellDef="let element" fxFlex="74px">
-                <mat-icon *ngIf="element.state == 'SUCCESS'" class="state-success">check_circle_outline</mat-icon>
-                <mat-icon *ngIf="element.state == 'FAILED'" class="state-failed">highlight_off</mat-icon>
-                <mat-icon *ngIf="element.state == 'RUNNING'" class="state-running">cached</mat-icon>
-                <mat-icon *ngIf="element.state == 'WAITING'" class="state-waiting">schedule</mat-icon>
-                <mat-icon *ngIf="element.state == 'ABORTED'" class="state-aborted">report</mat-icon>
-            </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="method">
-            <mat-header-cell *matHeaderCellDef mat-sort-header
-                ix-auto ix-auto-type="tab" ix-auto-identifier="Method"> {{ 'Method' | translate }} </mat-header-cell>
-            <mat-cell *matCellDef="let element"> {{element.method}} </mat-cell>
-        </ng-container>
-        <ng-container matColumnDef="percent" class="task-manager-percent">
-            <mat-header-cell *matHeaderCellDef mat-sort-header
-                ix-auto ix-auto-type="tab" ix-auto-identifier="Progress"> {{ 'Progress' | translate }} </mat-header-cell>
-            <mat-cell *matCellDef="let element">
-                <span> {{element.progress.percent || 0 | number: '1.2-2'}}% </span>
-                <mat-progress-bar [mode]="element.state == 'RUNNING' ? 'buffer' : 'determinate'" [value]="element.progress.percent"></mat-progress-bar>
-            </mat-cell>
-        </ng-container>
-
-        <!-- expanded row -->
-        <ng-container matColumnDef="expandedDetail">
-            <mat-cell *matCellDef="let element">
+  <!-- the internal development record: the job list on the dialog table voice (.fc-dialog-table, #466). The component owns the
+       sort (the header buttons cycle ascending -> descending -> off, like MatSort) and the filter; a row toggles its
+       detail by click, Enter or Space. -->
+  <table class="fc-dialog-table task-manager-table">
+    <thead>
+      <tr>
+        <th scope="col" class="task-manager-state-column" [attr.aria-sort]="ariaSort('state')">
+          <button type="button" class="fc-dialog-table-sort" (click)="sortBy('state')"
+            ix-auto ix-auto-type="tab" ix-auto-identifier="State">{{ 'State' | translate }}@if (sortKey === 'state') {<mat-icon class="fc-dialog-table-sort-mark" aria-hidden="true">{{ sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>}</button>
+        </th>
+        <th scope="col" [attr.aria-sort]="ariaSort('method')">
+          <button type="button" class="fc-dialog-table-sort" (click)="sortBy('method')"
+            ix-auto ix-auto-type="tab" ix-auto-identifier="Method">{{ 'Method' | translate }}@if (sortKey === 'method') {<mat-icon class="fc-dialog-table-sort-mark" aria-hidden="true">{{ sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>}</button>
+        </th>
+        <th scope="col" class="task-manager-percent" [attr.aria-sort]="ariaSort('percent')">
+          <button type="button" class="fc-dialog-table-sort" (click)="sortBy('percent')"
+            ix-auto ix-auto-type="tab" ix-auto-identifier="Progress">{{ 'Progress' | translate }}@if (sortKey === 'percent') {<mat-icon class="fc-dialog-table-sort-mark" aria-hidden="true">{{ sortDir === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>}</button>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (element of view; track element.id) {
+        <tr class="fc-dialog-table-row element-row" [class.expanded]="expandedElement === element" tabindex="0"
+          [attr.aria-expanded]="expandedElement === element" (click)="toggle(element)" (keydown.enter)="toggle(element)"
+          (keydown.space)="$event.preventDefault(); toggle(element)"
+          ix-auto ix-auto-type="expander" ix-auto-identifier="{{element.method}}">
+          <td class="task-manager-state-column">
+            @if (element.state == 'SUCCESS') {
+              <mat-icon class="state-success">check_circle_outline</mat-icon>
+            }
+            @if (element.state == 'FAILED') {
+              <mat-icon class="state-failed">highlight_off</mat-icon>
+            }
+            @if (element.state == 'RUNNING') {
+              <mat-icon class="state-running">cached</mat-icon>
+            }
+            @if (element.state == 'WAITING') {
+              <mat-icon class="state-waiting">schedule</mat-icon>
+            }
+            @if (element.state == 'ABORTED') {
+              <mat-icon class="state-aborted">report</mat-icon>
+            }
+          </td>
+          <td [attr.title]="element.method">{{ element.method }}</td>
+          <td class="task-manager-percent">
+            <span>{{ element.progress?.percent || 0 | number: '1.2-2' }}%</span>
+            <hlm-progress [value]="barValue(element.progress?.percent)"><hlm-progress-indicator /></hlm-progress>
+          </td>
+        </tr>
+        @if (expandedElement === element) {
+          <tr class="task-manager-detail-row">
+            <td colspan="3">
+              <div class="task-manager-detail" [@detailExpand]="'expanded'">
                 <span><b>{{ 'Status:' | translate}}</b> {{element.state}}</span>
-                <span *ngIf="element.time_started != null"><b>{{ 'Start Time:' | translate }}</b> {{getReadableDate(element.time_started)}}</span>
-                <span *ngIf="element.time_finished != null"><b>{{ 'Finished Time:' | translate }}</b> {{getReadableDate(element.time_finished)}}</span>
-                <span *ngIf="element.error != null"><b>{{ 'Error:' | translate }}</b> {{element.error}}</span>
-                <span *ngIf="element.logs_excerpt != null && element.logs_excerpt != '' && element.logs_path != null"><button mat-flat-button color="primary" (click)="showLogs(element)">{{ 'View Logs' | translate }}</button></span>
-            </mat-cell>
-        </ng-container>
-
-        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: displayedColumns;" class="element-row" [class.expanded]="expandedElement == row"
-            (click)="expandedElement = expandedElement === row ? null : row" ix-auto ix-auto-type="expander" ix-auto-identifier="{{row.method}}"></mat-row>
-        <mat-row *matRowDef="let row; columns: ['expandedDetail']" class="detail-row" [@detailExpand]="row == expandedElement ? 'expanded' : 'collapsed'"></mat-row>
-    </mat-table>
+                @if (element.time_started != null) {
+                  <span><b>{{ 'Start Time:' | translate }}</b> {{getReadableDate(element.time_started)}}</span>
+                }
+                @if (element.time_finished != null) {
+                  <span><b>{{ 'Finished Time:' | translate }}</b> {{getReadableDate(element.time_finished)}}</span>
+                }
+                @if (element.error != null) {
+                  <span><b>{{ 'Error:' | translate }}</b> {{element.error}}</span>
+                }
+                @if (element.logs_excerpt != null && element.logs_excerpt != '' && element.logs_path != null) {
+                  <span><button hlmBtn variant="ghost" type="button" (click)="showLogs(element)">{{ 'View Logs' | translate }}</button></span>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
 </mat-dialog-content>
-<mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close class="task-manager-action-button"
-        ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE"> {{ 'Close' | translate }}</button>
+<mat-dialog-actions>
+  <button hlmBtn variant="outline" type="button" mat-dialog-close
+    ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{ 'Close' | translate }}</button>
 </mat-dialog-actions>

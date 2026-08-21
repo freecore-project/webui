@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { EntityTableComponent } from 'app/pages/common/entity/entity-table';
@@ -8,7 +8,9 @@ import { DialogService, WebSocketService } from 'app/services';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-smart-test-results-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class SmartResultsComponent {

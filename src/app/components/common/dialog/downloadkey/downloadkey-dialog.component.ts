@@ -1,5 +1,5 @@
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import {
   WebSocketService,
   StorageService,
@@ -12,8 +12,10 @@ import helptext from '../../../../helptext/storage/volumes/download-key';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'downloadkey-dialog',
   styleUrls: ['./downloadkey-dialog.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './downloadkey-dialog.component.html',
 })
 export class DownloadKeyModalDialog {

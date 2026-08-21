@@ -1,0 +1,23 @@
+/* the internal development record: the "turned off" notice is the shared .fc-page-notice
+   (its 14/16 padding and hairline come from freecore-ui.css); this sheet only
+   sets the notice's voice and the action row's pitch. No button rule here:
+   Enable Shell is the hlmBtn default tier inside .shell-enable-row. */
+.shell-disabled h3 {
+  color: var(--fg1);
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0 0 8px;
+}
+
+.shell-disabled p {
+  color: var(--fg2);
+  max-width: 60ch;
+}
+
+.shell-enable-row {
+  margin-top: 10px;
+}
+
+.shell-loading {
+  padding: 24px 0;
+}

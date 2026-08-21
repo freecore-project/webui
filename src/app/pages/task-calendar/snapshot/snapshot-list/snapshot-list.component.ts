@@ -1,11 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 import { EntityUtils } from 'app/pages/common/entity/utils';
 import { DialogService, WebSocketService } from '../../../../services';
 import { T } from '../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-snapshot-task-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class SnapshotListComponent {

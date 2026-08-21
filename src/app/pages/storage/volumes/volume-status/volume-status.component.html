@@ -1,36 +1,45 @@
-<div class="material mat-card mat-card-table">
-  <div class="mat-toolbar mat-card-toolbar" fxLayoutAlign="space-between center">
-    <div fxFlex="300px" class="mat-card-title-text">
-      {{"Pool Status" | translate}}
-    </div>
-    <div>
-      <button mat-button type="button" (click)="refresh()" mat-button color="primary">{{"Refresh" | translate}}</button>
-    </div>
-  </div>
-  <div>
-    <mat-list *ngIf="poolScan">
-      <mat-list-item><b>{{poolScan.function || 'SCAN'}}</b></mat-list-item>
-      <mat-list-item>{{'Status' | translate}}: 
-        {{poolScan.pause != null ? 'PAUSED' : poolScan.state ? poolScan.state : 'None requested' | translate}}
-      </mat-list-item>
-      <mat-list-item *ngIf="poolScan.state === 'SCANNING'">
-        {{ 'Completed' | translate }}: {{ poolScan.percentage | number:'2.0-2' }}%
-      </mat-list-item>
-      <mat-list-item *ngIf="poolScan.total_secs_left != null">{{ 'Time Remaining' | translate }}: 
-        <span class="time-remaining" *ngIf="timeRemaining.days > 0">
-          {{ timeRemaining.days }} {{ timeRemaining.days === 1 ? 'day' : 'days' | translate }}, </span>
-        <span class="time-remaining" *ngIf="timeRemaining.hours > 0 || timeRemaining.days > 0"> 
-          {{timeRemaining.hours}} {{ timeRemaining.hours === 1 ? 'hour' : 'hours' | translate }}, </span>
-        <span class="time-remaining" *ngIf="timeRemaining.minutes > 0 || timeRemaining.hours > 0"> 
-          {{timeRemaining.minutes}} {{ timeRemaining.minutes === 1 ? 'minute' : 'minutes' | translate }}, </span>
-        <span class="time-remaining" *ngIf="timeRemaining.seconds || timeRemaining.seconds === 0">
-          {{timeRemaining.seconds}} {{ timeRemaining.seconds === 1 ? 'second' :'seconds' | translate }}</span>
-      </mat-list-item>
-      <mat-list-item *ngIf="poolScan['errors'] != null">{{'Errors' | translate}}: {{poolScan['errors']}}</mat-list-item>
-      <mat-list-item *ngIf="poolScan.start_time != null">{{'Date' | translate}}: {{getReadableDate(poolScan.start_time)}}</mat-list-item>
-    </mat-list>
-  </div>
-  <div class="padding-16">
-    <entity-tree-table [conf]="treeTableConfig"></entity-tree-table>
-  </div>
-</div>
+<!-- the internal development record: the Pool Status page on the page shell, the boot-pool status page's shape
+     (bootenv-status.component.html): the title row with its one outline action, the scan facts as
+     the dl voice, the tree table directly under the section. -->
+<section id="pool-status-page" class="fc-page">
+  <header class="fc-page-header">
+    <h1 class="fc-page-title">{{"Pool Status" | translate}}</h1>
+    <button hlmBtn variant="outline" type="button" id="pool-status-refresh" (click)="refresh()">{{"Refresh" | translate}}</button>
+  </header>
+  @if (poolScan) {
+    <dl class="fc-boot-scan">
+      <div><dt>{{"Operation" | translate}}</dt><dd>{{poolScan.function || 'SCAN'}}</dd></div>
+      <div><dt>{{'Status' | translate}}</dt><dd>{{poolScan.pause != null ? 'PAUSED' : poolScan.state ? poolScan.state : 'None requested' | translate}}</dd></div>
+      @if (poolScan.state === 'SCANNING') {
+        <div><dt>{{ 'Completed' | translate }}</dt><dd>{{ poolScan.percentage | number:'2.0-2' }}%</dd></div>
+      }
+      @if (poolScan.total_secs_left != null) {
+        <div><dt>{{ 'Time Remaining' | translate }}</dt><dd>
+            @if (timeRemaining.days > 0) {
+              <span class="time-remaining">
+              {{ timeRemaining.days }} {{ timeRemaining.days === 1 ? 'day' : 'days' | translate }}, </span>
+            }
+            @if (timeRemaining.hours > 0 || timeRemaining.days > 0) {
+              <span class="time-remaining">
+              {{timeRemaining.hours}} {{ timeRemaining.hours === 1 ? 'hour' : 'hours' | translate }}, </span>
+            }
+            @if (timeRemaining.minutes > 0 || timeRemaining.hours > 0) {
+              <span class="time-remaining">
+              {{timeRemaining.minutes}} {{ timeRemaining.minutes === 1 ? 'minute' : 'minutes' | translate }}, </span>
+            }
+            @if (timeRemaining.seconds || timeRemaining.seconds === 0) {
+              <span class="time-remaining">
+              {{timeRemaining.seconds}} {{ timeRemaining.seconds === 1 ? 'second' :'seconds' | translate }}</span>
+            }
+        </dd></div>
+      }
+      @if (poolScan['errors'] != null) {
+        <div><dt>{{'Errors' | translate}}</dt><dd>{{poolScan['errors']}}</dd></div>
+      }
+      @if (poolScan.start_time != null) {
+        <div><dt>{{'Date' | translate}}</dt><dd>{{getReadableDate(poolScan.start_time)}}</dd></div>
+      }
+    </dl>
+  }
+  <entity-tree-table [conf]="treeTableConfig"></entity-tree-table>
+</section>

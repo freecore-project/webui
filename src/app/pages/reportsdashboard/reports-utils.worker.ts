@@ -261,7 +261,10 @@ function avgCpuTempReport(report) {
   // Handle Aggregations
   const keys = Object.keys(output.aggregations);
   keys.forEach((key, index) => {
-    output.aggregations[key] = [arrayAvg(output.aggregations[key])];
+    // Empty exports have no aggregate values to average.
+    if (output.aggregations[key].length > 0) {
+      output.aggregations[key] = [arrayAvg(output.aggregations[key])];
+    }
   });
 
   return output;
@@ -349,10 +352,10 @@ addEventListener('message', ({ data }) => {
       break;
     case 'ProcessCommandsAsReportData':
       output = processCommands(evt.data);
-      emit({ name: 'ReportData', data: output, sender: evt.sender });
+      emit({ name: 'ReportData', data: output, sender: evt.sender, requestId: evt.requestId });
       break;
     case 'FetchingError':
-      emit({ name: 'ReportData', data, sender: evt.sender });
+      emit({ name: 'ReportData', data, sender: evt.sender, requestId: evt.requestId });
       break;
   }
 });

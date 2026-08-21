@@ -6,6 +6,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 import { TextLimiterTooltipComponent } from './text-limiter-tooltip/text-limiter-tooltip.component';
 
 @Directive({
+  standalone: false,
   selector: '[textLimiter]',
 })
 export class TextLimiterDirective implements AfterViewInit {

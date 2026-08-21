@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -12,8 +12,10 @@ import { T } from '../../../../translate-marker';
 import helptext from '../../../../helptext/system/alert-service';
 
 @Component({
+  standalone: false,
   selector: 'app-alertservice',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [EntityFormService],
 })
 export class AlertServiceComponent {
@@ -27,6 +29,7 @@ export class AlertServiceComponent {
   protected isEntity = true;
   entityForm: any;
 
+  readonly settingsTitle = T('Alert Service'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[];
   fieldSets: FieldSet[] = [
     {

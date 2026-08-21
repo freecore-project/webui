@@ -1,16 +1,19 @@
 import {
   Component, Input, OnInit, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { ControlConfig } from '../../models/control-config.interface';
 import { Control } from '../../models/control.interface';
 
 @Component({
+  standalone: false,
   selector: 'toolbar-multimenu',
   styleUrls: ['toolbar-multimenu.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: 'toolbar-multimenu.component.html',
 })
 export class ToolbarMultimenuComponent implements OnInit, OnChanges {
@@ -18,7 +21,7 @@ export class ToolbarMultimenuComponent implements OnInit, OnChanges {
   @Input() controller: Subject<any>;
   allSelected = false;
   values: any[] = [];
-  private selectStates: boolean [] = [];
+  selectStates: boolean[] = []; // read by the template (the internal development record)
   constructor(public translate: TranslateService) {}
 
   ngOnChanges(changes: SimpleChanges) {

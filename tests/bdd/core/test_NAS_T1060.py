@@ -31,7 +31,7 @@ def test_verify_local_user_ftp_login_access(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Local User Login"]', 'clickable')
     if attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow Local User Login"]', 'class', 'mat-checkbox-checked'):
         driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__Allow Local User Login"]').click()
@@ -82,7 +82,7 @@ def on_the_users_page_should_open_click_on_the_add_button(driver):
 @then('on the Users Add page input FTP User in Full Name entry')
 def on_the_users_add_page_input_ftp_user_in_full_name_entry(driver):
     """on the Users Add page input FTP User in Full Name entry."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
     assert wait_on_element(driver, 7, '//input[@ix-auto="input__Full Name"]', 'clickable')
     driver.find_element_by_xpath('//input[@ix-auto="input__Full Name"]').clear()
     driver.find_element_by_xpath('//input[@ix-auto="input__Full Name"]').send_keys('FTP User')
@@ -127,8 +127,8 @@ def click_on_storage_on_the_side_menu_click_on_pools(driver):
 @then('click on the ftptest dataset 3 dots button, select Edit Permissions')
 def click_on_the_ftptest_dataset_3_dots_button_select_edit_permissions(driver):
     """click on the ftptest dataset 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__ftptest"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__ftptest"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__ftptest"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__ftptest"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__ftptest_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__ftptest_Edit Permissions"]').click()
 
@@ -181,7 +181,7 @@ def on_the_ftp_edit_page_enable_the_allow_local_user_login_checkbox(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Local User Login"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow Local User Login"]', 'class', 'mat-checkbox-checked')
     if not value_exist:

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subscription } from 'rxjs';
@@ -16,10 +16,35 @@ import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { DialogFormConfiguration } from '../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { helptext_system_update as helptext } from 'app/helptext/system/update';
 import { UpdateService } from 'app/services/update.service';
+import { ApiTimestamp } from 'app/interfaces/api-date.interface';
+import filesize from 'filesize';
+
+interface RollbackWindow {
+  origin_be: string;
+  arrival_path: string;
+  captured_at: ApiTimestamp | string;
+  closed_reason: string | null;
+}
+
+interface RollbackAvailability {
+  available: boolean;
+  reason: string | null;
+}
+
+interface RollbackSpace {
+  snapshot_count: number;
+  snapshot_bytes_lower_bound: number;
+  origin_be_bytes_estimate: number | null;
+  origin_be_pinned: boolean;
+  cleanup_pending: boolean;
+}
 
 @Component({
+  standalone: false,
   selector: 'app-update',
-  styleUrls: ['update.component.css'],
+  // the internal development record: dynamic-field.css carries the #394 checkbox row (as the console panel takes it)
+  styleUrls: ['update.component.css', '../../common/entity/entity-form/components/dynamic-field/dynamic-field.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   templateUrl: './update.component.html',
 })
 export class UpdateComponent implements OnInit, OnDestroy {
@@ -35,6 +60,11 @@ export class UpdateComponent implements OnInit, OnDestroy {
   autoCheck = false;
   train: string;
   trains: any[] = [];
+  /** the internal development record: the closed Train field shows the option text, not the bare train name. */
+  trainLabel = (name: string): string => {
+    const train = this.trains.find((item) => item.name === name);
+    return train ? `${train.name} - ${train.description}` : (name || '');
+  };
   selectedTrain;
   general_update_error;
   update_downloaded = false;
@@ -68,6 +98,14 @@ export class UpdateComponent implements OnInit, OnDestroy {
                                   <i>APPLY PENDING UPDATE</i> to install \
                                   the downloaded update.');
   train_version = null;
+  rollbackWindow: RollbackWindow = null;
+  rollbackAvailability: RollbackAvailability = null;
+  rollbackCapturedAt: number | string = null;
+  rollbackError: string = null;
+  rollbackExecuting = false;
+  rollbackSpace: RollbackSpace = null;
+  rollbackSpaceError: string = null;
+  rollbackRemoving = false;
 
   protected saveConfigFieldConf: FieldConfig[] = [
     {
@@ -77,6 +115,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
     },
   ];
   saveConfigFormConf: DialogFormConfiguration = {
+    settingsStyle: true,
     title: T('Save configuration settings from this machine before updating?'),
     message: T('<b>WARNING:</b> This configuration file contains system\
               passwords and other sensitive data.<br>'),
@@ -87,7 +126,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
               <b>Keep the configuration file safe and protect it from unauthorized access!</b>'),
     method_ws: 'core.download',
     saveButtonText: T('SAVE CONFIGURATION'),
-    cancelButtonText: T('NO'),
+    cancelButtonText: T('No'),
     customSubmit: this.saveConfigSubmit,
     parent: this,
   };
@@ -144,6 +183,8 @@ export class UpdateComponent implements OnInit, OnDestroy {
       this.isHA = !!(evt.data.license && evt.data.license.system_serial_ha.length > 0);
     });
     this.core.emit({ name: 'SysInfoRequest', sender: this });
+
+    this.loadRollbackWindow();
 
     this.busy = this.ws.call('update.get_auto_download').subscribe((res) => {
       this.autoCheck = res;
@@ -216,6 +257,249 @@ export class UpdateComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadRollbackWindow() {
+    this.rollbackError = null;
+    this.rollbackSpaceError = null;
+    this.ws.call('system.rollback.config').subscribe(
+      (window: RollbackWindow) => {
+        this.rollbackWindow = window;
+        this.rollbackAvailability = null;
+        this.rollbackCapturedAt = null;
+        this.rollbackSpace = null;
+        if (!window) {
+          return;
+        }
+
+        this.rollbackCapturedAt = typeof window.captured_at === 'object'
+          ? window.captured_at.$date
+          : window.captured_at;
+        this.ws.call('system.rollback.available').subscribe(
+          (availability: RollbackAvailability) => {
+            this.rollbackAvailability = availability;
+          },
+          (err) => {
+            this.rollbackError = this.rollbackErrorMessage(err);
+          },
+        );
+        this.ws.call('system.rollback.space').subscribe(
+          (space: RollbackSpace) => {
+            this.rollbackSpace = space;
+          },
+          (err) => {
+            this.rollbackSpace = null;
+            this.rollbackSpaceError = this.rollbackErrorMessage(err);
+          },
+        );
+      },
+      (err) => {
+        // There is no record to render when config itself cannot be read. Keep
+        // the normal update page intact, but retain the error for component
+        // state/diagnostics rather than pretending the call succeeded.
+        this.rollbackWindow = null;
+        this.rollbackAvailability = null;
+        this.rollbackError = this.rollbackErrorMessage(err);
+      },
+    );
+  }
+
+  get canRollback(): boolean {
+    return !!this.rollbackWindow
+      && !!this.rollbackAvailability
+      && this.rollbackAvailability.available
+      && !this.rollbackExecuting
+      && !this.rollbackRemoving;
+  }
+
+  get canRemoveRollback(): boolean {
+    return !!this.rollbackWindow
+      && !this.rollbackExecuting
+      && !this.rollbackRemoving
+      && (this.rollbackWindow.closed_reason === null || this.rollbackCleanupOutstanding);
+  }
+
+  /**
+   * Whether the capture is still holding state the operator can clear - standing
+   * snapshots or the keep pin on the origin boot environment - or whether the
+   * space call failed, so we cannot claim it is clean either.
+   */
+  get rollbackCleanupOutstanding(): boolean {
+    return !!this.rollbackWindow
+      && (!!this.rollbackSpaceError || !!this.rollbackSpace?.cleanup_pending);
+  }
+
+  /**
+   * The return is on offer only while it can actually be taken.  Every reason it
+   * stops being available is permanent, so a `Return to 13.3` the operator can
+   * never press is not a disabled action, it is a dead one.
+   */
+  get showRollbackReturn(): boolean {
+    return !!this.rollbackWindow
+      && this.rollbackWindow.closed_reason === null
+      && !!this.rollbackAvailability?.available;
+  }
+
+  /**
+   * The card stands while there is something to offer or something to clear -
+   * and not one moment longer.  `system.rollback.remove` deliberately keeps its
+   * row so the middleware can stay idempotent, so a torn-down capture is still
+   * reported by `system.rollback.config`; rendering on that alone left a card
+   * on System > Update, with a permanently disabled button and no remove
+   * action, that the operator had no way to dismiss.
+   */
+  get showRollbackCard(): boolean {
+    if (!this.rollbackWindow) {
+      return false;
+    }
+    if (this.rollbackWindow.closed_reason === null && !this.rollbackAvailability && !this.rollbackError) {
+      // An open capture is presumed live while its status is still being read,
+      // so the page does not withhold the card for a round trip.  A closed one
+      // is never shown on presumption: it is shown once it is known to hold
+      // something, which is the state the operator can still act on.
+      return true;
+    }
+    return this.showRollbackReturn || this.rollbackCleanupOutstanding;
+  }
+
+  rollbackSnapshotSpace(): string {
+    if (!this.rollbackSpace || this.rollbackSpace.snapshot_bytes_lower_bound == null) {
+      return null;
+    }
+    return filesize(this.rollbackSpace.snapshot_bytes_lower_bound, { standard: 'iec' });
+  }
+
+  rollbackOriginSpace(): string {
+    if (!this.rollbackSpace || this.rollbackSpace.origin_be_bytes_estimate == null) {
+      return null;
+    }
+    return filesize(this.rollbackSpace.origin_be_bytes_estimate, { standard: 'iec' });
+  }
+
+  rollbackRemoveLabel(): string {
+    return this.rollbackWindow?.closed_reason === null ? T('Remove Captured Return') : T('Retry Cleanup');
+  }
+
+  removeRollback() {
+    if (!this.canRemoveRollback) {
+      return;
+    }
+
+    const cleanupRetry = this.rollbackWindow.closed_reason !== null;
+    const snapshotSpace = this.rollbackSnapshotSpace();
+    const originSpace = this.rollbackOriginSpace();
+    let message = cleanupRetry
+      ? helptext.rollback.retry_cleanup_confirmation
+      : helptext.rollback.remove_confirmation;
+    if (snapshotSpace) {
+      message += `<p><b>${T('Captured snapshot space (minimum):')}</b> ${this.escapeHtml(snapshotSpace)}</p>`;
+    }
+    if (this.rollbackSpace?.origin_be_pinned) {
+      message += `<p><b>${T('Pinned origin boot environment (deletion estimate):')}</b> `
+        + `${originSpace ? this.escapeHtml(originSpace) : T('size unavailable')}</p>`;
+    }
+
+    this.dialogService.confirm({
+      title: cleanupRetry ? helptext.rollback.retry_cleanup_title : helptext.rollback.remove_title,
+      message,
+      buttonMsg: cleanupRetry ? helptext.rollback.retry_cleanup_action : helptext.rollback.remove_action,
+      disableClose: true,
+    }).subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.rollbackRemoving = true;
+      this.dialogRef = this.dialog.open(EntityJobComponent, {
+        data: { title: this.rollbackRemoveLabel() },
+        disableClose: true,
+      });
+      this.dialogRef.componentInstance.setCall('system.rollback.remove');
+      this.dialogRef.componentInstance.submit();
+      this.dialogRef.componentInstance.success.subscribe(() => {
+        // The dialog is pinned (disableClose) while the job runs, so it has
+        // no Close button of its own; release the operator once it is done.
+        this.dialogRef.close();
+        this.rollbackRemoving = false;
+        this.loadRollbackWindow();
+      });
+      this.dialogRef.componentInstance.failure.subscribe((err) => {
+        this.rollbackRemoving = false;
+        this.loadRollbackWindow();
+        new EntityUtils().handleWSError(this, err, this.dialogService);
+      });
+    });
+  }
+
+  rollbackUnavailableMessage(): string {
+    const reason = this.rollbackAvailability && this.rollbackAvailability.reason;
+    const messages = {
+      no_window: T('The rollback window is no longer present.'),
+      expired: T('The captured return was closed by an earlier prerelease build.'),
+      removed: T('The rollback capture was removed.'),
+      iso_install: T('An installer ISO does not preserve an origin boot environment.'),
+      pool_upgraded: T('A pool was upgraded and can no longer be imported safely by the origin system.'),
+      origin_be_missing: T('The origin boot environment no longer exists.'),
+      origin_be_unpinned: T('The origin boot environment is no longer protected from automatic cleanup.'),
+      snapshots_missing: T('One or more rollback snapshots are missing.'),
+      system_dataset_changed: T('The system dataset has moved since capture.'),
+      iocage_changed: T('The active iocage dataset has changed since capture.'),
+    };
+    return messages[reason] || T('The rollback preconditions are no longer satisfied.');
+  }
+
+  rollbackToOrigin() {
+    if (!this.canRollback) {
+      return;
+    }
+
+    const origin = this.escapeHtml(this.rollbackWindow.origin_be);
+    const captured = this.escapeHtml(new Date(this.rollbackCapturedAt).toLocaleString());
+    const message = helptext.rollback.confirmation
+      + `<p><b>${T('Origin boot environment:')}</b> ${origin}<br>`
+      + `<b>${T('Captured:')}</b> ${captured}</p>`;
+
+    this.dialogService.confirm({
+      title: helptext.rollback.title,
+      message,
+      buttonMsg: helptext.rollback.action,
+      disableClose: true,
+    }).subscribe((confirmed) => {
+      if (!confirmed) {
+        return;
+      }
+
+      this.rollbackExecuting = true;
+      this.dialogRef = this.dialog.open(EntityJobComponent, {
+        data: { title: helptext.rollback.action },
+        disableClose: true,
+      });
+      this.dialogRef.componentInstance.setCall('system.rollback.execute');
+      this.dialogRef.componentInstance.submit();
+      this.dialogRef.componentInstance.success.subscribe(() => {
+        this.router.navigate(['/others/reboot'], { skipLocationChange: true });
+      });
+      this.dialogRef.componentInstance.failure.subscribe((err) => {
+        this.rollbackExecuting = false;
+        new EntityUtils().handleWSError(this, err, this.dialogService);
+      });
+    });
+  }
+
+  private rollbackErrorMessage(err): string {
+    return err && (err.reason || err.error || err.message)
+      ? err.reason || err.error || err.message
+      : T('Unable to read rollback status from middleware.');
+  }
+
+  private escapeHtml(value: string): string {
+    return String(value).replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;',
+    }[character]));
+  }
+
   checkUpgradePending() {
     this.ws.call('failover.upgrade_pending').subscribe((res) => {
       this.failover_upgrade_pending = res;
@@ -225,7 +509,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
   applyFailoverUpgrade() {
     this.dialogService.confirm(T('Finish Upgrade?'), T(''), true, T('Continue')).subscribe((res) => {
       if (res) {
-        this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Update') }, disableClose: false });
+        this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Update'), statusKind: 'update' }, disableClose: false });
         this.dialogRef.componentInstance.setCall('failover.upgrade_finish');
         this.dialogRef.componentInstance.submit();
         this.dialogRef.componentInstance.success.subscribe((success) => {
@@ -392,7 +676,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
 
   // Shows an update in progress as a job dialog on the update page
   showRunningUpdate(jobId) {
-    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update' }, disableClose: true });
+    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update', statusKind: 'update' }, disableClose: true });
     if (this.is_ha) {
       this.dialogRef.componentInstance.disableProgressValue(true);
     }
@@ -537,7 +821,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
     this.ds.afterClosed().subscribe((status) => {
       if (status) {
         if (!this.ds.componentInstance.data[0].reboot) {
-          this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Update') }, disableClose: false });
+          this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: T('Update'), statusKind: 'update' }, disableClose: false });
           this.dialogRef.componentInstance.setCall('update.download');
           this.dialogRef.componentInstance.submit();
           this.dialogRef.componentInstance.success.subscribe((succ) => {
@@ -557,7 +841,7 @@ export class UpdateComponent implements OnInit, OnDestroy {
 
   update() {
     this.sysGenService.updateRunningNoticeSent.emit();
-    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update' }, disableClose: true });
+    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update', statusKind: 'update' }, disableClose: true });
     if (!this.is_ha) {
       this.dialogRef.componentInstance.setCall('update.update', [{ reboot: true }]);
       this.dialogRef.componentInstance.submit();

@@ -1,12 +1,27 @@
-:host ::ng-deep .prefs-form .fieldset{
-  /*height:400px;*/
+/* the internal development record: the page is the .fc-page--capped shell (freecore-ui.css) -- no card, no insets.
+ * The one embedded form (entity-form-embedded: a flex fieldset whose direct children are the h4 and
+ * the fields -- no body wrapper, so no 170px column here) take the settings voice and rows by
+ * ::ng-deep: the hairline section, the 15px/400 fg1 label, the hairline action row. The engine binds
+ * text-align inline on .buttons; it is inert on a flex row, so it is left alone. */
+#ui-preferences-page { color: var(--fg2); } /* the fg2 body the card gave the page */
+:host ::ng-deep .prefs-form .fieldset {
+  border-top: 1px solid var(--fc-line, var(--lines));
+  padding: 28px 0 16px;
 }
-
-.prefs-card{
-  max-width:960px;
-  margin:0 auto;
+:host ::ng-deep .prefs-form .fieldset-label {
+  margin: 0 0 16px;
+  padding: 0;
+  color: var(--fg1);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
+  min-width: 100%;
 }
-
-.prefs-form{
-  padding:16px 0; 
+/* the internal development record: the fields sit on the page edge (the embedded engine's 8px field margin goes). */
+:host ::ng-deep .prefs-form div.form-line, :host ::ng-deep .prefs-form div.form-inline { margin-left: 0; margin-right: 0; }
+:host ::ng-deep .prefs-form .buttons {
+  border-top: 1px solid var(--fc-line, var(--lines));
+  padding: 20px 0 0;
+  margin: 12px 0 0;
+  min-height: 64px;
 }

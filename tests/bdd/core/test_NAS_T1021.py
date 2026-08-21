@@ -69,8 +69,8 @@ def the_pools_page_should_open(driver):
 @then('click on the tank three dots button, select Add Dataset')
 def click_on_the_tank_three_dots_button_select_add_dataset(driver):
     """click on the tank three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
@@ -80,7 +80,7 @@ def click_on_the_tank_three_dots_button_select_add_dataset(driver):
 @then('the Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """the Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('input dataset name {dataset_name} and click save'))

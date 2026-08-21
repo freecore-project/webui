@@ -1,103 +1,110 @@
-<div id="{{config.name}}" class="dynamic-field form-permissions" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
-	ix-auto ix-auto-type="permissions" ix-auto-identifier="{{config.placeholder}}">
-	<div class="top">
-		<label>{{ config.placeholder | translate }}</label>
-		<tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-		<mat-form-field class="full-width" style="display:none">
-			<input matInput [type]="config.inputType ? config.inputType : 'text'"
-				[placeholder]="config.placeholder"
-				[attr.value]="config.value"
-				[formControlName]="config.name"
-				ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}"
-				>
-		</mat-form-field>
-	</div>
-		<table>
-			<tr>
-				<td></td>
-				<td>{{"Read" | translate}}</td>
-				<td>{{"Write" | translate}}</td>
-				<td>{{"Execute" | translate}}</td>
-			</tr>
-			<tr>
-				<td>
-					{{"User" | translate}}
-				</td>
-				<td>
-					<mat-checkbox [checked]="ownerRead" (change)="toggleOwnerRead()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_ownerRead">
-					</mat-checkbox>
-				</td>
-				<td>
-					<mat-checkbox [checked]="ownerWrite" (change)="toggleOwnerWrite()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_ownerWrite">
-					</mat-checkbox>
-				</td>
-				<td>
-					<mat-checkbox [checked]="ownerExec" (change)="toggleOwnerExec()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_ownerExec">
-					</mat-checkbox>
-				</td>
-			</tr>
-			<tr>
-				<td>
-					{{"Group" | translate}}
-				</td>
-				<td>
-					<mat-checkbox [checked]="groupRead" (change)="toggleGroupRead()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_groupRead">
-					</mat-checkbox>
-				</td>
-				<td>
-					<mat-checkbox [checked]="groupWrite" (change)="toggleGroupWrite()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_groupWrite">
-					</mat-checkbox>
-				</td>
-				<td>
-					<mat-checkbox [checked]="groupExec" (change)="toggleGroupExec()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_groupExec">
-					</mat-checkbox>
-				</td>
-			</tr>
-			<tr *ngIf="!config.noexec">
-				<td>
-					{{"Other" | translate}}
-				</td>
-				<td>
-					<mat-checkbox [checked]="otherRead" (change)="toggleOtherRead()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_otherRead">
-					</mat-checkbox><br/>
-				</td>
-				<td>
-					<mat-checkbox [checked]="otherWrite" (change)="toggleOtherWrite()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_otherWrite">
-					</mat-checkbox><br/>
-				</td>
-				<td>
-					<mat-checkbox [checked]="otherExec" (change)="toggleOtherExec()"
-						ix-auto
-						ix-auto-type="checkbox"
-						ix-auto-identifier="{{config.name}}_otherExec">
-					</mat-checkbox>
-				</td>			
-			</tr>
-		</table>
-	
-	<mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-</div>
+@if (!config['isHidden']) {
+  <!-- the internal development record: the mode matrix on spartan -- nine hlm checkboxes in the #394 32px cells,
+       the label row on the field vocabulary, the octal value written by the same toggle logic. The
+       control stays registered through a hidden native input, as before. -->
+  <div id="{{config.name}}" class="dynamic-field form-permissions" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="permissions" ix-auto-identifier="{{config.placeholder}}">
+    <div class="form-permissions-head">
+      <label hlmFieldLabel>{{ config.placeholder | translate }}</label>
+      @if (config.tooltip) {
+        <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+      }
+      <input type="hidden" [formControlName]="config.name"
+        ix-auto ix-auto-type="input" ix-auto-identifier="{{config.placeholder}}">
+    </div>
+    <table class="form-permissions-matrix">
+      <tr class="form-permissions-what">
+        <td></td>
+        <td>{{"Read" | translate}}</td>
+        <td>{{"Write" | translate}}</td>
+        <td>{{"Execute" | translate}}</td>
+      </tr>
+      <tr>
+        <td class="form-permissions-who">{{"User" | translate}}</td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOwnerRead()">
+            <hlm-checkbox [checked]="ownerRead" (checkedChange)="toggleOwnerRead()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_ownerRead" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOwnerWrite()">
+            <hlm-checkbox [checked]="ownerWrite" (checkedChange)="toggleOwnerWrite()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_ownerWrite" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOwnerExec()">
+            <hlm-checkbox [checked]="ownerExec" (checkedChange)="toggleOwnerExec()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_ownerExec" />
+          </span>
+        </td>
+      </tr>
+      <tr>
+        <td class="form-permissions-who">{{"Group" | translate}}</td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleGroupRead()">
+            <hlm-checkbox [checked]="groupRead" (checkedChange)="toggleGroupRead()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_groupRead" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleGroupWrite()">
+            <hlm-checkbox [checked]="groupWrite" (checkedChange)="toggleGroupWrite()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_groupWrite" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleGroupExec()">
+            <hlm-checkbox [checked]="groupExec" (checkedChange)="toggleGroupExec()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_groupExec" />
+          </span>
+        </td>
+      </tr>
+      @if (!config.noexec) {
+      <tr>
+        <td class="form-permissions-who">{{"Other" | translate}}</td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOtherRead()">
+            <hlm-checkbox [checked]="otherRead" (checkedChange)="toggleOtherRead()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_otherRead" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOtherWrite()">
+            <hlm-checkbox [checked]="otherWrite" (checkedChange)="toggleOtherWrite()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_otherWrite" />
+          </span>
+        </td>
+        <td>
+          <span class="checkbox-cell" (click)="$event.target === $event.currentTarget && toggleOtherExec()">
+            <hlm-checkbox [checked]="otherExec" (checkedChange)="toggleOtherExec()"
+              ix-auto
+              ix-auto-type="checkbox"
+              ix-auto-identifier="{{config.name}}_otherExec" />
+          </span>
+        </td>
+      </tr>
+      }
+    </table>
+    @if (config['hasErrors']) {
+      <p class="form-error-line" role="alert">{{config['errors']}}</p>
+    }
+  </div>
+}

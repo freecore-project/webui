@@ -64,7 +64,7 @@ def click_on_sharing_on_the_side_menu_and_click_block_shares(driver):
 def the_iscsi_page_appear_at_the_target_global_configuration_tab(driver):
     """the iSCSI page appear at the Target Global Configuration tab."""
     assert wait_on_element(driver, 7, '//a[contains(.,"iSCSI")]')
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Global Configuration")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Global Configuration")]')
 
 
 @then('click on the Targets tab, then click Add')
@@ -73,7 +73,7 @@ def click_on_the_targets_tab_then_click_add(driver):
     driver.find_element_by_xpath('//a[@ix-auto="tab__Targets"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Targets")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic Info")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Basic Info")]')
 
 
 @then(parsers.parse('input {name} in Target name, input {alias} in Target alias'))
@@ -140,7 +140,7 @@ def click_on_the_extents_tab_then_click_add(driver):
     driver.find_element_by_xpath('//a[@ix-auto="tab__Extents"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Extents")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic Info")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Basic Info")]')
 
 
 @then(parsers.parse('input {name} in Extent name, select {extent_type} in Extent Type'))
@@ -189,7 +189,7 @@ def click_on_the_associated_targets_tab_then_click_add(driver):
     driver.find_element_by_xpath('//a[@ix-auto="tab__Associated Targets"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Associated Targets")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Associated Target")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Associated Target")]')
 
 
 @then(parsers.parse('select {target} in Target, input {lun_id} in LUN ID, select {extent} in Extent'))

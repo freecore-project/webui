@@ -1,0 +1,126 @@
+/* the internal development record: the wizard stepper on the vocabulary. Unencapsulated on purpose (the header
+ * rows are this component's own markup, and the iSCSI section keys on these classes), every value
+ * a token: --sp-* from the #391 bridge, the #352 ring literal (fg2 at 70%), the #353 focus ring. */
+.fc-stepper {
+  display: block;
+}
+
+.fc-stepper-header {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 56px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--sp-border, var(--line, #2a353d));
+  white-space: nowrap;
+}
+
+.fc-step-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 8px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--sp-radius, 6px);
+  background: transparent;
+  color: var(--sp-muted-foreground, var(--fg2, #97a6ae));
+  font: inherit;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  text-align: start;
+  cursor: pointer;
+  outline: none;
+  flex: 0 1 auto;
+  min-width: 0;
+  transition: background-color 120ms, color 120ms;
+}
+.fc-step-header:hover:not([aria-disabled]) {
+  background-color: var(--sp-accent, var(--fc-hover, rgba(220, 227, 230, 0.05)));
+}
+.fc-step-header[aria-disabled] {
+  cursor: default;
+}
+.fc-step-header:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sp-ring, var(--accent, #8fb4c7)) 25%, transparent);
+}
+
+/* the circle: 24px; upcoming = the #352 ring in fg2, selected = the fg1 slab, completed = the ring
+ * with a fg1 check */
+.fc-step-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--sp-muted-foreground, var(--fg2, #97a6ae)) 70%, transparent);
+  color: var(--sp-muted-foreground, var(--fg2, #97a6ae));
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 500;
+  transition: background-color 120ms, border-color 120ms, color 120ms;
+}
+.fc-step-header[data-state="selected"] .fc-step-icon {
+  background-color: var(--sp-primary, var(--fg1, #dce3e6));
+  border-color: var(--sp-primary, var(--fg1, #dce3e6));
+  color: var(--sp-primary-foreground, var(--bg0, #0b0f13));
+}
+.fc-step-header[data-state="completed"] .fc-step-icon {
+  color: var(--sp-foreground, var(--fg1, #dce3e6));
+}
+.fc-step-check {
+  display: block;
+}
+
+.fc-step-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.fc-step-header[data-state="selected"] .fc-step-label {
+  color: var(--sp-foreground, var(--fg1, #dce3e6));
+  font-weight: 500;
+}
+.fc-step-header[data-state="completed"] .fc-step-label {
+  color: var(--sp-foreground, var(--fg1, #dce3e6));
+}
+
+/* the connector: a hairline that takes the room between two steps */
+.fc-step-line {
+  flex: 1 1 auto;
+  min-width: 32px;
+  height: 1px;
+  margin: 0 8px;
+  background-color: var(--sp-border, var(--line, #2a353d));
+}
+
+/* a non-selected panel keeps its box (as Material's did): the other steps' fields keep a position
+ * for the error-step scrollIntoView; inert takes it out of the tab order and the tree */
+.fc-step-panel[inert] {
+  visibility: hidden;
+  height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 700px) {
+  /* the row scrolls; a scroll box clips the focus ring, so it gets 4px of side room here, taken
+   * back by the margin so the circles stay under the container's inset */
+  .fc-stepper-header {
+    overflow-x: auto;
+    padding: 0 4px;
+    margin: 0 -4px 24px;
+  }
+  .fc-step-header {
+    flex-shrink: 0;
+  }
+  .fc-step-line {
+    min-width: 12px;
+  }
+}

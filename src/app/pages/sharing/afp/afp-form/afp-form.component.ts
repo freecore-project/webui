@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import globalHelptext from 'app/helptext/global-helptext';
@@ -14,10 +14,14 @@ import { DialogService, WebSocketService } from '../../../../services';
 import { DialogFormConfiguration } from 'app/pages/common/entity/entity-dialog/dialog-form-configuration.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-afp-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class AFPFormComponent implements OnDestroy {
+  readonly settingsTitle = T('AFP Share');
+
   protected route_success = ['sharing', 'afp'];
   protected queryCall = 'sharing.afp.query';
   protected editCall = 'sharing.afp.update';

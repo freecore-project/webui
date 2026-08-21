@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
 
@@ -18,12 +18,16 @@ import * as _ from 'lodash';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'vm-list',
   template: `
-    <div class="vm-summary">
-        <p *ngIf="availMem"><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
-    </div>
+    @if (availMem) {
+      <div class="vm-summary fc-page-notice"><!-- the internal development record: the one notice box, left-anchored -->
+        <p><strong>{{memTitle | translate}}</strong> {{availMem}} - {{memWarning | translate}}</p>
+      </div>
+    }
     <entity-table [title]='title' [conf]='this'></entity-table>`,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./vm-list.component.css'],
 })
 export class VMListComponent implements OnDestroy, InputTableConf {
@@ -401,7 +405,7 @@ export class VMListComponent implements OnDestroy, InputTableConf {
               type: 'input',
               inputType: 'text',
               name: 'name',
-              placeholder: T('Enter a Name (optional)'),
+              placeholder: T('Name (optional)'),
               required: false,
             },
           ],
@@ -447,6 +451,8 @@ export class VMListComponent implements OnDestroy, InputTableConf {
 
   isActionVisible(actionId: string, row: any) {
     if (actionId === 'VNC' && (row['status']['state'] !== 'RUNNING' || !this.checkVnc(row))) {
+      return false;
+    } if (actionId === 'CLONE' && row['bootloader'] === 'GRUB') {
       return false;
     } if ((actionId === 'POWER_OFF' || actionId === 'STOP' || actionId === 'RESTART'
             || actionId === 'SERIAL') && row['status']['state'] !== 'RUNNING') {

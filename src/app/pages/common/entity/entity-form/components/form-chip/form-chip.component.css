@@ -1,3 +1,56 @@
-mat-chip-list.form-chip mat-chip{
+/* the internal development record: the chip row inside the #351 box. The box (hlm-input-group, a 32px flex row)
+ * grows past a row and wraps; an empty field keeps the 32px so the 72px pitch holds. Chips are the
+ * 20px badge pill on the #218 tokens; the token input takes the rest of the row. */
+.form-chip-box {
+    height: auto;
+    min-height: 32px;
+    flex-wrap: wrap;
+    padding: 3px 6px;
+    gap: 4px;
+}
+.form-chip-box .form-chip-input {
+    flex: 1 1 96px;
+    min-width: 96px;
+    height: 24px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+.form-chip-row {
+    max-width: 100%;
+    outline: none;
+}
+.form-chip-row .form-chip-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.form-chip-remove {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    margin: 0 -4px 0 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--sp-muted-foreground, var(--fg2));
+    cursor: pointer;
+}
+.form-chip-remove:hover {
+    color: var(--sp-foreground, var(--fg1));
+}
+.form-chip-remove .material-icons {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    line-height: 14px;
+}
+.form-chip-disabled {
+    pointer-events: none;
+}
+/* An empty suggestion list draws nothing (Material's panel hid itself with zero options); the
+ * portal keeps this component's scope attribute. */
+hlm-autocomplete-content[data-empty] {
+    display: none;
 }

@@ -1,5 +1,6 @@
 import {
   Component, AfterViewInit, Input, ViewChild, ElementRef, OnChanges, SimpleChanges,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ViewChartComponent, ViewChartMetadata } from 'app/core/components/viewchart/viewchart.component';
 import { UUID } from 'angular2-uuid';
@@ -43,8 +44,10 @@ export interface BarDataSource {
 }
 
 @Component({
+  standalone: false,
   selector: 'viewchartbar',
   templateUrl: './viewchartbar.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./viewchartbar.component.css'],
 })
 export class ViewChartBarComponent implements AfterViewInit, OnChanges {

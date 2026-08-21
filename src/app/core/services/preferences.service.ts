@@ -112,27 +112,6 @@ export class PreferencesService {
       this.core.emit({ name: 'UserDataUpdate', data: this.preferences });
     });
 
-    this.core.register({ observerClass: this, eventName: 'ChangeCustomThemesPreference' }).subscribe((evt: CoreEvent) => {
-      this.preferences.customThemes = evt.data;
-      this.core.emit({ name: 'UserDataUpdate', data: this.preferences });
-    });
-
-    this.core.register({ observerClass: this, eventName: 'AddCustomThemePreference' }).subscribe((evt: CoreEvent) => {
-      const newTheme = evt.data;
-      this.preferences.customThemes.push(newTheme);
-      this.preferences.userTheme = evt.data.name;
-      this.core.emit({ name: 'UserDataUpdate', data: this.preferences });
-    });
-
-    this.core.register({ observerClass: this, eventName: 'ReplaceCustomThemePreference' }).subscribe((evt: CoreEvent) => {
-      let oldTheme: Theme;
-      const newTheme = evt.data;
-      const replaced: boolean = this.replaceCustomTheme(oldTheme, newTheme);
-      if (replaced) {
-        this.core.emit({ name: 'UserDataUpdate', data: this.preferences });
-      }
-    });
-
     // Reset the entire preferences object to default
     this.core.register({ observerClass: this, eventName: 'ResetPreferences' }).subscribe((evt: CoreEvent) => {
       const prefs = Object.assign(this.defaultPreferences, {});
@@ -197,15 +176,6 @@ export class PreferencesService {
     }
     this.core.emit({ name: 'UserDataUpdate', data });
     if (this.debug) { console.log({ SavingPreferences: this.preferences }); }
-  }
-
-  replaceCustomTheme(oldTheme: Theme, newTheme: Theme): boolean {
-    const index = this.preferences.customThemes.indexOf(oldTheme);
-    if (index && index >= 0) {
-      this.preferences.customThemes[index] = newTheme;
-      return true;
-    }
-    return false;
   }
 
   setShowGuide(value: boolean) {

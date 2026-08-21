@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -7,10 +8,14 @@ import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.in
 import helptext from '../../../../helptext/directoryservice/kerberoskeytabs-form-list';
 
 @Component({
+  standalone: false,
   selector: 'app-kerberos-keytbas-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class KerberosKeytabsFormComponent {
+  readonly settingsTitle = T('Kerberos Keytab'); // the internal development record: the object noun, add and edit alike
+
   protected addCall = 'kerberos.keytab.create';
   protected editCall = 'kerberos.keytab.update';
   protected queryCall = 'kerberos.keytab.query';

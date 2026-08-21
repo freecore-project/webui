@@ -1,16 +1,2 @@
-/* Placeholder overrides */
-:host ::ng-deep input::-webkit-input-placeholder {
-  color: rgba(255,255,255, 0.3) !important;
-}
-
-:host ::ng-deep input:-moz-placeholder { /* Firefox 18- */
-  color: rgba(255,255,255, 0.3) !important;
-}
-
-:host ::ng-deep input::-moz-placeholder {  /* Firefox 19+ */
-  color: rgba(255,255,255, 0.3) !important;
-}
-
-:host ::ng-deep input:-ms-input-placeholder {
-  color: rgba(255,255,255, 0.3) !important;
-}
+/* the internal development record: the placeholder colour is the #351 field's (fg2 at 70%, in hlm-input); the
+ * white-at-.3 overrides that lived here belonged to the Material input. */

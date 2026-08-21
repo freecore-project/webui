@@ -1,45 +1,42 @@
-#dashboard-spinner {
-  position: absolute;
-  left: 48%;
-  top: 58px;
-  z-index: 10;
+@use './dashboard-widgets';
+
+:host {
+  display: block;
+  min-width: 0;
 }
 
-.mobile-viewport{
-  position:fixed; 
-  z-index:2;
-  width: 100vw;
-  height: 100vh;
-  overflow:hidden;
-  top:88px;
+.widgets-wrapper-container,
+.mobile-viewport,
+.mobile-widget-container {
+  min-width: 0;
+  width: 100%;
 }
 
-.mobile-viewport.hidden{
-  display:none;
+.widgets-wrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 540px), 1fr));
+  gap: 16px;
+  align-items: stretch;
+  outline: none;
 }
 
-.mobile-viewport .carousel{
-  width:200%;
+.widgets-wrapper:focus-visible {
+  outline: 1px solid var(--fg2);
+  outline-offset: 4px;
 }
 
-.mobile-widget-container{
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  top:0;
-  left:100vw;
-  background-color:var(--bg2);
+.widgets-wrapper > * {
+  min-width: 0;
+  width: 100%;
 }
 
-.widgets-wrapper-container{
-  width:calc(100% - 32px);
-  margin:0 auto;
+.mobile-viewport [hidden] {
+  display: none !important;
 }
 
-.widgets-wrapper{
-  margin: 0 auto;
-}
-
-.widgets-wrapper > *{
-  margin: 0 4px;
+// Mobile keeps the existing launcher/detail navigation in ordinary page flow.
+// Removing the off-screen carousel also removes its hidden focus targets and
+// viewport-height assumptions. No transition runs, including in reduced motion.
+.mobile-viewport {
+  padding-bottom: 8px;
 }

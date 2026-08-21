@@ -70,13 +70,13 @@ def click_on_storage_on_the_side_menu_click_on_pools(driver):
 @then('click on the tank pool three dots button, select Add Dataset')
 def click_on_the_tank_pool_three_dots_button_select_add_dataset(driver):
     """click on the tank pool three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Dataset"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then('input dataset name home select SMB as Share Type and click save')
@@ -113,7 +113,7 @@ def on_the_windows_shares_click_add(driver):
     assert wait_on_element(driver, 7, '//div[contains(.,"Samba")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then('input home for the Name, input the home path for the SMB dataset')
@@ -218,7 +218,7 @@ def on_the_users_page_click_add(driver):
 @then('input smbuser for the user name and input password')
 def input_smbuser_for_the_user_name_and_input_password(driver):
     """input smbuser for the user name and input password."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
     assert wait_on_element(driver, 7, '//input[@ix-auto="input__Full Name"]')
     driver.find_element_by_xpath('//input[@ix-auto="input__Full Name"]').clear()
     driver.find_element_by_xpath('//input[@ix-auto="input__Full Name"]').send_keys('SMB User')

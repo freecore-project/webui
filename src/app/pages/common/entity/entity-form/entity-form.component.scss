@@ -1,8 +1,3 @@
-/*.mat-card{
-  max-width:960px;
-  margin:0 auto;
-}*/
-
 .form-wrap {
 	display: flex;
     flex-flow: row wrap;
@@ -26,12 +21,34 @@
     max-width: 33.33%;
 }
 
+/* the internal development record: entity-form's wrapper is a plain div -- the box Material's card gave it,
+ * restated (the other hosts of this sheet keep mat-card, which sets the same values). The
+ * relative position is the containing block of #entity-table-spinner and of dataset-acl's
+ * absolute preset button. */
 .form-card {
     z-index:2;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    position: relative;
 }
 
-.buttons {
-    margin-left: -1px;
+/* the internal development record: the -1px lead that cancelled the theme's mat-button margin in a card-actions row went with the last <mat-card-actions class="buttons"> (alert, device-add): every row that shares this sheet is a plain div.buttons on hlmBtn now. */
+
+/* the internal development record: entity-form's action row is a plain div. This restates the box Material's
+ * mat-card-actions gave it (flex row, 52px minimum, 8px inset) plus the full width that keeps it
+ * on its own line under the legacy flex-wrap fieldset container; the settings layer overrides
+ * the inset for reviewed pages. hlm buttons carry no margin, so the row needs no lead either. */
+div.buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 52px;
+    padding: 8px;
+    margin: 0;
 }
 
 :host .dataset-acl-editor {
@@ -47,19 +64,12 @@
   overflow: visible;
 }
 
-.mat-card-actions{
+.mat-mdc-card-actions{
   width: 100%;
   margin-bottom:0;
-  /*height: 10%;*/
-  /*text-align: center;*/
-  /*background-color: #fff;*/
-  /*margin: 5px 0px;*/
-  /*position: absolute;*/
-  /*bottom: 0; */
 }
 
 .fieldset-container{
-  /*position: fixed;*/
   width:100%;
   height: 85%;
   display: flex;
@@ -82,19 +92,12 @@
   font-size:12px;
 }
 
-/* Default View */
-.fieldset-container.fieldset-display-default{
-  /*padding: 3%;*/
-}
+/* Default View. the internal development record: `margin: 24px 0` used to be declared here
+ * and then reset by a second copy of this same selector five lines below, so
+ * fieldsets have always rendered flush. Folded into the one rule that was
+ * actually winning; the empty container rule around it went with it. */
 .fieldset-container.fieldset-display-default .fieldset{
   width:100%;
-  margin:24px 0;
-  /*height: 100%;*/
-  /*float: left;*/
-}
-
-/* No Margins*/
-.fieldset-container.fieldset-display-default .fieldset{
   margin:0;
 }
 
@@ -109,11 +112,17 @@
 //   visibility: hidden;
 // }
 
+/* the internal development record: hlm-spinner is an inline-flex icon sized by font-size (mat-spinner had a
+ * 40px box of its own and centred on left/right 0). The id outranks the helm utilities. Centred
+ * through `left` on purpose: the helm spins the host with an animation on `transform`, which a
+ * translate here would be blended into. Mono: the theme painted the old circle in --primary. */
 #entity-table-spinner {
   position: absolute;
-  top: 10px; left: 0; bottom: 0; right: 0;
+  top: 10px;
+  left: calc(50% - 20px);
   z-index: 10;
-  margin: 0 auto;
+  font-size: 40px;
+  color: var(--sp-muted-foreground, var(--fg2));
 }
 
 span.form-message.info {
@@ -134,7 +143,85 @@ span.form-message.warning {
   margin-bottom: -4px;
   padding-left: 3px;
 }
+/* the internal development record: the form-level error is the #392 error line (12/16 in --red), not a
+ * MatError; middleware text can carry links, which keep the theme's underline. The link arrives
+ * through innerHTML without the encapsulation attribute, hence ::ng-deep. */
 #error_message {
   margin-top: 4px;
   padding-left: 3px;
+}
+.form-error-line {
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--sp-destructive, var(--red));
+}
+#error_message ::ng-deep a {
+  text-decoration: underline;
+}
+
+.entity-form-fieldset-layout {
+  align-content: flex-start;
+  align-items: flex-start;
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  max-width: 100%;
+}
+
+.entity-form-field-layout {
+  box-sizing: border-box;
+  flex: 1 1 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 600px) {
+  .entity-form-fieldset-layout {
+    max-width: none;
+  }
+
+  .entity-form-fieldset-layout-sized {
+    flex-basis: calc(var(--entity-form-fieldset-width) - 16px);
+    min-width: calc(var(--entity-form-fieldset-width) - 16px);
+  }
+
+  .entity-form-field-layout.form-inline {
+    max-width: 33.33%;
+  }
+
+  .entity-form-field-layout-sized {
+    flex-basis: calc(var(--entity-form-field-width) - 16px);
+    min-width: calc(var(--entity-form-field-width) - 16px);
+  }
+}
+
+/* The settings sections (the internal development record: every form's default). The `legacyLayout` opt-out keeps
+ * the flex fieldset geometry above inside the same container, so its container rule stays flex. */
+.fc-settings-form {
+  container-type: inline-size;
+  &:not(.fc-legacy-layout) .fieldset-container { height: auto; display: block; }
+  .fc-settings-section {
+    display: grid;
+    grid-template-columns: 170px minmax(0, 1fr);
+    gap: 34px;
+    padding: 28px 0 16px;
+    border-top: 1px solid var(--fc-line, var(--lines));
+  }
+  .fc-settings-section[hidden], .entity-form-field-layout[hidden] { display: none; }
+  .fieldset-label { margin: 6px 0 0; padding: 0; line-height: 1.5; }
+  .fc-settings-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 24px; min-width: 0; }
+  .fc-settings-fields-unlabelled { grid-column: 1 / -1; }
+  .entity-form-field-layout { min-width: 0; max-width: 100%; }
+  .fc-settings-wide { grid-column: 1 / -1; }
+  @container (max-width: 1050px) {
+    .fc-settings-section { grid-template-columns: 140px minmax(0, 1fr); gap: 24px; }
+  }
+  @container (max-width: 800px) {
+    .fc-settings-section { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  }
+  @container (max-width: 550px) {
+    .fc-settings-fields { grid-template-columns: minmax(0, 1fr); }
+  }
 }

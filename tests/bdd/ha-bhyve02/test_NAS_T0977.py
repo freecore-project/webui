@@ -86,7 +86,7 @@ def click_authorized_access_tab_then_click_add_and_authorized_accessadd_add_page
     driver.find_element_by_xpath('//a[@ix-auto="tab__Authorized Access"]').click()
     assert wait_on_element(driver, 7, xpaths.isqsi.authorized_Access_Title)
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Group")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Group")]')
 
 
 @then(parsers.parse('input Group ID "{gid}", User "{user}", secret * "{password}",'))
@@ -132,7 +132,7 @@ def click_portals_tab_then_click_add_and_the_portal_add_page_should_open(driver)
     driver.find_element_by_xpath('//a[@ix-auto="tab__Portals"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Portals")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic Info")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Basic Info")]')
 
 
 @then(parsers.parse('input Description "{description}", select Discovery Auth Method "{method}"'))
@@ -210,7 +210,7 @@ def click_targets_tab_then_click_add_and_the_target_add_page_should_open(driver)
     driver.find_element_by_xpath('//a[@ix-auto="tab__Targets"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Targets")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic Info")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Basic Info")]')
 
 
 @then(parsers.parse('input Target name "{target_name}", Target alias "{target_alias}", Portal Group ID select "{group}"'))
@@ -254,7 +254,7 @@ def click_extents_tab_then_click_add_and_extents_add_page_should_open(driver):
     driver.find_element_by_xpath('//a[@ix-auto="tab__Extents"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Extents")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic Info")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Basic Info")]')
 
 
 @then(parsers.parse('input Extent name "{name}", select "{extent_type}" for Extent Type, select "{device}" for Device'))
@@ -284,7 +284,7 @@ def click_associated_targets_tab_then_click_add_and_associated_targets_add_page_
     driver.find_element_by_xpath('//a[@ix-auto="tab__Associated Targets"]').click()
     assert wait_on_element(driver, 7, '//div[contains(.,"Associated Targets")]')
     driver.find_element_by_xpath('//button[@ix-auto="button___ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Associated Target")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Associated Target")]')
 
 
 @then(parsers.parse('select "{target}" for Target, input "{lun_id}" for LUN ID, select "{extent}" for Extent'))

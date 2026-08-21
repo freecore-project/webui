@@ -1,13 +1,18 @@
-<div mat-dialog-content id="console-box">
-  <pre #footerBarScroll class="message">{{consoleMsg}}</pre>
-  <div mat-dialog-content class="overflow-hide">
-    <mat-checkbox (change)="onStopRefresh($event)"
-      ix-auto ix-auto-type="mat-checkbox" ix-auto-identifier="{{refreshMsg}}">{{refreshMsg}}</mat-checkbox>
+<!-- the internal development record: the console log on the dialog law -- an h2 title, the log as the shared
+     mono pane (.fc-dialog-pre, held at 50vh/500px so the scroll-follow has a box), the
+     stop-refresh checkbox as the engine's #394 row, an outline Close. The opener sets the width. -->
+<h2 mat-dialog-title>{{ 'Console' | translate }}</h2>
+<mat-dialog-content id="console-box">
+  <pre #footerBarScroll class="message fc-dialog-pre">{{consoleMsg}}</pre>
+  <div class="checkbox-row">
+    <span class="checkbox-cell">
+      <hlm-checkbox inputId="console-panel__stop-refresh" (checkedChange)="onStopRefresh($event)"
+        ix-auto ix-auto-type="checkbox" ix-auto-identifier="{{refreshMsg}}" />
+    </span>
+    <label class="checkbox-label" hlmLabel for="console-panel__stop-refresh">{{ refreshMsg }}</label>
   </div>
-</div>
+</mat-dialog-content>
 <div mat-dialog-actions>
-  <span fxFlex></span>
-  <button mat-button class="btn btn-accent mat-accent" (click)="dialogRef.close(false)"
-    ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{"Close" | translate}}</button>
+  <button hlmBtn variant="outline" type="button" (click)="dialogRef.close(false)"
+    ix-auto ix-auto-type="button" ix-auto-identifier="CLOSE">{{ 'Close' | translate }}</button>
 </div>
-<div id="placeholder"></div>

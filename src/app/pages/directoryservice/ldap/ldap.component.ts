@@ -1,5 +1,6 @@
 import {
   ApplicationRef, Component, Injector, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import * as _ from 'lodash';
@@ -18,11 +19,14 @@ import global_helptext from '../../../helptext/global-helptext';
 import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-ldap',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class LdapComponent {
+  readonly settingsTitle = T('LDAP');
   protected isEntity = false;
   protected queryCall = 'ldap.config';
   protected upodateCall = 'ldap.update';
@@ -134,6 +138,7 @@ export class LdapComponent {
     },
     {
       name: 'section_two',
+      settingsLabel: T('Authentication and transport'),
       class: 'section_header',
       label: false,
       width: '48%',
@@ -195,6 +200,7 @@ export class LdapComponent {
     },
     {
       name: 'section_three',
+      settingsLabel: T('Directory options'),
       class: 'section_header',
       label: false,
       width: '48%',

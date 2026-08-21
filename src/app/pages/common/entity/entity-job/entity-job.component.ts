@@ -1,5 +1,6 @@
 import {
   OnInit, Component, EventEmitter, Input, Output, HostListener, Inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DecimalPipe } from '@angular/common';
@@ -7,11 +8,13 @@ import { WebSocketService, RestService } from '../../../../services';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpClient } from '@angular/common/http';
 import * as _ from 'lodash';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'entity-job',
   templateUrl: 'entity-job.component.html',
-  styleUrls: ['./entity-job.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class EntityJobComponent implements OnInit {
   job: any = {};
@@ -25,7 +28,7 @@ export class EntityJobComponent implements OnInit {
   showAbortButton = false; // enable to abort job
   jobId: Number;
   progressNumberType;
-  hideProgressValue = false;
+  hideProgressValue = true;
   altMessage: string;
   showRealtimeLogs = false;
 
@@ -38,7 +41,33 @@ export class EntityJobComponent implements OnInit {
   @Output() prefailure = new EventEmitter();
   constructor(public dialogRef: MatDialogRef < EntityJobComponent >,
     private ws: WebSocketService, public rest: RestService,
-    @Inject(MAT_DIALOG_DATA) public data: any, translate: TranslateService, protected http: HttpClient) {}
+    @Inject(MAT_DIALOG_DATA) public data: any, translate: TranslateService, protected http: HttpClient) {
+    this.dialogRef.addPanelClass?.('fc-status-dialog');
+    this.dialogRef.updateSize?.('366px');
+    if (this.data.statusKind === 'update') this.dialogRef.addPanelClass?.('fc-status-fullscreen');
+  }
+
+  get isUpdate(): boolean {
+    return this.data.statusKind === 'update' || /^(update\.|failover\.upgrade)/.test(this.method || this.job?.method || '');
+  }
+
+  get statusTitle(): string {
+    if (!this.isUpdate) return this.title || T('Applying changes');
+    if (this.job?.state === 'FAILED') return T('Update failed');
+    if (this.job?.state === 'ABORTED') return T('Update aborted');
+    const downloading = (this.method || this.job?.method) === 'update.download';
+    if (this.job?.state === 'SUCCESS') return downloading ? T('Update downloaded') : T('Update installed');
+    return downloading ? T('Downloading update') : T('Installing update');
+  }
+
+  get statusProgress(): number | null {
+    return this.hideProgressValue || !Number.isFinite(this.progressTotalPercent)
+      ? null : Math.max(0, Math.min(100, this.progressTotalPercent));
+  }
+
+  get statusPending(): boolean {
+    return !['SUCCESS', 'FAILED', 'ABORTED'].includes(this.job?.state);
+  }
 
   ngOnInit() {
     // this.dialogRef.updateSize('35%', '200px');
@@ -58,7 +87,7 @@ export class EntityJobComponent implements OnInit {
       if (progress.description) {
         this.description = progress.description;
       }
-      if (progress.percent) {
+      if (progress.percent != null) {
         if (this.progressNumberType === 'nopercent') {
           this.progressTotalPercent = progress.percent * 100;
         } else {
@@ -78,6 +107,7 @@ export class EntityJobComponent implements OnInit {
 
   setCall(method: string, args?: any[]) {
     this.method = method;
+    if (this.isUpdate) this.dialogRef.addPanelClass?.('fc-status-fullscreen');
     if (args) {
       this.args = args;
     }
@@ -123,6 +153,7 @@ export class EntityJobComponent implements OnInit {
 
   jobUpdate(job) {
     this.job = job;
+    if (this.isUpdate) this.dialogRef.addPanelClass?.('fc-status-fullscreen');
     if (job.progress) {
       this.progress.emit(job.progress);
     }
@@ -213,6 +244,7 @@ export class EntityJobComponent implements OnInit {
 
   wsjobUpdate(job) {
     this.job = job;
+    if (this.isUpdate) this.dialogRef.addPanelClass?.('fc-status-fullscreen');
     if (job.fields) {
       this.job.state = job.fields.state;
     }

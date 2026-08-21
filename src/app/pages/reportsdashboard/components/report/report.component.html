@@ -1,212 +1,91 @@
-<div class="report" ngClass.xs="double-height xs">
-  <div class="card-container  front" (mouseenter)="setChartInteractive(true)" (mouseleave)="setChartInteractive(false)" >
-    <mat-card *ngIf="ready" class="front" fxLayout="row wrap" fxlayoutGap="16px" fxLayoutAlign="space-between stretch">
-      <mat-toolbar-row fxLayout="row" fxLayoutWrap fxLayoutAlign="space-between start" fxFlex="100" class="mat-card-toolbar">
-        <mat-card-title fxFlex="65%">
-          <h3>
-            {{reportTitle}}
-            <span *ngIf="multipathTitle">
-              {{multipathTitle}}
-              <mat-icon class="multipath-icon" role="img" svgIcon="multipath"></mat-icon>
-            </span>
-          </h3>
-        </mat-card-title>
-        <!-- Controls/Tools -->
-        <div fxFlex="calc(35%)" class="line-chart-tools-wrapper" *ngIf="!report.empty && !report.error">
-          <div class="line-chart-tools" *ngIf="localControls">
-            <button class="tool-icon" mat-icon-button [disabled]="timeZoomIndex >= (zoomLevels.length - 1)" (click)="timeZoomIn()"
-              ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_zoomIn">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-magnify-plus" ></mat-icon>
-                  </button>
+<section class="report" [class.report-stacked]="layout !== 'wide'" [class.report-compact]="layout === 'compact'"
+  [attr.aria-labelledby]="chartId + '-title'" (mouseenter)="setChartInteractive(true)" (mouseleave)="setChartInteractive(false)">
+  <header class="report-header">
+    <h2 [id]="chartId + '-title'">
+      {{ reportTitle }}
+      @if (multipathTitle) {
+        <span class="multipath-title">{{ multipathTitle }} <mat-icon class="multipath-icon" svgIcon="multipath" aria-hidden="false" [attr.aria-label]="'Multipath' | translate"></mat-icon></span>
+      }
+    </h2>
+    @if (ready && localControls && !report.empty && !reportError) {
+      <div class="report-time-controls" role="group" [attr.aria-label]="'Time range' | translate">
+        <button hlmBtn variant="ghost" size="icon" type="button" [disabled]="timeZoomIndex >= (zoomLevels.length - 1)" (click)="timeZoomIn()"
+          [attr.aria-label]="'Zoom in' | translate" [hlmTooltip]="'Zoom in' | translate"
+          ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_zoomIn"><mat-icon aria-hidden="true">zoom_in</mat-icon></button>
+        <button hlmBtn variant="ghost" size="icon" type="button" [disabled]="timeZoomIndex <= 0" (click)="timeZoomOut()"
+          [attr.aria-label]="'Zoom out' | translate" [hlmTooltip]="'Zoom out' | translate"
+          ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_zoomOut"><mat-icon aria-hidden="true">zoom_out</mat-icon></button>
+        <button hlmBtn variant="ghost" size="icon" type="button" (click)="stepBack()" [disabled]="rangeResolving || !hasRange"
+          [attr.aria-label]="'Previous period' | translate" [hlmTooltip]="'Previous period' | translate"
+          ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_stepBack"><mat-icon aria-hidden="true">fast_rewind</mat-icon></button>
+        <button hlmBtn variant="ghost" size="icon" type="button" (click)="stepForward()" [disabled]="rangeResolving || !hasRange || stepForwardDisabled"
+          [attr.aria-label]="'Next period' | translate" [hlmTooltip]="'Next period' | translate"
+          ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_stepForward"><mat-icon aria-hidden="true">fast_forward</mat-icon></button>
+      </div>
+    }
+  </header>
 
-                  <button class="tool-icon" mat-icon-button [disabled]="timeZoomIndex <= 0" (click)="timeZoomOut()"
-                    ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_zoomOut">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-magnify-minus"></mat-icon>
-                  </button>
-
-                  <button class="tool-icon" mat-icon-button (click)="stepBack()"
-                    ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_stepBack">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-rewind" ></mat-icon>
-                  </button>
-
-                  <button class="tool-icon" mat-icon-button (click)="stepForward()" [disabled]="stepForwardDisabled"
-                    ix-auto ix-auto-type="button" ix-auto-identifier="{{reportTitle}}_stepForward">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-fast-forward"></mat-icon>
-                  </button>
-          </div>
+  @if (!ready || requestLoading) {
+    <div class="report-state" role="status"><hlm-spinner [aria-label]="'Loading' | translate" /><span>{{ 'Loading report…' | translate }}</span></div>
+  } @else if (reportError || report.empty) {
+    <div class="report-state" role="status" tabindex="0">
+      @if (reportError) {
+        <h3>{{ reportError.title | translate }}</h3>
+        <button hlmBtn variant="outline" type="button" (click)="reportError.button.click()">{{ reportError.button.text | translate }}</button>
+      } @else {
+        <h3>{{ report.empty.title | translate }}</h3>
+        <p>{{ report.empty.message | translate }}</p>
+        <button hlmBtn variant="outline" type="button" (click)="report.empty.button.click()">{{ report.empty.button.text | translate }}</button>
+      }
+    </div>
+  } @else {
+    <div class="report-content">
+      <div class="report-plot">
+        <div class="chart-wrapper">
+          @if (plotDataError) {
+            <p class="plot-load-error" role="status">{{ 'Report data could not be loaded.' | translate }}</p>
+          } @else if (report && hasPlotData && chartColors) {
+            <linechart [chartId]="chartId" [chartColors]="chartColors" [data]="data" [title]="report.title"
+              [timezone]="timezone" [labelY]="report.vertical_label" type="line" [interactive]="false"></linechart>
+          } @else if (data && !hasPlotData) {
+            <p class="plot-no-data" role="status">{{ 'No data available for this period.' | translate }}</p>
+          }
         </div>
-      </mat-toolbar-row>
-      <!-- <mat-divider></mat-divider>-->
-
-        <mat-card-content fxLayout="row wrap" fxLayout.gt-xs="row wrap" fxLayoutAlign="space-between start" fxFlex="100">
-
-          <ng-container *ngIf="report.error">
-            <div class="chart-wrapper-outer" fxFlex="calc(100% - 420px)">
-              <div class="chart-wrapper-empty">
-                <div class="chart-wrapper-child">
-                  <div>
-                    <mat-icon class="error-icon"fontSet="mdi-set" fontIcon="mdi-alert-octagon"></mat-icon>
-                  </div>
-                  <h4 class="error-title">{{ report.error.title }}</h4>
-                  <button mat-raised-button color="primary" (click)="report.error.button.click()">{{ report.error.button.text }}</button>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
-          <ng-container *ngIf="report.empty">
-            <div class="chart-wrapper-outer" fxFlex="calc(100% - 420px)">
-              <div class="chart-wrapper-empty">
-                <div class="chart-wrapper-child">
-                  <div>
-                    <mat-icon class="empty-icon">bar_chart</mat-icon>
-                  </div>
-                  <h4 class="empty-title">{{ report.empty.title }}</h4>
-                  <p class="empty-message">{{report.empty.message}}</p>
-                  <button mat-raised-button color="primary" (click)="report.empty.button.click()">{{report.empty.button.text}}</button>
-                </div>
-              </div>
-            </div>
-          </ng-container>
-
-          <ng-container *ngIf="!report.empty && !report.error">
-            <div class="chart-wrapper-outer" fxFlex="calc(100% - 420px)">
-              <div class="chart-wrapper" >
-                <linechart
-                  *ngIf="report && data && chartColors"
-                  [chartId]="chartId"
-                  [chartColors]="chartColors"
-                  [data]="data"
-                  [title]="report.title"
-                  [timezone]="timezone"
-                  [labelY]="report.vertical_label"
-                  type="line"
-                  interactive="false">
-                </linechart>
-              </div>
-
-
-            <!-- Legend Section -->
-            <div class="legend-wrapper timestamps">
-              <!-- Time Stamps -->
-              <div class="legend-timestamp">
-                <div >
-                  <span *ngIf="data && legendData">
-                    <h4>
-                      <strong>Start:</strong>
-                      <span style="font-weight:normal;">&nbsp;&nbsp;{{startTime}}</span>
-                      <br ngClass.gt-sm="hidden">
-                      <span style="margin-left:0px;" class="text-small"> ({{timezone}})</span>
-                    </h4>
-                  </span>
-                </div>
-              </div>
-              <!-- <div class="legend-timestamp" fxFlex="calc(50% - 32px)"> -->
-              <div class="legend-timestamp">
-                <div >
-                  <span *ngIf="data && legendData">
-                    <h4>
-                      <strong>End:</strong>
-                      <span style="font-weight:normal;">&nbsp;&nbsp;{{endTime}}</span>
-                      <br ngClass.gt-sm="hidden">
-                      <span style="opacity:0;" class="text-small"> ({{timezone}})</span>
-                    </h4>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            </div>
-
-            <section class="legend" #legendElement fxFlex="420px" fxLayout="column" fxLayoutAlign="start"  >
-
-            <div *ngIf="report && data && data.legend" class="legend-timestamp" fxFlex="32px">
-              <div >
-                <span *ngIf="data && legendData && legendData.xHTML">
-                  <h4>
-                    <strong>Time:</strong>
-                    <span *ngIf="legendData && legendData.xHTML" style="font-weight:normal;">
-                      &nbsp;&nbsp;
-                      {{legendData.xHTML}}
-                    </span>
-                  </h4>
-                </span>
-              </div>
-            </div>
-
-            <div *ngIf="report && data && data.legend" class="legend-group-wrapper" fxFlex="calc(100% - 64px)" >
-              <table class="legend-table">
-                <!-- Table Header-->
-                <tr class="legend-group header">
-                  <th class="legend-label"><strong>Key</strong></th>
-                  <ng-container *ngIf="data && data.aggregations">
-                    <th class="legend-label" *ngFor="let key of aggregationKeys">
-                      <strong>{{key}}</strong>
+        @if (data && hasRange) {
+          <dl class="report-range">
+            <div><dt>{{ 'Start' | translate }}</dt><dd>{{ startTime }}</dd></div>
+            <div><dt>{{ 'End' | translate }}</dt><dd>{{ endTime }}</dd></div>
+            <div class="report-timezone"><dt>{{ 'Time zone' | translate }}</dt><dd>{{ timezone }}</dd></div>
+          </dl>
+        }
+      </div>
+      <section class="report-legend" [attr.aria-label]="'Report summary' | translate">
+        @if (legendData?.xHTML) {
+          <p class="legend-time"><span>{{ 'Time' | translate }}:</span> {{ legendData.xHTML }}</p>
+        }
+        <div class="legend-scroll" tabindex="0" role="region" [attr.aria-label]="(reportTitle + ' — ') + ('Summary values' | translate)">
+          @if (data?.legend) {
+            <table class="legend-table">
+              <thead><tr>
+                <th scope="col">{{ 'Key' | translate }}</th>
+                @if (legendData?.xHTML) { <th scope="col" class="legend-value-heading">{{ 'Value' | translate }}</th> }
+                @for (key of aggregationKeys; track key) { <th scope="col">{{ key | titlecase | translate }}</th> }
+              </tr></thead>
+              <tbody>
+                @for (legendItem of data.legend; track $index; let i = $index) {
+                  <tr>
+                    <th scope="row">
+                      <span class="legend-key"><span class="swatch" [style.background-color]="chartColors?.[i]" aria-hidden="true"></span><span>{{ legendItem }}</span></span>
                     </th>
-                  </ng-container>
-                </tr>
-
-                <!-- Table Rows -->
-                <tr class="legend-group"
-                  *ngFor="let legendItem of data.legend; let i=index">
-
-                    <td class="legend-label" >
-                      <!--Legend Label-->
-                      <div *ngIf="chartColors && legendItem"
-                        class="swatch"
-                        [style.background-color]="chartColors[i]" >
-                        </div>
-                      <span class="legend-item"><strong>{{legendItem}}</strong></span>
-
-                      <span *ngIf="legendData && legendData.series">
-                        <span  class="tooltip-value" >
-                           <span style="font-weight:normal;"> : {{legendData.series[i].yHTML}}</span>
-                        </span>
-                      </span>
-                    </td>
-
-                  <!-- Aggregations -->
-                  <ng-container *ngIf="data && data.aggregations">
-                    <td style="opacity:0.75; border:red;"
-                      *ngFor="let key of aggregationKeys"
-                      class="report-analytics" >
-
-                      <span>
-                        {{data.aggregations[key][i] ? data.aggregations[key][i] : 'null'}}
-                      </span>
-
-                    </td>
-                  </ng-container>
-                </tr>
-              </table>
-
-              </div>
-            </section>
-          </ng-container>
-          <!--<viewchartline fxFlex="100" fxFlexAlign="end" #chartCpu width="600" height="160" [style.display]="isFlipped ? 'none': 'block'"></viewchartline>-->
-          <!-- Chart -->
-
-
-        </mat-card-content>
-
-    </mat-card>
-
-    <mat-card *ngIf="!ready && retroLogo" class="front zero-state" fxLayout="row wrap" fxlayoutGap="16px" fxLayoutAlign="center center">
-          <mat-icon *ngIf="retroLogo == 1" class="generic" svgIcon="freenas_logo_full"></mat-icon>
-          <mat-icon *ngIf="retroLogo == 0 && product_type == 'CORE'" class="generic" svgIcon="truenas_core_logo_full"></mat-icon>
-          <mat-icon *ngIf="retroLogo == 0 && product_type == 'ENTERPRISE'" class="generic" svgIcon="truenas_enterprise_logo_full"></mat-icon>
-          <mat-icon *ngIf="retroLogo == 0 && product_type == 'SCALE'" class="generic" svgIcon="truenas_scale_logo_full"></mat-icon>
-    </mat-card>
-
-    <ng-template *ngIf="configurable">
-      <mat-card class="back">
-        <mat-card-content fxLayout="column" fxLayoutAlign="start stretch" fxFlex="100">
-        </mat-card-content>
-        <div class="widget-footer">
-          <button mat-button color="accent" (click)="toggleConfig()">{{"Cancel" | translate}}</button>
-          <button mat-button color="primary" type="submit" form="preferences" (click)="toggleConfig()">{{"Save" | translate}}</button>
+                    @if (legendData?.xHTML) { <td class="tooltip-value"><span class="tooltip-number">{{ legendData.series?.[i]?.yHTML ?? '—' }}</span></td> }
+                    @for (key of aggregationKeys; track key) { <td>{{ data.aggregations[key][i] ?? '—' }}</td> }
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
         </div>
-      </mat-card>
-    </ng-template>
-  </div>
-</div>
+      </section>
+    </div>
+  }
+</section>

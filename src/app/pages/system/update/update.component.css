@@ -1,142 +1,63 @@
-#train-card {
-    padding: 15px 20px 20px 20px;
-    max-height: 85px;
-    /* min-width: 660px; */
+/* the internal development record on 15.1 dropped #train-card's max-height: the outlined M3 card's
+   rows measure 183px, so an 85px cap pushed the Train row out of the card. This 15.2
+   layout never caps #train-card (only the two scrollboxes cap), so the fix holds here
+   by construction. */
+/* the internal development record: the shell is .fc-page.fc-page--capped, the title .fc-page-title (freecore-ui.css) */
+/* the internal development record: the labelled rows are sections on the settings-form section grid -- the page's own
+   copy of the entity-form law (entity-form.component.scss), since this page is no form and that sheet is
+   not in its styleUrls. The page is the inline-size container through .fc-page--capped, so the
+   @container steps below key on the page width exactly as the engine's do. The id-keyed label rule
+   (1,1,0) beats fn-styles' h2 (1.75rem) and ix-blue's heading weight. */
+#system-update-page .fc-settings-section { display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 34px; padding: 28px 0 16px; border-top: 1px solid var(--fc-line, var(--lines)); }
+#system-update-page .fieldset-label { margin: 6px 0 0; padding: 0; color: var(--fg1); font-size: 15px; font-weight: 400; line-height: 1.5; }
+#system-update-page .fc-section-body { min-width: 0; }
+@container (max-width: 1050px) {
+  #system-update-page .fc-settings-section { grid-template-columns: 140px minmax(0, 1fr); gap: 24px; }
 }
-
-.train-card-row {
-    margin-bottom: 10px;
+@container (max-width: 800px) {
+  #system-update-page .fc-settings-section { grid-template-columns: minmax(0, 1fr); gap: 22px; }
 }
-
-#train-label {
-    margin-right: 10px;
+#system-update-page #train-card { position: relative; }
+#system-update-page #update-spinner { position: absolute; left: 0; top: 0; width: 100%; }
+#system-update-page .train-card-row { margin: 0 0 18px; min-width: 0; color: var(--fg2); line-height: 1.6; }
+#system-update-page .train-card-row:empty { display: none; }
+#system-update-page .train-select-row { display: flex; align-items: center; gap: 14px; margin-bottom: 0; }
+#system-update-page .train-select-row .train-field { flex: 1; min-width: 0; max-width: 720px; margin-bottom: 20px; } /* #470: the 20px the Material field reserved under its box (its subscript) -- the status line keeps its gap */
+#system-update-page #train-selector { width: 100%; }
+#system-update-page #single-train-name { overflow-wrap: anywhere; }
+/* the internal development record: the refresh controls are the #353 ghost icon button (32px); hlmBtn sizes only ng-icon,
+   so the mat-icon glyph takes the 20px the list toolbar's ghost icons take (entity-table.component.scss). */
+#system-update-page #refresh-button .mat-icon, #system-update-page #single-train-refresh-button .mat-icon { width: 20px; height: 20px; font-size: 20px; line-height: 20px; }
+#system-update-page #refresh-button { align-self: flex-start; margin: 20px 0 0; } /* the 32px ghost spans the select's box (under its 20px label row), not the field's whole height */
+#system-update-page .updatecheckTooltip { display: inline-block; vertical-align: middle; }
+#system-update-page #upgrades-card-scrollbox { max-height: 340px; overflow: auto; }
+#system-update-page table { border-collapse: collapse; width: 100%; }
+#system-update-page th, #system-update-page td { text-align: left; padding: 14px; border-bottom: 1px solid var(--fc-line, var(--lines)); }
+#system-update-page th { font-size: 12px; color: var(--fg2); font-weight: 400; }
+#system-update-page td { font-size: 13px; color: var(--fg1); overflow-wrap: anywhere; }
+#system-update-page th:first-child, #system-update-page td:first-child { padding-left: 0; width: 110px; }
+#system-update-page #changelog-scrollbox { max-height: 240px; overflow: auto; line-height: 1.7; color: var(--fg2); overflow-wrap: anywhere; }
+#system-update-page .stable-warning { display: flex; align-items: flex-start; gap: 10px; line-height: 1.65; } /* the notice voice (fg1) is the shared .fc-page-notice--warn's */
+#system-update-page .stable-warning strong { font-weight: 400; }
+#system-update-page .stable-warning .material-icons { font-size: 18px; margin-top: 3px; }
+#system-update-page #stable_warning_line_2 { margin-top: 8px; padding-left: 28px; }
+#system-update-page a { color: var(--fg1); }
+#system-update-page .rollback-details { display: grid; grid-template-columns: 190px minmax(0, 1fr); margin: 0; gap: 14px 24px; line-height: 1.6; }
+#system-update-page .rollback-details dt { color: var(--fg2); font-weight: 400; }
+#system-update-page .rollback-details dd { margin: 0; color: var(--fg1); overflow-wrap: anywhere; }
+#system-update-page .rollback-unavailable, #system-update-page .update-error { color: var(--red); }
+#system-update-page .rollback-reason { display: block; font-size: 12px; color: var(--fg2); }
+/* the internal development record: one blocker, pool or setting per line in the move card. */
+/* The pool acknowledgement is a row inside the Pools value: the 18px gap under a .train-card-row belongs to the
+   settings rows above, and the grid's own 14px row gap follows it. */
+/* the internal development record: the action row is the settings-form hairline row (freecore-ui.css's .fc-settings-form .buttons),
+   restated here because the page carries no form class. */
+#system-update-page .buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--fc-line, var(--lines)); padding: 20px 0 0; margin: 12px 0 0; min-height: 64px; }
+#system-update-page .update-error { flex-basis: 100%; margin: 8px 0 0; }
+#system-update-page #update-in-progress-card p { display: flex; align-items: flex-start; gap: 10px; margin: 0; line-height: 1.7; }
+#system-update-page #update-in-progress-card .material-icons { font-size: 20px; }
+@container (max-width: 600px) {
+  #system-update-page .rollback-details { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  #system-update-page .rollback-details dd { margin-bottom: 12px; }
 }
-
-#train-selector {
-    max-width: 85%;
-    border: 1px solid;
-    padding: 3px 5px;
-}
-
-#upgrades-card {
-    max-height: 180px;
-}
-
-#upgrades-card-scrollbox {
-    height:170px;
-    overflow-y: auto;
-}
-
-#changelog-card {
-    height: 230px;
-    padding-right: 40px !important;
-}
-
-#changelog-title {
-    margin: 10px 25px;
-    padding-top: 15px;
-    font-weight: 700;
-}
-
-#changelog-scrollbox {
-    height:140px;
-    overflow-y: auto;
-}
-
-#stable-warning-card {
-    padding: 2px 20px;
-}
-
-.stable-warning {
-    margin: 10px 0 !important;
-    font-size: 1.1rem;
-}
-
-.stable-warning a {
-    text-decoration: underline;
-}
-
-#stable_warning_line_2 {
-    padding-left: 35px;
-}
-
-.update-button {
-    margin-right: 3px;
-    /* float: right; */
-}
-
-#update-info {
-    position: relative;
-    top: 3px;
-    margin-right: 10px;
-}
-
-#update-spinner {
-    position: absolute;
-    top: 30px; left: 0; bottom: 0; right: 0;
-    margin: 0 auto;
-    z-index: 10;
-}
-
-#single-train-name {
-    display: inline-block;
-    /* min-width: 550px; */
-}
-
-.train-select-row {
-    margin-top: -6px;
-    margin-bottom: 3px;
-    vertical-align: top;
-}
-
-#refresh-button, #single-train-refresh-button {
-    margin-left: 20px;
-}
-
-#single-train-refresh-button {
-    vertical-align: top;
-    margin-top: -12px;
-    float: right;
-}
-
-#update-running-msg {
-    margin-left: 10px;
-    font-size: larger;
-    font-weight: 500;
-    position: relative;
-    bottom: 3px;
-}
-
-mat-card {
-    max-width: 960px;
-    margin: 0 auto 15px auto;
-    padding: 20px;
-}
-
-#update-running-msg {
-    margin-left: 10px;
-    font-size: larger;
-    font-weight: 500;
-    position: relative;
-    bottom: 3px;
-}
-
-.updatecheckTooltip {
-    position: relative;
-    top: 5px;
-}
-
-@media screen and (max-width: 1270px) {
-    #train-selector, #single-train-name {
-        max-width: 75%;
-    }
-}
-
-@media screen and (max-width: 595px) {
-    #train-selector, #single-train-name {
-        max-width: 65%;
-    }
-}
-
-
-
+/* the internal development record: the narrow title twin is the shared .fc-page-title's */

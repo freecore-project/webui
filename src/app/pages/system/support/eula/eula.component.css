@@ -1,25 +1,6 @@
-mat-card {
-    max-width: 960px;
-    width: 80%;
-    margin: 0 auto;
-}
-
-#eula {
-    color: var(--fg1);
-    font-size: 120%; 
-    padding: 100px 100px 15px 100px;
-}
-
-h2 {
-    margin-bottom: 1rem;
-}
-
-.mat-card-actions {
-    margin-bottom: unset;
-}
-
-#button-row {
-    display: flex;
-    justify-content: center;
-    padding-top: 22px;
-}
+/* the internal development record: the EULA is the capped page (.fc-page--capped, .fc-page-title from freecore-ui.css)
+   over one block of prose in the Security Keys intro voice, closed by the settings-form hairline row --
+   the page's own copy (as update.component.css), since the page carries no form class. The id-keyed
+   prose is [innerHTML] (no _ngcontent), so its p/h1 rules live in freecore-ui.css where they can reach it. */
+#eula-page #eula { color: var(--fg2); font-size: 13px; line-height: 1.7; max-width: 800px; }
+#eula-page .buttons { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--fc-line, var(--lines)); padding: 20px 0 0; margin: 12px 0 0; min-height: 64px; }

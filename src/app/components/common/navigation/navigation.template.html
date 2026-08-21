@@ -1,56 +1,92 @@
-<mat-nav-list class="" role="list">
-    <!--==== Side menu items ====-->
-    <div class="icon-menu" *ngIf="hasIconTypeMenuItem">
-        <!-- Icon menu separator -->
-        <div class="mt-1 mb-1 icon-menu-separator">
-            <mat-divider [style.margin]="'0 -24px'"></mat-divider>
-            <span [ngStyle]="{paddingLeft: 0, marginLeft: '-6px'}" class="nav-section-title text-muted">{{iconTypeMenuTitle}}</span>
-        </div>
-        <!-- Icon menu items -->
-        <div class="icon-menu-item" *ngFor="let item of menuItems">
-            <button *ngIf="!item.disabled && item.type === 'icon'" mat-button [matTooltip]="item.tooltip" (click)="transferToState(item.state)" routerLinkActive="mat-bg-primary"
-                ix-auto ix-auto-type="button" ix-auto-identifier="item">
-                <mat-icon>{{item.icon}}</mat-icon>
+<!-- the internal development record: the sidebar list off mat-nav-list / mat-list-item -- the same boxes on .fc-nav-list /
+     .fc-nav-item, with the item's two content layers and its focus-indicator layer as Material rendered them. -->
+<div class="fc-nav-list" role="list">
+  <!--==== Side menu items ====-->
+  @if (hasIconTypeMenuItem) {
+    <div class="icon-menu">
+      <!-- Icon menu separator -->
+      <div class="mt-1 mb-1 icon-menu-separator">
+        <div class="fc-nav-divider" role="separator" [style.margin]="'0 -24px'"></div>
+        <span [ngStyle]="{paddingLeft: 0, marginLeft: '-6px'}" class="nav-section-title text-muted">{{iconTypeMenuTitle}}</span>
+      </div>
+      <!-- Icon menu items -->
+      @for (item of menuItems; track item) {
+        <div class="icon-menu-item">
+          @if (!item.disabled && item.type === 'icon') {
+            <button hlmBtn variant="ghost" size="icon-lg" type="button" [hlmTooltip]="item.tooltip" (click)="transferToState(item.state)" routerLinkActive="mat-bg-primary"
+              ix-auto ix-auto-type="button" ix-auto-identifier="item">
+              <mat-icon>{{item.icon}}</mat-icon>
             </button>
+          }
         </div>
+      }
     </div>
-    <!-- Regular menu items -->
-    <div *ngFor="let item of menuItems; let i = index">
-        <!-- if it's not disabled and not a separator and not icon -->
-        <mat-list-item (click)="updateScroll()" sideNavAccordion class="sidebar-list-item" role="listitem" *ngIf="!item.disabled && item.type !== 'separator' && item.type !== 'icon'" [ngClass]="{'has-submenu': item.type === 'dropDown'}" routerLinkActive="open" id="nav-{{i}}"
-            ix-auto ix-auto-type="option" ix-auto-identifier="{{item.name}}">
-            <a tabindex="-1" [routerLink]="['/', item.state]" *ngIf="item.type === 'link'" name="{{item.name.replace(' ', '_')}}-menu">
-                <span class="menu-item-tooltip" [matTooltip]="item.tooltip" id="{{item.name}}" matTooltipPosition="right"></span>
-                <!--<mat-icon>{{item.icon}}</mat-icon>-->
-                <mat-icon *ngIf="item.icon !== 'jail_icon' && item.icon !== 'console-line'">{{item.icon}}</mat-icon>
-                <mat-icon *ngIf="item.icon === 'jail_icon'" svgIcon="{{item.icon}}" style="max-width:28px; margin:0 16px 0 10px;"></mat-icon>
-                <mat-icon *ngIf="item.icon === 'console-line'" role="img" fontSet="mdi-set" fontIcon="mdi-{{item.icon}}" style="font-size:24px;"></mat-icon>
-                <span>{{item.name | translate}}</span>
-            </a>
-            <a tabindex="-1" *ngIf="item.type === 'dropDown'" name="{{item.name.replace(' ', '_')}}-menu">
-                <span class="menu-item-tooltip" [matTooltip]="item.tooltip" matTooltipPosition="above"></span>
+  }
+  <!-- Regular menu items -->
+  @for (item of menuItems; track item; let i = $index) {
+    <div>
+      <!-- if it's not disabled and not a separator and not icon -->
+      @if (!item.disabled && item.type !== 'separator' && item.type !== 'icon') {
+        <div (click)="updateScroll()" sideNavAccordion class="fc-nav-item sidebar-list-item" role="listitem" [ngClass]="{'has-submenu': item.type === 'dropDown'}" routerLinkActive="open" id="nav-{{i}}"
+          ix-auto ix-auto-type="option" ix-auto-identifier="{{item.name}}">
+          <span class="fc-nav-item__content"><span class="fc-nav-item__text">
+          @if (item.type === 'link') {
+            <a tabindex="-1" [routerLink]="['/', item.state]" routerLinkActive="selected" name="{{item.name.replace(' ', '_')}}-menu">
+              <span class="menu-item-tooltip" [hlmTooltip]="item.tooltip" id="{{item.name}}" position="right"></span>
+              <!--<mat-icon>{{item.icon}}</mat-icon>-->
+              @if (item.icon !== 'jail_icon') {
                 <mat-icon>{{item.icon}}</mat-icon>
-                <span>{{item.name | translate}}</span>
-                <span fxFlex></span>
-                <mat-icon class="menu-caret">arrow_drop_down</mat-icon>
+              }
+              @if (item.icon === 'jail_icon') {
+                <mat-icon svgIcon="{{item.icon}}"></mat-icon>
+              }
+              <span>{{item.name | translate}}</span>
             </a>
-            <a tabindex="-1" [href]="item.state" *ngIf="item.type === 'extLink'" target="_blank" name="{{item.name.replace(' ', '_')}}-menu">
-                <span class="menu-item-tooltip" [matTooltip]="item.tooltip" matTooltipPosition="right"></span>
-                <mat-icon>{{item.icon}}</mat-icon>
-                <span>{{item.name | translate}}</span>
+          }
+          @if (item.type === 'dropDown') {
+            <a tabindex="-1" name="{{item.name.replace(' ', '_')}}-menu">
+              <span class="menu-item-tooltip" [hlmTooltip]="item.tooltip"></span>
+              <mat-icon>{{item.icon}}</mat-icon>
+              <span>{{item.name | translate}}</span>
+              <span class="navigation-menu-spacer"></span>
+              <mat-icon class="menu-caret">chevron_right</mat-icon>
             </a>
-            <mat-nav-list class="sub-menu" role="list" *ngIf="item.type === 'dropDown'">
-                <mat-list-item routerLinkActive="selected" *ngFor="let subItem of item.sub; let j = index"
-                    ix-auto ix-auto-type="option" ix-auto-identifier="{{subItem.name}}">
-                    <a tabindex="-1" [routerLink]="['/', item.state, subItem.state]" id="{{i}}-{{j}}" *ngIf="!subItem.disabled" >{{subItem.name | translate}}</a>
-                </mat-list-item>
-            </mat-nav-list>
-        </mat-list-item>
-
-        <!-- If item type is separator -->
-        <div class="mt-1 mb-1" *ngIf="!item.disabled && item.type === 'separator'">
-            <mat-divider></mat-divider>
-            <span class="nav-section-title text-muted" *ngIf="!!item.name">{{item.name | translate}}</span>
+          }
+          @if (item.type === 'extLink') {
+            <a tabindex="-1" [href]="item.state" target="_blank" name="{{item.name.replace(' ', '_')}}-menu">
+              <span class="menu-item-tooltip" [hlmTooltip]="item.tooltip" position="right"></span>
+              <mat-icon>{{item.icon}}</mat-icon>
+              <span>{{item.name | translate}}</span>
+            </a>
+          }
+          @if (item.type === 'dropDown') {
+            <div class="fc-nav-list sub-menu" role="list">
+              @for (subItem of item.sub; track subItem; let j = $index) {
+                <div class="fc-nav-item" role="listitem" routerLinkActive="selected"
+                  ix-auto ix-auto-type="option" ix-auto-identifier="{{subItem.name}}">
+                  <span class="fc-nav-item__content"><span class="fc-nav-item__text">
+                  @if (!subItem.disabled) {
+                    <a tabindex="-1" [routerLink]="subItemLink(item, subItem)" id="{{i}}-{{j}}" >{{subItem.name | translate}}</a>
+                  }
+                  </span></span>
+                  <div class="fc-nav-item__focus"></div>
+                </div>
+              }
+            </div>
+          }
+          </span></span>
+          <div class="fc-nav-item__focus"></div>
         </div>
+      }
+      <!-- If item type is separator -->
+      @if (!item.disabled && item.type === 'separator') {
+        <div class="mt-1 mb-1">
+          <div class="fc-nav-divider" role="separator"></div>
+          @if (!!item.name) {
+            <span class="nav-section-title text-muted">{{item.name | translate}}</span>
+          }
+        </div>
+      }
     </div>
-</mat-nav-list>
+  }
+</div>

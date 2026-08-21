@@ -1,20 +1,19 @@
 import { ValidationService } from '../../../../services/validation.service';
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Navigation, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DownloadKeyModalDialog } from 'app/components/common/dialog/downloadkey/downloadkey-dialog.component';
 import { CoreService } from 'app/core/services/core.service';
-import { PreferencesService } from 'app/core/services/preferences.service';
+import { PreferencesService, UserPreferences } from 'app/core/services/preferences.service';
 import { EntityTableComponent, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
 import { AppLoaderService } from 'app/services/app-loader/app-loader.service';
 import { DialogService } from 'app/services/dialog.service';
 import { ErdService } from 'app/services/erd.service';
 import { WebSocketService } from 'app/services/ws.service';
 import * as _ from 'lodash';
-import * as moment from 'moment';
-import { TreeNode } from 'primeng/api';
+import moment from 'moment';
 import { filter, map, switchMap } from 'rxjs/operators';
 import helptext from '../../../../helptext/storage/volumes/volume-list';
 import dataset_helptext from '../../../../helptext/storage/volumes/datasets/dataset-form';
@@ -24,6 +23,7 @@ import { T } from '../../../../translate-marker';
 import { DialogFormConfiguration } from '../../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { MessageService } from '../../../common/entity/entity-form/services/message.service';
 import { EntityJobComponent } from '../../../common/entity/entity-job/entity-job.component';
+import { EntityTreeNode } from '../../../common/entity/entity-tree-table/entity-tree-table.model';
 import { EntityUtils } from '../../../common/entity/utils';
 import { combineLatest } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
@@ -73,17 +73,17 @@ interface ZfsData {
 export class VolumesListTableConfig implements InputTableConf {
   hideTopActions = true;
   flattenedVolData: any;
-  tableData: TreeNode[] = [];
+  tableData: EntityTreeNode[] = [];
   columns: any[] = [
     { name: T('Name'), prop: 'name', always_display: true },
-    { name: T('Type'), prop: 'type' },
-    { name: T('Used'), prop: 'used_parsed', filesizePipe: true },
-    { name: T('Available'), prop: 'available_parsed', filesizePipe: true },
-    { name: T('Compression'), prop: 'compression', hidden: true },
-    { name: T('Compression Ratio'), prop: 'compressratio', hidden: true },
-    { name: T('Readonly'), prop: 'readonly' },
-    { name: T('Dedup'), prop: 'deduplication', hidden: true },
-    { name: T('Comments'), prop: 'comments', hidden: true },
+    { name: T('Type'), prop: 'type', width: 112 },
+    { name: T('Used'), prop: 'used_parsed', filesizePipe: true, width: 112 },
+    { name: T('Available'), prop: 'available_parsed', filesizePipe: true, width: 112 },
+    { name: T('Compression'), prop: 'compression', hidden: true, width: 144 },
+    { name: T('Compression Ratio'), prop: 'compressratio', hidden: true, width: 160 },
+    { name: T('Readonly'), prop: 'readonly', hidden: true, width: 104 },
+    { name: T('Dedup'), prop: 'deduplication', valueProp: 'dedup', hidden: true, width: 104 },
+    { name: T('Comments'), prop: 'comments', hidden: true, width: 240 },
   ];
 
   config: any = {
@@ -137,7 +137,7 @@ export class VolumesListTableConfig implements InputTableConf {
     }
   }
 
-  expandTree(tree: TreeNode, highlightNodeId: string) {
+  expandTree(tree: EntityTreeNode, highlightNodeId: string) {
     if (tree.data.id === highlightNodeId) {
       return true;
     }
@@ -517,6 +517,61 @@ export class VolumesListTableConfig implements InputTableConf {
         ['id', '=', poolId],
       ],
     ]);
+  }
+
+  upgradePool(rowData: any, row: any) {
+    this.ws.call('system.rollback.available').subscribe(
+      (rollback) => {
+        const confirmRollbackLoss = rollback?.available === true;
+        const warningText = confirmRollbackLoss
+          ? helptext.upgradePoolDialog_return_warning
+          : helptext.upgradePoolDialog_warning;
+
+        this.translate.get(warningText).subscribe((warning) => {
+          this.dialogService
+            .confirm(
+              T('Upgrade Pool'),
+              warning + row.name,
+            )
+            .subscribe((confirmResult) => {
+              if (confirmResult !== true) {
+                return;
+              }
+
+              this.loader.open();
+              this.ws.call('pool.upgrade', [
+                rowData.id,
+                { confirm_rollback_loss: confirmRollbackLoss },
+              ]).subscribe(
+                () => {
+                  this.translate.get(T('Successfully Upgraded ')).subscribe((successUpgrade) => {
+                    this.dialogService
+                      .report(
+                        T('Upgraded'),
+                        successUpgrade + row.name,
+                        '500px', 'info',
+                      )
+                      .subscribe(() => {
+                        this.parentVolumesListComponent.repaintMe();
+                      });
+                  });
+                },
+                (err) => {
+                  if (err.hasOwnProperty('reason') && err.hasOwnProperty('trace')) {
+                    this.translate.get(T('Error Upgrading Pool ')).subscribe((errorUpgrade) => {
+                      this.dialogService.errorReport(errorUpgrade + row.name, err.reason, err.trace.formatted);
+                    });
+                  } else {
+                    new EntityUtils().handleWSError(this, err, this.dialogService);
+                  }
+                },
+                () => this.loader.close(),
+              );
+            });
+        });
+      },
+      (err) => new EntityUtils().handleWSError(this, err, this.dialogService),
+    );
   }
 
   getActions(rowData: any) {
@@ -1044,43 +1099,7 @@ export class VolumesListTableConfig implements InputTableConf {
             name: T('Upgrade Pool'),
             label: T('Upgrade Pool'),
             onClick: (row1) => {
-              this.translate.get(helptext.upgradePoolDialog_warning).subscribe((warning) => {
-                this.dialogService
-                  .confirm(
-                    T('Upgrade Pool'),
-                    warning + row1.name,
-                  )
-                  .subscribe((confirmResult) => {
-                    if (confirmResult === true) {
-                      this.loader.open();
-                      this.ws.call('pool.upgrade', [rowData.id]).subscribe(
-                        () => {
-                          this.translate.get(T('Successfully Upgraded ')).subscribe((success_upgrade) => {
-                            this.dialogService
-                              .report(
-                                T('Upgraded'),
-                                success_upgrade + row1.name,
-                                '500px', 'info',
-                              )
-                              .subscribe(() => {
-                                this.parentVolumesListComponent.repaintMe();
-                              });
-                          });
-                        },
-                        (err) => {
-                          if (err.hasOwnProperty('reason') && err.hasOwnProperty('trace')) {
-                            this.translate.get(T('Error Upgrading Pool ')).subscribe((error_upgrade) => {
-                              this.dialogService.errorReport(error_upgrade + row1.name, err.reason, err.trace.formatted);
-                            });
-                          } else {
-                            new EntityUtils().handleWSError(this, err, this.dialogService);
-                          }
-                        },
-                        () => this.loader.close(),
-                      );
-                    }
-                  });
-              });
+              this.upgradePool(rowData, row1);
             },
           });
         }
@@ -1728,8 +1747,8 @@ export class VolumesListTableConfig implements InputTableConf {
     return moment(dateTime).format('YYYY-MM-DD_HH-mm');
   }
 
-  dataHandler(data: any): TreeNode {
-    const node: TreeNode = {};
+  dataHandler(data: any): EntityTreeNode {
+    const node: EntityTreeNode = {};
     node.data = data;
     parent = data.parent;
     this.getMoreDatasetInfo(data, parent);
@@ -1808,15 +1827,27 @@ export class VolumesListTableConfig implements InputTableConf {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-volumes-list',
-  styleUrls: ['./volumes-list.component.css'],
+  styleUrls: [
+    './volumes-list.component.css',
+    './volumes-list-layout.scss',
+  ],
   templateUrl: './volumes-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class VolumesListComponent extends EntityTableComponent implements OnInit {
   title = T('Pools');
   zfsPoolRows: ZfsPoolData[] = [];
   conf: InputTableConf = new VolumesListTableConfig(this, this.router, '', [], this.mdDialog, this.ws, this.dialogService, this.loader, this.translate, this.storage, {}, this.messageService, this.http, this.validationService);
+  readonly datasetColumns = this.conf.columns;
+  readonly defaultDatasetColumns = ['name', 'type', 'used_parsed', 'available_parsed'];
+  selectedDatasetColumns = [...this.defaultDatasetColumns];
+  private readonly datasetColumnsPreference = 'Pools datasets';
+  private datasetColumnsChosen = false;
+  private datasetPreferencesReady = false;
+  private datasetColumnsSavePending = false;
 
   actionComponent = {
     getActions: (row) => {
@@ -1847,7 +1878,7 @@ export class VolumesListComponent extends EntityTableComponent implements OnInit
   systemdatasetPool: any;
   has_encrypted_root = {};
   has_key_dataset = {};
-  navigation: Navigation;
+  navigation: Navigation | null;
 
   constructor(protected core: CoreService, protected rest: RestService, protected router: Router, protected ws: WebSocketService,
     protected _eRef: ElementRef, protected dialogService: DialogService, protected loader: AppLoaderService,
@@ -1855,6 +1886,66 @@ export class VolumesListComponent extends EntityTableComponent implements OnInit
     public sorter: StorageService, protected job: JobService, protected storage: StorageService, protected pref: PreferencesService, protected messageService: MessageService, protected http: HttpClient, protected validationService: ValidationService) {
     super(core, rest, router, ws, _eRef, dialogService, loader, erdService, translate, sorter, job, pref, mdDialog);
     this.navigation = this.router.getCurrentNavigation();
+    this.hydrateDatasetColumns(this.pref.preferences);
+    ['UserPreferencesReady', 'UserPreferencesChanged'].forEach((eventName) => {
+      this.core.register({ observerClass: this, eventName }).subscribe((event) => {
+        this.datasetPreferencesReady = true;
+        // A deliberate choice wins for this mounted page. If it preceded
+        // readiness, merge it into the arriving preferences before saving once.
+        if (!this.datasetColumnsChosen) this.hydrateDatasetColumns(event.data);
+        if (this.datasetColumnsSavePending) this.saveDatasetColumns(event.data);
+      });
+    });
+    this.core.emit({ name: 'UserPreferencesRequest', sender: this });
+  }
+
+  isDatasetColumnSelected(prop: string): boolean {
+    return this.selectedDatasetColumns.includes(prop);
+  }
+
+  toggleDatasetColumn(prop: string) {
+    if (prop === 'name' || !this.datasetColumns.some((column) => column.prop === prop)) return;
+    this.selectedDatasetColumns = this.canonicalDatasetColumns(this.isDatasetColumnSelected(prop)
+      ? this.selectedDatasetColumns.filter((value) => value !== prop)
+      : [...this.selectedDatasetColumns, prop]);
+    this.datasetColumnChoice();
+  }
+
+  resetDatasetColumns() {
+    this.selectedDatasetColumns = [...this.defaultDatasetColumns];
+    this.datasetColumnChoice();
+  }
+
+  private canonicalDatasetColumns(properties: string[]): string[] {
+    return ['name', ...this.datasetColumns.filter((column) => column.prop !== 'name' && properties.includes(column.prop)).map((column) => column.prop)];
+  }
+
+  private hydrateDatasetColumns(preferences: UserPreferences) {
+    const entries = preferences?.tableDisplayedColumns;
+    const saved = Array.isArray(entries) ? entries.find((entry) => entry?.title === this.datasetColumnsPreference) : null;
+    this.selectedDatasetColumns = Array.isArray(saved?.cols)
+      ? this.canonicalDatasetColumns(saved.cols.map((column) => column?.prop))
+      : [...this.defaultDatasetColumns];
+  }
+
+  private datasetColumnChoice() {
+    this.datasetColumnsChosen = true;
+    this.datasetColumnsSavePending = true;
+    if (this.datasetPreferencesReady) this.saveDatasetColumns(this.pref.preferences);
+  }
+
+  private saveDatasetColumns(preferences: UserPreferences) {
+    const entries = Array.isArray(preferences?.tableDisplayedColumns) ? preferences.tableDisplayedColumns : [];
+    const next = {
+      ...preferences,
+      tableDisplayedColumns: [
+        ...entries.filter((entry) => entry?.title !== this.datasetColumnsPreference),
+        { title: this.datasetColumnsPreference, cols: this.selectedDatasetColumns.map((prop) => ({ prop })) },
+      ],
+    };
+    this.datasetColumnsSavePending = false;
+    this.pref.preferences = next;
+    this.pref.savePreferences(next);
   }
 
   repaintMe() {
@@ -1898,7 +1989,7 @@ export class VolumesListComponent extends EntityTableComponent implements OnInit
           }
           pool.children = pChild ? [pChild] : [];
 
-          const navigationState = this.navigation.extras.state as { highlightDataset: string };
+          const navigationState = this.navigation?.extras.state as { highlightDataset?: string } | undefined;
 
           if (navigationState) {
             pool.volumesListTableConfig = new VolumesListTableConfig(this, this.router, pool.id, datasets, this.mdDialog, this.ws,

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
@@ -9,10 +9,13 @@ import {
 } from '../../../../services';
 import { forbiddenValues } from '../../../common/entity/entity-form/validators/forbidden-values-validation';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-user-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [UserService],
 })
 export class UserFormComponent {
@@ -29,6 +32,7 @@ export class UserFormComponent {
   private homeSharePath: string;
 
   fieldSetDisplay = 'default';// default | carousel | stepper
+  readonly settingsTitle = T('User'); // the internal development record: the page's h1
   fieldSets: FieldSets = new FieldSets([
     {
       name: helptext.user_form_title_name,

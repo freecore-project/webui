@@ -1,48 +1,62 @@
-<mat-sidenav-container class="app-side-nav-container" fxLayout="row" ngClass.xs="xs" ngClass.sm="sm" ngClass.md="md" ngClass.lg="lg" ngClass.xl="xl">
+<!-- the internal development record: the shell off mat-sidenav-container -- fc-drawer-container / fc-drawer / fc-drawer-content,
+     same order (backdrop, the nav drawer, the content, the alerts drawer last), same API for the topbar. -->
+<fc-drawer-container
+  class="admin-shell-layout app-side-nav-container fc-ui"
+  [class.xs]="media.isActive('xs')"
+  [class.sm]="media.isActive('sm')"
+  [class.md]="media.isActive('md')"
+  [class.lg]="media.isActive('lg')"
+  [class.xl]="media.isActive('xl')"
+  >
   <!-- Main side navigation -->
-  <mat-sidenav fxFlex="sidenavWidth" #sidenav [opened]="isSidenavOpen" [mode]="sidenavMode" class="sidebar-panel not-alerts" >
-    <div id="scroll-area" class="navigation-hold" fxLayout="column">
-      <div *ngFor="let theme of freenasThemes">
-        <div *ngIf="theme.name == currentTheme" ix-auto ix-auto-type="button" ix-auto-identifier="logo">
-
-          <!-- FreeNAS Retro -->
-          <div class="branding retro topbar" *ngIf="retroLogo">
-            <a routerLink="/dashboard" class="logo"><mat-icon svgIcon="freenas_logomark" alt="FreeNAS logo" class="app-logo"></mat-icon></a>
-            <a routerLink="/dashboard" class="logo-text"><mat-icon svgIcon="freenas_logotype" alt="FreeNAS" class="app-logo-text"></mat-icon></a>
-          </div>
-
-          <!-- TrueNAS Core -->
-          <div class="branding topbar" *ngIf="!retroLogo && product_type == 'CORE' ">
-            <a routerLink="/dashboard" class="logo"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_core_logomark_color' : 'truenas_core_logomark'" alt="TrueNAS Core logo" class="app-logo"></mat-icon></a>
-            <a routerLink="/dashboard" class="logo-text"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_core_logotype_color' : 'truenas_core_logotype'" alt="TrueNAS Core" class="app-logo-text"></mat-icon></a>
-          </div>
-
-          <!-- TrueNAS Enterprise -->
-          <div class="branding topbar" *ngIf="!retroLogo && product_type == 'ENTERPRISE' ">
-            <a routerLink="/dashboard" class="logo"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_enterprise_logomark_color': 'truenas_enterprise_logomark'" alt="TrueNAS Core logo" class="app-logo"></mat-icon></a>
-            <a routerLink="/dashboard" class="logo-text"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_enterprise_logotype_color' : 'truenas_enterprise_logotype'" alt="TrueNAS Core" class="app-logo-text"></mat-icon></a>
-          </div>
-
-          <!-- TrueNAS Scale -->
-          <div class="branding topbar {{'truenas-' + product_type.toLowerCase()}}" *ngIf="!retroLogo && product_type == 'SCALE' ">
-            <a routerLink="/dashboard" class="logo"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_scale_logomark_color' : 'truenas_scale_logomark'" alt="TrueNAS Core logo" class="app-logo"></mat-icon></a>
-            <a routerLink="/dashboard" class="logo-text"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_scale_logotype_color' : 'truenas_scale_logotype'" alt="TrueNAS Core" class="app-logo-text"></mat-icon></a>
-          </div>
-
+  <fc-drawer #sidenav [opened]="isSidenavOpen" [mode]="sidenavMode" class="admin-primary-sidenav-layout sidebar-panel not-alerts" >
+    <div id="scroll-area" class="admin-navigation-layout navigation-hold">
+      @for (theme of freenasThemes; track theme) {
+        <div>
+          @if (theme.name == currentTheme) {
+            <div ix-auto ix-auto-type="button" ix-auto-identifier="logo">
+              <!-- FreeNAS Retro -->
+              @if (retroLogo) {
+                <div class="branding retro topbar">
+                  <a routerLink="/dashboard" class="logo"><mat-icon svgIcon="freenas_logomark" alt="FreeNAS logo" class="app-logo"></mat-icon></a>
+                  <a routerLink="/dashboard" class="logo-text"><mat-icon svgIcon="freenas_logotype" alt="FreeNAS" class="app-logo-text"></mat-icon></a>
+                </div>
+              }
+              <!-- FreeCORE -->
+              @if (!retroLogo && product_type == 'CORE' ) {
+                <div class="branding topbar fc-branding">
+                  <a routerLink="/dashboard" class="fc-brand-link" aria-label="FreeCORE dashboard">
+                    <img [src]="mascot === 'FreeCORE_mascot.png' ? 'assets/images/freecore-fork-mark.svg' : 'assets/images/' + mascot" [class.fc-fork-mark]="mascot === 'FreeCORE_mascot.png'" alt="" class="fc-brand-mark">
+                    <span class="fc-brand-name">FreeCORE</span>
+                  </a>
+                </div>
+              }
+              <!-- TrueNAS Enterprise -->
+              @if (!retroLogo && product_type == 'ENTERPRISE' ) {
+                <div class="branding topbar">
+                  <a routerLink="/dashboard" class="logo"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_enterprise_logomark_color': 'truenas_enterprise_logomark'" alt="TrueNAS Core logo" class="app-logo"></mat-icon></a>
+                  <a routerLink="/dashboard" class="logo-text"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_enterprise_logotype_color' : 'truenas_enterprise_logotype'" alt="TrueNAS Core" class="app-logo-text"></mat-icon></a>
+                </div>
+              }
+              <!-- TrueNAS Scale -->
+              @if (!retroLogo && product_type == 'SCALE' ) {
+                <div class="branding topbar {{'truenas-' + product_type.toLowerCase()}}">
+                  <a routerLink="/dashboard" class="logo"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_scale_logomark_color' : 'truenas_scale_logomark'" alt="TrueNAS Core logo" class="app-logo"></mat-icon></a>
+                  <a routerLink="/dashboard" class="logo-text"><mat-icon [svgIcon]="themeService.isDefaultTheme ? 'truenas_scale_logotype_color' : 'truenas_scale_logotype'" alt="TrueNAS Core" class="app-logo-text"></mat-icon></a>
+                </div>
+              }
+            </div>
+          }
         </div>
-
-      </div>
-      <div class="app-user">
-        <span class="app-user-name">
-          <mat-icon class="icon-xs text-muted">lock</mat-icon>
-          root
-        </span>
-        <div class="hostname-label" *ngIf="hostname" matTooltip="Hostname: {{hostname}}">{{hostname}}</div>
-      </div>
+      }
       <navigation (onStateChange)="changeState($event)"></navigation>
     </div>
-  </mat-sidenav>
-  <mat-sidenav-content fxFlex="calc(100% - {{sidenavWidth}})" class="fn-maincontent" [style.margin-left]="sidenavWidth">
+  </fc-drawer>
+  <fc-drawer-content
+    class="admin-main-content-layout fn-maincontent"
+    [style.--admin-sidenav-width]="sidenavWidth"
+    [style.margin-left]="sidenavWidth"
+    >
     <!-- Top Bar -->
     <!-- Template reference variables of Left sidebar and Right notification is supplied -->
     <!-- Listens language change event -->
@@ -51,15 +65,26 @@
     <app-breadcrumb [product_type]="product_type"></app-breadcrumb>
     <div class="rightside-content-hold" [ngClass]="{'has-footer':isShowFooterConsole}">
       <router-outlet></router-outlet>
+      <!-- the internal development record: the one resources line; the dashboard strip that
+           repeated it is no longer mounted. -->
+      <footer class="fc-project-footer">
+        <a href="https://freecore.org" target="_blank" rel="noopener noreferrer">freecore.org</a>
+        <a href="https://docs.freecore.org/" target="_blank" rel="noopener noreferrer">{{ 'Documentation' | translate }}</a>
+        <a href="https://codeberg.org/freecore/freecore" target="_blank" rel="noopener noreferrer">{{ 'Community' | translate }}</a>
+        <a href="https://codeberg.org/freecore" target="_blank" rel="noopener noreferrer">{{ 'Open Source' | translate }}</a>
+        @if (copyrightYear) { <span>© {{copyrightYear}}</span> }
+      </footer>
     </div>
-    <div class="footer-console-bar" *ngIf="isShowFooterConsole" ix-auto ix-auto-type="shell" ix-auto-identifier="footer-console">
-      <pre #footerBarScroll class="message" (click)="onShowConsolePanel()">{{consoleMsg}}</pre>
-    </div>
-  </mat-sidenav-content>
+    @if (isShowFooterConsole) {
+      <div class="footer-console-bar" ix-auto ix-auto-type="shell" ix-auto-identifier="footer-console">
+        <pre #footerBarScroll class="message" (click)="onShowConsolePanel()">{{consoleMsg}}</pre>
+      </div>
+    }
+  </fc-drawer-content>
   <!-- Notificaation bar -->
-  <mat-sidenav #notificationPanel mode="over" class="" align="end" (open)="onOpenNotify($event)" (close)="onCloseNotify($event)" class="notification-sidenav" position="end">
-    <div class="navigation-hold" fxLayout="column">
+  <fc-drawer #notificationPanel mode="over" (open)="onOpenNotify($event)" (close)="onCloseNotify($event)" class="notification-sidenav" position="end">
+    <div class="admin-navigation-layout navigation-hold">
       <app-notifications [notificPanel]="notificationPanel"></app-notifications>
     </div>
-  </mat-sidenav>
-</mat-sidenav-container>
+  </fc-drawer>
+</fc-drawer-container>

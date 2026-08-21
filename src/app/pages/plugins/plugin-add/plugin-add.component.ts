@@ -1,6 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { Validators } from '@angular/forms';
 
 import * as _ from 'lodash';
@@ -20,10 +19,12 @@ import { MatDialog } from '@angular/material/dialog';
 import helptext from '../../../helptext/plugins/plugins';
 
 @Component({
+  standalone: false,
   selector: 'app-plugin-add',
   templateUrl: './plugin-add.component.html',
   styleUrls: ['../../common/entity/entity-form/entity-form.component.scss', './plugin-add.component.css'],
-  providers: [EntityFormService, FieldRelationService, NetworkService, TranslateService, JailService],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  providers: [EntityFormService, FieldRelationService, NetworkService, JailService],
 })
 export class PluginAddComponent implements OnInit {
   protected addCall = 'plugin.create';
@@ -266,6 +267,12 @@ export class PluginAddComponent implements OnInit {
     'wallclock',
   ];
 
+  /** the internal development record: the settings-form sections -- what is installed, then how it is networked. */
+  readonly sections: { name: string; fields: FieldConfig[] }[] = [
+    { name: T('Plugin'), fields: this.fieldConfig.filter((field) => ['plugin_name', 'jail_name'].includes(field.name)) },
+    { name: T('Network'), fields: this.fieldConfig.filter((field) => !['plugin_name', 'jail_name'].includes(field.name)) },
+  ];
+
   protected pluginName: any;
   protected pluginRepository: any;
   formGroup: any;
@@ -286,7 +293,6 @@ export class PluginAddComponent implements OnInit {
     protected dialog: DialogService,
     protected networkService: NetworkService,
     protected matdialog: MatDialog,
-    protected translate: TranslateService,
     protected jailService: JailService) {}
 
   updateIpValidation() {

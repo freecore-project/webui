@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { EntityUtils } from 'app/pages/common/entity/utils';
@@ -11,8 +11,10 @@ import { T } from '../../../../translate-marker';
 import { TaskScheduleListComponent } from '../../components/task-schedule-list/task-schedule-list.component';
 
 @Component({
+  standalone: false,
   selector: 'app-cron-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService],
 })
 export class CronListComponent {
@@ -28,7 +30,7 @@ export class CronListComponent {
     { name: T('Users'), prop: 'user', always_display: true },
     { name: T('Command'), prop: 'command' },
     { name: T('Description'), prop: 'description' },
-    { name: T('Schedule'), prop: 'cron_schedule', widget: { icon: 'calendar-range', component: 'TaskScheduleListComponent' } },
+    { name: T('Schedule'), prop: 'cron_schedule', widget: { icon: 'calendar_month', component: 'TaskScheduleListComponent' } },
     { name: T('Enabled'), prop: 'enabled' },
     { name: T('Next Run'), prop: 'next_run', hidden: true },
     { name: T('Minute'), prop: 'schedule.minute', hidden: true },

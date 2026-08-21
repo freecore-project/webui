@@ -87,7 +87,7 @@ def click_add(driver):
     """Click Add."""
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__Samba_ADD"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__Samba_ADD"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Basic")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"General")]')
 
 
 @then(parsers.parse('Set Path to the LDAP dataset "{path}"'))
@@ -124,7 +124,7 @@ def input_my_smb_test_share_as_description(driver, description):
 def click_summit(driver):
     """Click Summit."""
     rsc.click_The_Summit_Button(driver)
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Configure ACL")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Configure ACL")]')
     ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 
 

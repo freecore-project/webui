@@ -1,5 +1,5 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Component, Output, EventEmitter } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { SystemGeneralService } from '../../../services/system-general.service';
 import globalHelptext from '../../../helptext/global-helptext';
@@ -7,9 +7,11 @@ import { T } from '../../../translate-marker';
 import { EntityUtils } from '../entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-password-dialog',
   templateUrl: './password-dialog.component.html',
-  styleUrls: ['./password-dialog.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['./password-dialog.component.css', '../entity/entity-form/components/dynamic-field/dynamic-field.css'],
 })
 export class PasswordDialog {
   title: string = globalHelptext.rootpw.dialog_title;

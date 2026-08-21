@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_system_bootenv } from 'app/helptext/system/bootenv';
 import { BootEnvService, RestService, WebSocketService } from '../../../../services';
@@ -7,11 +8,15 @@ import { regexValidator } from '../../../common/entity/entity-form/validators/re
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 
 @Component({
+  standalone: false,
   selector: 'app-bootenv-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [BootEnvService],
 })
 export class BootEnvironmentCloneComponent {
+  settingsTitle = T('Boot Environment Clone'); // the internal development record: the derived object, as Snapshot Clone; the verb is on the button
+  saveSubmitText = T('Clone');
   protected route_success: string[] = ['system', 'boot'];
   protected addCall = 'bootenv.create';
   protected pk: any;
@@ -30,6 +35,7 @@ export class BootEnvironmentCloneComponent {
       this.fieldSets = [
         {
           name: helptext_system_bootenv.clone_fieldset,
+          settingsLabel: T('Details'),
           class: 'clone',
           label: true,
           config: [

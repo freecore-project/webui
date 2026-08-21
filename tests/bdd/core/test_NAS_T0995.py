@@ -56,7 +56,7 @@ def the_user_field_should_expand_down_then_click_the_edit_button(driver):
 @then('the User Edit Page should open')
 def the_user_edit_page_should_open(driver):
     """the User Edit Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('change the password with mismatched passwords')
@@ -76,7 +76,7 @@ def you_should_not_be_able_to_save_the_changes(driver):
     class_attribute = element.get_attribute('disabled')
     assert class_attribute == 'true'
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
     assert wait_on_element(driver, 7, '//mat-error[contains(.,"The passwords do not match.")]')
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__CANCEL"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="button__CANCEL"]').click()

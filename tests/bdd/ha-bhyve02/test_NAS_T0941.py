@@ -77,8 +77,8 @@ def the_pools_page_should_open(driver):
 @then('Click on the dozer 3 dots button, select Add Dataset')
 def click_on_the_dozer_3_dots_button_select_add_dataset(driver):
     """Click on the dozer 3 dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__dozer"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__dozer"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__dozer"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__dozer"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__dozer_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__dozer_Add Dataset"]').click()
 
@@ -86,7 +86,7 @@ def click_on_the_dozer_3_dots_button_select_add_dataset(driver):
 @then('The Add Dataset Name and Options page should open')
 def the_add_dataset_name_and_options_page_should_open(driver):
     """The Add Dataset Name and Options page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then(parsers.parse('Input dataset name "{dataset_name}" and click save'))
@@ -109,7 +109,7 @@ def my_ldap_dataset_should_be_created(driver, dataset_name):
 def click_on_my_ldap_dataset_3_dots_button_select_edit_permissions(driver, dataset_name):
     """Click on "my_ldap_dataset" 3 dots button, select Edit Permissions."""
     assert wait_on_element(driver, 7, f'//mat-icon[@ix-auto="options__{dataset_name}"]', 'clickable')
-    driver.find_element_by_xpath(f'//mat-icon[@id="actions_menu_button__{dataset_name}"]').click()
+    driver.find_element_by_xpath(f'//*[@id="actions_menu_button__{dataset_name}"]').click()
     assert wait_on_element(driver, 7, f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath(f'//button[@ix-auto="action__{dataset_name}_Edit Permissions"]').click()
 
@@ -117,7 +117,7 @@ def click_on_my_ldap_dataset_3_dots_button_select_edit_permissions(driver, datas
 @then('The Edit Permissions page should open')
 def the_edit_permissions_page_should_open(driver):
     """The Edit Permissions page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Dataset Path")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Dataset Path")]')
 
 
 @then(parsers.parse('Select "{ldap_user}" for User, check the Apply User then select "{ldap_group}" for Group name, check the Apply Group'))

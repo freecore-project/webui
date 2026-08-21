@@ -4,10 +4,14 @@
  *
  * */
 
-/* MENUS */
-.mat-menu-item {
-  line-height:36px !important;
-  height:36px !important;
+/* Menu typography and row sizing live in material-typography-compat.css. */
+
+/* the internal development record: MDC text-button density uses an 8px horizontal
+ * inset, while the legacy UI used 16px. Keep the MDC height and touch target,
+ * but restore the established label breathing room. */
+.mat-mdc-button {
+  --mat-button-text-horizontal-padding: 16px;
+  --mat-button-text-with-icon-horizontal-padding: 16px;
 }
 
 /* CSS Vars */
@@ -21,30 +25,36 @@
 
 /* Cards */
 
-.mat-card{
+.mat-card,
+.mat-mdc-card{
   border:solid var(--highlights) rgba(255,255,255,0.025);
   /*border-top-size:var(--highlights);*/
 }
 
 entity-table .mat-card,
-entity-form .mat-card{
+entity-form .mat-mdc-card{
   padding:0 !important;
 }
 
-.form-card.mat-card {
+.form-card.mat-mdc-card {
   max-width:960px;
-  margin:0 auto;
+  margin:0; /* the internal development record: anchored, not centred */
 }
 
 /*entity-form .mat-content,
 entity-table .mat-content,*/
-entity-form .mat-card > *,
-entity-table .mat-card > *{
+entity-form .mat-mdc-card > *,
+entity-form .form-card > *, /* the internal development record */
+entity-wizard .form-card > *, /* the internal development record */
+/* the internal development record: the injected resize-detector object is 100% content-box;
+   card padding would enlarge that invisible sensor and make tab contents scroll. */
+entity-table .mat-card > :not(object){
   padding:16px !important;
   margin:0 !important;
 }
 
-.mat-card > .no-padding{
+.mat-card > .no-padding,
+.mat-mdc-card > .no-padding{
   padding:0 !important;
 }
 
@@ -52,10 +62,6 @@ entity-table .mat-card > *{
   margin:0 !important;
 }
 
-.mat-toolbar .mat-button{
-  height:36px !important;
-  margin: 0 4px;
-}
 
 .fn-toolbar{
   background:var(--alt-bg1);
@@ -67,18 +73,12 @@ entity-table .mat-card > *{
 
 /* Special Override Classes */
 /*.widget-loader,
-.widget .mat-card-content,
+.widget .mat-mdc-card-content,
 .no-padding{
   padding:0px !important;
 }*/
 
 /* FreeNAS Specific */
-
-button.menu-toggle .mat-icon{
-  position:relative;
-  top:6px;
-  right:-10px;
-}
 
 .form-card{}
 
@@ -107,7 +107,7 @@ entity-table .mat-toolbar.mat-card-toolbar{
   z-index:2;
 }
 /* Elements with shadows */
-/*.mat-card,*/
+/*.mat-mdc-card,*/
 .datatable-header,
 entity-table .mat-toolbar.mat-card-toolbar{
   box-shadow:var(--fn-dropshadow);

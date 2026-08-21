@@ -1,14 +1,48 @@
+/* the internal development record: these em values look arbitrary but are load-bearing. At
+ * the 12px wrapper font they resolve to a 10px border plus 5.25px top and
+ * bottom, which together with the 45px option row (40px button + 5px) holds an
+ * inline radio -- label left, options right -- at 65.5px, matching the 66px
+ * pitch of the fields beside it in System -> General. Measured against a
+ * rendered pane and left alone deliberately.
+ *
+ * `padding-bottom: 1.29688em` was dead: the shorthand on the next line reset it. */
 .mat-radio {
-  padding-bottom: 1.29688em;
   padding: .4375em 0;
   border-top: .84375em solid transparent;
 }
 
-mat-radio-button {
+/* the internal development record: one row per option on spartan, the 5px between rows kept. */
+hlm-radio-group {
   display: block;
+}
+.radio-option-row {
+  min-height: 32px;
   margin-bottom: 5px;
 }
 
+/* the internal development record: a radio field renders two ways -- stacked (label above
+ * the options, System -> Email) and inline (label beside them, System ->
+ * General). 13.3 does the same, and aligns the inline one's label to its radio
+ * within a pixel; ours sat 11px high.
+ *
+ * In the inline layout the field is a flex container, so `.top` is a stretched
+ * flex item -- and stretch fills the line *minus margins*, so this rule's own
+ * bottom margin shortened the label's box and left its text riding at the top
+ * of a 45px row. `align-self` is ignored outside a flex container, so centring
+ * here reaches the inline layout and leaves the stacked one alone. The 5px
+ * mirrors `mat-radio-button`'s own bottom margin above, which is what holds the
+ * ring 2.5px above the row's centre; matching it puts label and ring on exactly
+ * the same axis. Measured: 11px out -> 0. */
 .top {
-  margin-bottom: 10px;
+  align-self: center;
+  margin-bottom: 5px;
+}
+
+/* Centre the per-option tooltip on its label. The row is 40px tall because of
+ * the radio's state layer, and the stretch-aligned 20px icon sat 10px high. */
+.radio-option-row {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
 }

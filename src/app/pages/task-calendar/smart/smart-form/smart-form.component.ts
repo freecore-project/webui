@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import * as _ from 'lodash';
@@ -9,10 +9,13 @@ import { TaskService, StorageService, WebSocketService } from '../../../../servi
 import { EntityFormService } from '../../../common/entity/entity-form/services/entity-form.service';
 import helptext from '../../../../helptext/task-calendar/smart/smart';
 import { EntityUtils } from 'app/pages/common/entity/utils';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'smart-test-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService, StorageService, EntityFormService],
 })
 export class SmartFormComponent {
@@ -24,11 +27,13 @@ export class SmartFormComponent {
   protected entityForm: EntityFormComponent;
   protected isEntity = true;
 
+  readonly settingsTitle = T('S.M.A.R.T. Test'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: 'S.M.A.R.T. Test',
       class: 'add-cron',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name is the page's h1
       width: '300px',
       config: [
         {

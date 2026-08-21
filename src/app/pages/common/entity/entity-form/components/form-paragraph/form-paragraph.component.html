@@ -1,15 +1,20 @@
-<div id="{{config.name}}" class="dynamic-field form-textarea" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']">
-    <div fxLayoutAlign="start start" fxLayoutGap="8px">
-        <mat-icon class="paragraph-icon" *ngIf="config.paragraphIcon" [style.width]="config.paragraphIconSize" [style.height]="config.paragraphIconSize" [style.fontSize]="config.paragraphIconSize">{{ config.paragraphIcon }}</mat-icon>
-        <p [class.large]="config.isLargeText" [innerHTML]="config.paraText | translate | docreplace"></p>
-        <tooltip class="paratext-tooltip" *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+@if (!config['isHidden']) {
+  <!-- the internal development record: Material-free. The control is registered through a hidden native input
+       (the same DefaultValueAccessor the hidden matInput used; the FormControl itself comes from
+       createFormGroup either way); errors use the #392 line. -->
+  <div id="{{config.name}}" class="dynamic-field form-paragraph" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip">
+    <div class="paragraph-layout-row">
+      @if (config.paragraphIcon) {
+        <mat-icon class="paragraph-icon" [style.width]="config.paragraphIconSize" [style.height]="config.paragraphIconSize" [style.fontSize]="config.paragraphIconSize">{{ config.paragraphIcon }}</mat-icon>
+      }
+      <p [class.large]="config.isLargeText" [innerHTML]="config.paraText | translate | docreplace"></p>
+      @if (config.tooltip) {
+        <tooltip class="paratext-tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+      }
     </div>
-    <mat-error *ngIf="config['hasErrors']">{{config['errors']}}</mat-error>
-    <mat-form-field class="full-width" style="display:none">
-      <input matInput [type]="config.inputType ? config.inputType : 'text'"
-        [placeholder]="config.placeholder"
-        [attr.value]="config.value"
-        [formControlName]="config.name"
-        >
-    </mat-form-field>
-</div>
+    @if (config['hasErrors']) {
+      <p class="form-error-line" role="alert">{{config['errors']}}</p>
+    }
+    <input type="hidden" id="{{config.name}}-input" [formControlName]="config.name">
+  </div>
+}

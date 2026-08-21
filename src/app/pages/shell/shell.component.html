@@ -1,0 +1,32 @@
+<section id="shell-page" class="fc-page fc-console" aria-labelledby="shell-title">
+  <h1 id="shell-title" class="fc-page-title">{{ 'Shell' | translate }}</h1>
+
+  @if (enabled) {
+    <div class="fc-console-surface">
+      <ix-terminal [tooltip]="tooltip"></ix-terminal>
+    </div>
+  }
+
+  @if (!loading && enabled === false) {
+    <div class="fc-page-notice shell-disabled">
+      <h3>{{ 'The Shell is turned off' | translate }}</h3>
+      <p>
+        {{ 'The Shell gives you a root command prompt in this browser window. It ships turned off, and
+        turning it on changes nothing else — the jail console, the VM serial console and System
+        Processes are unaffected either way.' | translate }}
+      </p>
+      <div class="shell-enable-row">
+        <button hlmBtn type="button" (click)="enable()"
+          ix-auto ix-auto-type="button" ix-auto-identifier="ENABLE SHELL">
+          {{ 'Enable Shell' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (loading) {
+    <div class="shell-loading">
+      <hlm-spinner />
+    </div>
+  }
+</section>

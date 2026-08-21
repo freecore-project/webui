@@ -1,13 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ServicesService } from '../../../../../services';
 import * as _ from 'lodash';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { FieldConfig } from '../../../../common/entity/entity-form/models/field-config.interface';
 
 import helptext from 'app/helptext/services/components/service-openvpn';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'openvpn-client-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: ' <entity-form [conf]="this"></entity-form>',
 })
 
@@ -15,6 +18,7 @@ export class ServiceOpenvpnClientComponent {
   protected queryCall = 'openvpn.client.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('OpenVPN Client'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
@@ -25,6 +29,7 @@ export class ServiceOpenvpnClientComponent {
     {
       name: 'client-settings',
       label: false,
+      settingsLabel: T('Connection'), // the internal development record: the section heading (the set was headless)
       width: '53%',
       config: [
         {
@@ -94,6 +99,7 @@ export class ServiceOpenvpnClientComponent {
     {
       name: 'client-server-settings',
       label: false,
+      settingsLabel: T('Tunnel Options'), // the internal development record
       width: '43%',
       config: [
         {

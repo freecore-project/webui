@@ -131,7 +131,7 @@ def click_on_edit_the_interface_settings_page_should_open(driver):
     """click on Edit, the Interface Settings page should open."""
     assert wait_on_element(driver, 7, '//button[@ix-auto="button__EDIT_vtnet0_vtnet0"]')
     driver.find_element_by_xpath('//button[@ix-auto="button__EDIT_vtnet0_vtnet0"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Interface Settings")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Interface Settings")]')
 
 
 @then('uncheck DHCP, input the NAS IP, then click APPLY')
@@ -168,8 +168,8 @@ def click_test_changes_check_confirm_click_test_changes_again(driver):
     """click Test Changes, check Confirm, click Test Changes again."""
     assert wait_on_element(driver, 7, '//button[contains(.,"TEST CHANGES")]')
     driver.find_element_by_xpath('//button[contains(.,"TEST CHANGES")]').click()
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Test Changes")]')
-    driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Test Changes")]')
+    driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
     driver.find_element_by_xpath('//button[@ix-auto="button__TEST CHANGES"]').click()
 
 
@@ -179,8 +179,8 @@ def please_wait_should_appear_will_test_changes_is_happening(driver):
     assert wait_on_element_disappear(driver, 80, '//h6[contains(.,"Please wait")]')
     if is_element_present(driver, '//button[contains(.,"TEST CHANGES")]'):
         driver.find_element_by_xpath('//button[contains(.,"TEST CHANGES")]').click()
-        assert wait_on_element(driver, 7, '//h1[contains(.,"Test Changes")]')
-        driver.find_element_by_xpath('//mat-checkbox[@ix-auto="checkbox__CONFIRM"]').click()
+        assert wait_on_element(driver, 7, '//h2[contains(.,"Test Changes")]')
+        driver.find_element_by_xpath('//hlm-checkbox[@ix-auto="checkbox__CONFIRM"]//button[@role="checkbox"]').click()
         driver.find_element_by_xpath('//button[@ix-auto="button__TEST CHANGES"]').click()
         assert wait_on_element_disappear(driver, 20, '//h6[contains(.,"Please wait")]')
 
@@ -195,7 +195,7 @@ def there_are_unapplied_network_interface_changes_should_appear_click_save_chang
 @then('on the Save Changes widget, click Save')
 def on_the_save_changes_widget_click_save(driver):
     """on the Save Changes widget, click Save."""
-    assert wait_on_element(driver, 7, '//h1[contains(.,"Save Changes")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Save Changes")]')
     driver.find_element_by_xpath('//button[@ix-auto="button__SAVE"]').click()
 
 

@@ -4,8 +4,34 @@ div.dynamic-list {
     width: 100%;
     border: 1px solid var(--bg1);
 }
-mat-list-item.dynamic-list {
-    height: 48px !important;
+/* the internal development record: what mat-list and a mat-list-item with a trailing meta button drew -- the list's 8px
+ * above and below, a 48px clipped row with a 16px lead, the title on a 24px line at 14px (one line, ellipsis),
+ * the 32px remove button in the meta slot (28px before it, 16px after). */
+ul.dynamic-list-items {
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+}
+li.dynamic-list {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 0 0 16px;
+    overflow: hidden;
+}
+li.dynamic-list label.dynamic-list-item {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    line-height: 24px;
+}
+li.dynamic-list > .dynamic-list-remove { /* a class, not a bare button (closure gate, the #396 trap) */
+    flex: none;
+    margin: 0 16px 0 28px;
 }
 div.dynamic-list-container {
     margin-bottom: 13px;
@@ -13,6 +39,25 @@ div.dynamic-list-container {
 div.move-to-action {
     padding-right: 10px;
 }
+
+.dynamic-list-row-layout {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.dynamic-list-move-action-layout {
+    align-self: center;
+    box-sizing: border-box;
+}
+
+.dynamic-list-flex-content-layout {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    max-width: 100%;
+}
+
 div.dynamic-list-container.disabled label.dynamic-list-item {
     opacity: 0.38;
     cursor: default;

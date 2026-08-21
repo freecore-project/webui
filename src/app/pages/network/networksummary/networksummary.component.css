@@ -1,25 +1,102 @@
-.mat-card {
-  padding: 16px 0;
-  overflow: hidden;
+/* the internal development record: Network Summary is the boot-status shape -- h1, the facts dl (default routes,
+ * nameservers), then the interfaces table bare under the section in the Security Keys voice
+ * (freecore-ui.css #security-keys-page table/th/td). The mat-card, the mat-list pseudo-table with
+ * its zebra literal and the `:host ::ng-deep` list-item contract went. Every rule is keyed on the
+ * page id: the reset sheet zeroes dl/dt/dd/table/th/td and the theme's `h1..h6 { font-weight: 500 }`
+ * (0,1,1) outranks a bare class (the #417 manager.component.css precedent). No colours: theme
+ * vocabulary only. */
+
+/* the facts: the page's copy of freecore-ui.css's #boot-pool-status-page .fc-boot-scan rules */
+#network-summary-page .fc-network-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 40px;
+  margin: 0 0 28px;
 }
 
-.mat-card-title {
-  padding: 0 16px;
+#network-summary-page .fc-network-facts dt {
+  color: var(--fg2);
+  font-size: 12px;
 }
 
-.dynamic-height {
-    height: fit-content;
-    padding: 8px;
-    max-width: 100%;
+#network-summary-page .fc-network-facts dd {
+  margin: 8px 0 0;
 }
 
-.dynamic-height:nth-child(odd) {
-  background-color: rgba(0,0,0,0.1);;
+/* the section heading in the 15/400 fg1 voice */
+#network-summary-page h2 {
+  margin: 0 0 12px;
+  color: var(--fg1);
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
-.dynamic-height:nth-child(even) {
+/* the interfaces table: the page's copy of freecore-ui.css's #security-keys-page table rules */
+#network-summary-page .fc-network-table {
+  overflow-x: auto;
 }
 
-.pseudo-table-header {
-  padding-left: 8px;
+#network-summary-page .fc-network-table:focus-visible {
+  outline: 1px solid var(--fg2);
+  outline-offset: -1px;
+}
+
+#network-summary-page table {
+  width: 100%;
+  min-width: 620px;
+  border-collapse: collapse;
+  background: transparent;
+}
+
+#network-summary-page th,
+#network-summary-page td {
+  box-sizing: border-box;
+  padding: 6px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--fc-line);
+  font-weight: 400;
+}
+
+#network-summary-page th {
+  height: 40px;
+  font-size: 12px;
+  color: var(--fg2);
+}
+
+#network-summary-page td {
+  height: 50px;
+  font-size: 13px;
+  color: var(--fg1);
+}
+
+/* today's 20 / 40 / 40 split (auto layout would otherwise share the rest by content) */
+#network-summary-page th:first-child,
+#network-summary-page td:first-child {
+  width: 20%;
+}
+
+#network-summary-page th:not(:first-child) {
+  width: 40%;
+}
+
+#network-summary-page td:not(:first-child) {
+  white-space: nowrap;
+}
+
+#network-summary-page td:first-child {
+  overflow-wrap: anywhere;
+}
+
+#network-summary-page tbody tr:hover {
+  background: var(--fc-hover);
+}
+
+/* the empty state is a fact, not a row to hover */
+#network-summary-page .fc-network-empty td {
+  color: var(--fg2);
+}
+
+#network-summary-page tbody tr.fc-network-empty:hover {
+  background: transparent;
 }

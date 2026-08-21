@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as _ from 'lodash';
 
@@ -8,10 +8,13 @@ import {
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/services/components/service-snmp';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'snmp-edit',
   template: ' <entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService, IdmapService],
 })
 
@@ -19,6 +22,7 @@ export class ServiceSNMPComponent {
   protected updateCall = 'snmp.update';
   protected queryCall = 'snmp.config';
   protected route_success: string[] = ['services'];
+  readonly settingsTitle = T('SNMP'); // the internal development record: the page's h1
   fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {

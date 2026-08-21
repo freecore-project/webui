@@ -61,7 +61,7 @@ export default {
 
   alias_address_placeholder: T('IP Address'),
   alias_address_tooltip: T('Define an alias for the interface \
- on this TrueNAS controller. The alias can be an IPv4 or IPv6 \
+ on this FreeCORE system. The alias can be an IPv4 or IPv6 \
  address.'),
 
   alias_netmaskbit_placeholder: T('Netmask'),

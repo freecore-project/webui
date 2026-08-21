@@ -1,5 +1,5 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -19,12 +19,15 @@ import { take, filter } from 'rxjs/operators';
 import { UpdateService } from 'app/services/update.service';
 
 @Component({
+  standalone: false,
   selector: 'app-manualupdate',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [MessageService],
 })
 export class ManualUpdateComponent extends ViewControllerComponent {
-  formGroup: FormGroup;
+  settingsTitle = T('Manual Update');
+  formGroup: UntypedFormGroup;
   route_success: string[] = ['system', 'update'];
   protected dialogRef: any;
   fileLocation: string;
@@ -153,7 +156,7 @@ export class ManualUpdateComponent extends ViewControllerComponent {
     this.save_button_enabled = false;
     this.systemService.updateRunningNoticeSent.emit();
     this.ws.call('user.query', [[['id', '=', 1]]]).subscribe((ures) => {
-      this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: helptext.manual_update_action }, disableClose: true });
+      this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: helptext.manual_update_action, statusKind: 'update' }, disableClose: true });
       if (this.isHA) {
         this.dialogRef.componentInstance.disableProgressValue(true);
       }
@@ -235,7 +238,7 @@ export class ManualUpdateComponent extends ViewControllerComponent {
   }
 
   showRunningUpdate(jobId) {
-    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update' }, disableClose: true });
+    this.dialogRef = this.dialog.open(EntityJobComponent, { data: { title: 'Update', statusKind: 'update' }, disableClose: true });
     if (this.isHA) {
       this.dialogRef.componentInstance.disableProgressValue(true);
     }

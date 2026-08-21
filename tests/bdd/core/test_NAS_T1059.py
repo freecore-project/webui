@@ -33,7 +33,7 @@ def test_verify_anonymous_ftp_login_access(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//input[@ix-auto="input__anonpath"]')
     driver.find_element_by_xpath('//input[@ix-auto="input__anonpath"]').clear()
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Anonymous Login"]', 'clickable')
@@ -80,13 +80,13 @@ def on_the_dashboard_click_on_storage_on_the_side_menu_click_on_pools(driver):
 @then('click on the tank pool three dots button, select Add Dataset')
 def click_on_the_tank_pool_three_dots_button_select_add_dataset(driver):
     """click on the tank pool three dots button, select Add Dataset."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__tank"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__tank"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__tank"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__tank"]').click()
     assert wait_on_element(driver, 7, '//div[@class="title" and contains(.,"Dataset Actions")]')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Create Snapshot"]', 'clickable')
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__tank_Add Dataset"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__tank_Add Dataset"]').click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Name and Options")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Name and Options")]')
 
 
 @then('input ftptest for Name, select Generic as Share Type and click Submit')
@@ -111,8 +111,8 @@ def the_dataset_should_be_created_without_error(driver):
 @then('click on the ftptest dataset 3 dots button, select Edit Permissions')
 def click_on_the_ftptest_dataset_3_dots_button_select_edit_permissions(driver):
     """click on the ftptest dataset 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 7, '//mat-icon[@id="actions_menu_button__ftptest"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__ftptest"]').click()
+    assert wait_on_element(driver, 7, '//*[@id="actions_menu_button__ftptest"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__ftptest"]').click()
     assert wait_on_element(driver, 7, '//button[@ix-auto="action__ftptest_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__ftptest_Edit Permissions"]').click()
 
@@ -165,7 +165,7 @@ def on_the_ftp_edit_page_enable_the_allow_anonymous_login_checkbox(driver):
     assert wait_on_element(driver, 7, '//li[contains(.,"FTP")]')
     assert wait_on_element(driver, 7, xpaths.button.advanced_options, 'clickable')
     driver.find_element_by_xpath(xpaths.button.advanced_options).click()
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Access")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Access")]')
     assert wait_on_element(driver, 7, '//mat-checkbox[@ix-auto="checkbox__Allow Anonymous Login"]', 'clickable')
     value_exist = attribute_value_exist(driver, '//mat-checkbox[@ix-auto="checkbox__Allow Anonymous Login"]', 'class', 'mat-checkbox-checked')
     if not value_exist:

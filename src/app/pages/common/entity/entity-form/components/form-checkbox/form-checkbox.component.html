@@ -1,25 +1,41 @@
-<div id="{{config.name}}" class="dynamic-field form-checkbox" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']">
-	<mat-checkbox
-		*ngIf="!config.updater"
-		ix-auto
-		ix-auto-type="checkbox"
-		ix-auto-identifier="{{config.placeholder}}"
-		[formControlName]="config.name"
-		[required]="config.required"
-	>
-		{{ config.placeholder | translate }}
-	</mat-checkbox>
-	<mat-checkbox
-		*ngIf="config.updater"
-		class="updater"
-		[formControlName]="config.name"
-		[required]="config.required"
-		(click)="checkboxUpdate()"
-	>
-		{{ config.placeholder | translate }}
-	</mat-checkbox>
-
-	<tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-	<mat-error *ngIf="config['hasErrors']"><div [innerHTML]="config['errors']"></div></mat-error>
-	<mat-error *ngIf="config.warnings"><div [innerHTML]="config.warnings | translate"></div></mat-error>
-</div>
+@if (!config['isHidden']) {
+  <div id="{{config.name}}" class="dynamic-field form-checkbox" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip">
+    <!-- the internal development record: the #352 checkbox on spartan -- a 32px row: the box centred in a 32px
+         cell, the label with its 6px lead, the help glyph inline. -->
+    <div class="checkbox-row">
+      <span class="checkbox-cell">
+        @if (!config.updater) {
+          <hlm-checkbox
+            [inputId]="inputId"
+            [formControlName]="config.name"
+            [required]="config.required"
+            [forceInvalid]="!!config['hasErrors']"
+            ix-auto
+            ix-auto-type="checkbox"
+            ix-auto-identifier="{{config.placeholder}}"
+            />
+        }
+        @if (config.updater) {
+          <hlm-checkbox
+            class="updater"
+            [inputId]="inputId"
+            [formControlName]="config.name"
+            [required]="config.required"
+            [forceInvalid]="!!config['hasErrors']"
+            (click)="checkboxUpdate()"
+            />
+        }
+      </span>
+      <label hlmLabel class="checkbox-label" [for]="inputId">{{ config.placeholder | translate }}</label>
+      @if (config.tooltip) {
+        <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+      }
+    </div>
+    @if (config['hasErrors']) {
+      <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+    }
+    @if (config.warnings) {
+      <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+    }
+  </div>
+}
