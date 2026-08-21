@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -15,8 +15,10 @@ import { FieldSet } from '../../../common/entity/entity-form/models/fieldset.int
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 
 @Component({
+  standalone: false,
   selector: 'app-replication-list',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService, KeychainCredentialService, ReplicationService, StorageService],
 })
 export class ReplicationFormComponent {
@@ -45,6 +47,7 @@ export class ReplicationFormComponent {
     value: 'NONE',
   }];
 
+  readonly settingsTitle = T('Replication Task'); // the internal development record: the page's h1
   fieldSets: FieldSet[] = [
     {
       name: helptext.fieldset_general,

@@ -1,12 +1,15 @@
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { Component, Output, EventEmitter } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
+import { Component, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { T } from '../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  // the internal development record: the checkbox rows are the engine's #394 row (dynamic-field.css).
+  styleUrls: ['../entity/entity-form/components/dynamic-field/dynamic-field.css', './confirm-dialog.component.css'],
 })
 export class ConfirmDialog {
   title: string;
@@ -28,10 +31,10 @@ export class ConfirmDialog {
   constructor(public dialogRef: MatDialogRef < ConfirmDialog >, protected translate: TranslateService) {
   }
 
-  toggleSubmit(data) {
-    this.isSubmitEnabled = data.checked;
+  toggleSubmit(checked: boolean) {
+    this.isSubmitEnabled = checked;
   }
-  secondaryCheckBoxEvent(data) {
+  secondaryCheckBoxEvent(_checked: boolean) {
     this.switchSelectionEmitter.emit(this.secondaryCheckBox);
   }
   isDisabled() {

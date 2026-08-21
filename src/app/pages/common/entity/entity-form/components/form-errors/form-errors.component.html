@@ -1,44 +1,76 @@
-<div class="form-error" *ngIf="control.dirty || control.touched">
-    <mat-error *ngIf="control.hasError('required') && !config.hideErrMsg">
+<!-- the internal development record: the shared error vocabulary as plain lines (12/16, --red), so it renders
+     the same under a spartan field and under the renderers still on Material. -->
+@if (control.dirty || control.touched) {
+  <div class="form-error">
+    @if (control.hasError('required') && !config.hideErrMsg) {
+      <p class="form-error-line" role="alert">
         {{config.label || config.placeholder}} {{" is required." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('minlength')">
+      </p>
+    }
+    @if (control.hasError('minlength')) {
+      <p class="form-error-line" role="alert">
         {{"The length of " | translate}} {{config.placeholder}} {{" should be at least " | translate}} {{control.errors.minlength.requiredLength}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('maxlength')">
+      </p>
+    }
+    @if (control.hasError('maxlength')) {
+      <p class="form-error-line" role="alert">
         {{"The length of " | translate}} {{config.placeholder}} {{" should be no more than " | translate}} {{control.errors.maxlength.requiredLength}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('min')">
+      </p>
+    }
+    @if (control.hasError('min')) {
+      <p class="form-error-line" role="alert">
         {{"Minimum value is " | translate}} {{control.errors.min.min}}.
-    </mat-error>
-    <mat-error *ngIf="control.hasError('atLeastOne')">
+      </p>
+    }
+    @if (control.hasError('atLeastOne')) {
+      <p class="form-error-line" role="alert">
         {{control.errors.fields[0]}} {{" and " | translate}} {{control.errors.fields[1]}} {{". At least one is required." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('greaterThan')">
+      </p>
+    }
+    @if (control.hasError('greaterThan')) {
+      <p class="form-error-line" role="alert">
         {{"Value must be greater than " | translate}} {{control.errors.fields[0]}}.
-    </mat-error>
-    <mat-error *ngIf="control.hasError('forbidden')">
+      </p>
+    }
+    @if (control.hasError('forbidden')) {
+      <p class="form-error-line" role="alert">
         {{"The name " | translate}} <i>{{control.errors.value}}</i> {{"is already in use." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('range')">
+      </p>
+    }
+    @if (control.hasError('range')) {
+      <p class="form-error-line" role="alert">
         {{"The value is out of range. Enter a value between " | translate}} {{control.errors.rangeValue.min}} {{" and " | translate }} {{control.errors.rangeValue.max}}.
-    </mat-error>
-    <mat-error *ngIf="control.hasError('regex') || control.hasError('pattern') && !config.hideErrMsg">
+      </p>
+    }
+    @if (control.hasError('regex') || control.hasError('pattern') && !config.hideErrMsg) {
+      <p class="form-error-line" role="alert">
         {{"Invalid format or character." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('ip')">
+      </p>
+    }
+    @if (control.hasError('ip')) {
+      <p class="form-error-line" role="alert">
         {{"Select " | translate}} {{control.errors.info[1]}} {{" to include all " | translate}} {{control.errors.info[0] | translate}} {{" addresses. When this has been chosen, additional addresses cannot be selected." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('ip2')">
+      </p>
+    }
+    @if (control.hasError('ip2')) {
+      <p class="form-error-line" role="alert">
         {{"Invalid IP address" | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('matchOther')">
+      </p>
+    }
+    @if (control.hasError('matchOther')) {
+      <p class="form-error-line" role="alert">
         {{"The passwords do not match." | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('manualValidateError')">
+      </p>
+    }
+    @if (control.hasError('manualValidateError')) {
+      <p class="form-error-line" role="alert">
         {{control.errors.manualValidateErrorMsg | translate}}
-    </mat-error>
-    <mat-error *ngIf="control.hasError('invalidOptionSelected')">
+      </p>
+    }
+    @if (control.hasError('invalidOptionSelected')) {
+      <p class="form-error-line" role="alert">
         {{'Invalid option selected'| translate}}
-    </mat-error>
-</div>
+      </p>
+    }
+  </div>
+}

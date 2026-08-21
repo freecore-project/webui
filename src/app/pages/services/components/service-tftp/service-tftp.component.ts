@@ -1,18 +1,22 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../helptext/services/components/service-tftp';
 import { RestService, UserService, WebSocketService } from '../../../../services';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'tftp-edit',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class ServiceTFTPComponent {
   protected queryCall = 'tftp.config';
   protected route_success: string[] = ['services'];
 
+  readonly settingsTitle = T('TFTP'); // the internal development record: the page's h1
   protected fieldSets: FieldSet[] = [
     {
       name: helptext.tftp_fieldset_path,
@@ -48,6 +52,7 @@ export class ServiceTFTPComponent {
           type: 'combobox',
           name: 'username',
           label: helptext.tftp_username_label,
+          showLabel: true,
           placeholder: helptext.tftp_username_placeholder,
           tooltip: helptext.tftp_username_tooltip,
           options: [],

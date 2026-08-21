@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityJobComponent } from 'app/pages/common/entity/entity-job';
@@ -14,11 +14,14 @@ import helptext from '../../../helptext/directoryservice/activedirectory';
 import global_helptext from '../../../helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-activedirectory',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 
 export class ActiveDirectoryComponent {
+  readonly settingsTitle = T('Active Directory');
   protected queryCall = 'activedirectory.config';
   protected updateCall = 'activedirectory.update';
   isEntity = false;
@@ -176,6 +179,7 @@ export class ActiveDirectoryComponent {
     },
     {
       name: 'checkbox_col1',
+      settingsLabel: T('Account options'),
       class: 'adv_row',
       width: '33%',
       label: false,
@@ -202,6 +206,7 @@ export class ActiveDirectoryComponent {
     },
     {
       name: 'checkbox_col2',
+      settingsLabel: T('Directory access'),
       class: 'adv_row',
       width: '67%',
       label: false,
@@ -232,6 +237,7 @@ export class ActiveDirectoryComponent {
     },
     {
       name: helptext.ad_section_headers.advanced_col1,
+      settingsLabel: T('Domain settings'),
       class: 'adv_column1',
       label: false,
       width: '48%',
@@ -281,6 +287,7 @@ export class ActiveDirectoryComponent {
     },
     {
       name: helptext.ad_section_headers.advanced_col2,
+      settingsLabel: T('SMB identity'),
       class: 'adv_column2',
       label: false,
       width: '48%',

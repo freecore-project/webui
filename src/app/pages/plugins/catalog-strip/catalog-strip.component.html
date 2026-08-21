@@ -1,0 +1,41 @@
+<!-- the internal development record: the 15.1 catalog strip, kept on 15.0 for the plugin index. the internal development record: the 13.3 Plugins strip -- one fixed-height row of tiles, paged by the arrows,
+     a listbox to the keyboard. Geometry in the component sheet (this folder is not a Tailwind source). -->
+<div class="catalog-strip" [class.is-disabled]="disabled">
+  <button hlmBtn variant="ghost" size="icon" type="button" class="strip-arrow strip-arrow-previous"
+    [class.is-idle]="!overflowing" [attr.aria-hidden]="!overflowing" [disabled]="!overflowing || atStart"
+    (click)="page(-1)" [attr.aria-label]="'Previous' | translate">
+    <mat-icon aria-hidden="true">chevron_left</mat-icon>
+  </button>
+  <div #scroller class="strip-scroller" role="listbox" tabindex="-1" [attr.aria-label]="label"
+    [attr.aria-busy]="loading ? 'true' : null" (keydown)="onKeydown($event)" (scroll)="onScroll()">
+    @if (loading) {
+      <div class="strip-state strip-loading"><hlm-spinner id="catalog-strip-spinner" [aria-label]="'Loading catalog' | translate" /></div>
+    } @else if (!entries.length) {
+      <div class="strip-state strip-empty"><mat-icon aria-hidden="true">search_off</mat-icon><span>{{ emptyText }}</span></div>
+    } @else {
+      @for (entry of entries; track entry.id; let index = $index) {
+        <button type="button" role="option" class="strip-tile" [attr.data-catalog-entry]="entry.id"
+          [attr.aria-selected]="entry.id === selectedId" [attr.aria-disabled]="disabled ? 'true' : null"
+          [attr.tabindex]="index === focusIndex ? 0 : -1" [title]="entry.description || entry.title"
+          (click)="select(entry, index)" (focus)="onTileFocus(index)">
+          <span class="tile-icon">
+            @if (catalogIcon(entry); as icon) {
+              <img [src]="icon" alt="">
+            } @else {
+              <mat-icon aria-hidden="true">extension</mat-icon>
+            }
+          </span>
+          <span class="tile-title">{{ entry.title }}</span>
+          @if (tell(entry); as tell) {
+            <small class="tile-tell" [title]="tell.title">{{ tell.label | translate }}</small>
+          }
+        </button>
+      }
+    }
+  </div>
+  <button hlmBtn variant="ghost" size="icon" type="button" class="strip-arrow strip-arrow-next"
+    [class.is-idle]="!overflowing" [attr.aria-hidden]="!overflowing" [disabled]="!overflowing || atEnd"
+    (click)="page(1)" [attr.aria-label]="'Next' | translate">
+    <mat-icon aria-hidden="true">chevron_right</mat-icon>
+  </button>
+</div>

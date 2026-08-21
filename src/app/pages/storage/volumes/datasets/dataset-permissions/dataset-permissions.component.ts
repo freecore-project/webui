@@ -1,5 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -13,16 +13,19 @@ import { T } from '../../../../../translate-marker';
 import * as _ from 'lodash';
 
 @Component({
+  standalone: false,
   selector: 'app-dataset-permissions',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class DatasetPermissionsComponent implements OnDestroy {
+  readonly settingsTitle = T('Permissions'); // the internal development record: the page's h1
   protected updateCall = 'pool.dataset.permission';
   protected datasetPath: string;
   protected datasetId: string;
   protected recursive: any;
   protected recursive_subscription: any;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   error: string;
   protected route_success: string[] = ['storage', 'pools'];
   protected isEntity = true;
@@ -57,6 +60,7 @@ export class DatasetPermissionsComponent implements OnDestroy {
           type: 'combobox',
           name: 'user',
           label: helptext.dataset_permissions_user_label,
+          showLabel: true,
           placeholder: helptext.dataset_permissions_user_placeholder,
           tooltip: helptext.dataset_permissions_user_tooltip,
           options: [],
@@ -75,6 +79,7 @@ export class DatasetPermissionsComponent implements OnDestroy {
           type: 'combobox',
           name: 'group',
           label: helptext.dataset_permissions_group_label,
+          showLabel: true,
           placeholder: helptext.dataset_permissions_group_placeholder,
           tooltip: helptext.dataset_permissions_group_tooltip,
           options: [],

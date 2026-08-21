@@ -1,26 +1,43 @@
-<div id="{{config.name}}" class="dynamic-field form-textarea" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
-  ix-auto ix-auto-type="textarea" ix-auto-identifier="{{config.placeholder}}">
-  <mat-form-field class="full-width">
-    <textarea matInput 
-      [placeholder]="config.placeholder | translate" 
-      [formControlName]="config.name" 
-      [rows]="config.textAreaRows || 4" 
-      [ngClass]="config.class" 
-      [required]="config.required" 
-      [readonly]="config.readonly" 
-      (blur)='blurEvent()'
-      (paste)="onPaste($event)"
-      (input)="onInput()">
-    </textarea>
-  </mat-form-field>
-  <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-  <div *ngIf="config.filereader" class="textarea-filereader">
-    <span [style.margin-right.px]="10">{{'Paste value above or choose a file.' | translate}}</span>
-    <input type="file" id="fileInput" (change)="changeListener($event)"/>
+@if (!config['isHidden']) {
+  <div id="{{config.name}}" class="dynamic-field form-textarea" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="textarea" ix-auto-identifier="{{config.placeholder}}">
+    <!-- the internal development record: the #351 textarea on spartan -- label row, the growing box, the
+         filereader row, then errors as the subscript. -->
+    <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <textarea hlmTextarea
+        [id]="inputId"
+        [forceInvalid]="!!config['hasErrors']"
+        [placeholder]="config | fieldPlaceholder | translate"
+        [formControlName]="config.name"
+        [rows]="config.textAreaRows || 4"
+        [ngClass]="config.class"
+        [required]="config.required"
+        [readonly]="config.readonly"
+        (blur)='blurEvent()'
+        (paste)="onPaste($event)"
+        (input)="onInput()">
+      </textarea>
+      @if (config.filereader) {
+        <div class="textarea-filereader">
+          <span [style.margin-right.px]="10">{{'Paste value above or choose a file.' | translate}}</span>
+          <input type="file" id="fileInput" (change)="changeListener($event)"/>
+        </div>
+      }
+      <div class="field-subscript">
+        <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+        }
+        @if (config.warnings) {
+          <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
   </div>
-  <div class="margin-for-error">
-    <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-    <mat-error *ngIf="config['hasErrors']"><div [innerHTML]="config['errors']"></div></mat-error>
-    <mat-error *ngIf="config.warnings"><div [innerHTML]="config.warnings | translate"></div></mat-error>
-  </div>
-</div>
+}

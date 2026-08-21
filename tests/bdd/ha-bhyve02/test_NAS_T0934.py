@@ -80,8 +80,8 @@ def the_pools_page_should_open(driver):
 @then('On the dozer pool click on "my_acl_dataset" 3 dots button, select Edit Permissions')
 def on_the_dozer_pool_click_on_my_acl_dataset_3_dots_button_select_edit_permissions(driver):
     """On the dozer pool click on "my_acl_dataset" 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__my_acl_dataset"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__my_acl_dataset"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__my_acl_dataset"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__my_acl_dataset"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]').click()
 
@@ -141,8 +141,8 @@ def click_the_save_button_should_be_return_to_pool_page(driver):
 @then('Click on "my_acl_dataset" 3 dots button, select Edit Permissions')
 def click_on_my_acl_dataset_3_dots_button_select_edit_permissions(driver):
     """Click on "my_acl_dataset" 3 dots button, select Edit Permissions."""
-    assert wait_on_element(driver, 5, '//mat-icon[@id="actions_menu_button__my_acl_dataset"]', 'clickable')
-    driver.find_element_by_xpath('//mat-icon[@id="actions_menu_button__my_acl_dataset"]').click()
+    assert wait_on_element(driver, 5, '//*[@id="actions_menu_button__my_acl_dataset"]', 'clickable')
+    driver.find_element_by_xpath('//*[@id="actions_menu_button__my_acl_dataset"]').click()
     assert wait_on_element(driver, 5, '//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]', 'clickable')
     driver.find_element_by_xpath('//button[@ix-auto="action__my_acl_dataset_Edit Permissions"]').click()
 

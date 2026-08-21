@@ -72,7 +72,7 @@ def when_the_users_page_should_open_click_on_the_add_button(driver):
 @then('the Users Add Page should open')
 def the_users_add_page_should_open(driver):
     """the Users Add Page should open."""
-    assert wait_on_element(driver, 7, '//h4[contains(.,"Identification")]')
+    assert wait_on_element(driver, 7, '//h2[contains(.,"Identification")]')
 
 
 @then('input in the following fields Full Name, Username')

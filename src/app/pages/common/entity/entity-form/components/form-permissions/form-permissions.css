@@ -1,11 +1,37 @@
-td {
-    padding: 5px 7px;
-}
-
+/* the internal development record: the mode matrix -- the label row like a field's, the Read / Write / Execute
+ * header in the label voice, 32px cells for the #394 box, the row label 13px fg1. */
 .form-permissions {
     margin-bottom: 10px;
 }
-
-.top {
-    margin-bottom: 10px;
+.form-permissions-head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-height: 20px;
+}
+.form-permissions-matrix {
+    border-collapse: collapse;
+}
+.form-permissions-matrix td {
+    padding: 0 12px 0 0;
+    height: 32px;
+    vertical-align: middle;
+    font-size: 13px;
+    line-height: 18px;
+    color: var(--sp-foreground, var(--fg1));
+}
+.form-permissions-what td {
+    height: 20px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--sp-muted-foreground, var(--fg2));
+    text-align: center;
+}
+.form-permissions-matrix td.form-permissions-who {
+    padding-right: 16px;
+}
+/* The cell is centred in its column so the box sits under the header word whatever its width. */
+.form-permissions-matrix .checkbox-cell {
+    display: flex;
+    margin: 0 auto;
 }

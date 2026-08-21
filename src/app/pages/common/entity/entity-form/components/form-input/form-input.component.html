@@ -1,56 +1,76 @@
-<div id="{{config.name}}" class="dynamic-field form-input" [formGroup]="group" [ngClass]="fieldShow" [class.has-pwtoggle]="config.togglePw" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']">
-	<!-- need to prevent browser autofill :/ -->
-	<input name = "DummyUsername" type="text" style="display:none;">
-	<input name = "DummyPassword" type="password" style="display:none;">
-
-	<mat-form-field class="full-width" *ngIf="config.inputType != 'file' else elseBlock">
-		<mat-spinner
-			diameter='40'
-			class="form-input-spinner"
-			id="{{config.name}}_form-input-spinner"
-			*ngIf="config.isLoading">
-		</mat-spinner>
-		<div *ngIf="config.maskValue">
-			<p>{{'Enter' | translate}} <strong>{{config.maskValue}}</strong> {{'below to confirm.' | translate}}</p>
-			<p [ngStyle]="{'position': 'relative', 'top':'15px', 'opacity': '.38'}">{{config.maskValue}}</p>
-		</div>
-		<input matInput
-      [type]="config.inputType && config.inputType != 'password' ? config.inputType : 'text'"
-      [class.password-field]="config.inputType == 'password'"
-			[placeholder]="config.placeholder | translate"
-			[attr.value]="config.value"
-			[formControlName]="config.name"
-			[readonly]="config.readonly"
-			[required]="config.required"
-			[max]="config.max"
-			[min]="config.min"
-			(blur)="blurEvent()"
-			autocomplete="off"
-			autocapitalize="off"
-			ix-auto
-			ix-auto-type="input"
-      ix-auto-identifier="{{config.placeholder}}"
-      id="{{config.id}}"
-			(change)="valueChange()"
-			(paste)="onPaste($event)"
-			(input)="onInput()">
-	</mat-form-field>
-	<ng-template #elseBlock>
-		<span [style.margin-right.px]="10">{{config.placeholder | translate}}</span>
-		<input type="file" id="fileInput" (change)="changeListener($event)"/>
-	</ng-template>
-	<button mat-icon-button type="button" *ngIf="config.togglePw" class="toggle_pw" (click)="togglePW()"
-		ix-auto
-		ix-auto-type="button"
-		ix-auto-identifier="{{config.name}}_toggle-pw">
-		<i class="material-icons" matTooltip="Hide" *ngIf="showPassword">visibility</i>
-        <i class="material-icons" matTooltip="Show" *ngIf="!showPassword">visibility_off</i>
-	</button>
-	<tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
-	<div class="margin-for-error">
-		<form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-		<mat-error *ngIf="config['hasErrors']"><div [innerHTML]="config['errors']"></div></mat-error>
-		<mat-error *ngIf="config.warnings"><div [innerHTML]="config.warnings | translate"></div></mat-error>
-		<mat-hint *ngIf="config.hint"><div [innerHTML]="config.hint | translate"></div></mat-hint>
-	</div>
-</div>
+@if (!config['isHidden']) {
+  <div id="{{config.name}}" class="dynamic-field form-input" [formGroup]="group" [ngClass]="fieldShow" [class.has-pwtoggle]="config.togglePw" [class.has-tooltip]="config.tooltip">
+    <!-- need to prevent browser autofill :/ -->
+    <input name = "DummyUsername" type="text" style="display:none;">
+    <input name = "DummyPassword" type="password" style="display:none;">
+    @if (config.inputType != 'file') {
+      <!-- the internal development record: the #351 field on spartan -- label row, the box (with the toggle or
+           spinner as an addon inside its right end), hint and errors as the subscript. -->
+      <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+        @if (config | fieldLabel) {
+          <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+        }
+        @if (config.maskValue) {
+          <p hlmFieldDescription class="mask-value">{{'Enter' | translate}} <strong>{{config.maskValue}}</strong> {{'below to confirm.' | translate}}</p>
+        }
+        <hlm-input-group>
+          <input hlmInputGroupInput
+            [id]="inputId"
+            [forceInvalid]="!!config['hasErrors']"
+            [type]="config.inputType && config.inputType != 'password' ? config.inputType : 'text'"
+            [class.password-field]="config.inputType == 'password'"
+            [placeholder]="config | fieldPlaceholder | translate"
+            [attr.value]="config.value"
+            [formControlName]="config.name"
+            [readonly]="config.readonly"
+            [required]="config.required"
+            [max]="config.max"
+            [min]="config.min"
+            (blur)="blurEvent()"
+            autocomplete="off"
+            autocapitalize="off"
+            ix-auto
+            ix-auto-type="input"
+            ix-auto-identifier="{{config.placeholder}}"
+            (change)="valueChange()"
+            (paste)="onPaste($event)"
+            (input)="onInput()">
+          @if (config.isLoading) {
+            <hlm-input-group-addon align="inline-end">
+              <hlm-spinner class="form-input-spinner" id="{{config.name}}_form-input-spinner" />
+            </hlm-input-group-addon>
+          }
+          @if (config.togglePw) {
+            <hlm-input-group-addon align="inline-end">
+              <button hlmInputGroupButton size="icon-xs" class="toggle_pw" (click)="togglePW()"
+                [attr.aria-label]="(showPassword ? 'Hide' : 'Show') | translate"
+                ix-auto
+                ix-auto-type="button"
+                ix-auto-identifier="{{config.name}}_toggle-pw">
+                <i class="material-icons" aria-hidden="true">{{ showPassword ? 'visibility' : 'visibility_off' }}</i>
+              </button>
+            </hlm-input-group-addon>
+          }
+        </hlm-input-group>
+        <div class="field-subscript">
+          @if (config.hint) {
+            <p hlmFieldDescription [innerHTML]="config.hint | translate"></p>
+          }
+          <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
+          @if (config['hasErrors']) {
+            <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+          }
+          @if (config.warnings) {
+            <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+          }
+        </div>
+      </hlm-field>
+    } @else {
+      <span [style.margin-right.px]="10">{{config.placeholder | translate}}</span>
+      <input type="file" id="fileInput" (change)="changeListener($event)"/>
+    }
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
+  </div>
+}

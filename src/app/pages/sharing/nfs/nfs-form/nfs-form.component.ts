@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { helptext_sharing_nfs, shared } from 'app/helptext/sharing';
 import { FieldSets } from 'app/pages/common/entity/entity-form/classes/field-sets';
@@ -14,11 +14,14 @@ import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import globalHelptext from 'app/helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-nfs-form',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [NetworkService],
 })
 export class NFSFormComponent {
+  readonly settingsTitle = T('NFS Share'); // the internal development record: the page's h1
   protected route_success: string[] = ['sharing', 'nfs'];
   protected queryCall = 'sharing.nfs.query';
   protected editCall = 'sharing.nfs.update';
@@ -102,6 +105,7 @@ export class NFSFormComponent {
           type: 'combobox',
           name: 'maproot_user',
           label: helptext_sharing_nfs.label_maproot_user,
+          showLabel: true,
           placeholder: helptext_sharing_nfs.placeholder_maproot_user,
           tooltip: helptext_sharing_nfs.tooltip_maproot_user,
           options: [],
@@ -114,6 +118,7 @@ export class NFSFormComponent {
           type: 'combobox',
           name: 'maproot_group',
           label: helptext_sharing_nfs.label_maproot_group,
+          showLabel: true,
           placeholder: helptext_sharing_nfs.placeholder_maproot_group,
           tooltip: helptext_sharing_nfs.tooltip_maproot_group,
           options: [],
@@ -126,6 +131,7 @@ export class NFSFormComponent {
           type: 'combobox',
           name: 'mapall_user',
           label: helptext_sharing_nfs.label_mapall_user,
+          showLabel: true,
           placeholder: helptext_sharing_nfs.placeholder_mapall_user,
           tooltip: helptext_sharing_nfs.tooltip_mapall_user,
           options: [],
@@ -138,6 +144,7 @@ export class NFSFormComponent {
           type: 'combobox',
           name: 'mapall_group',
           label: helptext_sharing_nfs.label_mapall_group,
+          showLabel: true,
           placeholder: helptext_sharing_nfs.placeholder_mapall_group,
           tooltip: helptext_sharing_nfs.tooltip_mapall_group,
           options: [],

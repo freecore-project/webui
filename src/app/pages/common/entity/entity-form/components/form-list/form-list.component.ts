@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormArray, FormBuilder } from '@angular/forms';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormGroup, UntypedFormArray, UntypedFormBuilder } from '@angular/forms';
 import * as _ from 'lodash';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -7,22 +7,24 @@ import { Field } from '../../models/field.interface';
 import { EntityFormService } from '../../services/entity-form.service';
 
 @Component({
+  standalone: false,
   selector: 'entity-form-list',
   templateUrl: './form-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./form-list.component.css', '../dynamic-field/dynamic-field.css'],
-})
+  })
 export class FormListComponent implements Field, OnInit {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
 
-  listsFromArray: FormArray;
+  listsFromArray: UntypedFormArray;
 
-  constructor(private entityFormService: EntityFormService, private formBuilder: FormBuilder) {}
+  constructor(private entityFormService: EntityFormService, private formBuilder: UntypedFormBuilder) {}
 
   ngOnInit() {
     setTimeout(() => {
-      this.listsFromArray = this.group.controls[this.config.name] as FormArray;
+      this.listsFromArray = this.group.controls[this.config.name] as UntypedFormArray;
       if (this.listsFromArray.length === 0) {
         this.add();
       }

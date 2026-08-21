@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { T } from '../../../translate-marker';
 import { IdmapService } from 'app/services/idmap.service';
@@ -8,7 +8,9 @@ import { EntityUtils } from 'app/pages/common/entity/utils';
 import helptext from '../../../helptext/directoryservice/idmap';
 
 @Component({
+  standalone: false,
   selector: 'app-idmap-list',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
 })
 export class IdmapListComponent {

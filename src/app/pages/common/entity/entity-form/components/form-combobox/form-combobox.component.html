@@ -1,42 +1,47 @@
-<div id="{{config.name}}" class="dynamic-field form-select" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip" *ngIf="!config['isHidden']"
-ix-auto ix-auto-type="combobox" ix-auto-identifier="{{config.placeholder}}"><div>
-    <mat-form-field *ngIf="config.inputType != 'file' else elseBlock">
-      <mat-label>{{config.label | translate}}</mat-label>
-      <input matInput [type]="config.inputType ? config.inputType : 'text'"
-        list="options"
-		  	[placeholder]="config.placeholder | translate"
-		  	[attr.value]="config.value"
-		  	[formControlName]="config.name"
-		  	[readonly]="config.readonly"
-        [required]="config.required"
-        (keyup)="searchChanged($event)"
-        [matAutocomplete]="autoComplete"
-        >
-       <mat-autocomplete #autoComplete="matAutocomplete">
-        <mat-option *ngFor="let option of config.searchOptions" [value]="option.value"
-          ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
-          <span>{{ option.label }}</span>
-         </mat-option>
-       </mat-autocomplete>
-    </mat-form-field>
-    <mat-button mat-icon-button id="{{config.name}}-select" type="button" [matMenuTriggerFor]="options"
-      ix-auto ix-auto-type="button" ix-auto-identifier="{{config.name}}">
-      <mat-icon>arrow_drop_down</mat-icon>
-    </mat-button>
-    <mat-menu #options [class]="'combo-box-menu'">
-      <ng-container *ngFor="let option of config.options">
-        <button mat-menu-item (click)="onChangeOption(option.value)"
-          ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
-          <span>{{ option.label }}</span>
-        </button>
-      </ng-container>
-    </mat-menu>
-    <tooltip *ngIf="config.tooltip" [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+@if (!config['isHidden']) {
+  <div id="{{config.name}}" class="dynamic-field form-select form-combobox" [formGroup]="group" [ngClass]="fieldShow" [class.has-tooltip]="config.tooltip"
+    ix-auto ix-auto-type="combobox" ix-auto-identifier="{{config.placeholder}}">
+    <!-- the internal development record: the combobox on spartan's autocomplete -- the control is the typed text
+         (the search input is the value accessor, as mat-autocomplete's input was); picking a
+         suggestion writes its value into the text. The #351 trigger sits inside the box's right
+         end and lists every option; typing lists the app's searchOptions. -->
+    <hlm-field class="full-width" [forceInvalid]="!!config['hasErrors']">
+      @if (config | fieldLabel) {
+        <label hlmFieldLabel [for]="inputId">{{ config | fieldLabel | translate }}</label>
+      }
+      <hlm-autocomplete-search [formControlName]="config.name" [required]="config.required" [search]="searchText" (searchChange)="searchChanged($event)">
+        <hlm-autocomplete-input [inputId]="inputId" [placeholder]="config | fieldPlaceholder | translate" [showSearch]="false" [forceInvalid]="!!config['hasErrors']">
+          <hlm-input-group-addon align="inline-end">
+            <button hlmInputGroupButton size="icon-xs" type="button" class="combobox-trigger" id="{{config.name}}-select"
+              (click)="toggleAll()"
+              [attr.aria-label]="'Show all options' | translate"
+              ix-auto ix-auto-type="button" ix-auto-identifier="{{config.name}}">
+              <span hlmSelectChevron></span>
+            </button>
+          </hlm-input-group-addon>
+        </hlm-autocomplete-input>
+        <hlm-autocomplete-content *hlmAutocompletePortal>
+          <div hlmAutocompleteList>
+            @for (option of visibleOptions; track option.value) {
+              <hlm-autocomplete-item [value]="option.value" ix-auto ix-auto-type="option" ix-auto-identifier="{{option.label}}">
+                {{ option.label }}
+              </hlm-autocomplete-item>
+            }
+          </div>
+        </hlm-autocomplete-content>
+      </hlm-autocomplete-search>
+      <div class="field-subscript">
+        <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
+        @if (config['hasErrors']) {
+          <p class="form-error-line" role="alert" [innerHTML]="config['errors']"></p>
+        }
+        @if (config.warnings) {
+          <p class="form-error-line" role="alert" [innerHTML]="config.warnings | translate"></p>
+        }
+      </div>
+    </hlm-field>
+    @if (config.tooltip) {
+      <tooltip [header]="config.placeholder" [message]="config.tooltip" [position]="config.tooltipPosition ? config.tooltipPosition : null"></tooltip>
+    }
   </div>
-  <div class="margin-for-error">
-    <form-errors [control]="group.controls[config.name]" [config]="config"></form-errors>
-    <mat-error *ngIf="config['hasErrors']"><div [innerHTML]="config['errors']"></div></mat-error>
-    <mat-error *ngIf="config.warnings"><div [innerHTML]="config.warnings | translate"></div></mat-error>
-  </div>
-
-</div>
+}

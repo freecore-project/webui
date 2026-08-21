@@ -1,5 +1,5 @@
-import { Component, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
+import { UntypedFormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,15 +17,19 @@ import { LocaleService } from 'app/services/locale.service';
 import { DialogFormConfiguration } from '../../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import globalHelptext from '../../../helptext/global-helptext';
+import { T } from 'app/translate-marker';
 import { EntityUtils } from '../../common/entity/utils';
 
 @Component({
+  standalone: false,
   selector: 'app-general',
   template: '<entity-form [conf]="this"></entity-form>',
   styleUrls: ['./general.component.css'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [],
 })
 export class GeneralComponent implements OnDestroy {
+  readonly settingsTitle = T('General');
   protected queryCall = 'system.general.config';
   protected updateCall = 'system.general.update';
   sortLanguagesByName = true;
@@ -110,6 +114,7 @@ export class GeneralComponent implements OnDestroy {
           type: 'combobox',
           name: 'language',
           label: helptext.stg_language.label,
+          showLabel: true,
           placeholder: helptext.stg_language.placeholder,
           tooltip: helptext.stg_language.tooltip,
           options: [],
@@ -146,6 +151,7 @@ export class GeneralComponent implements OnDestroy {
           type: 'combobox',
           name: 'timezone',
           label: helptext.stg_timezone.label,
+          showLabel: true,
           placeholder: helptext.stg_timezone.placeholder,
           tooltip: helptext.stg_timezone.tooltip,
           options: [{ label: '---', value: null }],
@@ -172,25 +178,11 @@ export class GeneralComponent implements OnDestroy {
         },
       ],
     },
-    { name: 'divider', divider: true },
-    {
-      name: helptext.stg_fieldset_other,
-      label: true,
-      config: [
-        {
-          type: 'checkbox',
-          name: 'crash_reporting',
-          placeholder: helptext.crash_reporting.placeholder,
-          tooltip: helptext.crash_reporting.tooltip,
-        },
-        {
-          type: 'checkbox',
-          name: 'usage_collection',
-          placeholder: helptext.usage_collection.placeholder,
-          tooltip: helptext.usage_collection.tooltip,
-        },
-      ],
-    },
+    // the internal development record: the "Other Options" fieldset held only the Crash
+    // reporting and Usage collection checkboxes. the internal development record removed both
+    // endpoints -- sentry.ixsystems.com and usage.freenas.org -- so the toggles
+    // controlled nothing and their tooltips described transmission that no
+    // longer happens. The whole fieldset goes with them.
     { name: 'divider', divider: true },
   ];
 
@@ -316,7 +308,7 @@ export class GeneralComponent implements OnDestroy {
 
   IPValidator(name: string, wildcard: string) {
     const self = this;
-    return function validIPs(control: FormControl) {
+    return function validIPs(control: UntypedFormControl) {
       const config = self.fieldSets.find((set) => set.name === helptext.stg_fieldset_gui).config.find((c) => c.name === name);
 
       const errors = control.value && control.value.length > 1 && _.indexOf(control.value, wildcard) !== -1
@@ -555,11 +547,11 @@ export class GeneralComponent implements OnDestroy {
             }
           }
 
-          entityDialog.ws.call('core.download', ['config.save', [{
+          const saveOptions = {
             secretseed: entityDialog.formValue['secretseed'],
             pool_keys: entityDialog.formValue['pool_keys'],
-          }],
-          fileName])
+          };
+          entityDialog.ws.call('core.download', ['config.save', [saveOptions], fileName])
             .subscribe(
               (download) => {
                 const url = download[1];

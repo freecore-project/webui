@@ -1,13 +1,14 @@
 import { DialogService } from '../../../../services/dialog.service';
 import {
-  Component, AfterViewInit, AfterContentInit, Input, ViewChild, OnDestroy, OnChanges, ElementRef,
+  Component, AfterContentInit, Input, ViewChild, OnDestroy, OnChanges, ElementRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CoreServiceInjector } from 'app/core/services/coreserviceinjector';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { WebSocketService } from 'app/services/';
-import { ReportingDatabaseError, ReportsService } from '../../reports.service';
+import { ReportingDatabaseError, ReportResponse, ReportsService } from '../../reports.service';
 import { MaterialModule } from 'app/appMaterial.module';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 import { NgForm } from '@angular/forms';
 import { ChartData } from 'app/core/components/viewchart/viewchart.component';
 import { LineChartComponent } from '../lineChart/lineChart.component';
@@ -15,16 +16,19 @@ import { LineChartComponent } from '../lineChart/lineChart.component';
 import { Router } from '@angular/router';
 import { UUID } from 'angular2-uuid';
 
-import * as moment from 'moment';
+import moment from 'moment';
 import filesize from 'filesize';
 import { WidgetComponent } from 'app/core/components/widgets/widget/widget.component';
 import { TranslateService } from '@ngx-translate/core';
 import { LocaleService } from 'app/services/locale.service';
 
 import { T } from '../../../../translate-marker';
-import { filter, take } from 'rxjs/operators';
+import { filter, take, takeUntil } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import _ from 'lodash';
+
+export type ReportLayout = 'wide' | 'stacked' | 'compact';
+export const REPORT_SLOT_HEIGHTS: Record<ReportLayout, number> = { wide: 344, stacked: 484, compact: 600 };
 
 interface DateTime {
   dateFormat: string;
@@ -32,10 +36,11 @@ interface DateTime {
 }
 
 export interface TimeData {
-  start: number;// Seconds since epoch time
-  end?: number;// Seconds since epoch time
+  start: number;// Milliseconds since epoch time
+  end?: number;// Milliseconds since epoch time
   step?: string;
   legend?: string;
+  truncate: boolean;
 }
 
 interface TimeAxisData {
@@ -82,11 +87,14 @@ export interface ReportData {
 }
 
 @Component({
+  standalone: false,
   selector: 'report',
   templateUrl: './report.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./report.component.css'],
 })
-export class ReportComponent extends WidgetComponent implements AfterViewInit, AfterContentInit, OnChanges, OnDestroy {
+export class ReportComponent extends WidgetComponent implements AfterContentInit, OnChanges, OnDestroy {
+  @Input() layout: ReportLayout = 'wide';
   // Labels
   @Input() localControls?: boolean = true;
   @Input() dateFormat?: DateTime;
@@ -99,7 +107,14 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
   data: ReportData;
   ready = false;
   product_type = window.localStorage['product_type'];
+  private renderTimer: ReturnType<typeof setTimeout>;
   private delay = 1000; // delayed report render time
+  private requestGeneration = 0;
+  private destroyed = false;
+  private destroyed$ = new Subject<void>();
+  private dataError: EmptyReportMessage;
+  requestLoading = false;
+  rangeResolving = false;
 
   get reportTitle() {
     const suffix = null;
@@ -112,7 +127,23 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
   }
 
   get aggregationKeys() {
-    return Object.keys(this.data.aggregations);
+    return Object.keys(this.data?.aggregations || {});
+  }
+
+  get reportError(): EmptyReportMessage {
+    return this.dataError || this.report.error;
+  }
+
+  get plotDataError(): boolean {
+    // FetchingError carries an error object in data, not a matrix of samples.
+    // Keep failed/malformed responses distinct from a valid empty time window.
+    return !!this.data && (this.data.name === 'FetchingError' || !Array.isArray(this.data.data)
+      || this.data.data.some((row: any) => !Array.isArray(row)));
+  }
+
+  get hasPlotData(): boolean {
+    return Array.isArray(this.data?.data) && this.data.data.some((row: any) => Array.isArray(row)
+      && row.some((value) => typeof value === 'number' && Number.isFinite(value)));
   }
 
   legendLabels: Subject<any> = new Subject();
@@ -123,9 +154,13 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
   widgetColorCssVar = 'var(--primary)';
   isActive = true;
 
-  currentStartDate: number;// as seconds from Unix Epoch
-  currentEndDate: number;// as seconds from Unix Epoch
+  currentStartDate: number;// as milliseconds from Unix Epoch
+  currentEndDate: number;// as milliseconds from Unix Epoch
   timeZoomIndex = 4;
+
+  get hasRange(): boolean {
+    return Number.isFinite(this.currentStartDate) && Number.isFinite(this.currentEndDate);
+  }
 
   timezone: string;
 
@@ -229,11 +264,13 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     super(translate);
 
     this.core.register({ observerClass: this, eventName: 'ReportData-' + this.chartId }).subscribe((evt: CoreEvent) => {
-      this.data = this.formatData(evt.data);
-      this.handleError(evt);
+      const response = evt.data as ReportResponse;
+      if (!response || !this.isCurrentRequest(response.requestId)) { return; }
+      this.acceptResponse(response.result);
     });
 
     this.core.register({ observerClass: this, eventName: 'LegendEvent-' + this.chartId }).subscribe((evt: CoreEvent) => {
+      if (this.destroyed || this.requestLoading) { return; }
       const clone = { ...evt.data };
       clone.xHTML = this.formatTime(evt.data.xHTML);
       clone.series = this.formatLegendSeries(evt.data.series, this.data);
@@ -254,16 +291,12 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
+    this.requestGeneration++;
+    this.destroyed$.next();
+    this.destroyed$.complete();
+    clearTimeout(this.renderTimer);
     this.core.unregister({ observerClass: this });
-  }
-
-  ngAfterViewInit() {
-    this.stepForwardDisabled = true;
-    const zoom = this.zoomLevels[this.timeZoomIndex];
-    this.convertTimespan(zoom.timespan).then((rrdOptions) => {
-      this.currentStartDate = rrdOptions.start;
-      this.currentEndDate = rrdOptions.end;
-    });
   }
 
   ngAfterContentInit() {}
@@ -273,7 +306,7 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
       if (changes.report.previousValue && this.ready == false) {
         this.setupData(changes);
       } else if (!changes.report.previousValue) {
-        setTimeout(() => {
+        this.renderTimer = setTimeout(() => {
           this.ready = true;
           this.setupData(changes);
         }, this.delay);
@@ -286,11 +319,47 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
   }
 
   private setupData(changes) {
+    this.requestPeriod(changes.report.currentValue);
+  }
+
+  private isCurrentRequest(requestId: number): boolean {
+    return !this.destroyed && requestId === this.requestGeneration;
+  }
+
+  private acceptResponse(result: ReportData): void {
+    this.data = this.formatData(result);
+    this.legendData = {};
+    this.dataError = undefined;
+    this.handleError({ name: 'ReportData', data: result });
+    this.requestLoading = false;
+    this.rangeResolving = false;
+  }
+
+  private async requestPeriod(report = this.report, direction = 'backward', anchor?: number): Promise<void> {
+    if (this.destroyed) { return; }
+    // The generation belongs to the click, before even the server-time lookup.
+    const requestId = ++this.requestGeneration;
     const zoom = this.zoomLevels[this.timeZoomIndex];
-    const identifier = changes.report.currentValue.identifiers ? changes.report.currentValue.identifiers[0] : null;
-    this.convertTimespan(zoom.timespan).then((rrdOptions) => {
-      this.fetchReportData(rrdOptions, changes.report.currentValue, identifier);
-    });
+    const identifier = report.identifiers?.[0];
+    this.requestLoading = true;
+    this.rangeResolving = true;
+    try {
+      const range = await this.convertTimespan(zoom.timespan, direction, anchor);
+      if (!this.isCurrentRequest(requestId)) { return; }
+      this.currentStartDate = range.start;
+      this.currentEndDate = range.end;
+      this.stepForwardDisabled = range.truncate;
+      this.rangeResolving = false;
+      this.fetchReportData(range, report, identifier, requestId);
+    } catch (error) {
+      if (!this.isCurrentRequest(requestId)) { return; }
+      this.currentStartDate = undefined;
+      this.currentEndDate = undefined;
+      this.stepForwardDisabled = true;
+      this.acceptResponse({
+        name: 'FetchingError', data: { reason: error?.message || String(error) },
+      } as any);
+    }
   }
 
   private processThemeColors(theme): string[] {
@@ -311,14 +380,7 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     const max = 4;
     if (this.timeZoomIndex == max) { return; }
     this.timeZoomIndex += 1;
-    const zoom = this.zoomLevels[this.timeZoomIndex];
-    this.convertTimespan(zoom.timespan).then((rrdOptions) => {
-      this.currentStartDate = rrdOptions.start;
-      this.currentEndDate = rrdOptions.end;
-
-      const identifier = this.report.identifiers ? this.report.identifiers[0] : null;
-      this.fetchReportData(rrdOptions, this.report, identifier);
-    });
+    this.requestPeriod();
   }
 
   timeZoomOut() {
@@ -326,37 +388,17 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     const min = Number(0);
     if (this.timeZoomIndex == min) { return; }
     this.timeZoomIndex -= 1;
-    const zoom = this.zoomLevels[this.timeZoomIndex];
-    this.convertTimespan(zoom.timespan).then((rrdOptions) => {
-      this.currentStartDate = rrdOptions.start;
-      this.currentEndDate = rrdOptions.end;
-
-      const identifier = this.report.identifiers ? this.report.identifiers[0] : null;
-      this.fetchReportData(rrdOptions, this.report, identifier);
-    });
+    this.requestPeriod();
   }
 
   stepBack() {
-    const zoom = this.zoomLevels[this.timeZoomIndex];
-    this.convertTimespan(zoom.timespan, 'backward', this.currentStartDate).then((rrdOptions) => {
-      this.currentStartDate = rrdOptions.start;
-      this.currentEndDate = rrdOptions.end;
-
-      const identifier = this.report.identifiers ? this.report.identifiers[0] : null;
-      this.fetchReportData(rrdOptions, this.report, identifier);
-    });
+    if (this.rangeResolving || !this.hasRange) { return; }
+    this.requestPeriod(this.report, 'backward', this.currentStartDate);
   }
 
   stepForward() {
-    const zoom = this.zoomLevels[this.timeZoomIndex];
-
-    this.convertTimespan(zoom.timespan, 'forward', this.currentEndDate).then((rrdOptions) => {
-      this.currentStartDate = rrdOptions.start;
-      this.currentEndDate = rrdOptions.end;
-
-      const identifier = this.report.identifiers ? this.report.identifiers[0] : null;
-      this.fetchReportData(rrdOptions, this.report, identifier);
-    });
+    if (this.rangeResolving || !this.hasRange || this.stepForwardDisabled) { return; }
+    this.requestPeriod(this.report, 'forward', this.currentEndDate);
   }
 
   // Convert timespan to start/end options for RRDTool
@@ -364,7 +406,10 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     let units: string;
     let value: number;
 
-    const now = await this.rs.getServerTime().toPromise();
+    const now = await this.rs.getServerTime().pipe(take(1), takeUntil(this.destroyed$)).toPromise();
+    if (!(now instanceof Date) || !Number.isFinite(now.getTime())) {
+      throw new Error('Unable to get the reporting time.');
+    }
 
     let startDate: Date;
     let endDate: Date;
@@ -411,23 +456,22 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     }
 
     // if endDate is in the future, reset with endDate to now
-    if (endDate.getTime() >= now.getTime()) {
-      endDate = new Date();
+    const truncate = endDate.getTime() >= now.getTime();
+    if (truncate) {
+      endDate = new Date(now.getTime());
       mom = moment(endDate);
       startDate = mom.subtract(value, units).toDate();
-      this.stepForwardDisabled = true;
-    } else {
-      this.stepForwardDisabled = false;
     }
 
     return {
       start: startDate.getTime(),
       end: endDate.getTime(),
       step: '10',
+      truncate,
     };
   }
 
-  fetchReportData(rrdOptions, report: Report, identifier?: string) {
+  fetchReportData(rrdOptions: TimeData, report: Report, identifier: string, requestId: number) {
     // Report options
     const params = identifier ? { name: report.name, identifier } : { name: report.name };
 
@@ -439,7 +483,7 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
     this.core.emit({
       name: 'ReportDataRequest',
       data: {
-        report, params, timeFrame, truncate: this.stepForwardDisabled,
+        report, params, timeFrame, truncate: rrdOptions.truncate, requestId,
       },
       sender: this,
     });
@@ -461,7 +505,7 @@ export class ReportComponent extends WidgetComponent implements AfterViewInit, A
       const errorMessage = err.reason ? err.reason.replace('[EINVALIDRRDTIMESTAMP] ', '') : null;
       const helpMessage = this.translate.instant('You can clear reporting database and start data collection immediately.');
       const message = errorMessage ? `${errorMessage}<br>${helpMessage}` : helpMessage;
-      this.report.error = {
+      this.dataError = {
         title: this.translate.instant('The reporting database is broken'),
         message,
         button: {

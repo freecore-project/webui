@@ -1,173 +1,157 @@
-@import "cssvars";
-
-.page-wrap {
-  background-color:var(--bg1);
+:host {
+  display: block;
+  min-height: 100%;
 }
 
-.copyright-line {
-  text-align: center;
-  padding-top: 32px;
-}
-
-.copyright-txt {
-    text-align: center;
-    opacity:0.5;
-    font-size:85%
-}
-
-.truecommand {
-  text-align: center;
-  cursor: pointer;
-}
-#truecommand-logo {
-  height: 24px;
-  top: 7px;
+.signin-page {
+  --signin-background: #090b0e;
+  --signin-text: #eef0f3;
+  --signin-muted: #a4aec0;
+  --signin-line: #394150;
+  --signin-focus: #b6c9ec;
+  box-sizing: border-box;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--signin-background);
+  color: var(--signin-text);
+  color-scheme: dark;
+  font-family: 'IBM Plex Sans', sans-serif;
+
+  *, *::before, *::after { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+}
+
+.signin-body {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px 80px;
+}
+
+.signin-panel { width: 300px; max-width: 100%; }
+
+.signin-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 28px;
+  color: var(--signin-text);
+  font-family: inherit;
+  font-size: 28px;
+  font-weight: 400;
+  letter-spacing: -.5px;
+  line-height: 1.2;
+
+  strong { font-weight: 700; }
+  img { flex: none; width: 26px; height: 26px; } // the internal development record: the mark keeps its colours
+}
+
+form { margin: 0; }
+.signin-field { margin-bottom: 18px; }
+.signin-field label { display: block; margin-bottom: 8px; color: #b7c0ce; font-size: 12px; line-height: 1.5; }
+
+.signin-field input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 36px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--signin-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--signin-text);
+  font: 400 14px/1.3 'IBM Plex Sans', sans-serif;
+  caret-color: var(--signin-text);
+  box-shadow: none;
+  transition: border-color 160ms, box-shadow 160ms;
+
+  &::placeholder { color: #7b8799; opacity: 1; }
+  &:hover { border-color: #48566d; }
+  &:focus { outline: none; border-bottom-color: var(--signin-focus); box-shadow: inset 0 -1px 0 var(--signin-focus); }
+  &:-webkit-autofill { -webkit-text-fill-color: var(--signin-text); -webkit-box-shadow: inset 0 0 0 1000px var(--signin-background); }
+  &:-webkit-autofill:focus { border-bottom-width: 2px; }
+}
+
+.password-field { position: relative; }
+.password-field input { padding-right: 55px; }
+
+.password-visibility {
+  position: absolute;
+  right: 0;
+  bottom: 1px;
+  min-height: 34px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: #9daabd;
+  font: 400 11px 'IBM Plex Mono', monospace;
   cursor: pointer;
-}
-.truecommand-txt {
-  text-align: center;
-  opacity:0.5;
-  padding-left: 5px;
+
+  &:hover { color: #e8effb; }
 }
 
-.ha-status-txt {
-    text-align: center;
-}
-
-.copyright-txt a:link {
-    color: #396f9d;
-}
-
-#signin_button {
-    font-weight: 700;
-}
-
-.mat-card {
-  background-color: var(--bg2);
-  color: var(--fg2);
-  padding:0 0 32px 0 !important;
-}
-
-.mat-card .mat-card-content > div.disconnected{
-  padding:32px 32px 0;
-}
-
-div.fake-icon{
-  border-radius:50%;
-  background-color: $fg2; //var(--fg2);
-  color: $bg2; //var(--bg2);
-  padding:2px 8px;
-  float:left;
-  margin:6px 12px 12px 0;
-  font-weight:700;
-}
-
-#legacy-btn-wrapper{
-  text-align:center;
-  margin:0px 32px 0;
-}
-
-#legacy-btn-wrapper button.mat-button{
-  font-weight:normal !important;
-  opacity:0.75;
-  background: rgba(0,0,0,0.4);
-}
-
-form {
-  margin:32px 32px 0;
-}
-
-form > div {
-  margin:8px 0;
-}
-
-form button{
-  margin:16px 0 ;
-}
-
-.logo-wrapper {
-  padding:76px 0;
-  background-color: $bg2; //var(--bg2);
-  position:relative;
-}
-
-.logo-wrapper img.logo-bg{
-  position:absolute;
-  z-index:1;
-  opacity:0.75;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  border-bottom: solid 1px #000;
-}
-
-.logo-wrapper .logo{
-  position:relative;
-  z-index:2; 
-  width: 256px;
+// Keep MatButton for the existing submission/progress lifecycle, with custom
+// presentation scoped to this page instead of inheriting a theme's button skin.
+button.signin-submit {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
   height: auto;
-}
-
-#full-logo {
-  height: 40px;
-  top: 14px;
-  position: relative;
+  margin: 24px 0 0;
+  padding: 8px 15px;
+  justify-content: space-between;
+  align-items: center;
   cursor: pointer;
-  margin-left: 5px;
-}
+  border: 1px solid #343d49;
+  border-radius: 50px;
+  background: transparent;
+  color: #adb6c4;
+  box-shadow: none;
+  font: 400 13px/20px 'IBM Plex Sans', sans-serif;
+  letter-spacing: normal;
+  text-align: left;
+  // Legacy themes apply uppercase with !important to every Material button.
+  text-transform: none !important;
 
-@media ( max-width:600px ) {
-  .page-wrap { 
-     height: 100vh;
-     width: 100vw;
-     max-width: 100%;
-     position: absolute;
-     top: 0;
-     bottom: 0;
-     left: 0;
-     right: 0;
-     overflow-x: hidden;
-  }
-
-  .mat-card{
-    top: 0;
-    min-height: 100vh;
-  }
-
-  .card-bottom{
-    padding: 0;
-  }
-
-  /* Not sure how to workaround browser bug. 
-  *  Apparently 100vw is actually viewport width + scrollbar width
-  *  if vertical scrollbar is present
-  */
-  .page-wrap > * { 
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .session-progress {
-    position: fixed;
-    top: 0;
-  }
-
-  .logo-wrapper {
-    padding: 20% 0;
-  }
+  &:hover:not(:disabled) { background: transparent; color: #e4ebf5; border-color: #66768d; }
+  &:disabled { opacity: .5; cursor: default; }
 }
 
 
+.submit-arrow { margin-left: 12px; font: 18px/1 'IBM Plex Mono', monospace; }
+.password-visibility:focus-visible, .signin-submit:focus-visible, .signin-footer a:focus-visible { outline: 2px solid var(--signin-focus); outline-offset: 4px; }
 
+.field-error { color: #efb4af; font-size: 12px; line-height: 1.7; }
+.field-error:not(:empty) { margin-top: 8px; }
+.signin-note { margin: 0 0 18px; color: #b5c0d1; font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.signin-note p { margin: 0 0 12px; }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
-input:-webkit-autofill:active  {
-  -webkit-text-fill-color: white !important;
-  -webkit-box-shadow: 0 0 0 30px transparent inset !important;
-  transition: background-color 5000s ease-in-out 0s;
-  caret-color: white;
+.signin-footer {
+  padding: 20px 24px;
+  color: var(--signin-muted);
+  font: 400 10px/1.5 'IBM Plex Mono', monospace;
+  text-align: center;
+
+  a { color: inherit; text-decoration: none; }
+  a:hover { text-decoration: underline; }
 }
+
+.signin-progress { position: absolute; top: 0; left: 0; width: 100%; opacity: 0; }
+.signin-progress.is-busy { opacity: 1; }
+
+.signin-page .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+
+@media (max-width: 390px) { .signin-body { padding-left: 20px; padding-right: 20px; } }
+@media (pointer: coarse) {
+  .signin-field input { height: 44px; font-size: 16px; }
+  .password-visibility { min-width: 44px; min-height: 44px; bottom: 0; }
+  button.signin-submit { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { .signin-field input { transition: none; } }

@@ -1,8 +1,9 @@
 import {
   Component, OnInit, OnChanges, ViewChild, ElementRef, QueryList, Renderer2,
   ChangeDetectorRef, SimpleChanges, HostListener, AfterViewInit, AfterViewChecked,
+  ChangeDetectionStrategy,
 } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -12,8 +13,7 @@ import { T } from 'app/translate-marker';
 import { LocaleService } from 'app/services/locale.service';
 
 import { Overlay, OverlayConfig, OverlayRef } from '@angular/cdk/overlay';
-import { MatMonthView } from '@angular/material/datepicker';
-import * as moment from 'moment-timezone';
+import moment from 'moment-timezone';
 import * as parser from 'cron-parser';
 import { WebSocketService } from 'app/services/ws.service';
 import { EntityUtils } from '../../../utils';
@@ -30,31 +30,54 @@ interface CronDate {
   done: boolean;
 }
 
+/** the internal development record: one cell of the template month grid. */
+interface CalendarDay {
+  day: number;
+  iso: string;
+  label: string;
+  scheduled: boolean;
+  today: boolean;
+}
+
 @Component({
+  standalone: false,
   selector: 'form-scheduler',
   templateUrl: './form-scheduler.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./form-scheduler.component.css', '../dynamic-field/dynamic-field.css'],
 })
 export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterViewInit,
   AfterViewChecked {
   // Basic form-select props
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   disablePrevious: boolean;
   ngDateFormat: string;
   helptext = globalHelptext;
   timezone: string;
 
-  @ViewChild('calendar', { static: false, read: ElementRef }) calendar: ElementRef;
-  @ViewChild('calendar', { static: false }) calendarComp: MatMonthView<any>;
-  @ViewChild('trigger', { static: false }) trigger: ElementRef;
   @ViewChild('preview', { static: false, read: ElementRef }) schedulePreview: ElementRef;
+
+  // the internal development record: the preview month as a template grid -- built from activeDate, the
+  // scheduled days a Set of ISO dates the cron parser produced (mat-month-view and the attribute
+  // hack that painted its cells are gone).
+  readonly weekLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+  calendarWeeks: (CalendarDay | null)[][] = [];
+  calendarTitle = '';
+  private scheduledDays = new Set<string>();
+
+  /** The select trigger's id, tied to the label's `for`. */
+  get inputId(): string {
+    return this.config.id || `${this.config.name}-select`;
+  }
 
   private control: any;
 
   isOpen = false;
-  formControl = new FormControl();
+  /** The Custom item's sentinel value; never reaches the control (see ngOnInit). */
+  readonly CUSTOM = '__custom__';
+  formControl = new UntypedFormControl();
   private _currentValue: string;
   get currentValue() {
     return this.group.controls[this.config.name].value;
@@ -220,6 +243,27 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
     },
   ];
 
+  /** The trigger's text for a value: a preset as `Label (crontab) description`, anything else as Custom. */
+  labelOf = (value: string): string => {
+    if (value === null || value === undefined || value === '') { return ''; }
+    const preset = this.presets.find((item) => item.value === value);
+    if (preset) {
+      const label = `${this.translate.instant(preset.label)} (${preset.value})`;
+      return preset.description ? `${label} ${this.translate.instant(preset.description)}` : label;
+    }
+    return `${this.translate.instant(T('Custom'))} (${value})`;
+  };
+
+  presetLabel = (item: CronPreset): string => (item ? this.translate.instant(item.label) : '');
+
+  /** The Custom item owns any crontab no preset owns; the presets match by value. */
+  isSameValue = (itemValue: string, value: string): boolean => {
+    if (itemValue === this.CUSTOM) {
+      return !!value && value !== this.CUSTOM && !this.presets.some((item) => item.value === value);
+    }
+    return itemValue === value;
+  };
+
   get textInput() {
     return this._textInput;
   }
@@ -271,8 +315,9 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
       this.maxDate = moment().endOf('month');
       this.currentDate = moment();
 
-      this.activeDate = moment(this.currentDate).format();
+      this.activeDate = moment(this.currentDate);
       this.disablePrevious = true;
+      this.buildCalendar();
     });
   }
 
@@ -285,6 +330,12 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
   ngOnInit() {
     this.control = this.group.controls[this.config.name];
     this.control.valueChanges.subscribe((evt) => {
+      if (evt === this.CUSTOM) {
+        // the Custom item was picked: keep the crontab as the value and open the popup
+        this.control.setValue(this.crontab);
+        if (!this.isOpen) { this.togglePopup(); }
+        return;
+      }
       this.crontab = evt;
     });
     if (this.control.value) {
@@ -306,9 +357,11 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
     }
   }
 
-  onChangeOption($event) {
+  onChangeOption(value: string) {
+    if (value === this.CUSTOM) { return; }
     if (this.config.onChangeOption !== undefined && this.config.onChangeOption != null) {
-      this.config.onChangeOption({ event: $event });
+      // the MatSelectChange shape form-select keeps (the internal development record)
+      this.config.onChangeOption({ event: { value } });
     }
   }
 
@@ -341,20 +394,26 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
         popup.addEventListener('scroll', this.onScroll.bind(this));
       }, 200);
     } else {
-      const popup = this.schedulePreview.nativeElement;// .querySelector('ul.schedule-preview');
-      popup.removeEventListener('scroll', this.onScroll);
+      const popup = this.schedulePreview?.nativeElement;// .querySelector('ul.schedule-preview');
+      popup?.removeEventListener('scroll', this.onScroll);
     }
   }
 
+  /** The overlay closed on its own (Escape): follow it, so the next Custom pick opens again. */
+  onOverlayDetach() {
+    if (this.isOpen) { this.togglePopup(); }
+  }
+
   onScroll(e) {
-    const lastChild = this.schedulePreview.nativeElement.lastElementChild;
     const el = this.schedulePreview.nativeElement;
-    if ((el.scrollHeight - el.scrollTop) == el.offsetHeight) {
+    // the bottom, by the scroll box (fractional scrollTop, a horizontal bar) rather than by equality
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 1) {
       this.generateSchedule(true);
     }
   }
 
-  private setCalendar(direction) {
+  setCalendar(direction) {
+    if (!this.minDate || !this.maxDate) { return; }
     let newDate;
     if (direction == 'next') {
       newDate = moment(this.minDate).add(1, 'months');
@@ -368,7 +427,8 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
     this.minDate = this.getMinDate(newDate);
     this.maxDate = moment(newDate).endOf('month');
 
-    this.calendarComp.activeDate = moment(newDate).toDate();
+    this.activeDate = moment(newDate);
+    this.buildCalendar();
     this.generateSchedule();
   }
 
@@ -400,6 +460,8 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
   }
 
   private generateSchedule(nextSubset?: boolean) {
+    // before system.general.config answers there is no month window and the day loop has no end
+    if (!this.minDate || !this.maxDate) { return; }
     // get beginTime and endTime value;
     // config should define options with begin prop and end prop
     // e.g. options: ['schedule_begin', 'schedule_end']
@@ -427,7 +489,10 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
       this.generatedScheduleSubset = 0;
     }
     const subsetEnd = this.generatedScheduleSubset + 128;
-    let parseCounter = 0;
+    // the internal development record: a page continues from the subset's end -- started at 0, the guarded
+    // branch below never ran on a scroll page and the loop spun forever (the old scroll test's
+    // exact equality had hidden it).
+    let parseCounter = nextSubset ? this.generatedScheduleSubset : 0;
     while (true) {
       try {
         if (parseCounter == subsetEnd) {
@@ -468,7 +533,8 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
           break;
         }
       }
-      setTimeout(() => { this.updateCalendar(daySchedule); }, 500);
+      this.scheduledDays = new Set(daySchedule.map((cronDate) => moment(cronDate.toDate()).format('YYYY-MM-DD')));
+      this.buildCalendar();
     }
 
     if (nextSubset) {
@@ -481,72 +547,31 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
     }
   }
 
-  private updateCalendar(schedule) {
-    const nodes = this.getCalendarCells();
-    for (let i = 0; i < nodes.length; i++) {
-      const nodeClass = 'mat-calendar-body-cell ng-star-inserted';
-      const aria = this.getAttribute('aria-label', nodes[i]);
-      const isScheduled = this.checkSchedule(aria, schedule);
-      if (isScheduled) {
-        this.setAttribute('class', nodes[i], nodeClass + ' mat-calendar-body-active');
-      } else if (!isScheduled && i > 0) {
-        this.setAttribute('class', nodes[i], nodeClass);
+  /** The grid for the active month: leading blanks to the first weekday, then every day, marked
+   * scheduled from the parser's set and today from the system clock (moment's default zone). */
+  buildCalendar() {
+    if (!this.activeDate) { return; }
+    const first = moment(this.activeDate).startOf('month');
+    const today = moment().format('YYYY-MM-DD');
+    this.calendarTitle = first.format('MMMM YYYY');
+    const weeks: (CalendarDay | null)[][] = [];
+    let week: (CalendarDay | null)[] = new Array(first.day()).fill(null);
+    for (let day = 1; day <= first.daysInMonth(); day++) {
+      const date = moment(first).date(day);
+      const iso = date.format('YYYY-MM-DD');
+      week.push({
+        day, iso, label: date.format('MMM D, YYYY'), scheduled: this.scheduledDays.has(iso), today: iso === today,
+      });
+      if (week.length === 7) {
+        weeks.push(week);
+        week = [];
       }
     }
-  }
-
-  private getCalendarCells() {
-    const rows = this.calendar.nativeElement.children[0].children[1].children;
-    let cells = [];
-
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i].childNodes;
-      const tds = [];
-      for (let index = 0; index < row.length; index++) {
-        if (row[index].tagName == 'TD') {
-          tds.push(row[index]);
-        }
-      }
-      cells = cells.concat(tds);
+    if (week.length) {
+      while (week.length < 7) { week.push(null); }
+      weeks.push(week);
     }
-    return cells;
-  }
-
-  getAttribute(attr, node) {
-    const a = node.attributes.getNamedItem(attr);
-    if (a) {
-      return a.value;
-    }
-  }
-
-  setAttribute(attr, node, value) {
-    const a = (<any>document).createAttribute(attr);
-    a.value = value;
-    node.attributes.removeNamedItem(attr);
-    node.attributes.setNamedItem(a);
-  }
-
-  private checkSchedule(aria?, sched?) {
-    if (!aria) { return; }
-    if (!sched) { sched = this.generatedSchedule; }
-
-    const cal = aria.split(' '); // eg. May 06, 2018
-    const cd = cal[1].split(',');
-    const calMonth = cal[0][0] + cal[0][1] + cal[0][2]; // limit month to 3 letters
-    const calYear = cal[2];
-    let calDay;
-    if (cd[0].length == 1) {
-      calDay = '0' + cd[0];
-    } else {
-      calDay = cd[0];
-    }
-    for (const i in sched) {
-      const s = sched[i]; // eg. Sun May 06 2018 04:05:00 GMT-0400 (EDT)
-      const schedule = s.toString().split(' ');
-      if (schedule[1] == calMonth && schedule[2] == calDay && schedule[3] == calYear) {
-        return true;
-      }
-    }
+    this.calendarWeeks = weeks;
   }
 
   formatMonths() {
@@ -584,20 +609,22 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
   }
 
   updateMonthsFields(rule) {
+    // the internal development record: every flag follows the rule -- the switch below only ever sets one, so a
+    // preset picked after a month was ticked left that month checked while the crontab dropped it.
+    this._jan = false;
+    this._feb = false;
+    this._mar = false;
+    this._apr = false;
+    this._may = false;
+    this._jun = false;
+    this._jul = false;
+    this._aug = false;
+    this._sep = false;
+    this._oct = false;
+    this._nov = false;
+    this._dec = false;
     // Wild card
     if (rule == '*') {
-      this._jan = false;
-      this._feb = false;
-      this._mar = false;
-      this._apr = false;
-      this._may = false;
-      this._jun = false;
-      this._jul = false;
-      this._aug = false;
-      this._sep = false;
-      this._oct = false;
-      this._nov = false;
-      this._dec = false;
       return;
     }
 
@@ -646,16 +673,15 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
   }
 
   updateDaysOfWeekFields(rule) {
+    this._sun = false;
+    this._mon = false;
+    this._tue = false;
+    this._wed = false;
+    this._thu = false;
+    this._fri = false;
+    this._sat = false;
     // Wild card
     if (rule == '*') {
-      this._sun = false;
-      this._mon = false;
-      this._tue = false;
-      this._wed = false;
-      this._thu = false;
-      this._fri = false;
-      this._sat = false;
-
       return;
     }
 

@@ -1,66 +1,71 @@
-<mat-card class="m-0 ml-1 mr-1 p-0" id="create-pool-card">
-  <div class="mat-toolbar mat-card-toolbar">
-    <div class="mat-card-title-text pool-manager-title">{{"Pool Manager" | translate}}</div>
-  </div>
-  <div class="mat-content p-1">
+<!-- the internal development record: the pool builder on the page shell -- the capped page, the one title voice, the
+     two panes and the hairline action row in place; the fake card toolbar and its bootstrap insets went. -->
+<div id="create-pool-card" class="fc-page fc-page--capped">
+  <h1 class="fc-page-title">{{ 'Pool' | translate }}</h1>
+  <div>
     <div class="manager">
-      <div fxLayout="column" class="fields m-3">
-        <ng-container *ngIf="isNew;else extend">
-          <div fxLayout="row wrap" fxLayoutAlign="baseline" class="TEST">
-            <div fxFlex="40%" class="inline">
-              <mat-form-field>
-                <input matInput name="poolname" id="pool-manager__name-input-field" placeholder="{{'Name' | translate}}" [(ngModel)]="name" (input)="checkPoolName()" required>
-              </mat-form-field>
+      <div class="fields manager-fields-layout">
+        @if (isNew) {
+          <!-- the internal development record: the name, encryption and algorithm controls on the kit, centred on one
+               32px line in the band the Material field reserved (20px above and below the box), so the
+               box keeps its place and the Encryption row stops sitting 8px above it. -->
+          <div class="TEST manager-new-pool-row-layout">
+            <div class="inline manager-name-layout">
+              <input hlmInput name="poolname" id="pool-manager__name-input-field" placeholder="{{'Name' | translate}}" [attr.aria-label]="'Name' | translate"
+                [(ngModel)]="name" (input)="checkPoolName()" required>
               <tooltip class="volumeTooltip" [message]=name_tooltip></tooltip>
             </div>
-            <div fxFlex="25%" class="inline" style="padding-top:12px;">
-              <mat-checkbox
-                id="pool-manager__encryption-checkbox"
-                [(ngModel)]="isEncrypted"
-                class="form-control"
-                placeholder="{{Encryption | translate}}"
-                (change)="isEncryptedChecked()" >
-                  {{"Encryption" | translate}}
-              </mat-checkbox>
+            <div class="inline manager-encryption-layout checkbox-row">
+              <!-- the model is written before isEncryptedChecked() reads it, as Material's model-then-(change) did -->
+              <span class="checkbox-cell">
+                <hlm-checkbox inputId="pool-manager__encryption-checkbox" [ngModel]="isEncrypted"
+                  (ngModelChange)="isEncrypted = $event; isEncryptedChecked()" />
+              </span>
+              <label hlmLabel class="checkbox-label" for="pool-manager__encryption-checkbox">{{"Encryption" | translate}}</label>
               <tooltip class="volumeTooltip" [message]=encryption_tooltip></tooltip>
             </div>
-            <div fxFlex class="inline encryption-select" style="padding-top:17px;">
-              <mat-select
-                *ngIf="isEncrypted"
-                id="pool-manager__encryption_algorithm-select"
-                [(ngModel)]="encryption_algorithm"
-                class="form-control"
-                placeholder="{{'Encryption Algorithm' | translate}}"
-              >
-                <mat-option *ngFor="let option of encryption_algorithm_options" [value]="option.value"
-                  id="encryption_algorithm_option_{{option.label}}">
-                    {{ option.label }}
-                </mat-option>
-
-              </mat-select>
+            <div class="inline encryption-select manager-algorithm-layout">
+              @if (isEncrypted) {
+                <label class="cdk-visually-hidden" for="pool-manager__encryption_algorithm-select">{{ 'Encryption Algorithm' | translate }}</label>
+                <hlm-select [(ngModel)]="encryption_algorithm">
+                  <hlm-select-trigger buttonId="pool-manager__encryption_algorithm-select">
+                    <hlm-select-value [placeholder]="'Encryption Algorithm' | translate" />
+                  </hlm-select-trigger>
+                  <hlm-select-content *hlmSelectPortal>
+                    @for (option of encryption_algorithm_options; track option.value) {
+                      <hlm-select-item [value]="option.value" id="encryption_algorithm_option_{{option.label}}">{{ option.label }}</hlm-select-item>
+                    }
+                  </hlm-select-content>
+                </hlm-select>
+              }
             </div>
           </div>
-
-          <div fxFlex="100%" *ngIf="poolError" [style.color]="'red'" [innerHTML]="poolError"></div>
-
-          <div fxFlex="100%" class="button-bar">
-            <div><button id="pool-manager__reset-layout-button" mat-button class="btn btn-accent mat-accent" [disabled]="!dirty" (click)="resetLayout()">{{"Reset Layout" | translate}}</button></div>
-            <div><button id="pool-manager__suggest-layout-button" *ngIf="suggestable_disks.length <= 8" [disabled]="dirty" mat-button class="btn btn-accent mat-accent" (click)="suggestLayout()">{{"Suggest Layout" | translate}}</button></div>
+          @if (poolError) {
+            <div class="manager-column-full-layout" [style.color]="'red'" [innerHTML]="poolError"></div>
+          }
+          <div class="button-bar manager-column-full-layout">
+            <div><button id="pool-manager__reset-layout-button" hlmBtn variant="outline" type="button" [disabled]="!dirty" (click)="resetLayout()">{{"Reset Layout" | translate}}</button></div>
+            <div>@if (suggestable_disks.length <= 8) {
+              <button id="pool-manager__suggest-layout-button" hlmBtn variant="outline" type="button" [disabled]="dirty" (click)="suggestLayout()">{{"Suggest Layout" | translate}}</button>
+            }</div>
             <div><tooltip class="volumeTooltip" [message]=suggested_layout_tooltip></tooltip></div>
             <div class="button-spacer"></div>
-            <div><button mat-button [matMenuTriggerFor]="menu" color="primary" class="menu-toggle"
+            <!-- the internal development record: Add Vdev on the helm dropdown-menu (M1) -- the #404 outline trigger with
+                 the caret. Only the Data row keeps the menu open (several data vdevs in one go); the other rows
+                 disable themselves after one add, so they close as the old menu did. -->
+            <div><button hlmBtn variant="outline" type="button" [hlmDropdownMenuTrigger]="menu" class="menu-toggle" id="pool-manager__add-vdev-button"
               [disabled]="disks.length === 0"
               ix-auto
               ix-auto-type="button"
               ix-auto-identifier="add_vdev_type">
-            <span>{{"Add Vdev" | translate}} <mat-icon class="menu-caret">arrow_drop_down</mat-icon></span>
+              <span>{{"Add Vdev" | translate}} <mat-icon class="menu-caret" aria-hidden="true">expand_more</mat-icon></span>
             </button></div>
-            <mat-menu class="" #menu="matMenu" multiple overlapTrigger="false">
-
-              <button class="tbl vdev-option" id="pool-manager__add-data-button" [disabled]="!canAddData()" (click)="addVdev('data')" mat-menu-item>
+            <ng-template #menu>
+            <hlm-dropdown-menu class="vdev-menu">
+              <button class="tbl vdev-option" id="pool-manager__add-data-button" [disabled]="!canAddData()" (triggered)="addVdev('data')" hlmDropdownMenuItem keepOpen type="button">
                 <div class="tr">
                   <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-database"></mat-icon>
+                    <mat-icon role="img">database</mat-icon>
                   </div>
                   <div class="td">
                     <h3>{{help.data_vdev_title | translate}}</h3>
@@ -68,11 +73,10 @@
                   </div>
                 </div>
               </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-cache-button" [disabled]="vdevs.cache.length > 0" (click)="addVdev('cache')" mat-menu-item>
+              <button class="tbl vdev-option" id="pool-manager__add-cache-button" [disabled]="vdevs.cache.length > 0" (triggered)="addVdev('cache')" hlmDropdownMenuItem type="button">
                 <div class="tr">
                   <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-clock-fast"></mat-icon>
+                    <mat-icon role="img">speed</mat-icon>
                   </div>
                   <div class="td">
                     <h3>{{help.cache_vdev_title | translate}}</h3>
@@ -80,11 +84,10 @@
                   </div>
                 </div>
               </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-log-button"[disabled]="vdevs.log.length > 0" (click)="addVdev('log')" mat-menu-item>
+              <button class="tbl vdev-option" id="pool-manager__add-log-button" [disabled]="vdevs.log.length > 0" (triggered)="addVdev('log')" hlmDropdownMenuItem type="button">
                 <div class="tr">
                   <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-clipboard-outline"></mat-icon>
+                    <mat-icon role="img">receipt_long</mat-icon>
                   </div>
                   <div class="td">
                     <h3>{{help.log_vdev_title | translate}}</h3>
@@ -92,8 +95,7 @@
                   </div>
                 </div>
               </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-spare-button" [disabled]="vdevs.spares.length > 0" (click)="addVdev('spares')" mat-menu-item>
+              <button class="tbl vdev-option" id="pool-manager__add-spare-button" [disabled]="vdevs.spares.length > 0" (triggered)="addVdev('spares')" hlmDropdownMenuItem type="button">
                 <div class="tr">
                   <div class="td icon">
                     <mat-icon>local_hospital</mat-icon>
@@ -104,8 +106,7 @@
                   </div>
                 </div>
               </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-special-button" [disabled]="vdevs.special.length > 0" (click)="addVdev('special')" mat-menu-item>
+              <button class="tbl vdev-option" id="pool-manager__add-special-button" [disabled]="vdevs.special.length > 0" (triggered)="addVdev('special')" hlmDropdownMenuItem type="button">
                 <div class="tr">
                   <div class="td icon">
                     <mat-icon>favorite_border</mat-icon>
@@ -116,8 +117,7 @@
                   </div>
                 </div>
               </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-dedup-button" [disabled]="vdevs.dedup.length > 0" (click)="addVdev('dedup')" mat-menu-item>
+              <button class="tbl vdev-option" id="pool-manager__add-dedup-button" [disabled]="vdevs.dedup.length > 0" (triggered)="addVdev('dedup')" hlmDropdownMenuItem type="button">
                 <div class="tr">
                   <div class="td icon">
                     <mat-icon>share</mat-icon>
@@ -128,289 +128,338 @@
                   </div>
                 </div>
               </button>
-            </mat-menu>
+            </hlm-dropdown-menu>
+            </ng-template>
           </div> <!-- END BUTTON BAR -->
-        </ng-container>
-
-        <ng-template #extend>
-        <div>
-          <mat-form-field>
-            <input id="pool-manager__extend-name-input-field" matInput placeholder="Name" [value]="name" disabled>
-          </mat-form-field>
-          <mat-error *ngIf="isEncrypted" class="adjust-upward">{{"Adding Vdevs to an encrypted pool resets the passphrase and recovery key!" | translate }}</mat-error>
+        } @else {
           <div>
-            <div class="button-bar">
-              <div><button id="pool-manager__reset-layout-button" mat-button class="btn btn-accent mat-accent" [disabled]="!dirty" (click)="resetLayout()">{{"Reset Layout" | translate}}</button></div>
-              <div><button mat-button [matMenuTriggerFor]="menu" color="primary" class="menu-toggle"
-                [disabled] = "this.disks.length === 0"
-                ix-auto
-                ix-auto-type="button"
-                ix-auto-identifier="add_vdev_type">
-              <span>{{"Add Vdev" | translate}} <mat-icon class="menu-caret">arrow_drop_down</mat-icon></span>
-              </button></div>
+            <!-- the internal development record: the disabled name on the kit input, in the band the Material field reserved -->
+            <div class="manager-extend-name-row">
+              <input hlmInput id="pool-manager__extend-name-input-field" placeholder="Name" [attr.aria-label]="'Name' | translate" [value]="name" disabled>
             </div>
-            <mat-menu class="" #menu="matMenu" multiple overlapTrigger="false">
-
-              <button class="tbl vdev-option" id="pool-manager__add-data-button" [disabled]="!canAddData()" (click)="addVdev('data')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-database"></mat-icon>
+            @if (isEncrypted) {
+              <p class="form-error-line adjust-upward" role="alert">{{"Adding Vdevs to an encrypted pool resets the passphrase and recovery key!" | translate }}</p>
+            }
+            <div>
+              <div class="button-bar">
+                <div><button id="pool-manager__reset-layout-button" hlmBtn variant="outline" type="button" [disabled]="!dirty" (click)="resetLayout()">{{"Reset Layout" | translate}}</button></div>
+                <div><button hlmBtn variant="outline" type="button" [hlmDropdownMenuTrigger]="menu" class="menu-toggle" id="pool-manager__add-vdev-button"
+                  [disabled] = "this.disks.length === 0"
+                  ix-auto
+                  ix-auto-type="button"
+                  ix-auto-identifier="add_vdev_type">
+                  <span>{{"Add Vdev" | translate}} <mat-icon class="menu-caret" aria-hidden="true">expand_more</mat-icon></span>
+                </button></div>
+              </div>
+              <ng-template #menu>
+              <hlm-dropdown-menu class="vdev-menu">
+                <button class="tbl vdev-option" id="pool-manager__add-data-button" [disabled]="!canAddData()" (triggered)="addVdev('data')" hlmDropdownMenuItem keepOpen type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon role="img">database</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.data_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.data_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                  <div class="td">
-                    <h3>{{help.data_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.data_vdev_description | translate"></span></p>
+                </button>
+                <button class="tbl vdev-option" id="pool-manager__add-cache-button" [disabled]="vdevs.cache.length > 0" (triggered)="addVdev('cache')" hlmDropdownMenuItem type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon role="img">speed</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.cache_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.cache_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                </div>
-              </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-cache-button" [disabled]="vdevs.cache.length > 0" (click)="addVdev('cache')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-clock-fast"></mat-icon>
+                </button>
+                <button class="tbl vdev-option" id="pool-manager__add-log-button" [disabled]="vdevs.log.length > 0" (triggered)="addVdev('log')" hlmDropdownMenuItem type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon role="img">receipt_long</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.log_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.log_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                  <div class="td">
-                    <h3>{{help.cache_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.cache_vdev_description | translate"></span></p>
+                </button>
+                <button class="tbl vdev-option" id="pool-manager__add-spare-button" [disabled]="vdevs.spares.length > 0" (triggered)="addVdev('spares')" hlmDropdownMenuItem type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon>local_hospital</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.spare_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.spare_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                </div>
-              </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-log-button"[disabled]="vdevs.log.length > 0" (click)="addVdev('log')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon role="img" fontSet="mdi-set" fontIcon="mdi-clipboard-outline"></mat-icon>
+                </button>
+                <button class="tbl vdev-option" id="pool-manager__add-special-button" [disabled]="vdevs.special.length > 0" (triggered)="addVdev('special')" hlmDropdownMenuItem type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon>favorite_border</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.special_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.special_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                  <div class="td">
-                    <h3>{{help.log_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.log_vdev_description | translate"></span></p>
+                </button>
+                <button class="tbl vdev-option" id="pool-manager__add-dedup-button" [disabled]="vdevs.dedup.length > 0" (triggered)="addVdev('dedup')" hlmDropdownMenuItem type="button">
+                  <div class="tr">
+                    <div class="td icon">
+                      <mat-icon>share</mat-icon>
+                    </div>
+                    <div class="td">
+                      <h3>{{help.dedup_vdev_title | translate}}</h3>
+                      <p><span [innerHtml]="help.dedup_vdev_description | translate"></span></p>
+                    </div>
                   </div>
-                </div>
-              </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-spare-button" [disabled]="vdevs.spares.length > 0" (click)="addVdev('spares')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon>local_hospital</mat-icon>
-                  </div>
-                  <div class="td">
-                    <h3>{{help.spare_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.spare_vdev_description | translate"></span></p>
-                  </div>
-                </div>
-              </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-special-button" [disabled]="vdevs.special.length > 0" (click)="addVdev('special')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon>favorite_border</mat-icon>
-                  </div>
-                  <div class="td">
-                    <h3>{{help.special_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.special_vdev_description | translate"></span></p>
-                  </div>
-                </div>
-              </button>
-
-              <button class="tbl vdev-option" id="pool-manager__add-dedup-button" [disabled]="vdevs.dedup.length > 0" (click)="addVdev('dedup')" mat-menu-item>
-                <div class="tr">
-                  <div class="td icon">
-                    <mat-icon>share</mat-icon>
-                  </div>
-                  <div class="td">
-                    <h3>{{help.dedup_vdev_title | translate}}</h3>
-                    <p><span [innerHtml]="help.dedup_vdev_description | translate"></span></p>
-                  </div>
-                </div>
-              </button>
-            </mat-menu>
+                </button>
+              </hlm-dropdown-menu>
+            </ng-template>
+            </div>
           </div>
-        </div>
-        </ng-template>
+        }
+
       </div>
       <div class="wrapper">
         <div class="disks">
-            <h4 id="avail-disks-title">{{"Available Disks" | translate }}</h4>
-              <ngx-datatable
-                id="pool-manager__disks-table"
-                #table
-                class="material ml-1 mt-1 mb-1 mr-1 mat-box-shadow"
-                [rows]="disks"
-                [headerHeight]="50"
-                [rowHeight]="50"
-                [footerHeight]="'auto'"
-                [columnMode]="'force'"
-                [limit]="10"
-                [selected] = "selected"
-                [selectionType]="'checkbox'"
-                [externalSorting]="true"
-                (sort)='reorderEvent($event)'
-                (select)='onSelect($event)'>
-                <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow>
-                    <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
-                      <div *ngFor="let detail of row.details" style="padding-left:35px;">
-                        <strong>{{detail.label | translate}}:</strong> {{detail.value}}
-                      </div>
-                  </ng-template>
-                </ngx-datatable-row-detail>
-                <ngx-datatable-column [width]="82" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
-                  <ng-template ngx-datatable-header-template let-value="value" let-allRowsSelected="allRowsSelected" let-selectFn="selectFn">
-                    <div class="headerCheckBox">
-                      <mat-checkbox id="pool-manager__disks-table-checkall" [checked]="allRowsSelected" (change)="selectFn(!allRowsSelected)"></mat-checkbox>
+          <h4 id="avail-disks-title">{{"Available Disks" | translate }}</h4>
+          <ngx-datatable
+            id="pool-manager__disks-table"
+            #table
+            class="material mt-1 mb-1 mr-1 mat-box-shadow"
+            [rows]="disks"
+            [headerHeight]="50"
+            [rowHeight]="50"
+            [footerHeight]="'auto'"
+            [columnMode]="'force'"
+            [limit]="10"
+            [selected] = "selected"
+            [selectionType]="'checkbox'"
+            [externalSorting]="true"
+            (sort)='reorderEvent($event)'
+            (select)='onSelect($event)'>
+            <ngx-datatable-row-detail [rowHeight]="100" #myDetailRow>
+              <ng-template let-row="row" let-expanded="expanded" ngx-datatable-row-detail-template>
+                @for (detail of row.details; track detail) {
+                  <div style="padding-left:35px;">
+                    <strong>{{detail.label | translate}}:</strong> {{detail.value}}
+                  </div>
+                }
+              </ng-template>
+            </ngx-datatable-row-detail>
+            <ngx-datatable-column [width]="82" [sortable]="false" [canAutoResize]="false" [draggable]="false" [resizeable]="false">
+              <ng-template ngx-datatable-header-template let-value="value" let-allRowsSelected="allRowsSelected" let-selectFn="selectFn">
+                <div class="headerCheckBox">
+                  <hlm-checkbox inputId="pool-manager__disks-table-checkall" [aria-label]="'Select All' | translate"
+                    [checked]="allRowsSelected" (checkedChange)="selectFn(!allRowsSelected)" />
+                </div>
+              </ng-template>
+
+              <ng-template ngx-datatable-cell-template let-value="value" let-rowIndex="rowIndex" let-isSelected="isSelected" let-onCheckboxChangeFn="onCheckboxChangeFn">
+                <div>
+                  @if (disks[rowIndex]) {
+                    <span class="checkbox-cell">
+                      <hlm-checkbox inputId="pool-manager__disks-{{disks[rowIndex].devname}}" name="disk_{{rowIndex}}_checkbox" [aria-label]="disks[rowIndex].devname"
+                        [checked]="isSelected" (checkedChange)="onCheckboxChangeFn($event)" />
+                    </span>
+                  }
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+            <!-- <ngx-datatable-column
+            [width]="35"
+            [sortable]="false"
+            [canAutoResize]="false"
+            [draggable]="false"
+            [resizeable]="false">
+          </ngx-datatable-column> -->
+          <ngx-datatable-column
+            [width]="165"
+            name="{{'Disk' | translate}}"
+          prop="devname"></ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="100"
+            name="{{'Type' | translate}}"
+          prop="type"></ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="120"
+            name="{{'Capacity' | translate}}"
+          prop="capacity"></ngx-datatable-column>
+          <ngx-datatable-column
+            [width]="50"
+            [resizeable]="false"
+            [sortable]="false"
+            [draggable]="false"
+            [canAutoResize]="false">
+            <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
+              <a
+                href="javascript:void(0)"
+                [class.datatable-icon-right]="!expanded"
+                [class.datatable-icon-down]="expanded"
+                title="Expand/Collapse Row"
+                (click)="toggleExpandRow(row)">
+              </a>
+            </ng-template>
+          </ngx-datatable-column>
+
+          <ngx-datatable-footer>
+            <ng-template
+              ngx-datatable-footer-template
+              let-selectedCount="selectedCount"
+              let-rowCount="rowCount"
+              let-pageSize="pageSize"
+              let-curPage="curPage"
+              let-offset="offset"
+              let-isVisible="isVisible"
+              >
+              <div class="footer-div">
+                @if (availableNonUniqueSerialDisksCount) {
+                  <div>
+                    <p class="non-unique-serial-disks-warning">{{ nonUniqueSerialDisksWarning }}</p>
+                    <div class="checkbox-row non-unique-serial-disks-checkbox">
+                      <span class="checkbox-cell">
+                        <hlm-checkbox inputId="pool-manager__non-unique-serial-disks-checkbox"
+                          [checked]="includeNonUniqueSerialDisks" (checkedChange)="toggleNonUniqueSerialDisks()" />
+                      </span>
+                      <label hlmLabel class="checkbox-label" for="pool-manager__non-unique-serial-disks-checkbox">{{ 'Show disks with non-unique serial numbers' | translate }}</label>
                     </div>
-                  </ng-template>
+                  </div>
+                }
 
-                  <ng-template ngx-datatable-cell-template let-value="value" let-rowIndex="rowIndex" let-isSelected="isSelected" let-onCheckboxChangeFn="onCheckboxChangeFn">
-                    <div>
-                      <mat-checkbox *ngIf="disks[rowIndex]" id="pool-manager__disks-{{disks[rowIndex].devname}}" name="disk_{{rowIndex}}_checkbox" [checked]="isSelected" (change)="onCheckboxChangeFn($event)"></mat-checkbox>
-                    </div>
-                  </ng-template>
-                </ngx-datatable-column>
-                <!-- <ngx-datatable-column
-                  [width]="35"
-                  [sortable]="false"
-                  [canAutoResize]="false"
-                  [draggable]="false"
-                  [resizeable]="false">
-                </ngx-datatable-column> -->
-                <ngx-datatable-column
-                  [width]="165"
-                  name="{{'Disk' | translate}}"
-                  prop="devname"></ngx-datatable-column>
-                <ngx-datatable-column
-                  [width]="100"
-                  name="{{'Type' | translate}}"
-                  prop="type"></ngx-datatable-column>
-                <ngx-datatable-column
-                  [width]="120"
-                  name="{{'Capacity' | translate}}"
-                  prop="capacity"></ngx-datatable-column>
-                <ngx-datatable-column
-                  [width]="50"
-                  [resizeable]="false"
-                  [sortable]="false"
-                  [draggable]="false"
-                  [canAutoResize]="false">
-                  <ng-template let-row="row" let-expanded="expanded" ngx-datatable-cell-template>
-                    <a
-                      href="javascript:void(0)"
-                      [class.datatable-icon-right]="!expanded"
-                      [class.datatable-icon-down]="expanded"
-                      title="Expand/Collapse Row"
-                      (click)="toggleExpandRow(row)">
-                    </a>
-                  </ng-template>
-                </ngx-datatable-column>
+                <div class="footer-main">
+                  <div class="page-count">
+                    <div>{{ selectedCount }} {{ 'selected' | translate }} / {{ rowCount }} {{ 'total' | translate }}</div>
+                  </div>
 
-                <ngx-datatable-footer>
-                  <ng-template
-                    ngx-datatable-footer-template
-                    let-selectedCount="selectedCount"
-                    let-rowCount="rowCount"
-                    let-pageSize="pageSize"
-                    let-curPage="curPage"
-                    let-offset="offset"
-                    let-isVisible="isVisible"
-                  >
-                    <div class="footer-div">
-                      <div *ngIf="availableNonUniqueSerialDisksCount">
-                        <p class="non-unique-serial-disks-warning">{{ nonUniqueSerialDisksWarning }}</p>
-
-                        <mat-checkbox
-                          color="primary"
-                          class="non-unique-serial-disks-checkbox"
-                          [checked]="includeNonUniqueSerialDisks"
-                          (change)="toggleNonUniqueSerialDisks()"
-                        >{{ 'Show disks with non-unique serial numbers' | translate }}</mat-checkbox>
-                      </div>
-
-                      <div class="footer-main">
-                        <div class="page-count">
-                          <div>{{ selectedCount }} {{ 'selected' | translate }} / {{ rowCount }} {{ 'total' | translate }}</div>
-                        </div>
-                        
-                        <datatable-pager
-                          [pagerLeftArrowIcon]="'datatable-icon-left'"
-                          [pagerRightArrowIcon]="'datatable-icon-right'"
-                          [pagerPreviousIcon]="'datatable-icon-prev'"
-                          [pagerNextIcon]="'datatable-icon-skip'"
-                          [page]="curPage"
-                          [size]="pageSize"
-                          [count]="rowCount"
-                          [hidden]="!((rowCount / pageSize) > 1)"
-                          (change)="table.onFooterPage($event)"
-                          class="footer-pager">
-                        </datatable-pager>
-                      </div>
-                    </div>
-                  </ng-template>
-                </ngx-datatable-footer>
-              </ngx-datatable>
-              <div id="filter-wrapper">
-                <mat-form-field fxFlex="1 1 40%">
-                  <input matInput
-                    id="pool-manager__nameFilter"
-                    type='text'
-                    [(ngModel)]="nameFilterField"
-                    placeholder="{{ 'Filter disks by name' | translate }}"
-                    (keyup)='updateFilter($event)'
-                  />
-                </mat-form-field>
-                <div fxFlex="5%"></div>
-                <mat-form-field fxFlex="1 1 40%">
-                  <input matInput
-                    id="pool-manager__capacityFilter"
-                    type='text'
-                    [(ngModel)]="capacityFilterField"
-                    placeholder="{{ 'Filter disks by capacity' | translate }}"
-                    (keyup)='updateFilter($event)'
-                  />
-                </mat-form-field>
-                <mat-error *ngIf="re_has_errors">{{"Invalid regex filter" | translate}}</mat-error>
+                  <datatable-pager
+                    [pagerLeftArrowIcon]="'datatable-icon-left'"
+                    [pagerRightArrowIcon]="'datatable-icon-right'"
+                    [pagerPreviousIcon]="'datatable-icon-prev'"
+                    [pagerNextIcon]="'datatable-icon-skip'"
+                    [page]="curPage"
+                    [size]="pageSize"
+                    [count]="rowCount"
+                    [hidden]="!((rowCount / pageSize) > 1)"
+                    (change)="table.onFooterPage($event)"
+                    class="footer-pager">
+                  </datatable-pager>
+                </div>
               </div>
+            </ng-template>
+          </ngx-datatable-footer>
+        </ngx-datatable>
+        <div id="filter-wrapper" class="manager-filter-row-layout">
+          <!-- the internal development record: the filters on the kit input; updateFilter() keys on the input ids -->
+          <input hlmInput class="manager-filter-field-layout"
+            id="pool-manager__nameFilter"
+            type='text'
+            [(ngModel)]="nameFilterField"
+            placeholder="{{ 'Filter disks by name' | translate }}"
+            [attr.aria-label]="'Filter disks by name' | translate"
+            (keyup)='updateFilter($event)'
+            />
+          <div class="manager-filter-spacer-layout"></div>
+          <input hlmInput class="manager-filter-field-layout"
+            id="pool-manager__capacityFilter"
+            type='text'
+            [(ngModel)]="capacityFilterField"
+            placeholder="{{ 'Filter disks by capacity' | translate }}"
+            [attr.aria-label]="'Filter disks by capacity' | translate"
+            (keyup)='updateFilter($event)'
+            />
+          @if (re_has_errors) {
+            <p class="form-error-line manager-filter-error" role="alert">{{"Invalid regex filter" | translate}}</p>
+          }
         </div>
-        <div class="pool">
+      </div>
+      <div class="pool">
+        <div>
+          <div class="data-div">
+            <div class="data-title"><h4 class="vdev-h4">{{"Data VDevs" | translate}}</h4></div>
+            <div class="duplicate-button"><button id="pool-manager__create-data-vdevs-button" hlmBtn variant="outline" type="button" [disabled]="!canDuplicate" (click)="duplicate()">{{"Repeat" | translate}}</button></div>
+          </div>
+          @for (vdev of vdevs.data; track vdev; let i = $index) {
+            <app-vdev [group]="'data'" [manager]="this" [index]="i" [initial_values]="vdev"></app-vdev>
+          }
+        </div>
+        @if (vdevs.cache.length > 0) {
           <div>
-            <div class="data-div">
-              <div class="data-title"><h4 class="vdev-h4">{{"Data VDevs" | translate}}</h4></div>
-              <div class="duplicate-button"><button id="pool-manager__create-data-vdevs-button" mat-button class="btn btn-accent mat-accent" [disabled]="!canDuplicate" (click)="duplicate()">{{"Repeat" | translate}}</button></div>
-            </div>
-            <app-vdev *ngFor="let vdev of vdevs.data; let i = index" [group]="'data'" [manager]="this" [index]="i" [initial_values]="vdev"></app-vdev>
-          </div>
-          <div *ngIf="vdevs.cache.length > 0">
             <h4 class="vdev-h4">{{"Cache VDev" | translate}}</h4>
-            <app-vdev *ngFor="let vdev of vdevs.cache; let i = index" [group]="'cache'" [manager]="this" [index]="i"></app-vdev>
+            @for (vdev of vdevs.cache; track vdev; let i = $index) {
+              <app-vdev [group]="'cache'" [manager]="this" [index]="i"></app-vdev>
+            }
           </div>
-          <div *ngIf="vdevs.log.length > 0">
+        }
+        @if (vdevs.log.length > 0) {
+          <div>
             <h4 class="vdev-h4">{{"Log VDev" | translate}}</h4>
-            <app-vdev *ngFor="let vdev of vdevs.log; let i = index" [group]="'log'" [manager]="this" [index]="i"></app-vdev>
+            @for (vdev of vdevs.log; track vdev; let i = $index) {
+              <app-vdev [group]="'log'" [manager]="this" [index]="i"></app-vdev>
+            }
           </div>
-          <div *ngIf="vdevs.spares.length > 0">
+        }
+        @if (vdevs.spares.length > 0) {
+          <div>
             <h4 class="vdev-h4">{{"Spare VDev" | translate}}</h4>
-            <app-vdev *ngFor="let vdev of vdevs.spares; let i = index" [group]="'spares'" [manager]="this" [index]="i"></app-vdev>
+            @for (vdev of vdevs.spares; track vdev; let i = $index) {
+              <app-vdev [group]="'spares'" [manager]="this" [index]="i"></app-vdev>
+            }
           </div>
-          <div *ngIf="vdevs.special.length > 0">
+        }
+        @if (vdevs.special.length > 0) {
+          <div>
             <h4 class="vdev-h4">{{"Metadata VDev" | translate}}</h4>
-            <app-vdev *ngFor="let vdev of vdevs.special; let i = index" [group]="'special'" [manager]="this" [index]="i"></app-vdev>
+            @for (vdev of vdevs.special; track vdev; let i = $index) {
+              <app-vdev [group]="'special'" [manager]="this" [index]="i"></app-vdev>
+            }
           </div>
-          <div *ngIf="vdevs.dedup.length > 0">
+        }
+        @if (vdevs.dedup.length > 0) {
+          <div>
             <h4 class="vdev-h4">{{"Dedup VDev" | translate}}</h4>
-            <app-vdev *ngFor="let vdev of vdevs.dedup; let i = index" [group]="'dedup'" [manager]="this" [index]="i"></app-vdev>
+            @for (vdev of vdevs.dedup; track vdev; let i = $index) {
+              <app-vdev [group]="'dedup'" [manager]="this" [index]="i"></app-vdev>
+            }
           </div>
-        </div>
-      </div>
-      <div class="sizeMessage">{{ sizeMessage | translate}}: {{ size }}</div>
-      <div *ngIf="vdevtypeError" class="sizeMessage" [style.color]="'red'" [innerHTML]="vdevtypeError"></div>
-      <div *ngIf="disknumError" class="sizeMessage" [style.color]="'red'" [innerHTML]="disknumError"></div>
-      <div *ngIf="stripeVdevTypeError" class="sizeMessage" [style.color]="'red'" [innerHTML]="stripeVdevTypeError"></div>
-      <div *ngIf="logVdevTypeWarning" class="sizeMessage" [style.color]="'orange'" [innerHTML]="logVdevTypeWarning"></div>
-      <div *ngIf="error" class="sizeMessage" [style.color]="'red'" [innerHTML]="error"></div>
-      <div class="forceCreateCheckbox" *ngIf="has_savable_errors">
-        <mat-checkbox id="pool-manager__force-submit-checkbox" [(ngModel)]="force" (click)="forceCheckboxChecked()" [disabled]="!canForceCheck()">{{'Force' | translate}}</mat-checkbox>
-      </div>
-      <div class="buttons" id="pool-manager__button-group">
-        <button id="pool-manager__create-button" mat-button name="create-button" class="btn btn-primary" (click)="doSubmit()" color="primary" [disabled]="!canSave()">{{submitTitle | translate }}</button>
-        <button id="pool-manager__cancel-button" mat-button class="btn  btn-block btn-lg btn-primary" type="button" (click)="goBack()" color="accent">{{"Cancel" | translate}}</button>
+        }
       </div>
     </div>
+    <div class="sizeMessage">{{ sizeMessage | translate}}: {{ size }}</div>
+    @if (vdevtypeError) {
+      <div class="sizeMessage" [style.color]="'red'" [innerHTML]="vdevtypeError"></div>
+    }
+    @if (disknumError) {
+      <div class="sizeMessage" [style.color]="'red'" [innerHTML]="disknumError"></div>
+    }
+    @if (stripeVdevTypeError) {
+      <div class="sizeMessage" [style.color]="'red'" [innerHTML]="stripeVdevTypeError"></div>
+    }
+    @if (logVdevTypeWarning) {
+      <div class="sizeMessage" [style.color]="'orange'" [innerHTML]="logVdevTypeWarning"></div>
+    }
+    @if (error) {
+      <div class="sizeMessage" [style.color]="'red'" [innerHTML]="error"></div>
+    }
+    @if (has_savable_errors) {
+      <!-- the internal development record: ticking Force shows its warnings and it stays on only when they are confirmed
+           (Material skipped them when the box itself was clicked); unticking needs no dialog. -->
+      <div class="forceCreateCheckbox checkbox-row">
+        <span class="checkbox-cell">
+          <hlm-checkbox inputId="pool-manager__force-submit-checkbox" [ngModel]="force" (ngModelChange)="onForceChange($event)" [disabled]="!canForceCheck()" />
+        </span>
+        <label hlmLabel class="checkbox-label" for="pool-manager__force-submit-checkbox">{{'Force' | translate}}</label>
+      </div>
+    }
+    <div class="buttons" id="pool-manager__button-group">
+      <button id="pool-manager__create-button" hlmBtn type="button" name="create-button" (click)="doSubmit()" [disabled]="!canSave()">{{submitTitle | translate }}</button>
+      <button id="pool-manager__cancel-button" hlmBtn variant="outline" type="button" (click)="goBack()">{{"Cancel" | translate}}</button>
+    </div>
   </div>
-</mat-card>
+</div>
+</div>

@@ -1,4 +1,4 @@
-import { ApplicationRef, Component, Injector } from '@angular/core';
+import { ApplicationRef, Component, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Validators } from '@angular/forms';
 
@@ -7,9 +7,12 @@ import { WebSocketService } from '../../../../services';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import { greaterThan } from 'app/pages/common/entity/entity-form/validators/compare-validation';
+import { T } from 'app/translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-ntpserver-form',
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: '<entity-form [conf]="this"></entity-form>',
 })
 export class NTPServerFormComponent {
@@ -21,12 +24,14 @@ export class NTPServerFormComponent {
 
   protected pk: any;
   protected queryKey = 'id';
+  readonly settingsTitle = T('NTP Server'); // the internal development record: the page's h1
   protected fieldConfig: FieldConfig[] = [];
   fieldSets: FieldSet[] = [
     {
       name: helptext.header,
       class: 'ntp',
       label: true,
+      settingsLabel: T('General'), // the internal development record: the set's name repeats or paraphrases the page's h1
       config: [
         {
           type: 'input',
