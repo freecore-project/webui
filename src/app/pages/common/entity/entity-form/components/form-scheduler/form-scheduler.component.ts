@@ -2,7 +2,7 @@ import {
   Component, OnInit, OnChanges, ViewChild, ElementRef, QueryList, Renderer2,
   ChangeDetectorRef, SimpleChanges, HostListener, AfterViewInit, AfterViewChecked,
 } from '@angular/core';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -34,12 +34,12 @@ interface CronDate {
   selector: 'form-scheduler',
   templateUrl: './form-scheduler.component.html',
   styleUrls: ['./form-scheduler.component.css', '../dynamic-field/dynamic-field.css'],
-})
+  })
 export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterViewInit,
   AfterViewChecked {
   // Basic form-select props
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   disablePrevious: boolean;
   ngDateFormat: string;
@@ -54,7 +54,7 @@ export class FormSchedulerComponent implements Field, OnInit, OnChanges, AfterVi
   private control: any;
 
   isOpen = false;
-  formControl = new FormControl();
+  formControl = new UntypedFormControl();
   private _currentValue: string;
   get currentValue() {
     return this.group.controls[this.config.name].value;

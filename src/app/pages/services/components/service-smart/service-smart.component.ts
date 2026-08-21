@@ -1,6 +1,6 @@
 import { ApplicationRef, Component, Injector } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatSelectChange } from '@angular/material/select';
+import { MatLegacySelectChange as MatSelectChange } from '@angular/material/legacy-select';
 import { ActivatedRoute, Router } from '@angular/router';
 import { EntityFormComponent } from 'app/pages/common/entity/entity-form';
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
@@ -12,7 +12,7 @@ import { PowerMode } from 'app/enums/power-mode.enum';
 @Component({
   selector: 'smart-edit',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 
 export class ServiceSMARTComponent {
   protected queryCall = 'smart.config';

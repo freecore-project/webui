@@ -11,32 +11,13 @@
 
 .copyright-txt {
     text-align: center;
-    opacity:0.5;
+    color: var(--fg2);
     font-size:85%
 }
 
-.truecommand {
-  text-align: center;
-  cursor: pointer;
-}
-#truecommand-logo {
-  height: 24px;
-  top: 7px;
-  position: relative;
-  cursor: pointer;
-}
-.truecommand-txt {
-  text-align: center;
-  opacity:0.5;
-  padding-left: 5px;
-}
 
 .ha-status-txt {
     text-align: center;
-}
-
-.copyright-txt a:link {
-    color: #396f9d;
 }
 
 #signin_button {
@@ -86,8 +67,11 @@ form button{
   margin:16px 0 ;
 }
 
+// The horizontal lockup (mascot beside the wordmark) is 307x78, so the banner
+// no longer needs the padding the 343x384 stacked logo did -- 76px + a 287px
+// tall logo made a 487px banner, ~2.3x TrueNAS's own.
 .logo-wrapper {
-  padding:76px 0;
+  padding:28px 0;
   background-color: $bg2; //var(--bg2);
   position:relative;
 }
@@ -105,8 +89,8 @@ form button{
 
 .logo-wrapper .logo{
   position:relative;
-  z-index:2; 
-  width: 256px;
+  z-index:2;
+  width: 280px;
   height: auto;
 }
 
@@ -170,4 +154,19 @@ input:-webkit-autofill:active  {
   -webkit-box-shadow: 0 0 0 30px transparent inset !important;
   transition: background-color 5000s ease-in-out 0s;
   caret-color: white;
+}
+
+
+.signin-slogan {
+  position: relative;
+  z-index: 2;
+  margin-top: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #dadada;
+}
+
+.signin-slogan span {
+  color: #268ecb;
 }

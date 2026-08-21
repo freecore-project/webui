@@ -1,5 +1,5 @@
 import { Component, ViewContainerRef, OnInit } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { FieldConfig } from '../../models/field-config.interface';
@@ -11,10 +11,10 @@ import * as _ from 'lodash';
   selector: 'form-toggle-button',
   templateUrl: './form-toggle-button.component.html',
   styleUrls: ['./form-toggle-button.component.css'],
-})
+  })
 export class FormToggleButtonComponent implements Field, OnInit {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   groupValue: any[] = [];
   protected init: boolean;

@@ -1,0 +1,12 @@
+.shell-disabled {
+  padding: 24px;
+}
+
+.shell-disabled h3 {
+  margin-top: 0;
+}
+
+.shell-disabled p {
+  color: var(--fg2);
+  max-width: 60ch;
+}

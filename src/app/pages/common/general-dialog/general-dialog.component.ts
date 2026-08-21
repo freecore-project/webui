@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
 import { TranslateService } from '@ngx-translate/core';
 
 export interface GeneralDialogConfig {
@@ -25,7 +25,7 @@ export interface GeneralDialogConfig {
   selector: 'app-general-dialog',
   templateUrl: './general-dialog.component.html',
   styleUrls: ['./general-dialog.component.css'],
-})
+  })
 export class GeneralDialogComponent {
   @Input() conf: GeneralDialogConfig;
 

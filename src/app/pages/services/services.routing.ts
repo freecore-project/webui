@@ -17,8 +17,11 @@ import { ServiceSSHComponent } from './components/service-ssh';
 import { ServiceTFTPComponent } from './components/service-tftp';
 import { ServiceUPSComponent } from './components/service-ups';
 import { ServiceWebdavComponent } from './components/service-webdav';
-import { ServiceOpenvpnClientComponent } from './components/service-openvpn/service-openvpn-client';
-import { ServiceOpenvpnServerComponent } from './components/service-openvpn/service-openvpn-server';
+import { ServiceWireguardComponent } from './components/service-wireguard';
+import { ServiceWireguardClientComponent } from './components/service-wireguard-client';
+import { WireguardPeerListComponent } from './components/service-wireguard/wireguard-peer-list';
+import { WireguardPeerFormComponent } from './components/service-wireguard/wireguard-peer-form';
+import { ServiceRar2fsComponent } from './components/service-rar2fs';
 import { Services } from './services.component';
 
 export const routes: Routes = [
@@ -46,6 +49,11 @@ export const routes: Routes = [
     data: { title: 'LLDP', breadcrumb: 'LLDP' },
     path: 'lldp',
     component: ServiceLLDPComponent,
+  },
+  {
+    data: { title: 'rar2fs', breadcrumb: 'rar2fs' },
+    path: 'rar2fs',
+    component: ServiceRar2fsComponent,
   },
   {
     data: { title: 'Rsync', breadcrumb: 'Rsync' },
@@ -122,15 +130,36 @@ export const routes: Routes = [
     component: ServiceWebdavComponent,
   },
   {
-    data: { title: 'OpenVPN', breadcrumb: 'OpenVPN Client' },
-    path: 'openvpn_client',
-    component: ServiceOpenvpnClientComponent,
+    data: { title: 'WireGuard', breadcrumb: 'WireGuard' },
+    path: 'wireguard',
+    component: ServiceWireguardComponent,
   },
   {
-    data: { title: 'OpenVPN', breadcrumb: 'OpenVPN Server' },
-    path: 'openvpn_server',
-    component: ServiceOpenvpnServerComponent,
+    data: { title: 'WireGuard', breadcrumb: 'WireGuard Client' },
+    path: 'wireguard_client',
+    component: ServiceWireguardClientComponent,
+  },
+  {
+    data: { title: 'WireGuard', breadcrumb: 'WireGuard' },
+    path: 'wireguard/peers',
+    children: [
+      {
+        path: '',
+        data: { title: 'Peers', breadcrumb: 'Peers' },
+        component: WireguardPeerListComponent,
+      },
+      {
+        path: 'add',
+        data: { title: 'Add Peer', breadcrumb: 'Add Peer' },
+        component: WireguardPeerFormComponent,
+      },
+      {
+        path: 'edit/:pk',
+        data: { title: 'Edit Peer', breadcrumb: 'Edit Peer' },
+        component: WireguardPeerFormComponent,
+      },
+    ],
   },
 ];
 
-export const routing: ModuleWithProviders = RouterModule.forChild(routes);
+export const routing: ModuleWithProviders<RouterModule> = RouterModule.forChild(routes);

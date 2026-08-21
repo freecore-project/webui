@@ -1,5 +1,5 @@
 import { Component, ViewContainerRef } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 
 import { EntityFormService } from '../../services/entity-form.service';
@@ -11,10 +11,10 @@ import { TooltipComponent } from '../tooltip/tooltip.component';
   selector: 'form-readfile',
   templateUrl: './form-readfile.component.html',
   styleUrls: ['../dynamic-field/dynamic-field.css'],
-})
+  })
 export class FormReadFileComponent implements Field {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   fileString;
 

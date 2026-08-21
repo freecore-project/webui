@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 
 import { FieldSet } from 'app/pages/common/entity/entity-form/models/fieldset.interface';
 import helptext from '../../../../../helptext/storage/volumes/datasets/dataset-permissions';
@@ -15,14 +15,14 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-dataset-permissions',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class DatasetPermissionsComponent implements OnDestroy {
   protected updateCall = 'pool.dataset.permission';
   protected datasetPath: string;
   protected datasetId: string;
   protected recursive: any;
   protected recursive_subscription: any;
-  formGroup: FormGroup;
+  formGroup: UntypedFormGroup;
   error: string;
   protected route_success: string[] = ['storage', 'pools'];
   protected isEntity = true;

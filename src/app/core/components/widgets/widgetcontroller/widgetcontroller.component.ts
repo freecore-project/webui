@@ -21,6 +21,7 @@ import { ViewChartBarComponent } from 'app/core/components/viewchartbar/viewchar
 import { TranslateService } from '@ngx-translate/core';
 
 import { T } from '../../../../translate-marker';
+import { filter, map } from 'rxjs/operators';
 
 export interface DashConfigItem {
   name: string; // Shown in UI fields
@@ -33,7 +34,7 @@ export interface DashConfigItem {
   selector: 'widget-controller',
   templateUrl: './widgetcontroller.component.html',
   styleUrls: ['./widgetcontroller.component.css'],
-})
+  })
 export class WidgetControllerComponent extends WidgetComponent implements AfterViewInit {
   @Input() dashState: DashConfigItem[] = [];
   @Input()renderedWidgets?: number[] = [];
@@ -50,7 +51,10 @@ export class WidgetControllerComponent extends WidgetComponent implements AfterV
   constructor(public router: Router, public translate: TranslateService, public mediaObserver: MediaObserver) {
     super(translate);
 
-    mediaObserver.media$.subscribe((evt) => {
+    mediaObserver.asObservable().pipe(
+      filter((changes) => changes.length > 0),
+      map((changes) => changes[0]),
+    ).subscribe((evt) => {
       const st = evt.mqAlias == 'xs' ? 'Mobile' : 'Desktop';
       this.screenType = st;
     });

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import * as _ from 'lodash';
 import { FieldConfig } from '../../common/entity/entity-form/models/field-config.interface';
 import { FieldSet } from '../../common/entity/entity-form/models/fieldset.interface';
@@ -13,7 +13,7 @@ import { T } from 'app/translate-marker';
 @Component({
   selector: 'app-idmap-form',
   template: '<entity-form [conf]="this"></entity-form>',
-})
+  })
 export class IdmapFormComponent {
   protected route_success: string[] = ['directoryservice', 'idmap'];
   protected isEntity = true;

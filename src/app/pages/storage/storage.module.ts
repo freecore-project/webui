@@ -94,7 +94,6 @@ import { UnlockDialogComponent } from 'app/pages/storage/volumes/datasets/datase
     UserQuotaFormComponent,
     GroupQuotaFormComponent,
   ],
-  entryComponents: [SnapshotDetailsComponent, UnlockDialogComponent, SnapshotsBatchDeleteResultsDialogComponent],
   providers: [UserService, StorageService, MessageService, JobService, TranslateService],
 })
 export class StorageModule {

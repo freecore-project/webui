@@ -6,7 +6,6 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '../../appMaterial.module';
 
-import { ChartistModule } from 'ng-chartist';
 import { TopbarComponent } from './topbar/topbar.component';
 import { NavigationComponent } from './navigation/navigation.component';
 import { NotificationsComponent } from './notifications/notifications.component';
@@ -34,7 +33,6 @@ import { AngularSvgIconModule, SvgIconRegistryService } from 'angular-svg-icon';
     MaterialModule,
     CommonDirectivesModule,
     TranslateModule,
-    ChartistModule,
     HttpClientModule,
     AngularSvgIconModule.forRoot(),
   ],

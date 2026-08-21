@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import {
   Router, NavigationEnd, ActivatedRoute, ActivatedRouteSnapshot,
 } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { RoutePartsService } from '../../../services/route-parts/route-parts.service';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import globalHelptext from '../../../helptext/global-helptext';
@@ -43,7 +44,7 @@ export class BreadcrumbComponent implements OnInit {
     });
 
     // only execute when routechange
-    this.router.events.filter((event) => event instanceof NavigationEnd).subscribe((routeChange) => {
+    this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((routeChange) => {
       this.routeParts = this.routePartsService.generateRouteParts(this.activeRoute.snapshot);
       // generate url from parts
       this.routeParts.reverse().map((item, i) => {

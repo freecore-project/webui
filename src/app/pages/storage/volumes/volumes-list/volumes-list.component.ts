@@ -1,7 +1,7 @@
 import { ValidationService } from '../../../../services/validation.service';
 import { Component, ElementRef, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { MatDialog } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
 import { Navigation, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { DownloadKeyModalDialog } from 'app/components/common/dialog/downloadkey/downloadkey-dialog.component';
@@ -517,6 +517,61 @@ export class VolumesListTableConfig implements InputTableConf {
         ['id', '=', poolId],
       ],
     ]);
+  }
+
+  upgradePool(rowData: any, row: any) {
+    this.ws.call('system.rollback.available').subscribe(
+      (rollback) => {
+        const confirmRollbackLoss = rollback?.available === true;
+        const warningText = confirmRollbackLoss
+          ? helptext.upgradePoolDialog_return_warning
+          : helptext.upgradePoolDialog_warning;
+
+        this.translate.get(warningText).subscribe((warning) => {
+          this.dialogService
+            .confirm(
+              T('Upgrade Pool'),
+              warning + row.name,
+            )
+            .subscribe((confirmResult) => {
+              if (confirmResult !== true) {
+                return;
+              }
+
+              this.loader.open();
+              this.ws.call('pool.upgrade', [
+                rowData.id,
+                { confirm_rollback_loss: confirmRollbackLoss },
+              ]).subscribe(
+                () => {
+                  this.translate.get(T('Successfully Upgraded ')).subscribe((successUpgrade) => {
+                    this.dialogService
+                      .report(
+                        T('Upgraded'),
+                        successUpgrade + row.name,
+                        '500px', 'info',
+                      )
+                      .subscribe(() => {
+                        this.parentVolumesListComponent.repaintMe();
+                      });
+                  });
+                },
+                (err) => {
+                  if (err.hasOwnProperty('reason') && err.hasOwnProperty('trace')) {
+                    this.translate.get(T('Error Upgrading Pool ')).subscribe((errorUpgrade) => {
+                      this.dialogService.errorReport(errorUpgrade + row.name, err.reason, err.trace.formatted);
+                    });
+                  } else {
+                    new EntityUtils().handleWSError(this, err, this.dialogService);
+                  }
+                },
+                () => this.loader.close(),
+              );
+            });
+        });
+      },
+      (err) => new EntityUtils().handleWSError(this, err, this.dialogService),
+    );
   }
 
   getActions(rowData: any) {
@@ -1044,43 +1099,7 @@ export class VolumesListTableConfig implements InputTableConf {
             name: T('Upgrade Pool'),
             label: T('Upgrade Pool'),
             onClick: (row1) => {
-              this.translate.get(helptext.upgradePoolDialog_warning).subscribe((warning) => {
-                this.dialogService
-                  .confirm(
-                    T('Upgrade Pool'),
-                    warning + row1.name,
-                  )
-                  .subscribe((confirmResult) => {
-                    if (confirmResult === true) {
-                      this.loader.open();
-                      this.ws.call('pool.upgrade', [rowData.id]).subscribe(
-                        () => {
-                          this.translate.get(T('Successfully Upgraded ')).subscribe((success_upgrade) => {
-                            this.dialogService
-                              .report(
-                                T('Upgraded'),
-                                success_upgrade + row1.name,
-                                '500px', 'info',
-                              )
-                              .subscribe(() => {
-                                this.parentVolumesListComponent.repaintMe();
-                              });
-                          });
-                        },
-                        (err) => {
-                          if (err.hasOwnProperty('reason') && err.hasOwnProperty('trace')) {
-                            this.translate.get(T('Error Upgrading Pool ')).subscribe((error_upgrade) => {
-                              this.dialogService.errorReport(error_upgrade + row1.name, err.reason, err.trace.formatted);
-                            });
-                          } else {
-                            new EntityUtils().handleWSError(this, err, this.dialogService);
-                          }
-                        },
-                        () => this.loader.close(),
-                      );
-                    }
-                  });
-              });
+              this.upgradePool(rowData, row1);
             },
           });
         }
@@ -1812,7 +1831,7 @@ export class VolumesListTableConfig implements InputTableConf {
   styleUrls: ['./volumes-list.component.css'],
   templateUrl: './volumes-list.component.html',
   providers: [],
-})
+  })
 export class VolumesListComponent extends EntityTableComponent implements OnInit {
   title = T('Pools');
   zfsPoolRows: ZfsPoolData[] = [];

@@ -1,7 +1,6 @@
 module.exports = {
   "root": true,
   "ignorePatterns": [
-    "debian/**/*",
     "docker/**/*",
     "ports/**/*",
     "scripts/**/*",

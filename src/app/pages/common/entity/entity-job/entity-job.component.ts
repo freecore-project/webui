@@ -1,7 +1,7 @@
 import {
   OnInit, Component, EventEmitter, Input, Output, HostListener, Inject,
 } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog';
 import { DecimalPipe } from '@angular/common';
 import { WebSocketService, RestService } from '../../../../services';
 import { TranslateService } from '@ngx-translate/core';
@@ -12,7 +12,7 @@ import * as _ from 'lodash';
   selector: 'entity-job',
   templateUrl: 'entity-job.component.html',
   styleUrls: ['./entity-job.component.css'],
-})
+  })
 export class EntityJobComponent implements OnInit {
   job: any = {};
   progressTotalPercent = 0;

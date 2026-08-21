@@ -9,10 +9,11 @@ import { ViewChartDonutComponent } from 'app/core/components/viewchartdonut/view
   styleUrls: ['./viewchartpie.component.css'],
 })
 export class ViewChartPieComponent extends ViewChartDonutComponent implements OnInit {
-  chartType = 'pie';
-
   constructor() {
     super();
+    // See ViewChartDonutComponent: chartType is an accessor on ViewChartComponent,
+    // so it is assigned here rather than as a property initializer (TS2610).
+    this.chartType = 'pie';
   }
 
   ngOnInit() {

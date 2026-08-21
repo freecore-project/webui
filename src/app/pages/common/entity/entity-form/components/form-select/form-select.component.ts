@@ -1,24 +1,24 @@
 import {
   Component, ViewChild, Output, EventEmitter, AfterViewInit, AfterViewChecked, ChangeDetectorRef,
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { UntypedFormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 
 import { FieldConfig } from '../../models/field-config.interface';
 import { Field } from '../../models/field.interface';
 import { TooltipComponent } from '../tooltip/tooltip.component';
-import { MatOptionSelectionChange } from '@angular/material/core';
+import { MatLegacyOptionSelectionChange as MatOptionSelectionChange } from '@angular/material/legacy-core';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'form-select',
   styleUrls: ['form-select.component.scss', '../dynamic-field/dynamic-field.css'],
   templateUrl: './form-select.component.html',
-})
+  })
 export class FormSelectComponent implements Field, AfterViewInit, AfterViewChecked {
   config: FieldConfig;
-  group: FormGroup;
+  group: UntypedFormGroup;
   fieldShow: string;
   control: any;
 
