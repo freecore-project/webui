@@ -1,9 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EntityTableAction, InputTableConf } from 'app/pages/common/entity/entity-table/entity-table.component';
-
-import * as myIP from 'what-is-my-ip-address';
 
 import { AvailablePluginsComponent } from './available-plugins/available-plugins.component';
 import { AppLoaderService, WebSocketService, DialogService } from '../../services';
@@ -12,12 +10,15 @@ import { T } from '../../translate-marker';
 import * as _ from 'lodash';
 import { DialogFormConfiguration } from '../common/entity/entity-dialog/dialog-form-configuration.interface';
 import { EntityJobComponent } from '../common/entity/entity-job/entity-job.component';
+import { showNoPoolDialog } from '../common/no-pool-dialog';
 import helptext from '../../helptext/plugins/plugins';
 import jailHelptext from '../../helptext/jails/jails-list';
 
 @Component({
+  standalone: false,
   selector: 'app-plugins-ui',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
 })
 export class PluginsComponent implements InputTableConf {
   title = 'Plugins';
@@ -83,7 +84,7 @@ export class PluginsComponent implements InputTableConf {
       label: T('Start'),
       icon: 'play_arrow',
       enable: true,
-      ttpos: 'above', // tooltip position
+      ttpos: 'top', // tooltip position
       onClick: (selected) => {
         const selectedJails = this.getSelectedNames(selected);
         this.loader.open();
@@ -109,7 +110,7 @@ export class PluginsComponent implements InputTableConf {
       label: T('Stop'),
       icon: 'stop',
       enable: true,
-      ttpos: 'above',
+      ttpos: 'top',
       onClick: (selected) => {
         const selectedJails = this.getSelectedNames(selected);
         this.loader.open();
@@ -135,7 +136,7 @@ export class PluginsComponent implements InputTableConf {
       label: T('Update'),
       icon: 'update',
       enable: true,
-      ttpos: 'above',
+      ttpos: 'top',
       onClick: (selected) => {
         const self = this;
         const conf: DialogFormConfiguration = {
@@ -192,22 +193,15 @@ export class PluginsComponent implements InputTableConf {
     // }
   ];
 
-  protected publicIp = '';
-
+  // the internal development record: no public-IP lookup. 13.3 (and the internal security review's fetch) asked icanhazip.com on every
+  // visit, only for the Asigra plugin's license registration link; no Asigra plugin can be installed here.
   constructor(
     private loader: AppLoaderService,
     private ws: WebSocketService,
     private dialogService: DialogService,
     private router: Router,
     protected matDialog: MatDialog,
-  ) {
-    myIP.v4().then((pubIp) => {
-      this.publicIp = pubIp;
-    }).catch((e) => {
-      console.log('Error getting Public IP: ', e);
-      this.publicIp = '';
-    });
-  }
+  ) {}
 
   preInit() {
     this.getActivatedPollInfo();
@@ -247,18 +241,7 @@ export class PluginsComponent implements InputTableConf {
   }
 
   noPoolDialog() {
-    const dialogRef = this.dialogService.confirm(
-      jailHelptext.noPoolDialog.title,
-      jailHelptext.noPoolDialog.message,
-      true,
-      jailHelptext.noPoolDialog.buttonMsg,
-    );
-
-    dialogRef.subscribe((res) => {
-      if (res) {
-        this.router.navigate(new Array('/').concat(['storage', 'pools', 'manager']));
-      }
-    });
+    showNoPoolDialog(this.dialogService, this.router);
   }
 
   activatePool() {
@@ -401,7 +384,7 @@ export class PluginsComponent implements InputTableConf {
     const actions = [{
       name: parentrow.name,
       id: 'start',
-      label: T('START'),
+      label: T('Start'),
       icon: 'play_arrow',
       onClick: (row) => {
         this.loader.open();
@@ -421,7 +404,7 @@ export class PluginsComponent implements InputTableConf {
     {
       name: parentrow.name,
       id: 'restart',
-      label: T('RESTART'),
+      label: T('Restart'),
       icon: 'replay',
       onClick: (row) => {
         this.loader.open();
@@ -441,7 +424,7 @@ export class PluginsComponent implements InputTableConf {
     {
       name: parentrow.name,
       id: 'stop',
-      label: T('STOP'),
+      label: T('Stop'),
       icon: 'stop',
       onClick: (row) => {
         this.loader.open();
@@ -461,7 +444,7 @@ export class PluginsComponent implements InputTableConf {
     {
       name: parentrow.name,
       id: 'update',
-      label: T('UPDATE'),
+      label: T('Update'),
       icon: 'update',
       onClick: (row) => {
         const self = this;
@@ -507,7 +490,7 @@ export class PluginsComponent implements InputTableConf {
     {
       name: parentrow.name,
       id: 'management',
-      label: T('MANAGE'),
+      label: T('Manage'),
       icon: 'settings',
       onClick: (row) => {
         this.gotoAdminPortal(row);
@@ -516,29 +499,18 @@ export class PluginsComponent implements InputTableConf {
     {
       name: parentrow.name,
       id: 'delete',
-      label: T('UNINSTALL'),
+      label: T('Uninstall'),
       icon: 'delete',
       onClick: (row) => {
         this.entityList.doDelete(row);
       },
     }];
 
-    if (parentrow.plugin === 'asigra') {
-      actions.push({
-        name: parentrow.name,
-        id: 'register',
-        label: T('REGISTER'),
-        icon: 'assignment',
-        onClick: (row) => {
-          this.getRegistrationLink();
-        },
-      });
-    }
     if (parentrow.plugin_info) {
       actions.push({
         name: parentrow.name,
         id: 'postinstall',
-        label: T('POST INSTALL NOTES'),
+        label: T('Post install notes'),
         icon: 'description',
         onClick: (row) => {
           let install_notes = '';
@@ -553,7 +525,7 @@ export class PluginsComponent implements InputTableConf {
       actions.push({
         name: parentrow.name,
         id: 'docurl',
-        label: T('DOCUMENTATION'),
+        label: T('Documentation'),
         icon: 'info',
         onClick: (row) => {
           window.open(row.doc_url);
@@ -574,32 +546,6 @@ export class PluginsComponent implements InputTableConf {
       return false;
     }
     return true;
-  }
-
-  getRegistrationLink() {
-    const url = 'https://licenseportal.asigra.com/licenseportal/user-registration.do';
-    const form = document.createElement('form');
-    form.action = url;
-    form.method = 'POST';
-    form.target = '_blank';
-    form.style.display = 'none';
-
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = 'dsSystemPublicIP';
-    input.value = this.publicIp;
-
-    const submit = document.createElement('input');
-    submit.type = 'submit';
-    submit.id = 'submitProject';
-
-    form.appendChild(input);
-    form.appendChild(submit);
-    document.body.appendChild(form);
-
-    submit.click();
-
-    document.body.removeChild(form);
   }
 
   wsDeleteParams(row, id) {

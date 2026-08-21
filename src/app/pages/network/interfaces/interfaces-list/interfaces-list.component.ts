@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { interval } from 'rxjs';
 
@@ -10,8 +10,10 @@ import { CoreEvent } from 'app/core/services/core.service';
 import { ViewControllerComponent } from 'app/core/components/viewcontroller/viewcontroller.component';
 
 @Component({
+  standalone: false,
   selector: 'app-interfaces-list',
   templateUrl: './interfaces-list.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./interfaces-list.component.css'],
 })
 export class InterfacesListComponent extends ViewControllerComponent implements OnDestroy {

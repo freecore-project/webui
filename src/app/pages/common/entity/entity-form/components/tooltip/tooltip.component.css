@@ -1,3 +1,13 @@
+/* the internal development record: the host is the glyph's box and is centred on whatever it sits in -- a flex
+   row, a 16px label row (the anchored field hosts) or a line of text -- instead of each page nudging
+   it (the glyph was top-aligned in a taller line box: 2-4px off, or 3.5px low under the pool
+   manager's own top:7px). */
+:host {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
 /* Tooltip container */
 .tooltip {
     display: inline-block;
@@ -138,6 +148,13 @@ div.tooltiptext.below{
   min-height:64px;
 }
 
+/* the internal development record: no room beside the glyph (phone width): under it, across the content area;
+   tooltip.component.ts sets the left offset and the width inline. */
+div.tooltiptext.under{
+  top:8px !important;
+  min-height:64px;
+}
+
 /* Arrow */
 div.tooltiptext.above:before{
   bottom: -8px;
@@ -163,14 +180,19 @@ div.tooltiptext.right:before{
   display:none;
 }
 
+/* the internal development record: out of flow at the old 16px line, so the box stays the glyph's 14px and the
+   panel and caret keep their geometry (caret centre = glyph centre). */
 .tooltip-container{
-  position:relative;
+  position:absolute;
+  top:16px;
+  left:0;
+  width:100%;
   filter: drop-shadow(0 4px 4px rgba(0,0,0, 0.5));
   z-index:100;
 }
 
-.tooltip-container.wizard{
-  position:fixed;
-}
+/* the internal development record: `.tooltip-container.wizard { position: fixed }` is gone. It let 13.3's panel
+   escape the Material stepper's overflow; fc-stepper (#408) clips nothing, and fixed left a panel
+   open on a step over the next one (its x unclickable) and behind when the page scrolled. */
 
 

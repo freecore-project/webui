@@ -1,0 +1,185 @@
+// the internal development record: shared card presentation belongs to Dashboard. The host
+// scope reaches its widget views without changing Reports or another consumer
+// of the inherited widget/chart styles.
+:host ::ng-deep {
+  .stats-widget {
+    width: 100% !important;
+    min-width: 0;
+    margin: 0;
+    left: 0;
+    top: 0;
+    height: 100%;
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // the internal development record: keep the grid's shared card size even in sparse rows.
+  // Long content can still grow, and mobile details retain their own height.
+  .stats-widget:not(.xs) {
+    min-height: 400px;
+  }
+
+  .stats-widget > .card-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .stats-widget .fc-card.front {
+    height: auto;
+    flex: 1 1 auto;
+    min-width: 0;
+    border: 1px solid var(--fc-line, var(--line));
+    border-radius: 6px;
+    box-shadow: none;
+    background: var(--bg1);
+  }
+
+  .stats-widget .fc-card-content {
+    padding: 0;
+    width: 100%;
+    height: auto;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  // the internal development record: mat-card brought `.mat-mdc-card-content > :last-child { margin-bottom: 0 }`
+  // along. Specific enough to win regardless of order.
+  .stats-widget .fc-card-content > :last-child {
+    margin-bottom: 0;
+  }
+
+  .stats-widget :is(.fc-card-header, .net-header) {
+    height: 48px;
+    min-height: 48px;
+    max-height: none;
+    gap: 8px;
+    padding: 0 8px 0 16px;
+    background: transparent;
+    border-bottom: 1px solid var(--fc-line, var(--line));
+    border-radius: 6px 6px 0 0;
+  }
+
+  .stats-widget :is(.card-title-text, .net-title) {
+    margin: 0;
+    min-width: 0;
+    color: var(--fg1);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .stats-widget .controls {
+    position: static;
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: 0;
+    margin-left: auto;
+  }
+
+  .stats-widget [hlmBtn][size='icon'] {
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    color: var(--fg2);
+  }
+
+  .stats-widget [hlmBtn][size='icon'] mat-icon {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 16px;
+  }
+
+  .stats-widget [data-dashboard-back] {
+    margin-left: -8px;
+  }
+
+  .stats-widget :is(.cpu-body, .mem-body, .sysinfo-body, .pool-body) {
+    padding: 16px;
+  }
+
+  .stats-widget .cpu-subtitle {
+    margin-top: 0;
+  }
+
+  .stats-widget .mem-hero {
+    margin-top: 0;
+  }
+
+  .stats-widget dl.facts-dl {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .stats-widget dl.facts-dl dt,
+  .stats-widget dl.facts-dl dd {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  // Give the facts an explicit section gap: the global dl margin reset is
+  // more specific than the widgets' original single-class spacing rules.
+  .stats-widget dl.mem-facts,
+  .stats-widget dl.pool-meta {
+    margin-top: 16px;
+  }
+
+  .stats-widget dl.cpu-facts {
+    margin-bottom: 16px;
+  }
+
+  .stats-widget .fact-parts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 12px;
+  }
+
+  .stats-widget .fact-part {
+    width: max-content;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .stats-widget .widget-count {
+    color: var(--fg2);
+    font: inherit;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .stats-widget .spinner-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 32px 0;
+  }
+
+  .stats-widget hlm-spinner {
+    font-size: 24px;
+  }
+
+  .mobile-widget-container .widget.stats-widget.xs {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: auto;
+    min-height: 0;
+  }
+
+
+
+  @media (prefers-reduced-motion: reduce) {
+    .stats-widget :is(.thread-bar i, .cpu-track i, .mem-seg, .pool-bar-fill) {
+      transition: none;
+    }
+
+    .stats-widget .update-running {
+      animation: none;
+    }
+  }
+}

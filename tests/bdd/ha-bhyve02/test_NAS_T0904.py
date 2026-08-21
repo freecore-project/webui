@@ -79,7 +79,7 @@ def press_on_configure_ssh(driver):
 @then('the SSH General Options page should open')
 def the_ssh_general_options_page_should_open(driver):
     """the SSH General Options page should open."""
-    assert wait_on_element(driver, 5, '//h4[contains(.,"General Options")]')
+    assert wait_on_element(driver, 5, '//h2[contains(.,"General Options")]')
 
 
 @then('click the checkbox "Log in as root with password"')

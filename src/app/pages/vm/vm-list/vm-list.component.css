@@ -1,8 +1,2 @@
-.vm-summary, .vm-summary p{
-    color:var(--fg1);
-  }
-  
-  .vm-summary p{
-    text-align:center;
-    margin:16px 0;
-  }
+/* the internal development record: the summary is the shell's notice box (freecore-ui.css .fc-page-notice); nothing is centred */
+.vm-summary strong { color: var(--fg1); font-weight: 500; }

@@ -42,7 +42,7 @@ export const helptext_sharing_smb = {
  locks in several predetermined values for the share Advanced Options, \
  including the <i>Path Suffix</i>. To see which options have been set \
  and/or locked, click <b>Advanced Options</b> after selecting a <i>Purpose</i>. \
- <code>%U</code> is added as the <i>Path Suffix</i> when a Multi-user, \
+ <code>&#37;U</code> is added as the <i>Path Suffix</i> when a Multi-user, \
  Multi-protocol, or Private <i>Purpose</i> is selected. To retain full control \
  over all the Advanced Options, select <i>No presets</i>.'),
 
@@ -81,7 +81,7 @@ export const helptext_sharing_smb = {
  Windows Server version 1903. Additional client-side configuration is \
  required to provide guest access to these clients.<br><br> \
  <i>MacOS clients:</i> Attempting to connect as a user that does not \
- exist in TrueNAS <i>does not</i> automatically connect as the guest \
+ exist in FreeCORE <i>does not</i> automatically connect as the guest \
  account. The <b>Connect As:</b> <i>Guest</i> option must be \
  specifically chosen in MacOS to log in as the guest account. See the \
  <a href="https://support.apple.com/guide/mac-help/connect-mac-shared-computers-servers-mchlp1140/" target="_blank">Apple documentation</a> \

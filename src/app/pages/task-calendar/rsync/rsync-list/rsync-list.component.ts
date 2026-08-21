@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -11,8 +11,10 @@ import { T } from '../../../../translate-marker';
 import globalHelptext from '../../../../helptext/global-helptext';
 
 @Component({
+  standalone: false,
   selector: 'app-rsync-list',
   template: '<entity-table [title]="title" [conf]="this"></entity-table>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [TaskService, JobService],
 })
 export class RsyncListComponent {
@@ -34,7 +36,7 @@ export class RsyncListComponent {
     { name: T('Remote Path'), prop: 'remotepath', hidden: true },
     { name: T('Direction'), prop: 'direction', hidden: true },
     {
-      name: T('Schedule'), prop: 'cron', hidden: true, widget: { icon: 'calendar-range', component: 'TaskScheduleListComponent' },
+      name: T('Schedule'), prop: 'cron', hidden: true, widget: { icon: 'calendar_month', component: 'TaskScheduleListComponent' },
     },
     { name: T('Short Description'), prop: 'desc', hidden: true },
     { name: T('User'), prop: 'user' },

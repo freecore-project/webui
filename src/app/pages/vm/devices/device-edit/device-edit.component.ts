@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FieldConfig } from '../../../common/entity/entity-form/models/field-config.interface';
 import { T } from '../../../../translate-marker';
@@ -15,16 +15,17 @@ import helptext from '../../../../helptext/vm/devices/device-add-edit';
 import { CoreService, CoreEvent } from 'app/core/services/core.service';
 import { DialogService } from '../../../../services/dialog.service';
 @Component({
+  standalone: false,
   selector: 'app-device-edit',
   templateUrl: './device-edit.component.html',
-  styleUrls: ['./device-edit.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrls: ['../../../common/entity/entity-form/entity-form.component.scss'],
 })
 export class DeviceEditComponent implements OnInit {
   protected updateCall = 'vm.device.update';
   protected route_success: string[];
   deviceid: any;
   vmname: any;
-  fieldSets: any;
   isCustActionVisible = false;
   protected ipAddress: any = [];
   selectedType = 'CDROM';
@@ -324,6 +325,15 @@ export class DeviceEditComponent implements OnInit {
     private core: CoreService,
     protected vmService: VmService) {}
 
+  /**
+   * the internal development record: the section heading is the selected type's label (the Type select's own
+   * options), tolerant of the 'CDROM' default before the device query resolves and of a value the
+   * options no longer carry (VNC is pulled for non-UEFI guests).
+   */
+  get selectedTypeLabel(): string {
+    return _.find(this.fieldConfig[0].options, { value: this.selectedType })?.label ?? this.selectedType;
+  }
+
   preInit() {
     // vnc
     this.ws.call('vm.device.vnc_bind_choices').subscribe((res) => {
@@ -378,27 +388,6 @@ export class DeviceEditComponent implements OnInit {
     });
 
     this.core.emit({ name: 'SysInfoRequest' });
-
-    this.fieldSets = [
-      {
-        name: 'FallBack',
-        class: 'fallback',
-        width: '100%',
-        divider: false,
-        fieldConfig: this.fieldConfig,
-        cdromFieldConfig: this.cdromFieldConfig,
-        diskFieldConfig: this.diskFieldConfig,
-        nicFieldConfig: this.nicFieldConfig,
-        rawfileFieldConfig: this.rawfileFieldConfig,
-        pciFieldConfig: this.pciFieldConfig,
-        vncFieldConfig: this.vncFieldConfig,
-      },
-      {
-        name: 'divider',
-        divider: true,
-        width: '100%',
-      },
-    ];
 
     this.formGroup = this.entityFormService.createFormGroup(this.fieldConfig);
     this.cdromFormGroup = this.entityFormService.createFormGroup(this.cdromFieldConfig);

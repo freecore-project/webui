@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { T } from 'app/translate-marker';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Validators } from '@angular/forms';
 
@@ -12,11 +13,15 @@ import { FieldSet } from '../../../../common/entity/entity-form/models/fieldset.
 import { selectedOptionValidator } from 'app/pages/common/entity/entity-form/validators/invalid-option-selected';
 
 @Component({
+  standalone: false,
   selector: 'app-iscsi-portal-add',
   template: '<entity-form [conf]="this"></entity-form>',
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [IscsiService],
 })
 export class PortalFormComponent {
+  readonly settingsTitle = T('Portal');
+
   protected addCall = 'iscsi.portal.create';
   protected queryCall = 'iscsi.portal.query';
   protected editCall = 'iscsi.portal.update';

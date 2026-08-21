@@ -68,8 +68,8 @@ export default {
   encryption_key_format_placeholder: T('Encryption Key Format'),
   encryption_key_format_tooltip: T('Choose between a <i>Hex</i> \(base 16 numeral\) or <i>Passphrase</i> \(alphanumeric\) style encryption key.'),
 
-  encryption_key_location_truenasdb_placeholder: T('Store Encryption key in Sending TrueNAS database'),
-  encryption_key_location_truenasdb_tooltip: T('Set to store the encryption key in the TrueNAS database.'),
+  encryption_key_location_truenasdb_placeholder: T('Store Encryption key in Sending FreeCORE database'),
+  encryption_key_location_truenasdb_tooltip: T('Set to store the encryption key in the FreeCORE database.'),
 
   encryption_key_location_placeholder: T('Encryption Key Location in Target System'),
   encryption_key_location_tooltip: T('Choose a temporary location for the encryption key that will decrypt replicated data.'),
@@ -83,7 +83,7 @@ export default {
   naming_schema_tooltip: T('Pattern of naming custom snapshots to be \
  replicated. Enter the name and \
  <a href="https://www.freebsd.org/cgi/man.cgi?query=strftime" target="_blank">strftime(3)</a> \
- <i>%Y</i>, <i>%m</i>, <i>%d</i>, <i>%H</i>, and <i>%M</i> strings that \
+ <i>&#37;Y</i>, <i>&#37;m</i>, <i>&#37;d</i>, <i>&#37;H</i>, and <i>&#37;M</i> strings that \
  match the snapshots to include in the replication. Separate entries by \
  pressing <code>Enter</code>. The number of snapshots matching the \
  patterns are shown.'),

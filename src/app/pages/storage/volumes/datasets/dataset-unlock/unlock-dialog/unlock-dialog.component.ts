@@ -1,14 +1,17 @@
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
   Component, Output, EventEmitter, OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import helptext from '../../../../../../helptext/storage/volumes/datasets/dataset-unlock';
 import { T } from '../../../../../../translate-marker';
 
 @Component({
+  standalone: false,
   selector: 'app-unlock-dialog',
   templateUrl: './unlock-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./unlock-dialog.component.css'],
 })
 export class UnlockDialogComponent {
